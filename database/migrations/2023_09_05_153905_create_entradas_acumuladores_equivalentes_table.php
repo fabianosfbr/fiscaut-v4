@@ -1,0 +1,38 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('entradas_acumuladores_equivalentes', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->unsignedBigInteger('tenant_id');
+            $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
+            $table->unsignedBigInteger('config_global_id');
+            $table->foreign('config_global_id')->references('id')->on('configuracoes_globais')->onDelete('cascade');
+            $table->integer('etiqueta_entrada');
+            $table->string('descricao');
+            $table->string('valores');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('entradas_acumuladores_equivalentes');
+    }
+};
