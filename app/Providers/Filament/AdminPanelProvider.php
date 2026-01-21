@@ -27,7 +27,16 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->viteTheme('resources/css/filament/admin/theme.css')
+            ->profile(isSimple: false)
+            ->sidebarWidth('w-1/4')
+            ->breadcrumbs(false)
+            ->brandLogo(asset('images/application/logo-no-background.png'))
+            ->brandLogoHeight('65px')
+            ->brandName(config('app.name'))
             ->login()
+            ->passwordReset()
+            ->profile(isSimple: false)
             ->colors([
                 'primary' => Color::Amber,
             ])
