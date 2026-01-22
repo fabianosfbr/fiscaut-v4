@@ -17,7 +17,7 @@ class ListTenants extends ListRecords
     {
         return [
             CreateAction::make()
-            ->label('Criar Novo'),
+            ->label('Adicionar Novo'),
         ];
     }
 }

@@ -12,11 +12,8 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    protected $with = ['currentIssuer'];
+
     protected $fillable = [
         'name',
         'email',
@@ -44,5 +41,18 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function currentIssuer()
+    {
+        return $this->belongsTo(Issuer::class, 'issuer_id');
+    }
+
+    public function issuers()
+    {
+        return $this->belongsToMany(Issuer::class, 'users_issuers_permissions', 'user_id', 'issuer_id')
+            ->using(IssuerUserPermission::class)
+            ->withPivot(['expires_at', 'active'])
+            ->withTimestamps();
     }
 }
