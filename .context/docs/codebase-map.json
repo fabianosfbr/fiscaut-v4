@@ -1,0 +1,564 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-01-23T17:58:25.413Z",
+  "stack": {
+    "primaryLanguage": "javascript",
+    "languages": [
+      "javascript",
+      "php"
+    ],
+    "frameworks": [
+      "laravel"
+    ],
+    "buildTools": [
+      "vite"
+    ],
+    "testFrameworks": [],
+    "packageManager": "npm",
+    "isMonorepo": false,
+    "hasDocker": false,
+    "hasCI": false
+  },
+  "structure": {
+    "totalFiles": 16554,
+    "topDirectories": [
+      {
+        "name": "app",
+        "fileCount": 67
+      },
+      {
+        "name": "artisan",
+        "fileCount": 1
+      },
+      {
+        "name": "bootstrap",
+        "fileCount": 4
+      },
+      {
+        "name": "compose.yaml",
+        "fileCount": 1
+      },
+      {
+        "name": "composer.json",
+        "fileCount": 1
+      },
+      {
+        "name": "composer.lock",
+        "fileCount": 1
+      },
+      {
+        "name": "config",
+        "fileCount": 13
+      },
+      {
+        "name": "database",
+        "fileCount": 328
+      },
+      {
+        "name": "docker",
+        "fileCount": 27
+      },
+      {
+        "name": "lang",
+        "fileCount": 5
+      },
+      {
+        "name": "laradumps.yaml",
+        "fileCount": 1
+      },
+      {
+        "name": "package-lock.json",
+        "fileCount": 1
+      },
+      {
+        "name": "package.json",
+        "fileCount": 1
+      },
+      {
+        "name": "phpunit.xml",
+        "fileCount": 1
+      },
+      {
+        "name": "public",
+        "fileCount": 58
+      },
+      {
+        "name": "README.md",
+        "fileCount": 1
+      },
+      {
+        "name": "resources",
+        "fileCount": 10
+      },
+      {
+        "name": "routes",
+        "fileCount": 2
+      },
+      {
+        "name": "specs",
+        "fileCount": 0
+      },
+      {
+        "name": "storage",
+        "fileCount": 138
+      },
+      {
+        "name": "tests",
+        "fileCount": 3
+      },
+      {
+        "name": "vendor",
+        "fileCount": 15889
+      },
+      {
+        "name": "vite.config.js",
+        "fileCount": 1
+      }
+    ],
+    "languageDistribution": [
+      {
+        "extension": ".php",
+        "count": 13480
+      },
+      {
+        "extension": ".svg",
+        "count": 1332
+      },
+      {
+        "extension": ".json",
+        "count": 402
+      },
+      {
+        "extension": ".md",
+        "count": 398
+      },
+      {
+        "extension": ".css",
+        "count": 240
+      },
+      {
+        "extension": ".js",
+        "count": 151
+      },
+      {
+        "extension": ".stub",
+        "count": 133
+      },
+      {
+        "extension": ".woff2",
+        "count": 40
+      },
+      {
+        "extension": ".rst",
+        "count": 37
+      },
+      {
+        "extension": ".xsd",
+        "count": 24
+      }
+    ]
+  },
+  "architecture": {
+    "layers": [
+      {
+        "name": "Models",
+        "description": "Data structures and domain objects",
+        "directories": [
+          "public/js/filament/schemas",
+          "public/js/filament/schemas/components"
+        ],
+        "symbolCount": 2,
+        "dependsOn": []
+      },
+      {
+        "name": "Components",
+        "description": "UI components and views",
+        "directories": [
+          "public/js/filament/widgets/components",
+          "public/js/filament/forms/components",
+          "public/js/filament/tables/components/columns",
+          "public/js/filament/widgets/components/stats-overview/stat"
+        ],
+        "symbolCount": 124,
+        "dependsOn": []
+      }
+    ],
+    "patterns": [],
+    "entryPoints": [
+      "resources/js/app.js",
+      "public/js/filament/filament/app.js"
+    ]
+  },
+  "symbols": {
+    "classes": [],
+    "interfaces": [],
+    "functions": [
+      {
+        "name": "_",
+        "kind": "function",
+        "file": "public/js/filament/tables/tables.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "_e",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "_t",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "$",
+        "kind": "function",
+        "file": "public/js/filament/tables/tables.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "$",
+        "kind": "function",
+        "file": "public/js/filament/filament/app.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "$",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "$e",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "$t",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "a",
+        "kind": "function",
+        "file": "public/js/filament/tables/tables.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "a",
+        "kind": "function",
+        "file": "public/js/filament/tables/components/columns/toggle.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "a",
+        "kind": "function",
+        "file": "public/js/filament/tables/components/columns/text-input.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "a",
+        "kind": "function",
+        "file": "public/js/filament/tables/components/columns/checkbox.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "A",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "ae",
+        "kind": "function",
+        "file": "public/js/filament/tables/tables.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "ae",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "Ae",
+        "kind": "function",
+        "file": "public/js/filament/tables/tables.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "Ae",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "ar",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "at",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "At",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "b",
+        "kind": "function",
+        "file": "public/js/filament/tables/tables.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "B",
+        "kind": "function",
+        "file": "public/js/filament/filament/app.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "be",
+        "kind": "function",
+        "file": "public/js/filament/tables/tables.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "be",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "Be",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "bt",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "Bt",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "c",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/checkbox-list.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "C",
+        "kind": "function",
+        "file": "public/js/filament/tables/tables.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "C",
+        "kind": "function",
+        "file": "public/js/filament/filament/app.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "ce",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "Ce",
+        "kind": "function",
+        "file": "public/js/filament/tables/tables.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "Ce",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "ct",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "Ct",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "d",
+        "kind": "function",
+        "file": "public/js/filament/filament/app.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "D",
+        "kind": "function",
+        "file": "public/js/filament/tables/tables.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "de",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "De",
+        "kind": "function",
+        "file": "public/js/filament/tables/tables.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "De",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "Dt",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "E",
+        "kind": "function",
+        "file": "public/js/filament/tables/tables.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "E",
+        "kind": "function",
+        "file": "public/js/filament/filament/app.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "E",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "ee",
+        "kind": "function",
+        "file": "public/js/filament/tables/tables.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "ee",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "Ee",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "er",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "et",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      },
+      {
+        "name": "Et",
+        "kind": "function",
+        "file": "public/js/filament/forms/components/slider.js",
+        "line": 1,
+        "exported": false
+      }
+    ],
+    "types": [],
+    "enums": []
+  },
+  "publicAPI": [],
+  "dependencies": {
+    "mostImported": [
+      {
+        "file": "/root/projetos/fiscaut-v4.1/resources/js/bootstrap.js",
+        "importedBy": 1
+      }
+    ]
+  },
+  "stats": {
+    "totalSymbols": 219,
+    "exportedSymbols": 0,
+    "analysisTimeMs": 571
+  }
+}
