@@ -22,6 +22,20 @@ new class extends Component implements HasSchemas
         ]);
     }
 
+    public function render()
+    {
+        $currentRoute = request()->route()?->getName();
+        $hiddenRoutes = config('issuer-switcher.exclude_routes', []);
+
+        if (in_array($currentRoute, $hiddenRoutes)) {
+            return <<<'BLADE'
+                <div></div>
+            BLADE;
+        }
+
+        return view('components.⚡issuer-switcher.issuer-switcher');
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema
