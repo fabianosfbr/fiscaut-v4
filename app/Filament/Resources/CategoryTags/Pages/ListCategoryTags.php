@@ -16,8 +16,7 @@ class ListCategoryTags extends ListRecords
     {
         return [
             CreateAction::make()
-                ->label('Cadastrar Nova Etiqueta')
-                ->icon('heroicon-o-plus'),
+                ->label('Adicionar Nova'),
             GerarEtiquetaAction::make(),
             CopiarEtiquetaAction::make(),
         ];
