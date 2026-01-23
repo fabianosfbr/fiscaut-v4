@@ -93,3 +93,15 @@ if (! function_exists('sanitize')) {
 }
 
 
+if (! function_exists('canManageIssuers')) {
+    function canManageIssuers(): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // return $user->hasRole('super-admin', 'admin');
+        return true;
+    }
+}
+
+

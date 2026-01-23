@@ -58,7 +58,7 @@ class ConfiguracaoGeral extends Page implements HasSchemas
                             ]),
                         Tab::make('Entrada')
                             ->schema([
-                                Livewire::make(CreatePost::class)
+                                // Livewire::make('issuer-switcher')
 
                             ]),
 

@@ -225,7 +225,7 @@ class IssuerForm
                                                 Section::make('Atividades Secundárias')
                                                     ->visible(function($record) {
                                                         
-                                                        return count($record->side_activities) > 0;
+                                                        return count($record?->side_activities??[]) > 0;
                                                     })
                                                     ->schema([
                                                         Repeater::make('side_activities')
