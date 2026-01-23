@@ -10,14 +10,13 @@ class ListTenants extends ListRecords
 {
     protected static string $resource = TenantResource::class;
 
-
     protected static ?string $title = 'Assinantes';
 
     protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()
-            ->label('Adicionar Novo'),
+                ->label('Adicionar Novo'),
         ];
     }
 }

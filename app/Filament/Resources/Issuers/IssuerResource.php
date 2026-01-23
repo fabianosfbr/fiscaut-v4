@@ -2,19 +2,17 @@
 
 namespace App\Filament\Resources\Issuers;
 
-use UnitEnum;
-use BackedEnum;
-use App\Models\Issuer;
-use Filament\Tables\Table;
-use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
-use Filament\Support\Icons\Heroicon;
+use App\Filament\Resources\Issuers\Pages\CreateIssuer;
 use App\Filament\Resources\Issuers\Pages\EditIssuer;
 use App\Filament\Resources\Issuers\Pages\ListIssuers;
-use App\Filament\Resources\Issuers\Pages\CreateIssuer;
+use App\Filament\Resources\Issuers\RelationManagers\UsersRelationManager;
 use App\Filament\Resources\Issuers\Schemas\IssuerForm;
 use App\Filament\Resources\Issuers\Tables\IssuersTable;
-use App\Filament\Resources\Issuers\RelationManagers\UsersRelationManager;
+use App\Models\Issuer;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Tables\Table;
+use UnitEnum;
 
 class IssuerResource extends Resource
 {

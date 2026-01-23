@@ -13,7 +13,6 @@ enum ConfiguracoesGeraisEnum: string implements HasLabel
     case IsNfeTomaCreditoIcms = 'isNfeTomaCreditoIcms';
     case VerificarUfEmitenteDestinatario = 'verificar_uf_emitente_destinatario';
 
-
     public function getLabel(): string
     {
         return match ($this) {

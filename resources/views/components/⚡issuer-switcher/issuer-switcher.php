@@ -1,13 +1,12 @@
 <?php
 
-use Livewire\Component;
-use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
-use Filament\Schemas\Contracts\HasSchemas;
-use Filament\Schemas\Concerns\InteractsWithSchemas;
-use Illuminate\Support\Facades\Auth;
 use Filament\Notifications\Notification;
-
+use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 new class extends Component implements HasSchemas
 {
@@ -59,7 +58,7 @@ new class extends Component implements HasSchemas
                         if ($user && $state) {
                             // Atualiza a empresa atual do usuário
                             $user->update([
-                                'issuer_id' => $state
+                                'issuer_id' => $state,
                             ]);
 
                             // Feedback visual
@@ -72,7 +71,7 @@ new class extends Component implements HasSchemas
                             // Recarrega a página para aplicar o contexto
                             return redirect(request()->header('Referer'));
                         }
-                    })
+                    }),
             ]);
     }
 

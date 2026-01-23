@@ -8,7 +8,6 @@ class Tenant extends Model
 {
     protected $guarded = ['id'];
 
-
     public function issuers()
     {
         return $this->hasMany(Issuer::class);

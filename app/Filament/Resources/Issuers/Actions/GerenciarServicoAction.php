@@ -84,7 +84,7 @@ class GerenciarServicoAction
             ->fillForm(function (Model $record): array {
                 return [
                     'servicos' => collect(self::getServicosConfig())
-                        ->filter(fn($config, $key) => $record->{$key})
+                        ->filter(fn ($config, $key) => $record->{$key})
                         ->keys()
                         ->toArray(),
                 ];

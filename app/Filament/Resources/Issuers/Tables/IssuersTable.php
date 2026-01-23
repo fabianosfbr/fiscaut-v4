@@ -2,22 +2,20 @@
 
 namespace App\Filament\Resources\Issuers\Tables;
 
-use Filament\Tables\Table;
-use Illuminate\Support\Carbon;
-use Filament\Actions\EditAction;
+use App\Filament\Resources\Issuers\Actions\DownloadCertificadoAction;
+use App\Filament\Resources\Issuers\Actions\GerenciarServicoAction;
 use Filament\Actions\ActionGroup;
-use Illuminate\Support\HtmlString;
-use Filament\Tables\Filters\Filter;
-use Illuminate\Support\Facades\Auth;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\Issuers\Actions\GerenciarServicoAction;
-use App\Filament\Resources\Issuers\Actions\DownloadCertificadoAction;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
 
 class IssuersTable
 {
@@ -100,11 +98,11 @@ class IssuersTable
                     if ($diasRestantes < 0) {
                         $diasVencidos = round(abs($diasRestantes));
 
-                        return "❌ Vencido há {$diasVencidos} " . ($diasVencidos === 1 ? 'dia' : 'dias');
+                        return "❌ Vencido há {$diasVencidos} ".($diasVencidos === 1 ? 'dia' : 'dias');
                     } elseif ($diasRestantes <= 30) {
-                        return "⚠️ Vence em {$diasRestantes} " . ($diasRestantes === 1 ? 'dia' : 'dias');
+                        return "⚠️ Vence em {$diasRestantes} ".($diasRestantes === 1 ? 'dia' : 'dias');
                     } else {
-                        return '✅ Válido até ' . $dataVencimento->format('d/m/Y');
+                        return '✅ Válido até '.$dataVencimento->format('d/m/Y');
                     }
                 })
                 ->color(function ($state, Model $record) {

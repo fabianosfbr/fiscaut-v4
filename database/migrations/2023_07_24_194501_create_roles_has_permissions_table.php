@@ -18,11 +18,11 @@ return new class extends Migration
             $table->unsignedBigInteger('role_id');
             $table->unsignedBigInteger('permission_id');
 
-            //FOREIGN KEY
+            // FOREIGN KEY
             $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
             $table->foreign('permission_id')->references('id')->on('permissions')->onDelete('cascade');
 
-            //PRIMARY KEYS
+            // PRIMARY KEYS
             $table->primary(['role_id', 'permission_id']);
         });
     }

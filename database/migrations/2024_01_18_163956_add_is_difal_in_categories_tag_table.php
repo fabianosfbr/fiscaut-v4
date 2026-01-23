@@ -26,4 +26,4 @@ return new class extends Migration
         });
     }
 };
-//2024_01_18_163956_add_is_devolucao_in_categories_tag_table
+// 2024_01_18_163956_add_is_devolucao_in_categories_tag_table

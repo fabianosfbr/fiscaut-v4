@@ -8,7 +8,6 @@ class Issuer extends Model
 {
     protected $guarded = ['id'];
 
-
     protected $casts = [
         'side_activities' => 'array',
         'main_activity' => 'array',
@@ -38,7 +37,6 @@ class Issuer extends Model
     {
         return $this->belongsTo(Tenant::class);
     }
-
 
     public function users()
     {

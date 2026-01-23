@@ -85,11 +85,11 @@ class GeneralSetting extends Model
         $tags = [self::CACHE_PREFIX];
 
         if ($tenantId) {
-            $tags[] = self::CACHE_PREFIX . "_tenant_{$tenantId}";
+            $tags[] = self::CACHE_PREFIX."_tenant_{$tenantId}";
         }
 
         if ($issuerId) {
-            $tags[] = self::CACHE_PREFIX . "_issuer_{$issuerId}";
+            $tags[] = self::CACHE_PREFIX."_issuer_{$issuerId}";
         }
 
         return $tags;
@@ -105,7 +105,7 @@ class GeneralSetting extends Model
             $tenantId = Auth::user()->tenant_id;
         }
 
-        $cacheKey = self::getCacheKey($name, $issuerId, $tenantId) . ":{$key}";
+        $cacheKey = self::getCacheKey($name, $issuerId, $tenantId).":{$key}";
 
         try {
             return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($name, $key, $default, $issuerId, $tenantId) {
@@ -261,7 +261,7 @@ class GeneralSetting extends Model
     public static function clearTenantCache(int $tenantId): void
     {
         try {
-            $tag = self::CACHE_PREFIX . "_tenant_{$tenantId}";
+            $tag = self::CACHE_PREFIX."_tenant_{$tenantId}";
             Cache::tags([$tag])->flush();
 
             Log::info('GeneralSetting cache cleared for tenant', ['tenant_id' => $tenantId]);
@@ -279,7 +279,7 @@ class GeneralSetting extends Model
     public static function clearIssuerCache(int $issuerId): void
     {
         try {
-            $tag = self::CACHE_PREFIX . "_issuer_{$issuerId}";
+            $tag = self::CACHE_PREFIX."_issuer_{$issuerId}";
             Cache::tags([$tag])->flush();
 
             Log::info('GeneralSetting cache cleared for issuer', ['issuer_id' => $issuerId]);
@@ -330,10 +330,10 @@ class GeneralSetting extends Model
         $cacheStatus = 'working';
 
         try {
-            $lastCleared = Cache::get(self::CACHE_PREFIX . ':last_cleared', 'Never');
+            $lastCleared = Cache::get(self::CACHE_PREFIX.':last_cleared', 'Never');
         } catch (\Exception $e) {
             $cacheStatus = 'error';
-            $lastCleared = 'Cache error: ' . $e->getMessage();
+            $lastCleared = 'Cache error: '.$e->getMessage();
         }
 
         return [

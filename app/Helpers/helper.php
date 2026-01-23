@@ -92,7 +92,6 @@ if (! function_exists('sanitize')) {
     }
 }
 
-
 if (! function_exists('canManageIssuers')) {
     function canManageIssuers(): bool
     {
@@ -103,5 +102,3 @@ if (! function_exists('canManageIssuers')) {
         return true;
     }
 }
-
-

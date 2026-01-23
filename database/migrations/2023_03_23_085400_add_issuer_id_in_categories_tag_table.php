@@ -13,15 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        //Create new foreignkey
+        // Create new foreignkey
         Schema::table('categories_tag', function (Blueprint $table) {
             $table->unsignedBigInteger('issuer_id')->index()->nullable();
-            //$table->foreign('issuer_id')->references('id')->on('issuers')->onDelete('restrict');
+            // $table->foreign('issuer_id')->references('id')->on('issuers')->onDelete('restrict');
         });
 
         Schema::table('tagging_tags', function (Blueprint $table) {
             $table->unsignedBigInteger('issuer_id')->index()->nullable();
-            //$table->foreign('issuer_id')->references('id')->on('issuers')->onDelete('restrict');
+            // $table->foreign('issuer_id')->references('id')->on('issuers')->onDelete('restrict');
         });
 
         /*         //Drop old foreignkey

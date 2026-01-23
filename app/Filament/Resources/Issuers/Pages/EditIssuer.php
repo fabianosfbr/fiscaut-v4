@@ -39,15 +39,13 @@ class EditIssuer extends EditRecord
             $data['senha_certificado'] = Crypt::encrypt($data['senha_certificado']);
         } else {
 
-             unset($data['senha_certificado']);
-             unset($data['certificado_content']);
+            unset($data['senha_certificado']);
+            unset($data['certificado_content']);
         }
 
         // Remover campos temporários que não devem ser salvos na tabela
         unset($data['certificado_verificado']);
         unset($data['data_inicio_certificado']);
-
-
 
         $data['cnpj'] = sanitize($data['cnpj']);
 
@@ -70,7 +68,7 @@ class EditIssuer extends EditRecord
         if (! empty($cnpjDetails)) {
             $data['data_abertura'] = $cnpjDetails['founded'] ?? null;
             $data['email'] = $cnpjDetails['emails'][0]['address'] ?? null;
-            $data['telefone'] = $cnpjDetails['phones'][0]['area'] . $cnpjDetails['phones'][0]['number'] ?? null;
+            $data['telefone'] = $cnpjDetails['phones'][0]['area'].$cnpjDetails['phones'][0]['number'] ?? null;
             $data['logradouro'] = $cnpjDetails['address']['street'] ?? null;
             $data['numero'] = $cnpjDetails['address']['number'] ?? null;
             $data['complemento'] = $cnpjDetails['address']['details'] ?? null;

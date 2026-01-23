@@ -2,31 +2,31 @@
 
 namespace App\Filament\Resources\Issuers\Schemas;
 
-use Exception;
-use App\Models\Municipio;
-use Filament\Actions\Action;
-use Filament\Schemas\Schema;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\HtmlString;
-use App\Services\CertificateService;
-use Filament\Forms\Components\Radio;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Components\Tabs;
-use Illuminate\Support\Facades\Cache;
+use App\Enums\AtividadesEmpresariaisEnum;
 use App\Enums\RegimesEmpresariaisEnum;
+use App\Models\Municipio;
+use App\Services\CertificateService;
+use Exception;
+use Filament\Actions\Action;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Repeater\TableColumn;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Section;
-use App\Enums\AtividadesEmpresariaisEnum;
-use Filament\Forms\Components\FileUpload;
+use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-use Filament\Forms\Components\Repeater\TableColumn;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\HtmlString;
 
 class IssuerForm
 {
@@ -80,7 +80,7 @@ class IssuerForm
 
                                                     $municipios = Municipio::get()
                                                         ->map(function ($municipio) {
-                                                            $municipio->nome = $municipio->nome . ' | ' . $municipio->sigla;
+                                                            $municipio->nome = $municipio->nome.' | '.$municipio->sigla;
 
                                                             return $municipio;
                                                         })
@@ -223,9 +223,9 @@ class IssuerForm
                                                     ->collapsible(),
 
                                                 Section::make('Atividades Secundárias')
-                                                    ->visible(function($record) {
-                                                        
-                                                        return count($record?->side_activities??[]) > 0;
+                                                    ->visible(function ($record) {
+
+                                                        return count($record?->side_activities ?? []) > 0;
                                                     })
                                                     ->schema([
                                                         Repeater::make('side_activities')
@@ -252,7 +252,7 @@ class IssuerForm
                                                             ->columns(6)
                                                             ->collapsible()
                                                             ->itemLabel(
-                                                                fn(array $state): ?string => isset($state['id'], $state['text'])
+                                                                fn (array $state): ?string => isset($state['id'], $state['text'])
                                                                     ? "#{$state['id']} - {$state['text']}"
                                                                     : null
                                                             ),
@@ -295,19 +295,19 @@ class IssuerForm
                                                         $diasVencidos = abs($diasRestantes);
                                                         $corSituacao = '#dc2626';
                                                         $iconeSituacao = '❌';
-                                                        $textoSituacao = "Vencido há {$diasVencidos} " . ($diasVencidos === 1 ? 'dia' : 'dias');
+                                                        $textoSituacao = "Vencido há {$diasVencidos} ".($diasVencidos === 1 ? 'dia' : 'dias');
                                                         $corBorda = '#dc2626';
                                                         $corFundo = '#fef2f2';
                                                     } elseif ($diasRestantes <= 30) {
                                                         $corSituacao = '#f59e0b';
                                                         $iconeSituacao = '⚠️';
-                                                        $textoSituacao = "Vence em {$diasRestantes} " . ($diasRestantes === 1 ? 'dia' : 'dias');
+                                                        $textoSituacao = "Vence em {$diasRestantes} ".($diasRestantes === 1 ? 'dia' : 'dias');
                                                         $corBorda = '#f59e0b';
                                                         $corFundo = '#fffbeb';
                                                     } else {
                                                         $corSituacao = '#059669';
                                                         $iconeSituacao = '✅';
-                                                        $textoSituacao = "Válido por mais {$diasRestantes} " . ($diasRestantes === 1 ? 'dia' : 'dias');
+                                                        $textoSituacao = "Válido por mais {$diasRestantes} ".($diasRestantes === 1 ? 'dia' : 'dias');
                                                         $corBorda = '#059669';
                                                         $corFundo = '#f0fdf4';
                                                     }
@@ -340,7 +340,7 @@ class IssuerForm
                                             
                                             <div style='background-color: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;'>
                                                 <label style='display: block; font-size: 12px; color: #64748b; font-weight: 500; margin-bottom: 4px;'>EMPRESA VINCULADA</label>
-                                                <div style='font-size: 14px; color: #1e293b; font-weight: 500;'>" . htmlspecialchars($razaoSocial ?? 'Não informado') . "</div>
+                                                <div style='font-size: 14px; color: #1e293b; font-weight: 500;'>".htmlspecialchars($razaoSocial ?? 'Não informado')."</div>
                                             </div>
                                             
                                             <div style='margin-top: 16px; padding: 12px; background-color: rgba(255,255,255,0.7); border-radius: 8px; border: 1px dashed {$corBorda};'>
@@ -353,12 +353,12 @@ class IssuerForm
                                                 } catch (Exception $e) {
                                                     return new HtmlString('
                                         <div style="padding: 16px; border: 1px solid #f87171; background-color: #fef2f2; color: #dc2626; border-radius: 8px; margin-bottom: 16px;">
-                                            <strong>❌ Erro ao processar certificado atual:</strong> ' . htmlspecialchars($e->getMessage()) . '
+                                            <strong>❌ Erro ao processar certificado atual:</strong> '.htmlspecialchars($e->getMessage()).'
                                         </div>
                                     ');
                                                 }
                                             })
-                                            ->visible(fn(Get $get): bool => filled($get('validade_certificado')))
+                                            ->visible(fn (Get $get): bool => filled($get('validade_certificado')))
                                             ->columnSpanFull(),
 
                                         TextEntry::make('certificado_info_upload')
@@ -421,8 +421,8 @@ class IssuerForm
                                             ->label('Senha do Certificado')
                                             ->password()
                                             ->revealable()
-                                            ->required(fn(Get $get): bool => filled($get('path_certificado')))
-                                            ->visible(fn(Get $get): bool => filled($get('path_certificado')))
+                                            ->required(fn (Get $get): bool => filled($get('path_certificado')))
+                                            ->visible(fn (Get $get): bool => filled($get('path_certificado')))
                                             ->helperText('Digite a senha e clique no ícone de validação para confirmar.')
                                             ->prefixAction(
                                                 Action::make('validar_certificado')
@@ -432,7 +432,6 @@ class IssuerForm
                                                     })
                                                     ->tooltip('Validar senha e extrair dados')
                                                     ->action(function (Get $get, Set $set) {
-
 
                                                         $password = $get('senha_certificado');
                                                         $certificadoPathArray = $get('path_certificado');
@@ -478,7 +477,6 @@ class IssuerForm
                                                                 throw new Exception('Arquivo do certificado não encontrado ou inválido.');
                                                             }
 
-
                                                             // Usar o service para validar e extrair informações
                                                             $certificateService = new CertificateService;
                                                             try {
@@ -492,7 +490,6 @@ class IssuerForm
 
                                                                 return;
                                                             }
-
 
                                                             // Atualizar campos do formulário com os dados extraídos
                                                             $set('razao_social', $certificateData['razao_social']);
@@ -569,15 +566,15 @@ class IssuerForm
                                                         $diasVencidos = abs($diasRestantes);
                                                         $corSituacao = '#dc2626';
                                                         $iconeSituacao = '❌';
-                                                        $textoSituacao = "Vencido há {$diasVencidos} " . ($diasVencidos === 1 ? 'dia' : 'dias');
+                                                        $textoSituacao = "Vencido há {$diasVencidos} ".($diasVencidos === 1 ? 'dia' : 'dias');
                                                     } elseif ($diasRestantes <= 30) {
                                                         $corSituacao = '#f59e0b';
                                                         $iconeSituacao = '⚠️';
-                                                        $textoSituacao = "Vence em {$diasRestantes} " . ($diasRestantes === 1 ? 'dia' : 'dias');
+                                                        $textoSituacao = "Vence em {$diasRestantes} ".($diasRestantes === 1 ? 'dia' : 'dias');
                                                     } else {
                                                         $corSituacao = '#059669';
                                                         $iconeSituacao = '✅';
-                                                        $textoSituacao = "Válido por mais {$diasRestantes} " . ($diasRestantes === 1 ? 'dia' : 'dias');
+                                                        $textoSituacao = "Válido por mais {$diasRestantes} ".($diasRestantes === 1 ? 'dia' : 'dias');
                                                     }
 
                                                     return new HtmlString("
@@ -612,7 +609,7 @@ class IssuerForm
                                             
                                             <div style='background-color: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;'>
                                                 <label style='display: block; font-size: 12px; color: #64748b; font-weight: 500; margin-bottom: 4px;'>RAZÃO SOCIAL</label>
-                                                <div style='font-size: 14px; color: #1e293b; font-weight: 500;'>" . htmlspecialchars($razaoSocialCertificado) . '</div>
+                                                <div style='font-size: 14px; color: #1e293b; font-weight: 500;'>".htmlspecialchars($razaoSocialCertificado).'</div>
                                             </div>
                                         </div>
                                     ');
@@ -625,12 +622,12 @@ class IssuerForm
                                                 } catch (Exception $e) {
                                                     return new HtmlString('
                                         <div style="padding: 16px; border: 1px solid #f87171; background-color: #fef2f2; color: #dc2626; border-radius: 8px;">
-                                            <strong>❌ Erro inesperado:</strong> ' . htmlspecialchars($e->getMessage()) . '
+                                            <strong>❌ Erro inesperado:</strong> '.htmlspecialchars($e->getMessage()).'
                                         </div>
                                     ');
                                                 }
                                             })
-                                            ->visible(fn(Get $get): bool => filled($get('path_certificado')))
+                                            ->visible(fn (Get $get): bool => filled($get('path_certificado')))
                                             ->columnSpanFull(),
 
                                         // Campos ocultos para armazenar dados do certificado

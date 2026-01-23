@@ -20,7 +20,6 @@ class DownloadCertificadoAction
                 $certificadoContent = Crypt::decrypt($record->certificado_content);
                 $senhaArquivo = Crypt::decrypt($record->senha_certificado);
                 $nomeArquivo = $record->cnpj.' - '.$senhaArquivo.'.pfx';
-           
 
                 return response()->streamDownload(function () use ($certificadoContent) {
                     echo $certificadoContent;

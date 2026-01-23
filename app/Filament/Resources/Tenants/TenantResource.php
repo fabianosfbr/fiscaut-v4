@@ -8,11 +8,10 @@ use App\Filament\Resources\Tenants\Pages\ListTenants;
 use App\Filament\Resources\Tenants\Schemas\TenantForm;
 use App\Filament\Resources\Tenants\Tables\TenantsTable;
 use App\Models\Tenant;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use UnitEnum;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class TenantResource extends Resource
 {
@@ -22,7 +21,7 @@ class TenantResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Assinantes';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Configurações';
+    protected static string|UnitEnum|null $navigationGroup = 'Configurações';
 
     public static function form(Schema $schema): Schema
     {

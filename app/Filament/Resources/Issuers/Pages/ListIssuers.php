@@ -14,7 +14,7 @@ class ListIssuers extends ListRecords
     {
         return [
             CreateAction::make()
-            ->label('Adicionar Nova'),
+                ->label('Adicionar Nova'),
         ];
     }
 }

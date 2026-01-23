@@ -2,25 +2,24 @@
 
 namespace App\Filament\Resources\Issuers\Pages;
 
-use Exception;
-use App\Models\User;
-
+use App\Filament\Resources\Issuers\IssuerResource;
 use App\Models\Issuer;
-use App\Services\CnpjJaService;
-use Illuminate\Support\Facades\DB;
 use App\Models\IssuerUserPermission;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
+use App\Services\CnpjJaService;
+use Exception;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
-use App\Filament\Resources\Issuers\IssuerResource;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 
 class CreateIssuer extends CreateRecord
 {
     protected static string $resource = IssuerResource::class;
 
-        protected function mutateFormDataBeforeCreate(array $data): array
+    protected function mutateFormDataBeforeCreate(array $data): array
     {
         $user = Auth::user();
 
@@ -90,7 +89,7 @@ class CreateIssuer extends CreateRecord
             IssuerUserPermission::create([
                 'user_id' => $user->id,
                 'issuer_id' => $issuer->id,
-                'active' => true,   
+                'active' => true,
                 'expires_at' => null, // Sem data de expiração
             ]);
 

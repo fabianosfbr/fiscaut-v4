@@ -15,16 +15,16 @@ return new class extends Migration
             // Campos para cálculo do Fator R
             $table->decimal('folha_salarios_12_meses', 15, 2)->nullable()->after('faturamento_periodo')
                 ->comment('Folha de salários dos últimos 12 meses incluindo encargos');
-            
+
             $table->decimal('fator_r', 5, 4)->nullable()->after('folha_salarios_12_meses')
                 ->comment('Fator R calculado (folha/receita bruta)');
-            
+
             $table->boolean('sujeito_fator_r')->default(false)->after('fator_r')
                 ->comment('Indica se o CNAE está sujeito ao Fator R');
-            
+
             $table->string('anexo_fator_r', 10)->nullable()->after('sujeito_fator_r')
                 ->comment('Anexo resultante do cálculo do Fator R (III ou V)');
-            
+
             // Detalhamento da folha de pagamento (JSON)
             $table->json('detalhamento_folha')->nullable()->after('anexo_fator_r')
                 ->comment('Detalhamento dos componentes da folha de pagamento');
@@ -42,7 +42,7 @@ return new class extends Migration
                 'fator_r',
                 'sujeito_fator_r',
                 'anexo_fator_r',
-                'detalhamento_folha'
+                'detalhamento_folha',
             ]);
         });
     }

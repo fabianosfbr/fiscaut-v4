@@ -237,11 +237,6 @@ class CertificateService
     /**
      * Tenta importar o certificado usando CLI OpenSSL com provider legacy
      * Necessário para certificados com algoritmos antigos em ambientes com OpenSSL 3+
-     *
-     * @param string $pfxContent
-     * @param string $password
-     * @param array $certInfo
-     * @return bool
      */
     private function tryLegacyOpenSslImport(string $pfxContent, string $password, array &$certInfo): bool
     {
@@ -254,6 +249,7 @@ class CertificateService
         $tempPass = tempnam(sys_get_temp_dir(), 'pass');
         if ($tempPass === false) {
             unlink($tempPfx);
+
             return false;
         }
         file_put_contents($tempPass, $password);
@@ -269,7 +265,7 @@ class CertificateService
 
         $output = [];
         $returnVar = 0;
-        exec($command . ' 2>&1', $output, $returnVar);
+        exec($command.' 2>&1', $output, $returnVar);
 
         // Cleanup
         @unlink($tempPfx);
