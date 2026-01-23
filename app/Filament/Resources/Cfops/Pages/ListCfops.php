@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\Acumuladores\Pages;
+namespace App\Filament\Resources\Cfops\Pages;
 
-use App\Filament\Resources\Acumuladores\AcumuladoresResource;
+use App\Filament\Resources\Cfops\CfopResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
-class ListAcumuladores extends ListRecords
+class ListCfops extends ListRecords
 {
-    protected static string $resource = AcumuladoresResource::class;
+    protected static string $resource = CfopResource::class;
 
     protected function getHeaderActions(): array
     {
