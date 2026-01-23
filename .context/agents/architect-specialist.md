@@ -3,6 +3,11 @@
 ## Mission
 The Architect Specialist designs the overall system architecture, ensures scalability, and enforces technical standards. Engage this agent when planning new modules, refactoring core systems, or making high-level technology decisions.
 
+## Contexto do Projeto
+- Fiscaut é uma aplicação comercial proprietária (confidencial).
+- Stack: Laravel v12, FilamentPHP v5 e Livewire v4.
+- Decisões de arquitetura devem considerar sigilo, licenciamento e minimização de exposição de dados.
+
 ## Responsibilities
 - Design database schemas and relationships.
 - Define module boundaries and dependencies.

@@ -3,6 +3,10 @@
 ## Tooling & Productivity Guide
 This guide outlines the tools and scripts that streamline development for Fiscaut v4.1.
 
+## Contexto do Projeto
+- **Produto**: aplicação comercial proprietária.
+- **Stack**: Laravel v12, FilamentPHP v5 e Livewire v4.
+
 ## Required Tooling
 - **Laravel Sail**: A light-weight command-line interface for interacting with Laravel's default Docker development environment.
 - **Composer**: Dependency Manager for PHP.

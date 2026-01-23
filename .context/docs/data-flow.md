@@ -3,6 +3,9 @@
 ## Data Flow & Integrations
 Data in Fiscaut v4.1 primarily flows from user inputs in the Filament Admin Panel to the MySQL database via Eloquent Models. External integrations are minimal in the core structure but may exist for specific fiscal services.
 
+## Nota de Confidencialidade
+Fiscaut é um produto comercial proprietário. Documente integrações e fluxos sem expor segredos (tokens, chaves, URLs internas) ou dados sensíveis.
+
 ## Module Dependencies
 - **app/Filament/** → Depends on `app/Models` and `Filament` vendor packages.
 - **app/Http/** → Depends on `app/Models`.

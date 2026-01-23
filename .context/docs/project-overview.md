@@ -3,6 +3,11 @@
 ## Project Overview
 Fiscaut v4.1 is a robust fiscal automation and management system built on the Laravel framework. It is designed to streamline tax compliance and fiscal operations for businesses, providing a centralized platform for managing fiscal documents and obligations. The system leverages the power of Filament for a modern, responsive administrative interface.
 
+## Status do Produto (Proprietário)
+- **Aplicação comercial proprietária**: este repositório não é open-source.
+- **Uso e distribuição**: somente por pessoas e ambientes autorizados/licenciados.
+- **Sigilo**: evite copiar/colar código e detalhes de implementação para fora de canais aprovados.
+
 ## Codebase Reference
 > **Detailed Analysis**: For complete symbol counts, architecture layers, and dependency graphs, see [`codebase-map.json`](./codebase-map.json).
 

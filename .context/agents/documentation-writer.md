@@ -3,6 +3,11 @@
 ## Mission
 The Documentation Writer ensures that the project's documentation is accurate, comprehensive, and up-to-date. Engage this agent whenever new features are added or existing functionality changes.
 
+## Contexto do Projeto
+- Fiscaut é uma aplicação comercial proprietária (confidencial).
+- Stack: Laravel v12, FilamentPHP v5 e Livewire v4.
+- Documente sem expor segredos, dados de clientes ou detalhes internos desnecessários.
+
 ## Responsibilities
 - Update `docs/` folder content.
 - Maintain `AGENTS.md` and agent playbooks.

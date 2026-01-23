@@ -4,6 +4,11 @@ On-demand expertise for AI agents. Skills are task-specific procedures that get 
 
 > Project: fiscaut-v4.1
 
+## Contexto do Projeto
+- **Produto**: Fiscaut é uma aplicação comercial proprietária (confidencial).
+- **Stack**: Laravel v12, FilamentPHP v5 e Livewire v4.
+- **Regra prática**: ao aplicar qualquer skill, sanitize logs/dados e nunca copie segredos para prompts externos.
+
 ## How Skills Work
 
 1. **Discovery**: AI agents discover available skills

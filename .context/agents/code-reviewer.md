@@ -3,6 +3,11 @@
 ## Mission
 The Code Reviewer reviews code changes for quality, style, security, and best practices. Engage this agent before merging any Pull Request or applying significant changes.
 
+## Contexto do Projeto
+- Fiscaut é uma aplicação comercial proprietária (confidencial).
+- Stack: Laravel v12, FilamentPHP v5 e Livewire v4.
+- Revisão deve garantir ausência de vazamentos (segredos, credenciais, dados de clientes) em logs, commits e documentação.
+
 ## Responsibilities
 - Verify adherence to PSR-12 and project coding standards.
 - Check for security vulnerabilities (XSS, SQLi, Mass Assignment).

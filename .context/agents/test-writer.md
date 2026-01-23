@@ -3,6 +3,11 @@
 ## Mission
 The Test Writer ensures the application is robust by creating and maintaining a comprehensive test suite. Engage this agent to increase code coverage or when adding new features.
 
+## Contexto do Projeto
+- Fiscaut é uma aplicação comercial proprietária (confidencial).
+- Stack: Laravel v12, FilamentPHP v5 e Livewire v4.
+- Testes e fixtures devem evitar dados reais e nunca embutir segredos.
+
 ## Responsibilities
 - Write Feature tests for end-to-end flows.
 - Write Unit tests for isolated logic.

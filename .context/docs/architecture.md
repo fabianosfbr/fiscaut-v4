@@ -3,6 +3,10 @@
 ## Architecture Notes
 Fiscaut v4.1 follows the standard Laravel architecture, extended by the Filament ecosystem for the administrative interface. It adheres to the Model-View-Controller (MVC) pattern, although the "View" layer is heavily managed by Livewire components and Filament Resources.
 
+## Contexto e Stack
+- **Produto**: aplicação comercial proprietária (confidencial).
+- **Frameworks**: Laravel v12, FilamentPHP v5 e Livewire v4.
+
 ## System Architecture Overview
 The application is a **Modular Monolith** built on Laravel.
 - **Web Server**: Nginx (via Sail/Docker) handles incoming HTTP requests.

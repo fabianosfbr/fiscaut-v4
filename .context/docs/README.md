@@ -2,6 +2,11 @@
 
 Welcome to the repository knowledge base. Start with the project overview, then dive into specific guides as needed.
 
+## Contexto do Projeto
+- **Produto**: Fiscaut é uma aplicação comercial proprietária (uso interno e/ou por clientes licenciados).
+- **Confidencialidade**: não compartilhar código, dados, credenciais ou detalhes de arquitetura fora dos canais autorizados.
+- **Stack principal**: Laravel v12, FilamentPHP v5 (admin), Livewire v4 (UI reativa) e MySQL.
+
 ## Core Guides
 - [Project Overview](./project-overview.md)
 - [Architecture Notes](./architecture.md)
@@ -16,26 +21,26 @@ Welcome to the repository knowledge base. Start with the project overview, then 
 - `app/`
 - `artisan/`
 - `bootstrap/`
-- `compose.yaml/`
-- `composer.json/`
-- `composer.lock/`
+- `compose.yaml`
+- `composer.json`
+- `composer.lock`
 - `config/`
 - `database/`
 - `docker/`
 - `lang/`
-- `laradumps.yaml/`
-- `package-lock.json/`
-- `package.json/`
-- `phpunit.xml/`
+- `laradumps.yaml`
+- `package-lock.json`
+- `package.json`
+- `phpunit.xml`
 - `public/`
-- `README.md/`
+- `README.md`
 - `resources/`
 - `routes/`
 - `specs/`
 - `storage/`
 - `tests/` — Automated tests and fixtures.
 - `vendor/`
-- `vite.config.js/`
+- `vite.config.js`
 
 ## Document Map
 | Guide | File | Primary Inputs |

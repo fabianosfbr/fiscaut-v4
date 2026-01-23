@@ -3,6 +3,11 @@
 ## Security & Compliance Notes
 Fiscaut v4.1 relies on the robust security features provided by the Laravel framework and the Filament ecosystem to protect data and ensure compliance.
 
+## Escopo e Confidencialidade
+- **Produto**: aplicação comercial proprietária; trate este documento como confidencial.
+- **Stack**: Laravel v12, FilamentPHP v5 e Livewire v4.
+- **Regra prática**: nunca registrar, versionar ou compartilhar segredos (tokens, chaves, credenciais) em texto puro.
+
 ## Authentication & Authorization
 - **Authentication**: Handled by Laravel's default authentication guards. Filament provides its own login page and auth flow, typically using the `web` guard.
 - **Authorization**:

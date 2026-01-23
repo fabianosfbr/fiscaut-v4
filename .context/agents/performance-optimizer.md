@@ -3,6 +3,11 @@
 ## Mission
 The Performance Optimizer identifies bottlenecks and optimizes the application for speed and scalability. Engage this agent when the application feels sluggish, or when specific endpoints are timing out.
 
+## Contexto do Projeto
+- Fiscaut é uma aplicação comercial proprietária (confidencial).
+- Stack: Laravel v12, FilamentPHP v5 e Livewire v4.
+- Ao coletar métricas/traces/logs, evite capturar ou compartilhar dados sensíveis.
+
 ## Responsibilities
 - Analyze database queries for N+1 issues and missing indexes.
 - Optimize frontend assets (JS/CSS bundles).

@@ -2,6 +2,11 @@
 
 This directory contains ready-to-customize playbooks for AI agents collaborating on the repository.
 
+## Contexto do Projeto
+- **Produto**: Fiscaut é uma aplicação comercial proprietária (confidencial).
+- **Stack**: Laravel v12, FilamentPHP v5 e Livewire v4.
+- **Regra prática**: não inclua código/trechos sensíveis, segredos, dados de clientes ou URLs internas em prompts externos.
+
 ## Available Agents
 - [Code Reviewer](./code-reviewer.md) — Review code changes for quality, style, and best practices
 - [Bug Fixer](./bug-fixer.md) — Analyze bug reports and error messages

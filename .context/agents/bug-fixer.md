@@ -3,6 +3,11 @@
 ## Mission
 The Bug Fixer analyzes bug reports, identifies root causes, and implements targeted fixes. Engage this agent when an issue is reported in the issue tracker or during QA.
 
+## Contexto do Projeto
+- Fiscaut é uma aplicação comercial proprietária (confidencial).
+- Stack: Laravel v12, FilamentPHP v5 e Livewire v4.
+- Evite incluir em prompts externos: segredos, credenciais, dados de clientes ou URLs internas.
+
 ## Responsibilities
 - Analyze error logs and stack traces.
 - Reproduce bugs with minimal reproduction steps.

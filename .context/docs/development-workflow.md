@@ -3,6 +3,10 @@
 ## Development Workflow
 The development process for Fiscaut v4.1 is centered around Laravel Sail for a consistent local environment and standard Laravel practices.
 
+## Confidencialidade e Stack
+- **Produto**: aplicação comercial proprietária; evite compartilhar informações fora de canais autorizados.
+- **Stack**: Laravel v12, FilamentPHP v5 e Livewire v4.
+
 ## Branching & Releases
 - **Strategy**: Git Flow or Feature Branch workflow.
 - **Main Branch**: `main` (Production-ready).

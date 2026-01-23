@@ -3,6 +3,10 @@
 ## Testing Strategy
 Quality is maintained through a combination of automated Feature tests (for end-to-end flows) and Unit tests (for isolated logic).
 
+## Contexto do Projeto
+- **Produto**: aplicação comercial proprietária.
+- **Stack**: Laravel v12, FilamentPHP v5 e Livewire v4.
+
 ## Test Types
 - **Feature Tests**: Located in `tests/Feature`. These test HTTP endpoints, Livewire components, and Filament Resources.
     - Framework: PHPUnit (default) or Pest (if configured).

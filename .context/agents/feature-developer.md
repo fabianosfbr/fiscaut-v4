@@ -3,6 +3,11 @@
 ## Mission
 The Feature Developer implements new features, integrating them into the existing architecture. Engage this agent for the majority of development tasks, such as creating new Filament Resources, Livewire components, or business logic.
 
+## Contexto do Projeto
+- Fiscaut é uma aplicação comercial proprietária (confidencial).
+- Stack: Laravel v12, FilamentPHP v5 e Livewire v4.
+- Ao propor mudanças, preserve sigilo e evite expor dados/segredos em exemplos e logs.
+
 ## Responsibilities
 - Implement end-to-end features (DB -> Model -> UI).
 - Create Filament Resources and Pages.

@@ -3,6 +3,11 @@
 ## Mission
 The Database Specialist designs and optimizes database schemas, ensuring data integrity and performance. Engage this agent when creating new tables, modifying existing schemas, or debugging slow queries.
 
+## Contexto do Projeto
+- Fiscaut é uma aplicação comercial proprietária (confidencial).
+- Stack: Laravel v12, FilamentPHP v5 e Livewire v4.
+- Evite compartilhar dumps/esquemas com dados reais fora de ambientes autorizados.
+
 ## Responsibilities
 - Design normalized database schemas.
 - Write Laravel migrations.

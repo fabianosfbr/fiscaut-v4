@@ -3,6 +3,9 @@
 ## Glossary & Domain Concepts
 This document defines the core terminology used within the Fiscaut system.
 
+## Nota de Contexto
+Fiscaut é uma aplicação comercial proprietária construída com Laravel v12, FilamentPHP v5 e Livewire v4. Mantenha termos e exemplos sem expor dados sensíveis.
+
 - **CFOP** (Código Fiscal de Operações e Prestações): A Brazilian tax code used to identify the nature of circulation of goods or provision of services. It is a critical entity in this system.
 - **Filament**: The admin panel framework used to build the UI.
 - **Resource**: A Filament concept representing a CRUD interface for a specific Eloquent model.
