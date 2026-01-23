@@ -1,8 +1,5 @@
 <?php
 
-namespace App\Livewire;
-
-
 use Livewire\Component;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
@@ -11,7 +8,8 @@ use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Illuminate\Support\Facades\Auth;
 use Filament\Notifications\Notification;
 
-class IssuerSwitcher extends Component implements HasSchemas
+
+new class extends Component implements HasSchemas
 {
     use InteractsWithSchemas;
 
@@ -78,14 +76,9 @@ class IssuerSwitcher extends Component implements HasSchemas
             ]);
     }
 
-    public function render()
-    {
-        return view('livewire.issuer-switcher');
-    }
-
     public function save(): void
     {
         // Método necessário para evitar erros caso o formulário seja submetido via "Enter"
         // A lógica principal ocorre no evento 'afterStateUpdated' do campo Select.
     }
-}
+};

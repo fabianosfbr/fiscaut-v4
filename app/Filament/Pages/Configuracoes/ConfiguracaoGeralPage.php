@@ -26,7 +26,7 @@ use App\Livewire\Configuracoes\Entrada\AcumuladorCteNfeEntradaForm;
 use App\Livewire\Configuracoes\Entrada\AcumuladorNfeNotasPropriaForm;
 use App\Livewire\Configuracoes\Entrada\AcumuladorNfeNotasTerceiroForm;
 
-class ConfiguracaoGeral extends Page implements HasSchemas
+class ConfiguracaoGeralPage extends Page implements HasSchemas
 {
     use InteractsWithSchemas;
 
@@ -40,8 +40,7 @@ class ConfiguracaoGeral extends Page implements HasSchemas
 
     public ?array $data = [];
 
-    protected string $view = 'filament.pages.configuracoes.configuracao-geral';
-
+    protected string $view = 'filament.pages.configuracoes.configuracao-geral-page';
 
     public function form(Schema $schema): Schema
     {
@@ -51,9 +50,7 @@ class ConfiguracaoGeral extends Page implements HasSchemas
                     ->tabs([
                         Tab::make('Geral')
                             ->schema([
-
-
-                                Livewire::make(ConfiguracaoGeralForm::class)
+                                Livewire::make('configuracao.configuracao-geral')
 
                             ]),
                         Tab::make('Entrada')

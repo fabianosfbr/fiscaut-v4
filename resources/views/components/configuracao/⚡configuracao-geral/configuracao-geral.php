@@ -1,7 +1,5 @@
 <?php
 
-namespace App\Livewire\Configuracao;
-
 use Livewire\Component;
 use Filament\Schemas\Schema;
 use App\Models\GeneralSetting;
@@ -17,7 +15,7 @@ use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 
-class ConfiguracaoGeralForm extends Component implements HasSchemas
+new class extends Component implements HasSchemas
 {
     use InteractsWithSchemas;
 
@@ -238,10 +236,5 @@ class ConfiguracaoGeralForm extends Component implements HasSchemas
     {
         return $this->hasChanges;
     }
-
-
-    public function render()
-    {
-        return view('livewire.configuracao.configuracao-geral-form');
-    }
-}
+    //
+};
