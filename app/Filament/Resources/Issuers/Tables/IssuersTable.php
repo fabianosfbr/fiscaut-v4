@@ -51,9 +51,9 @@ class IssuersTable
                 ->sortable()
                 ->searchable()
                 ->getStateUsing(function (Model $record) {
-                    $company = explode(':', $record->razao_social);
+                    $issuer = explode(':', $record->razao_social);
 
-                    return $company[0];
+                    return $issuer[0];
                 })
                 ->limit(30)
                 ->tooltip(function (TextColumn $column): ?string {

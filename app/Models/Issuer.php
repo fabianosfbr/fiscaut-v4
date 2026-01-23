@@ -45,4 +45,9 @@ class Issuer extends Model
             ->withPivot(['expires_at', 'active'])
             ->withTimestamps();
     }
+
+    public function categoryTags()
+    {
+        return $this->hasMany(CategoryTag::class);
+    }
 }
