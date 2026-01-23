@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\Acumuladores\Schemas;
 
 use App\Models\Acumulador;
-use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 
 class AcumuladoresForm
 {
@@ -23,14 +23,13 @@ class AcumuladoresForm
                                 table: Acumulador::class,
                                 column: 'codi_acu',
                                 ignoreRecord: true,
-                                modifyRuleUsing: fn($rule) =>
-                                $rule->where('issuer_id', Auth::user()->issuer_id)
+                                modifyRuleUsing: fn ($rule) => $rule->where('issuer_id', Auth::user()->issuer_id)
                             )
                             ->validationMessages([
                                 'unique' => 'O código acumulador já está em uso.',
                             ]),
                         TextInput::make('nome_acu')
-                            ->label('Nome')
+                            ->label('Nome'),
 
                     ])->columns(2),
             ]);
