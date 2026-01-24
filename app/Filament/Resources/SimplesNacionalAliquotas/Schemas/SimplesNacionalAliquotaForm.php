@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources\SimplesNacionalAliquotas\Schemas;
 
+
+use Filament\Schemas\Schema;
 use App\Models\SimplesNacionalAnexo;
 use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Schema;
 
 class SimplesNacionalAliquotaForm
 {
@@ -14,127 +16,194 @@ class SimplesNacionalAliquotaForm
     {
         return $schema
             ->components([
-                Section::make('Dados da Alíquota')
+                Section::make('Informações Básicas')
+                    ->description('Dados principais da alíquota do Simples Nacional')
                     ->schema([
                         Select::make('anexo')
                             ->label('Anexo')
+                            ->options(
+                                SimplesNacionalAnexo::ativo()
+                                    ->pluck('descricao', 'anexo')
+                                    ->map(fn($descricao, $anexo) => "Anexo {$anexo} - {$descricao}")
+                            )
                             ->required()
                             ->searchable()
-                            ->placeholder('Selecione um anexo...')
-                            ->options(function () {
-                                return SimplesNacionalAnexo::query()
-                                    ->where('ativo', true)
-                                    ->orderBy('anexo')
-                                    ->get()
-                                    ->mapWithKeys(fn (SimplesNacionalAnexo $anexo) => [
-                                        $anexo->anexo => "{$anexo->anexo} - {$anexo->descricao}",
-                                    ])
-                                    ->all();
-                            })
-                            ->helperText(function (): ?string {
-                                $hasAtivos = SimplesNacionalAnexo::query()
-                                    ->where('ativo', true)
-                                    ->exists();
-
-                                if ($hasAtivos) {
-                                    return null;
-                                }
-
-                                return 'Nenhum anexo ativo encontrado. Cadastre/ative registros em simples_nacional_anexos para habilitar o cadastro de alíquotas.';
-                            })
+                            ->preload()
+                            ->helperText('Selecione o anexo do Simples Nacional')
                             ->columnSpanFull(),
-                        TextInput::make('faixa_inicial')
-                            ->label('Faixa inicial')
-                            ->required()
-                            ->numeric()
-                            ->minValue(0)
-                            ->extraInputAttributes(['step' => '0.01']),
-                        TextInput::make('faixa_final')
-                            ->label('Faixa final')
-                            ->required()
-                            ->numeric()
-                            ->minValue(0)
-                            ->rule('gte:faixa_inicial')
-                            ->extraInputAttributes(['step' => '0.01']),
-                        TextInput::make('aliquota')
-                            ->label('Alíquota (%)')
-                            ->required()
-                            ->numeric()
-                            ->minValue(0)
-                            ->maxValue(100)
-                            ->extraInputAttributes(['step' => '0.0001']),
-                        TextInput::make('valor_deduzir')
-                            ->label('Valor a deduzir (R$)')
-                            ->required()
-                            ->numeric()
-                            ->minValue(0)
-                            ->extraInputAttributes(['step' => '0.01']),
-                    ])
-                    ->columns(4)
-                    ->columnSpanFull(),
-                Section::make('Percentuais de distribuição (opcional)')
+
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('faixa_inicial')
+                                    ->label('Faixa Inicial (R$)')
+                                    ->numeric()
+                                    ->required()
+                                    ->minValue(0)
+                                    ->step(0.01)
+                                    ->prefix('R$')
+                                    ->helperText('Valor inicial da faixa de receita')
+                                    ->rules([
+                                        'required',
+                                        'numeric',
+                                        'min:0',
+                                        function () {
+                                            return function (string $attribute, $value, \Closure $fail) {
+                                                $faixaFinal = request()->input('faixa_final');
+                                                if ($faixaFinal && $value >= $faixaFinal) {
+                                                    $fail('A faixa inicial deve ser menor que a faixa final.');
+                                                }
+                                            };
+                                        },
+                                    ]),
+
+                                TextInput::make('faixa_final')
+                                    ->label('Faixa Final (R$)')
+                                    ->numeric()
+                                    ->required()
+                                    ->minValue(0)
+                                    ->step(0.01)
+                                    ->prefix('R$')
+                                    ->helperText('Valor final da faixa de receita')
+                                    ->rules([
+                                        'required',
+                                        'numeric',
+                                        'min:0',
+                                        function () {
+                                            return function (string $attribute, $value, \Closure $fail) {
+                                                $faixaInicial = request()->input('faixa_inicial');
+                                                if ($faixaInicial && $value <= $faixaInicial) {
+                                                    $fail('A faixa final deve ser maior que a faixa inicial.');
+                                                }
+                                            };
+                                        },
+                                    ]),
+                            ]),
+                    ]),
+
+                Section::make('Alíquotas e Valores')
+                    ->description('Percentuais e valores para cálculo do Simples Nacional')
                     ->schema([
-                        TextInput::make('irpj_percentual')
-                            ->label('IRPJ (%)')
-                            ->numeric()
-                            ->minValue(0)
-                            ->maxValue(100)
-                            ->dehydrateStateUsing(fn ($state) => filled($state) ? $state : null)
-                            ->extraInputAttributes(['step' => '0.01']),
-                        TextInput::make('csll_percentual')
-                            ->label('CSLL (%)')
-                            ->numeric()
-                            ->minValue(0)
-                            ->maxValue(100)
-                            ->dehydrateStateUsing(fn ($state) => filled($state) ? $state : null)
-                            ->extraInputAttributes(['step' => '0.01']),
-                        TextInput::make('cofins_percentual')
-                            ->label('COFINS (%)')
-                            ->numeric()
-                            ->minValue(0)
-                            ->maxValue(100)
-                            ->dehydrateStateUsing(fn ($state) => filled($state) ? $state : null)
-                            ->extraInputAttributes(['step' => '0.01']),
-                        TextInput::make('pis_percentual')
-                            ->label('PIS (%)')
-                            ->numeric()
-                            ->minValue(0)
-                            ->maxValue(100)
-                            ->dehydrateStateUsing(fn ($state) => filled($state) ? $state : null)
-                            ->extraInputAttributes(['step' => '0.01']),
-                        TextInput::make('cpp_percentual')
-                            ->label('CPP (%)')
-                            ->numeric()
-                            ->minValue(0)
-                            ->maxValue(100)
-                            ->dehydrateStateUsing(fn ($state) => filled($state) ? $state : null)
-                            ->extraInputAttributes(['step' => '0.01']),
-                        TextInput::make('ipi_percentual')
-                            ->label('IPI (%)')
-                            ->numeric()
-                            ->minValue(0)
-                            ->maxValue(100)
-                            ->default(0)
-                            ->dehydrateStateUsing(fn ($state) => filled($state) ? $state : 0)
-                            ->extraInputAttributes(['step' => '0.01']),
-                        TextInput::make('icms_percentual')
-                            ->label('ICMS (%)')
-                            ->numeric()
-                            ->minValue(0)
-                            ->maxValue(100)
-                            ->dehydrateStateUsing(fn ($state) => filled($state) ? $state : null)
-                            ->extraInputAttributes(['step' => '0.01']),
-                        TextInput::make('iss_percentual')
-                            ->label('ISS (%)')
-                            ->numeric()
-                            ->minValue(0)
-                            ->maxValue(100)
-                            ->dehydrateStateUsing(fn ($state) => filled($state) ? $state : null)
-                            ->extraInputAttributes(['step' => '0.01']),
-                    ])
-                    ->columns(4)
-                    ->columnSpanFull()
-                    ->collapsed(),
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('aliquota')
+                                    ->label('Alíquota (%)')
+                                    ->numeric()
+                                    ->required()
+                                    ->minValue(0)
+                                    ->maxValue(33.5)
+                                    ->step(0.01)
+                                    ->suffix('%')
+                                    ->helperText('Alíquota nominal da faixa (máx. 33,5%)')
+                                    ->rules([
+                                        'required',
+                                        'numeric',
+                                        'min:0',
+                                        'max:33.5',
+                                    ]),
+
+                                TextInput::make('valor_deduzir')
+                                    ->label('Valor a Deduzir (R$)')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->step(0.01)
+                                    ->prefix('R$')
+                                    ->helperText('Valor a ser deduzido no cálculo')
+                                    ->default(0)
+                                    ->rules([
+                                        'nullable',
+                                        'numeric',
+                                        'min:0',
+                                    ]),
+                            ]),
+                    ]),
+
+                Section::make('Detalhamento dos Impostos (%)')
+                    ->description('Percentuais de cada imposto dentro da alíquota total')
+                    ->collapsible()
+                    ->schema([
+                        Grid::make(3)
+                            ->schema([
+                                TextInput::make('irpj_percentual')
+                                    ->label('IRPJ (%)')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->maxValue(100)
+                                    ->step(0.01)
+                                    ->suffix('%')
+                                    ->helperText('Percentual do IRPJ')
+                                    ->rules(['nullable', 'numeric', 'min:0', 'max:100']),
+
+                                TextInput::make('csll_percentual')
+                                    ->label('CSLL (%)')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->maxValue(100)
+                                    ->step(0.01)
+                                    ->suffix('%')
+                                    ->helperText('Percentual da CSLL')
+                                    ->rules(['nullable', 'numeric', 'min:0', 'max:100']),
+
+                                TextInput::make('cofins_percentual')
+                                    ->label('COFINS (%)')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->maxValue(100)
+                                    ->step(0.01)
+                                    ->suffix('%')
+                                    ->helperText('Percentual do COFINS')
+                                    ->rules(['nullable', 'numeric', 'min:0', 'max:100']),
+
+                                TextInput::make('pis_percentual')
+                                    ->label('PIS (%)')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->maxValue(100)
+                                    ->step(0.01)
+                                    ->suffix('%')
+                                    ->helperText('Percentual do PIS')
+                                    ->rules(['nullable', 'numeric', 'min:0', 'max:100']),
+
+                                TextInput::make('cpp_percentual')
+                                    ->label('CPP (%)')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->maxValue(100)
+                                    ->step(0.01)
+                                    ->suffix('%')
+                                    ->helperText('Percentual da Contribuição Previdenciária Patronal')
+                                    ->rules(['nullable', 'numeric', 'min:0', 'max:100']),
+
+                                TextInput::make('ipi_percentual')
+                                    ->label('IPI (%)')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->maxValue(100)
+                                    ->step(0.01)
+                                    ->suffix('%')
+                                    ->helperText('Percentual do IPI')
+                                    ->rules(['nullable', 'numeric', 'min:0', 'max:100']),
+
+                                TextInput::make('icms_percentual')
+                                    ->label('ICMS (%)')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->maxValue(100)
+                                    ->step(0.01)
+                                    ->suffix('%')
+                                    ->helperText('Percentual do ICMS')
+                                    ->rules(['nullable', 'numeric', 'min:0', 'max:100']),
+
+                                TextInput::make('iss_percentual')
+                                    ->label('ISS (%)')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->maxValue(100)
+                                    ->step(0.01)
+                                    ->suffix('%')
+                                    ->helperText('Percentual do ISS')
+                                    ->rules(['nullable', 'numeric', 'min:0', 'max:100']),
+                            ]),
+                    ]),
             ]);
     }
 }
