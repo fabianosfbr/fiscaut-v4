@@ -32,6 +32,54 @@ class SimplesNacionalAliquota extends Model
         parent::boot();
 
         static::saving(function (self $model) {
+            if ($model->ipi_percentual === null) {
+                $model->ipi_percentual = 0;
+            }
+
+            $percentualFields = [
+                'aliquota',
+                'irpj_percentual',
+                'csll_percentual',
+                'cofins_percentual',
+                'pis_percentual',
+                'cpp_percentual',
+                'ipi_percentual',
+                'icms_percentual',
+                'iss_percentual',
+            ];
+
+            foreach ($percentualFields as $field) {
+                $value = $model->{$field};
+                if ($value === null) {
+                    continue;
+                }
+
+                if ((float) $value < 0 || (float) $value > 100) {
+                    throw ValidationException::withMessages([
+                        $field => 'O percentual deve estar entre 0 e 100.',
+                    ]);
+                }
+            }
+
+            $nonNegativeMoneyFields = [
+                'faixa_inicial',
+                'faixa_final',
+                'valor_deduzir',
+            ];
+
+            foreach ($nonNegativeMoneyFields as $field) {
+                $value = $model->{$field};
+                if ($value === null) {
+                    continue;
+                }
+
+                if ((float) $value < 0) {
+                    throw ValidationException::withMessages([
+                        $field => 'O valor não pode ser negativo.',
+                    ]);
+                }
+            }
+
             if ($model->anexo === null || $model->faixa_inicial === null || $model->faixa_final === null) {
                 return;
             }
@@ -82,8 +130,9 @@ class SimplesNacionalAliquota extends Model
             'cofins' => $this->cofins_percentual,
             'pis' => $this->pis_percentual,
             'cpp' => $this->cpp_percentual,
+            'ipi' => $this->ipi_percentual,
             'icms' => $this->icms_percentual,
-            'iss' => $this->iss_percentual
+            'iss' => $this->iss_percentual,
         ];
     }
 }

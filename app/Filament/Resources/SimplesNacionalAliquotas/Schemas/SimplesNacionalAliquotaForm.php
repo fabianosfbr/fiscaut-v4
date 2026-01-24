@@ -20,6 +20,7 @@ class SimplesNacionalAliquotaForm
                             ->label('Anexo')
                             ->required()
                             ->searchable()
+                            ->placeholder('Selecione um anexo...')
                             ->options(function () {
                                 return SimplesNacionalAnexo::query()
                                     ->where('ativo', true)
@@ -30,29 +31,44 @@ class SimplesNacionalAliquotaForm
                                     ])
                                     ->all();
                             })
+                            ->helperText(function (): ?string {
+                                $hasAtivos = SimplesNacionalAnexo::query()
+                                    ->where('ativo', true)
+                                    ->exists();
+
+                                if ($hasAtivos) {
+                                    return null;
+                                }
+
+                                return 'Nenhum anexo ativo encontrado. Cadastre/ative registros em simples_nacional_anexos para habilitar o cadastro de alíquotas.';
+                            })
                             ->columnSpanFull(),
                         TextInput::make('faixa_inicial')
                             ->label('Faixa inicial')
                             ->required()
                             ->numeric()
-                            ->minValue(0),
+                            ->minValue(0)
+                            ->extraInputAttributes(['step' => '0.01']),
                         TextInput::make('faixa_final')
                             ->label('Faixa final')
                             ->required()
                             ->numeric()
                             ->minValue(0)
-                            ->rule('gte:faixa_inicial'),
+                            ->rule('gte:faixa_inicial')
+                            ->extraInputAttributes(['step' => '0.01']),
                         TextInput::make('aliquota')
                             ->label('Alíquota (%)')
                             ->required()
                             ->numeric()
                             ->minValue(0)
-                            ->maxValue(100),
+                            ->maxValue(100)
+                            ->extraInputAttributes(['step' => '0.0001']),
                         TextInput::make('valor_deduzir')
                             ->label('Valor a deduzir (R$)')
                             ->required()
                             ->numeric()
-                            ->minValue(0),
+                            ->minValue(0)
+                            ->extraInputAttributes(['step' => '0.01']),
                     ])
                     ->columns(4)
                     ->columnSpanFull(),
@@ -62,43 +78,59 @@ class SimplesNacionalAliquotaForm
                             ->label('IRPJ (%)')
                             ->numeric()
                             ->minValue(0)
-                            ->maxValue(100),
+                            ->maxValue(100)
+                            ->dehydrateStateUsing(fn ($state) => filled($state) ? $state : null)
+                            ->extraInputAttributes(['step' => '0.01']),
                         TextInput::make('csll_percentual')
                             ->label('CSLL (%)')
                             ->numeric()
                             ->minValue(0)
-                            ->maxValue(100),
+                            ->maxValue(100)
+                            ->dehydrateStateUsing(fn ($state) => filled($state) ? $state : null)
+                            ->extraInputAttributes(['step' => '0.01']),
                         TextInput::make('cofins_percentual')
                             ->label('COFINS (%)')
                             ->numeric()
                             ->minValue(0)
-                            ->maxValue(100),
+                            ->maxValue(100)
+                            ->dehydrateStateUsing(fn ($state) => filled($state) ? $state : null)
+                            ->extraInputAttributes(['step' => '0.01']),
                         TextInput::make('pis_percentual')
                             ->label('PIS (%)')
                             ->numeric()
                             ->minValue(0)
-                            ->maxValue(100),
+                            ->maxValue(100)
+                            ->dehydrateStateUsing(fn ($state) => filled($state) ? $state : null)
+                            ->extraInputAttributes(['step' => '0.01']),
                         TextInput::make('cpp_percentual')
                             ->label('CPP (%)')
                             ->numeric()
                             ->minValue(0)
-                            ->maxValue(100),
+                            ->maxValue(100)
+                            ->dehydrateStateUsing(fn ($state) => filled($state) ? $state : null)
+                            ->extraInputAttributes(['step' => '0.01']),
                         TextInput::make('ipi_percentual')
                             ->label('IPI (%)')
                             ->numeric()
                             ->minValue(0)
                             ->maxValue(100)
-                            ->default(0),
+                            ->default(0)
+                            ->dehydrateStateUsing(fn ($state) => filled($state) ? $state : 0)
+                            ->extraInputAttributes(['step' => '0.01']),
                         TextInput::make('icms_percentual')
                             ->label('ICMS (%)')
                             ->numeric()
                             ->minValue(0)
-                            ->maxValue(100),
+                            ->maxValue(100)
+                            ->dehydrateStateUsing(fn ($state) => filled($state) ? $state : null)
+                            ->extraInputAttributes(['step' => '0.01']),
                         TextInput::make('iss_percentual')
                             ->label('ISS (%)')
                             ->numeric()
                             ->minValue(0)
-                            ->maxValue(100),
+                            ->maxValue(100)
+                            ->dehydrateStateUsing(fn ($state) => filled($state) ? $state : null)
+                            ->extraInputAttributes(['step' => '0.01']),
                     ])
                     ->columns(4)
                     ->columnSpanFull()

@@ -5,6 +5,7 @@ This directory contains plans for coordinating work across documentation and pla
 ## Plan Queue
 1. [Codigo Servico Resource](./codigo-servico-resource.md)
 2. [Resource Aliquotas Simples Nacional](./resource-aliquotas-simples-nacional.md)
+3. [Simple Nacional Anexo Resource](./simple-nacional-anexo-resource.md)
 
 ## How To Create Or Update Plans
 - Run "ai-context plan <name>" to scaffold a new plan template.

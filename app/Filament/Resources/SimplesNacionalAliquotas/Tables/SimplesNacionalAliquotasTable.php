@@ -17,7 +17,10 @@ class SimplesNacionalAliquotasTable
     {
         return $table
             ->recordUrl(null)
-            ->modifyQueryUsing(fn (Builder $query) => $query->with('anexoModel'))
+            ->modifyQueryUsing(fn (Builder $query) => $query
+                ->with('anexoModel')
+                ->orderBy('anexo')
+                ->orderBy('faixa_inicial'))
             ->defaultSort('anexo', 'asc')
             ->columns([
                 TextColumn::make('anexo')

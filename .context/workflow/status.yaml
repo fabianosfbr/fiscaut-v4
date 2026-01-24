@@ -1,28 +1,28 @@
 project:
   name: "resource-aliquotas-simples-nacional"
   scale: MEDIUM
-  started: "2026-01-24T18:39:15.748Z"
+  started: "2026-01-24T20:32:45.555Z"
   current_phase: V
 
 phases:
   P:
     status: filled
-    started_at: "2026-01-24T18:39:15.748Z"
-    completed_at: "2026-01-24T18:39:32.584Z"
+    started_at: "2026-01-24T20:32:45.555Z"
+    completed_at: "2026-01-24T20:51:05.747Z"
   R:
     status: filled
-    started_at: "2026-01-24T18:39:32.586Z"
-    completed_at: "2026-01-24T18:39:39.405Z"
+    started_at: "2026-01-24T20:51:05.752Z"
+    completed_at: "2026-01-24T21:07:30.756Z"
   E:
     status: filled
-    started_at: "2026-01-24T18:39:39.408Z"
-    completed_at: "2026-01-24T18:45:02.056Z"
+    started_at: "2026-01-24T21:07:30.759Z"
+    completed_at: "2026-01-24T21:09:59.023Z"
   V:
     status: completed
-    started_at: "2026-01-24T18:45:02.061Z"
-    completed_at: "2026-01-24T18:47:31.051Z"
+    started_at: "2026-01-24T21:09:59.027Z"
+    completed_at: "2026-01-24T23:04:10.141Z"
     outputs:
-      - path: "manual-validation-confirmed"
+      - path: ".context/plans/resource-aliquotas-simples-nacional.md"
         status: filled
   C:
     status: skipped
@@ -30,10 +30,10 @@ phases:
 
 execution:
   history:
-    - timestamp: "2026-01-24T18:47:31.051Z"
+    - timestamp: "2026-01-24T23:04:10.141Z"
       phase: V
       action: completed
-  last_activity: "2026-01-24T18:47:31.051Z"
+  last_activity: "2026-01-24T23:04:10.141Z"
   resume_context: "Fase V (Validação) concluída"
 
 settings:
@@ -43,4 +43,5 @@ settings:
 
 approval:
   plan_created: true
-  plan_approved: true
+  plan_approved: false
+

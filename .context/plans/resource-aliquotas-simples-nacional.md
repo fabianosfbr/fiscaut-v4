@@ -73,6 +73,17 @@ phases:
   - `navigationGroup = "Configurações"`.
   - `modelLabel` e `pluralModelLabel` com `hasTitleCaseModelLabel = false` quando necessário (ex.: CFOP/CNAE).
 
+## Estado atual (já implementado no repositório)
+### Models existentes
+- `app/Models/SimplesNacionalAnexo.php` (tabela `simples_nacional_anexos`)
+- `app/Models/SimplesNacionalAliquota.php` (tabela `simples_nacional_aliquotas`, inclui validação de sobreposição no `saving`)
+
+### Resource existente (Filament)
+- `app/Filament/Resources/SimplesNacionalAliquotas/SimplesNacionalAliquotaResource.php`
+- `app/Filament/Resources/SimplesNacionalAliquotas/Pages/{List,Create,Edit}SimplesNacionalAliquota(s).php`
+- `app/Filament/Resources/SimplesNacionalAliquotas/Schemas/SimplesNacionalAliquotaForm.php`
+- `app/Filament/Resources/SimplesNacionalAliquotas/Tables/SimplesNacionalAliquotasTable.php`
+
 ## Agentes (papéis)
 | Agent | Por que entra | Entregas esperadas |
 | --- | --- | --- |
@@ -93,38 +104,82 @@ phases:
   - `simples_nacional_aliquotas` e `ipi_percentual` adicional.
 - Premissa: o cadastro é **global** (sem `tenant_id`), então o Resource será visível para todos os tenants.
 
+## Fonte de verdade: Schema do banco
+### `simples_nacional_anexos`
+- `id` (PK)
+- `anexo` string(5) **unique**
+- `descricao` text
+- `ativo` boolean default `true`
+- `created_at` / `updated_at`
+
+### `simples_nacional_aliquotas`
+- `id` (PK)
+- `anexo` string(5) **FK** → `simples_nacional_anexos.anexo`
+- `faixa_inicial` decimal(15,2)
+- `faixa_final` decimal(15,2)
+- `aliquota` decimal(8,4)
+- `valor_deduzir` decimal(12,2)
+- `irpj_percentual` decimal(5,2) nullable
+- `csll_percentual` decimal(5,2) nullable
+- `cofins_percentual` decimal(5,2) nullable
+- `pis_percentual` decimal(5,2) nullable
+- `cpp_percentual` decimal(5,2) nullable
+- `ipi_percentual` decimal(5,2) **default 0.00** (não nullable)
+- `icms_percentual` decimal(5,2) nullable
+- `iss_percentual` decimal(5,2) nullable
+- `created_at` / `updated_at`
+- Índice: (`anexo`, `faixa_inicial`, `faixa_final`)
+
 ## Working Phases
 ### Phase 1 — Discovery & Alignment
 **Objetivo:** fechar regras de validação e UX mínima, ancorado no padrão do CFOP.
 
 **Steps**
-1. Confirmar campos/tipos do schema e quais colunas vão para Listagem x Edição.
-2. Definir as regras de validação:
+1. Confirmar campos/tipos do schema e quais colunas vão para Listagem x Edição (fonte de verdade: migrations).
+2. Revisar as regras de validação (Form + Model):
    - `faixa_inicial <= faixa_final`.
-   - percentuais entre 0 e 100 (quando aplicável).
+   - percentuais entre 0 e 100 (quando aplicável, seguindo nullability/default do schema).
+   - `ipi_percentual` não pode ser `null` (schema define default 0.00); se vazio no Form, persistir como `0.00`.
    - evitar sobreposição de faixas no mesmo `anexo`.
 3. Definir labels: “Alíquota”, “Valor a deduzir”, “Faixa inicial/final”, percentuais (IRPJ/CSLL/COFINS/PIS/CPP/ICMS/ISS/IPI).
+4. Definir padrão de precisão (UI):
+   - moeda: 2 casas (`faixa_inicial`, `faixa_final`, `valor_deduzir`)
+   - alíquota nominal: 4 casas (`aliquota`)
+   - percentuais de tributos: 2 casas (`*_percentual`)
+5. Checklist de conformidade (revisão do que já existe):
+   - Form cobre todas as colunas do schema e respeita nullability/defaults.
+   - `ipi_percentual` sempre persiste valor (0.00 quando não informado).
+   - Inputs com precisão/`step` coerente com o schema (2/4 casas conforme campo).
+   - Table lista campos principais e permite colunas toggleáveis para percentuais.
+   - Model tem casts coerentes com o schema e relação FK `anexo` → `SimplesNacionalAnexo` funcionando.
 
 **Checkpoint**
 - Atualizar este plano com as regras finais e UX definida.
 
 ### Phase 2 — Implementation & Iteration
-**Objetivo:** entregar Models e Resource com CRUD completo.
+**Objetivo:** revisar/ajustar o que já foi implementado e garantir aderência total ao banco.
 
 **Steps**
-1. Models
-   - Criar `SimplesNacionalAliquota` com `protected $table = 'simples_nacional_aliquotas'`.
-   - Criar `SimplesNacionalAnexo` (opcional, mas recomendado) para alimentar Select via `pluck('descricao', 'anexo')` ou similar.
-2. Resource
-   - Criar `SimplesNacionalAliquotaResource` (grupo “Configurações”).
-   - Criar `Schemas/SimplesNacionalAliquotaForm.php` com inputs numéricos/validações.
-   - Criar `Tables/SimplesNacionalAliquotasTable.php` com formatação de moeda/% e ações `Edit/Delete`.
-3. UX de tabela
-   - Ordenação padrão por `anexo` e `faixa_inicial`.
-   - Filtro por `anexo` (opcional).
+1. Models (revisão)
+   - Confirmar casts e campos mass-assignable vs. guarded.
+   - Confirmar regra de não sobreposição por `anexo` em `saving` (inclui casos de update).
+2. Resource/Form (revisão)
+   - Confirmar que o Select de `anexo` usa `simples_nacional_anexos` e lida com tabela vazia (UX).
+   - Ajustar precisão de inputs (2/4 casas) e defaults conforme schema (`ipi_percentual`).
+3. Resource/Table (revisão)
+   - Confirmar ordenação padrão por `anexo` + `faixa_inicial` (se necessário, ajustar).
+   - Confirmar filtro por `anexo` e colunas toggleáveis para percentuais.
 
 **Checkpoint**
-- Lista de arquivos criados e principais decisões (ex.: validação de sobreposição) registrada no final do plano.
+- Lista de arquivos revisados e principais decisões/ajustes (ex.: precisão de inputs, defaults, validação de sobreposição) registrada no final do plano.
+
+**Ajustes aplicados (E)**
+- Model: reforço de defaults e validação de percentuais/valores; inclui `ipi_percentual` (default 0) e percentuais 0–100.
+  - [SimplesNacionalAliquota.php](file:///root/projetos/fiscaut-v4.1/app/Models/SimplesNacionalAliquota.php)
+- Form: precisão via `step`, normalização de nullability (campos opcionais), e UX para ausência de anexos ativos.
+  - [SimplesNacionalAliquotaForm.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/SimplesNacionalAliquotas/Schemas/SimplesNacionalAliquotaForm.php)
+- Table: ordenação por `anexo` + `faixa_inicial` e formatação consistente.
+  - [SimplesNacionalAliquotasTable.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/SimplesNacionalAliquotas/Tables/SimplesNacionalAliquotasTable.php)
 
 ### Phase 3 — Validation & Handoff
 **Objetivo:** validar manualmente o CRUD e as validações-chave no fluxo.

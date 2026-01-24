@@ -3,5 +3,6 @@
     "my-server": {
       "httpUrl": "http://localhost:3000/mcp"
     }
-  }
+  },
+  "$version": 2
 }
