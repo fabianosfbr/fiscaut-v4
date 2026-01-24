@@ -52,16 +52,13 @@ docker run --rm \
 # Stop server
 ./vendor/bin/sail down
 
-# Run tests
-./vendor/bin/sail test
-
 # Access shell
 ./vendor/bin/sail shell
 ```
 
 ## Code Review Expectations
 - **Style**: Follow PSR-12 coding standards.
-- **Testing**: New features must include Feature tests. Bug fixes must include regression tests.
+- **Testing**: enquanto o ambiente de testes não estiver pronto, priorizar validação manual no Filament e registrar evidências; adicionar testes assim que o setup estiver disponível.
 - **Static Analysis**: Code should pass `phpstan` (if configured) and `pint` styling.
 - **Filament**: Ensure Resources are properly registered and navigation labels are consistent.
 
@@ -69,7 +66,7 @@ docker run --rm \
 1. Set up the local environment.
 2. Log in to the admin panel (`/admin` or `/app`).
 3. Create a new `CFOP` entry to verify database connectivity.
-4. Run the test suite to ensure everything is green.
+4. (Opcional) Executar a suíte de testes quando o ambiente estiver configurado.
 
 ## Cross-References
 - [testing-strategy.md](./testing-strategy.md)

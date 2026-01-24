@@ -17,6 +17,15 @@ Welcome to the repository knowledge base. Start with the project overview, then 
 - [Security & Compliance Notes](./security.md)
 - [Tooling & Productivity Guide](./tooling.md)
 
+## Recursos Filament (Admin)
+- **Configurações**
+  - CFOP: [CfopResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Cfops/CfopResource.php)
+  - CNAE: [CnaeResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Cnaes/CnaeResource.php)
+  - Alíquotas do Simples Nacional: [SimplesNacionalAliquotaResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/SimplesNacionalAliquotas/SimplesNacionalAliquotaResource.php)
+
+## Planos (AI Context)
+- [Plans Index](../plans/README.md)
+
 ## Repository Snapshot
 - `app/`
 - `artisan/`

@@ -15,6 +15,11 @@ The Test Writer ensures the application is robust by creating and maintaining a 
 - Ensure tests are reliable (not flaky) and fast.
 - Maintain test data factories.
 
+## Nota sobre o ambiente
+Enquanto o ambiente de testes não estiver pronto, produzir:
+- checklist de cenários e dados mínimos para validação manual no Filament;
+- plano de automação (Unit/Feature) para ser implementado assim que o setup estiver disponível.
+
 ## Best Practices
 - **AAA Pattern**: Arrange, Act, Assert.
 - **Isolation**: Tests should not depend on each other.
@@ -47,7 +52,7 @@ The Test Writer ensures the application is robust by creating and maintaining a 
 3. Set up the test state (Factories).
 4. Execute the action.
 5. Assert the expected outcome.
-6. Run the test suite.
+6. Rodar a suíte quando o ambiente estiver disponível (ou registrar evidência manual enquanto isso).
 
 ## Hand-off Notes
 Note any complex setup required for the tests.

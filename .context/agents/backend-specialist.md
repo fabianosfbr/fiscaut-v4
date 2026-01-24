@@ -19,7 +19,7 @@ The Backend Specialist designs and implements server-side architecture, focusing
 - **Eloquent Optimization**: Use eager loading (`with()`) to prevent N+1 queries.
 - **Validation**: Use Form Requests or Livewire validation rules.
 - **Dependency Injection**: Inject dependencies into constructors or methods.
-- **Testing**: Write Feature tests for all new endpoints and components.
+- **Testing**: enquanto o ambiente de testes não estiver pronto, priorizar validação manual e checklist de cenários; adicionar automação quando o setup estiver disponível.
 
 ## Key Project Resources
 - [Architecture Notes](../docs/architecture.md)
@@ -50,11 +50,11 @@ The Backend Specialist designs and implements server-side architecture, focusing
 1. Understand the business requirements.
 2. Design the database schema changes (if any).
 3. Implement the backend logic (Models, Controllers/Livewire).
-4. Write tests to verify the implementation.
-5. collaborative with Frontend Specialist (if applicable) for UI integration.
+4. Validar manualmente o fluxo no Filament e registrar evidências (quando aplicável).
+5. Collaborate with Frontend Specialist (if applicable) for UI integration.
 
 ## Hand-off Notes
-Ensure that all new code is covered by tests and that the database migrations have been tested locally.
+Se testes automatizados não estiverem disponíveis, documentar cenários e evidências de validação manual (CRUD e regras críticas).
 
 ## Cross-References
 - [../docs/architecture.md](../docs/architecture.md)

@@ -6,6 +6,7 @@ Quality is maintained through a combination of automated Feature tests (for end-
 ## Contexto do Projeto
 - **Produto**: aplicação comercial proprietária.
 - **Stack**: Laravel v12, FilamentPHP v5 e Livewire v4.
+- **Status atual do ambiente**: a execução automatizada de testes ainda não está padronizada/estável no ambiente de desenvolvimento. Priorizar validação manual no admin até o setup ser concluído.
 
 ## Test Types
 - **Feature Tests**: Located in `tests/Feature`. These test HTTP endpoints, Livewire components, and Filament Resources.
@@ -16,23 +17,11 @@ Quality is maintained through a combination of automated Feature tests (for end-
 - **Browser Tests**: (Optional) Laravel Dusk can be used for browser automation if needed.
 
 ## Running Tests
-Tests are executed inside the Sail container.
-
-```bash
-# Run all tests
-./vendor/bin/sail test
-
-# Run a specific test file
-./vendor/bin/sail test tests/Feature/ExampleTest.php
-
-# Run with coverage (requires Xdebug/PCOV)
-./vendor/bin/sail test --coverage
-```
+Quando o ambiente estiver pronto, documentar aqui o comando padrão (Sail/CLI) para execução do PHPUnit/Pest.
 
 ## Quality Gates
-- **Pass Rate**: 100% of tests must pass before merging to `main` or `develop`.
-- **Formatting**: Code must follow PSR-12 (checked via `pint`).
-- **Static Analysis**: `phpstan` should run without errors on level 5 or higher.
+- **Antes de automatizar**: exigir validação manual do fluxo no Filament (CRUD + regras críticas).
+- **Depois de automatizar**: definir gate de CI (pass rate, lint e análise estática) conforme pipeline do projeto.
 
 ## Troubleshooting
 - **Database State**: Tests run in a transaction (via `RefreshDatabase` trait), so data is rolled back after each test.

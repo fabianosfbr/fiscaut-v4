@@ -7,6 +7,7 @@ This document defines the core terminology used within the Fiscaut system.
 Fiscaut é uma aplicação comercial proprietária construída com Laravel v12, FilamentPHP v5 e Livewire v4. Mantenha termos e exemplos sem expor dados sensíveis.
 
 - **CFOP** (Código Fiscal de Operações e Prestações): A Brazilian tax code used to identify the nature of circulation of goods or provision of services. It is a critical entity in this system.
+- **Simples Nacional**: Regime tributário simplificado no Brasil, com alíquotas por “Anexo” e “Faixa” de receita.
 - **Filament**: The admin panel framework used to build the UI.
 - **Resource**: A Filament concept representing a CRUD interface for a specific Eloquent model.
 - **NFe** (Nota Fiscal Eletrônica): Electronic Invoice (likely a related concept in this domain).
@@ -21,6 +22,11 @@ Fiscaut é uma aplicação comercial proprietária construída com Laravel v12, 
 ## Core Terms
 - **Tenant**: If the application is multi-tenant, this refers to the organization using the software.
 - **Fiscal Document**: Generic term for invoices, receipts, etc.
+- **Anexo (Simples Nacional)**: Categoria de atividade/receita usada para determinar a tabela de faixas e alíquotas aplicáveis (ex.: Anexo I, II, III...).
+- **Faixa (Simples Nacional)**: Intervalo de receita acumulada usado para selecionar a alíquota nominal e o valor a deduzir.
+- **Alíquota (nominal)**: Percentual base associado a uma faixa.
+- **Valor a deduzir**: Valor usado na fórmula de alíquota efetiva por faixa.
+- **Percentuais de distribuição**: Percentuais internos por tributo (IRPJ/CSLL/COFINS/PIS/CPP/ICMS/ISS/IPI) associados à faixa (quando aplicável).
 
 ## Acronyms & Abbreviations
 - **CRUD**: Create, Read, Update, Delete.
@@ -36,6 +42,7 @@ Fiscaut é uma aplicação comercial proprietária construída com Laravel v12, 
 ## Domain Rules & Invariants
 - **CFOP Validation**: CFOP codes must follow a specific 4-digit format defined by the government.
 - **Uniqueness**: Certain fiscal codes must be unique per operation type.
+- **Faixas do Simples Nacional**: Para o mesmo anexo, as faixas não devem se sobrepor (intervalos [faixa_inicial, faixa_final] disjuntos) e `faixa_inicial <= faixa_final`.
 
 ## Cross-References
 - [project-overview.md](./project-overview.md)

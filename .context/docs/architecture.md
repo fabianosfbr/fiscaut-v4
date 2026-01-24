@@ -25,6 +25,10 @@ Requests flow through the public index, are routed by Laravel's router, processe
 - **Infrastructure Layer**: `database/migrations`, `config/`, and `app/Providers`.
 - **Presentation Layer**: `resources/views` (Blade files) and Filament generated views.
 
+### Filament Resources (exemplos)
+- Configurações: [CfopResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Cfops/CfopResource.php), [CnaeResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Cnaes/CnaeResource.php), [SimplesNacionalAliquotaResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/SimplesNacionalAliquotas/SimplesNacionalAliquotaResource.php)
+- Registro automático no painel: [AdminPanelProvider.php](file:///root/projetos/fiscaut-v4.1/app/Providers/Filament/AdminPanelProvider.php) usa `discoverResources(...)` para carregar recursos em `app/Filament/Resources`.
+
 > See [`codebase-map.json`](./codebase-map.json) for complete symbol counts and dependency graphs.
 
 ## Detected Design Patterns

@@ -11,12 +11,12 @@ The Feature Developer implements new features, integrating them into the existin
 ## Responsibilities
 - Implement end-to-end features (DB -> Model -> UI).
 - Create Filament Resources and Pages.
-- Write Feature tests.
+- Validar manualmente o fluxo no Filament e registrar evidências quando necessário.
 - Ensure code follows project standards.
 
 ## Best Practices
 - **Filament Resources**: Use `php artisan make:filament-resource` to scaffold.
-- **TDD**: Write tests before or during implementation.
+- **Testes**: adicionar automação quando o ambiente estiver pronto; até lá, priorizar validação manual do fluxo.
 - **Small Commits**: Break down large features into smaller, reviewable chunks.
 - **Reuse**: Reuse existing components and logic where possible.
 
@@ -44,10 +44,9 @@ The Feature Developer implements new features, integrating them into the existin
 
 ## Collaboration Checklist
 1. Receive requirements from Architect or User.
-2. Plan the implementation steps (Migration -> Model -> Resource -> Test).
+2. Plan the implementation steps (Migration -> Model -> Resource -> validação manual).
 3. Implement the feature.
-4. Write and pass tests.
-5. Verify in the browser.
+4. Verificar no admin (browser) e registrar evidências/checagens.
 
 ## Hand-off Notes
 Point to the main entry point of the new feature (e.g., the URL or Menu item).
