@@ -11,7 +11,6 @@ class CodigoServico extends Model
     protected $fillable = [
         'codigo',
         'descricao',
-        'anexo',
         'cnae_id',
     ];
 
