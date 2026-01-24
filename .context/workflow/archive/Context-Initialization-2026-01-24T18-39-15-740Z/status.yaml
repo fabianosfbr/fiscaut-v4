@@ -1,0 +1,22 @@
+project:
+  name: "Context Initialization"
+  scale: QUICK
+  started: "2026-01-23T18:02:16.468Z"
+  current_phase: E
+
+phases:
+  P:
+    status: skipped
+    reason: "Not required for scale QUICK"
+  R:
+    status: skipped
+    reason: "Not required for scale QUICK"
+  E:
+    status: in_progress
+    started_at: "2026-01-23T18:02:16.468Z"
+  V:
+    status: pending
+  C:
+    status: skipped
+    reason: "Not required for scale QUICK"
+

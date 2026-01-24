@@ -1,22 +1,46 @@
 project:
-  name: "Context Initialization"
-  scale: QUICK
-  started: "2026-01-23T18:02:16.468Z"
-  current_phase: E
+  name: "resource-aliquotas-simples-nacional"
+  scale: MEDIUM
+  started: "2026-01-24T18:39:15.748Z"
+  current_phase: V
 
 phases:
   P:
-    status: skipped
-    reason: "Not required for scale QUICK"
+    status: filled
+    started_at: "2026-01-24T18:39:15.748Z"
+    completed_at: "2026-01-24T18:39:32.584Z"
   R:
-    status: skipped
-    reason: "Not required for scale QUICK"
+    status: filled
+    started_at: "2026-01-24T18:39:32.586Z"
+    completed_at: "2026-01-24T18:39:39.405Z"
   E:
-    status: in_progress
-    started_at: "2026-01-23T18:02:16.468Z"
+    status: filled
+    started_at: "2026-01-24T18:39:39.408Z"
+    completed_at: "2026-01-24T18:45:02.056Z"
   V:
-    status: pending
+    status: completed
+    started_at: "2026-01-24T18:45:02.061Z"
+    completed_at: "2026-01-24T18:47:31.051Z"
+    outputs:
+      - path: "manual-validation-confirmed"
+        status: filled
   C:
     status: skipped
-    reason: "Not required for scale QUICK"
+    reason: "Not required for scale MEDIUM"
 
+execution:
+  history:
+    - timestamp: "2026-01-24T18:47:31.051Z"
+      phase: V
+      action: completed
+  last_activity: "2026-01-24T18:47:31.051Z"
+  resume_context: "Fase V (Validação) concluída"
+
+settings:
+  autonomous_mode: true
+  require_plan: false
+  require_approval: false
+
+approval:
+  plan_created: true
+  plan_approved: true
