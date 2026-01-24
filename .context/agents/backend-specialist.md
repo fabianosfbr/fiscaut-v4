@@ -36,6 +36,8 @@ The Backend Specialist designs and implements server-side architecture, focusing
 - `app/Providers/AppServiceProvider.php`: Global application bootstrapping.
 - `routes/web.php`: Web routes.
 - `database/seeders/DatabaseSeeder.php`: Database seeding logic.
+- `app/Filament/Resources/Issuers/Pages/CreateIssuer.php`: Exemplo de create com transação, integração e criptografia.
+- `app/Filament/Resources/CategoryTags/Tables/CategoryTagsTable.php`: Exemplo de query scoping e filtros avançados.
 
 ## Key Symbols for This Agent
 - `Illuminate\Database\Eloquent\Model`: Base model class.

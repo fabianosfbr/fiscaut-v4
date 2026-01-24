@@ -32,9 +32,10 @@ The Architect Specialist designs the overall system architecture, ensures scalab
 - `database/migrations`: Schema definitions.
 
 ## Key Files
-- `app/Providers/Filament/AdminPanelProvider.php`: Main Filament configuration.
-- `config/filament.php`: Global Filament settings.
-- `app/Models/User.php`: Core user model and authentication.
+- `app/Providers/Filament/AdminPanelProvider.php`: Main Filament configuration (discoverResources/discoverPages).
+- `app/Models/User.php`: Core user model (tenant_id e empresa atual/issuer).
+- `app/Filament/Resources/Issuers/IssuerResource.php`: Resource com padrões avançados (Actions, RelationManagers, escopo por tenant).
+- `app/Filament/Resources/CategoryTags/CategoryTagResource.php`: Resource com filtros avançados e escopo por tenant + empresa atual.
 
 ## Key Symbols for This Agent
 - `Filament\Panel`: The Filament panel class.

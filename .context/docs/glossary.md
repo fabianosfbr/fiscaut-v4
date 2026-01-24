@@ -10,6 +10,9 @@ Fiscaut é uma aplicação comercial proprietária construída com Laravel v12, 
 - **Simples Nacional**: Regime tributário simplificado no Brasil, com alíquotas por “Anexo” e “Faixa” de receita.
 - **Filament**: The admin panel framework used to build the UI.
 - **Resource**: A Filament concept representing a CRUD interface for a specific Eloquent model.
+- **Issuer (Empresa)**: Entidade/empresa operada dentro do sistema. Na UI, é gerenciada pelo `IssuerResource` e costuma ser usada como escopo (“empresa atual”) em outras telas.
+- **Tenant (Assinante)**: Organização/cliente do sistema. Vários recursos filtram dados pelo `tenant_id` do usuário autenticado.
+- **Category Tag (Categoria de etiqueta)**: Agrupador de etiquetas (“tags”) usado para classificação/regras, com filtros e contagem de etiquetas relacionadas no admin.
 - **NFe** (Nota Fiscal Eletrônica): Electronic Invoice (likely a related concept in this domain).
 
 ## Type Definitions

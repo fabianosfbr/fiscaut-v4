@@ -30,7 +30,9 @@ The Feature Developer implements new features, integrating them into the existin
 - `tests/Feature`: Testing.
 
 ## Key Files
-- `app/Filament/Resources/CfopResource.php`: Example resource.
+- `app/Filament/Resources/Issuers/IssuerResource.php`: Exemplo de Resource com Actions/RelationManagers.
+- `app/Filament/Resources/CategoryTags/CategoryTagResource.php`: Exemplo de Table com filtros compostos e whereHas.
+- `app/Filament/Resources/Cfops/CfopResource.php`: Exemplo de Resource simples no padrão Schema/Table.
 - `routes/web.php`: Web routes.
 
 ## Key Symbols for This Agent

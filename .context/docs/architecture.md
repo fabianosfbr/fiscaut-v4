@@ -38,6 +38,10 @@ Requests flow through the public index, are routed by Laravel's router, processe
 | Repository (Implicit) | 90% | `app/Filament/Resources` | Filament Resources abstract data access logic |
 | Service Provider | 100% | `app/Providers` | Bootstrapping application services |
 | Facade | 100% | `Illuminate\Support\Facades` | Static interface to classes available in the service container |
+| Resource + Schema + Table | 85% | `app/Filament/Resources/**/Schemas`, `app/Filament/Resources/**/Tables` | Separação de Form e Table em classes dedicadas para padronizar e reaproveitar configuração. |
+| Tenant/Issuer Scoping | 85% | `CategoryTagsTable`, `IssuersTable` | Filtragem de query via `modifyQueryUsing` baseada no `tenant_id` e, quando aplicável, no `currentIssuer`. |
+| Custom Table Actions | 80% | `IssuersTable`, `CategoryTagsTable`, `Issuers/Actions/*` | Ações customizadas (modal, download, redirects) encapsuladas em classes e usadas em `ActionGroup`. |
+| Relation Manager | 80% | `Issuers/RelationManagers/UsersRelationManager`, `CategoryTags/RelationManagers/*` | Gerenciamento de relacionamentos diretamente no Resource (attach/detach, tabs). |
 
 ## Entry Points
 - **Web**: [`public/index.php`](../public/index.php)

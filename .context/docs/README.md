@@ -19,8 +19,13 @@ Welcome to the repository knowledge base. Start with the project overview, then 
 
 ## Recursos Filament (Admin)
 - **Configurações**
+  - Empresas (Issuer): [IssuerResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Issuers/IssuerResource.php)
+  - Assinantes (Tenant): [TenantResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Tenants/TenantResource.php)
+  - Categorias de Etiquetas: [CategoryTagResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/CategoryTags/CategoryTagResource.php)
   - CFOP: [CfopResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Cfops/CfopResource.php)
   - CNAE: [CnaeResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Cnaes/CnaeResource.php)
+  - Códigos de Serviço: [CodigoServicoResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/CodigosServicos/CodigoServicoResource.php)
+  - Acumuladores: [AcumuladoresResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Acumuladores/AcumuladoresResource.php)
   - Alíquotas do Simples Nacional: [SimplesNacionalAliquotaResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/SimplesNacionalAliquotas/SimplesNacionalAliquotaResource.php)
 
 ## Planos (AI Context)

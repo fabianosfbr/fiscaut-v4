@@ -27,6 +27,23 @@ While a strict Service Layer is not enforced by default in Laravel, logic often 
 3. **Persistence**: Validated data is saved to MySQL via Eloquent.
 4. **Feedback**: UI updates via Livewire DOM diffing or Flash notifications.
 
+## Escopo de dados (Tenant / Empresa)
+Boa parte das telas do admin opera com escopo por:
+- **tenant_id**: definido no usuário autenticado.
+- **empresa atual (issuer)**: em alguns recursos, o usuário também precisa ter `currentIssuer` definido para a query retornar dados.
+
+Exemplos implementados:
+- `IssuerResource` lista empresas por `tenant_id` e oferece ações como download de certificado e gerenciamento de serviços: [IssuersTable.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Issuers/Tables/IssuersTable.php)
+- `CategoryTagResource` filtra por `tenant_id` + `issuer_id` e usa filtros avançados com `whereHas(tags)`: [CategoryTagsTable.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/CategoryTags/Tables/CategoryTagsTable.php)
+
+## Fluxos de referência (Filament)
+- **Cadastro de Empresa (Issuer)**
+  - `CreateIssuer` injeta `tenant_id`, criptografa a senha do certificado, consulta dados do CNPJ e cria permissão do usuário para a empresa recém-criada: [CreateIssuer.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Issuers/Pages/CreateIssuer.php)
+  - Ações adicionais no List: download de certificado e gerenciamento de serviços: [DownloadCertificadoAction.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Issuers/Actions/DownloadCertificadoAction.php), [GerenciarServicoAction.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Issuers/Actions/GerenciarServicoAction.php)
+- **Categorias de Etiquetas (CategoryTag)**
+  - Form com campos de classificação/flags e cor: [CategoryTagForm.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/CategoryTags/Schemas/CategoryTagForm.php)
+  - Table com contagem de etiquetas, filtros (ternary/select) e busca composta: [CategoryTagsTable.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/CategoryTags/Tables/CategoryTagsTable.php)
+
 ## Internal Movement
 - **Events & Listeners**: Used for side effects (e.g., `UserRegistered` -> `SendWelcomeEmail`).
 - **Jobs**: Long-running tasks offloaded to the queue (e.g., generating fiscal reports).

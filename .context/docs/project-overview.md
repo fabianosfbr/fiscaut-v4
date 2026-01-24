@@ -25,6 +25,19 @@ Fiscaut v4.1 is a robust fiscal automation and management system built on the La
 ## Key Exports
 See `codebase-map.json` for a complete list of exported symbols and classes. Key resources include Filament Resources located in `app/Filament/Resources`.
 
+## Principais recursos do Admin (Filament)
+- Empresas (Issuer): [IssuerResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Issuers/IssuerResource.php)
+- Assinantes (Tenant): [TenantResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Tenants/TenantResource.php)
+- Categorias de Etiquetas: [CategoryTagResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/CategoryTags/CategoryTagResource.php)
+- CFOP: [CfopResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Cfops/CfopResource.php)
+- CNAE: [CnaeResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Cnaes/CnaeResource.php)
+- Códigos de Serviço: [CodigoServicoResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/CodigosServicos/CodigoServicoResource.php)
+- Acumuladores: [AcumuladoresResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Acumuladores/AcumuladoresResource.php)
+
+## Multi-tenant e escopo por empresa
+- O painel Filament registra automaticamente Resources via `discoverResources(...)`: [AdminPanelProvider.php](file:///root/projetos/fiscaut-v4.1/app/Providers/Filament/AdminPanelProvider.php)
+- Alguns recursos escopam dados por `tenant_id` e/ou pela empresa atual (issuer) do usuário, geralmente com `modifyQueryUsing` nas Tables.
+
 ## File Structure & Code Organization
 - `app/` — Core application code, including Models, Http Controllers, and Filament Resources.
 - `bootstrap/` — Framework bootstrapping and configuration.
