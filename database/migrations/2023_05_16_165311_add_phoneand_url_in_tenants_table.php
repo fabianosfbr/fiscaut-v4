@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('tenants', function (Blueprint $table) {
             $table->string('phone')->after('name')->nullable();
-            // $table->string('url')->after('phone')->nullable();
+            //$table->string('url')->after('phone')->nullable();
         });
     }
 

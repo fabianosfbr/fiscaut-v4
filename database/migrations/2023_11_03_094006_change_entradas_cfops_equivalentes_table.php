@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::table('entradas_cfops_equivalentes', function (Blueprint $table) {
 
             $table->unsignedBigInteger('grupo_id')->nullable();
-            // $table->foreign('grupo_id')->references('id')->on('grupo_entradas_cfops_equivalentes')->onDelete('cascade')->nullable();
+            //$table->foreign('grupo_id')->references('id')->on('grupo_entradas_cfops_equivalentes')->onDelete('cascade')->nullable();
 
         });
     }
@@ -28,6 +28,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('entradas_cfops_equivalentes', function (Blueprint $table) {});
+        Schema::table('entradas_cfops_equivalentes', function (Blueprint $table) {
+
+        });
     }
 };

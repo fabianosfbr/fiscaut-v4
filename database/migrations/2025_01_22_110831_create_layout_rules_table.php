@@ -17,16 +17,16 @@ return new class extends Migration
             $table->integer('position');
             $table->string('data_source_type');
             $table->text('data_source')->nullable();
-            $table->text('data_source_constant')->nullable(); // alterado
-            $table->text('data_source_query')->nullable(); // add
+            $table->text('data_source_constant')->nullable(); //alterado
+            $table->text('data_source_query')->nullable(); //add
             $table->string('data_format')->nullable();
             $table->string('format_string')->nullable();
             $table->string('condition_type')->default('none');
             $table->text('condition')->nullable();
             $table->string('condition_data_source_type')->nullable();
             $table->text('condition_data_source')->nullable();
-            $table->text('condition_data_source_constant')->nullable(); // alterado
-            $table->text('condition_data_source_query')->nullable(); // add
+            $table->text('condition_data_source_constant')->nullable(); //alterado
+            $table->text('condition_data_source_query')->nullable(); //add
             $table->string('condition_operator')->nullable();
             $table->string('condition_value')->nullable();
             $table->string('default_value')->nullable();
@@ -45,6 +45,7 @@ return new class extends Migration
             $table->string('condition_data_source_value_type')->nullable();
             $table->string('condition_data_source_search_value')->nullable();
             $table->string('condition_data_source_search_constant')->nullable();
+
 
             $table->timestamps();
         });

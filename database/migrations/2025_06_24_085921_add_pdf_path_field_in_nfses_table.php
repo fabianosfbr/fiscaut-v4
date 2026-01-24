@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('nfses', function (Blueprint $table) {
-            // if not exists
-            if (! Schema::hasColumn('nfses', 'pdf_path')) {
+            //if not exists
+            if (!Schema::hasColumn('nfses', 'pdf_path')) {
                 $table->string('pdf_path')->nullable();
             }
         });
