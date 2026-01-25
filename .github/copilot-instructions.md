@@ -1,6 +1,6 @@
 # Project Rules and Guidelines
 
-> Auto-generated from .context/docs on 2026-01-24T23:05:53.692Z
+> Auto-generated from .context/docs on 2026-01-25T15:01:03.051Z
 
 ## README
 
@@ -32,6 +32,7 @@ Welcome to the repository knowledge base. Start with the project overview, then 
   - CNAE: [CnaeResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Cnaes/CnaeResource.php)
   - Códigos de Serviço: [CodigoServicoResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/CodigosServicos/CodigoServicoResource.php)
   - Acumuladores: [AcumuladoresResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Acumuladores/AcumuladoresResource.php)
+  - Anexos do Simples Nacional: [SimplesNacionalAnexoResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/SimplesNacionalAnexos/SimplesNacionalAnexoResource.php)
   - Alíquotas do Simples Nacional: [SimplesNacionalAliquotaResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/SimplesNacionalAliquotas/SimplesNacionalAliquotaResource.php)
 
 ## Planos (AI Context)
