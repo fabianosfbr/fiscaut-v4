@@ -1,84 +1,99 @@
-# Architecture Notes
+# Architecture Documentation
 
-## Architecture Notes
-Fiscaut v4.1 follows the standard Laravel architecture, extended by the Filament ecosystem for the administrative interface. It adheres to the Model-View-Controller (MVC) pattern, although the "View" layer is heavily managed by Livewire components and Filament Resources.
+Fiscaut v4.1 is a robust commercial application built on the **TALL stack** (Tailwind CSS, Alpine.js, Laravel, and Livewire). It follows a **Modular Monolith** architecture, leveraging the FilamentPHP ecosystem to provide a highly extensible administrative interface and data management system.
 
-## Contexto e Stack
-- **Produto**: aplicação comercial proprietária (confidencial).
-- **Frameworks**: Laravel v12, FilamentPHP v5 e Livewire v4.
+## Technology Stack
 
-## System Architecture Overview
-The application is a **Modular Monolith** built on Laravel.
-- **Web Server**: Nginx (via Sail/Docker) handles incoming HTTP requests.
-- **Application Server**: PHP-FPM executes the Laravel application.
-- **Database**: MySQL stores relational data.
-- **Queue Worker**: Redis (optional/configurable) for background jobs.
+| Layer | Technology |
+|-------|------------|
+| **Backend Framework** | Laravel v12 |
+| **Admin Panel** | FilamentPHP v5 |
+| **Frontend Reactivity** | Livewire v4 & Alpine.js |
+| **Styling** | Tailwind CSS |
+| **Database** | MySQL |
+| **Caching/Queues** | Redis (Configurable) |
+| **Runtime** | PHP-FPM / Nginx (Docker/Sail) |
 
-Requests flow through the public index, are routed by Laravel's router, processed by Controllers or Livewire Components, and responses are rendered via Blade templates.
+---
 
 ## Architectural Layers
-- **Domain Layer**: Located primarily in `app/Models`. Represents the business entities (e.g., `Cfop`, `User`).
-- **Application Layer**:
-    - `app/Http/Controllers`: Standard HTTP controllers (less used in favor of Livewire/Filament).
-    - `app/Filament/Resources`: Filament resources acting as the admin logic layer (CRUD operations).
-    - `app/Livewire`: Custom Livewire components for dynamic UI elements.
-- **Infrastructure Layer**: `database/migrations`, `config/`, and `app/Providers`.
-- **Presentation Layer**: `resources/views` (Blade files) and Filament generated views.
 
-### Filament Resources (exemplos)
-- Configurações: [CfopResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Cfops/CfopResource.php), [CnaeResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Cnaes/CnaeResource.php), [SimplesNacionalAnexoResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/SimplesNacionalAnexos/SimplesNacionalAnexoResource.php), [SimplesNacionalAliquotaResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/SimplesNacionalAliquotas/SimplesNacionalAliquotaResource.php)
-- Registro automático no painel: [AdminPanelProvider.php](file:///root/projetos/fiscaut-v4.1/app/Providers/Filament/AdminPanelProvider.php) usa `discoverResources(...)` para carregar recursos em `app/Filament/Resources`.
+The application follows the standard Laravel MVC pattern, enhanced by Filament's resource-based architecture.
 
-> See [`codebase-map.json`](./codebase-map.json) for complete symbol counts and dependency graphs.
+### 1. Domain Layer (`app/Models`)
+Represents the business entities and logic. 
+- **Models**: High-level entities such as `Cfop`, `Cnae`, `User`, and `SimplesNacionalAnexo`.
+- **Relationships**: Standard Eloquent relationships (HasMany, BelongsTo) define the data graph.
+- **Scoping**: Heavy use of Global Scopes or `modifyQueryUsing` for multi-tenancy and issuer-based filtering.
 
-## Detected Design Patterns
-| Pattern | Confidence | Locations | Description |
-|---------|------------|-----------|-------------|
-| MVC | 100% | `app/Http/Controllers`, `app/Models`, `resources/views` | Core Laravel Architecture |
-| Repository (Implicit) | 90% | `app/Filament/Resources` | Filament Resources abstract data access logic |
-| Service Provider | 100% | `app/Providers` | Bootstrapping application services |
-| Facade | 100% | `Illuminate\Support\Facades` | Static interface to classes available in the service container |
-| Resource + Schema + Table | 85% | `app/Filament/Resources/**/Schemas`, `app/Filament/Resources/**/Tables` | Separação de Form e Table em classes dedicadas para padronizar e reaproveitar configuração. |
-| Tenant/Issuer Scoping | 85% | `CategoryTagsTable`, `IssuersTable` | Filtragem de query via `modifyQueryUsing` baseada no `tenant_id` e, quando aplicável, no `currentIssuer`. |
-| Custom Table Actions | 80% | `IssuersTable`, `CategoryTagsTable`, `Issuers/Actions/*` | Ações customizadas (modal, download, redirects) encapsuladas em classes e usadas em `ActionGroup`. |
-| Relation Manager | 80% | `Issuers/RelationManagers/UsersRelationManager`, `CategoryTags/RelationManagers/*` | Gerenciamento de relacionamentos diretamente no Resource (attach/detach, tabs). |
+### 2. Application Layer (`app/Filament` & `app/Livewire`)
+This layer handles the orchestration of business logic and user interactions.
+- **Filament Resources**: Located in `app/Filament/Resources`, these act as the primary controllers for CRUD operations.
+- **Schemas & Tables**: Configuration for forms and tables is often extracted into dedicated classes within the Resource directories to promote reusability.
+- **Actions**: Custom logic for data processing (e.g., exports, downloads, status changes) is encapsulated in `Action` classes.
+- **Relation Managers**: Manage sub-resources (e.g., managing `Users` within an `Issuer` context) directly within the parent view.
 
-## Entry Points
-- **Web**: [`public/index.php`](../public/index.php)
-- **Console**: [`artisan`](../artisan)
+### 3. Presentation Layer (`resources/views` & JS Components)
+- **Blade Templates**: Used for structural layouts.
+- **Filament Components**: Pre-built UI components for forms, tables, and notifications.
+- **Alpine.js**: Handles client-side reactivity for complex UI elements like `RichEditor`, `Wizard`, and `Select` utilities.
+- **Assets**: Core frontend logic for Filament components is located in `public/js/filament/`.
 
-## Public API
-(Currently, the application is primarily a web interface. API endpoints would be defined in `routes/api.php` if exposed.)
+### 4. Infrastructure Layer
+- **Service Providers**: (`app/Providers`) Bootstrap application services, register Filament panels, and configure authentication guards.
+- **Migrations**: (`database/migrations`) Define the relational schema for MySQL.
 
-| Symbol | Type | Location |
-|--------|------|----------|
-| `api/*` | Route | `routes/api.php` |
+---
 
-## Internal System Boundaries
-- **Admin Panel vs. Public Front**: The `app/Filament` directory encapsulates the administrative domain, while `app/Http/Controllers` (if used) would handle public-facing pages.
-- **Authentication**: Managed by Laravel's auth system, likely integrated with Filament's auth guards.
+## Key Design Patterns
 
-## External Service Dependencies
-- **MySQL**: Primary data store.
-- **Redis** (Optional): Cache and Queue driver.
-- **Mail Server**: SMTP configuration for sending emails (e.g., Mailpit in local dev).
+| Pattern | Implementation in Fiscaut |
+|---------|---------------------------|
+| **MVC** | Core Laravel structure (Model-View-Controller). |
+| **Resource-Based Routing** | Filament resources automatically map URL structures to specific database entities. |
+| **Tenant/Issuer Scoping** | Systematic filtering of queries based on `tenant_id` or `currentIssuer` to ensure data isolation. |
+| **Facade** | Static interfaces to internal services (e.g., `Notification::make()`). |
+| **Action Pattern** | Encapsulating specific business tasks (like "Download Report") into discrete, testable classes. |
+| **Repository (Implicit)** | Filament Resources abstract the data access layer, providing a unified interface for fetching and saving models. |
 
-## Key Decisions & Trade-offs
-- **Filament vs. Custom Admin**: Choosing Filament accelerates development of CRUD interfaces but ties the UI to the TALL stack (Tailwind, Alpine, Laravel, Livewire).
-- **Livewire vs. Vue/React**: Livewire allows keeping logic in PHP, reducing context switching and complexity for a PHP-focused team.
+---
 
-## Top Directories Snapshot
-- `app/` (Core Logic)
-- `database/` (Schema & Data)
-- `resources/` (Views & Assets)
-- `routes/` (Routing)
-- `tests/` (Testing)
+## Frontend Component Architecture
 
-## Related Resources
-- [project-overview.md](./project-overview.md)
-- [data-flow.md](./data-flow.md)
+The application utilizes a sophisticated JavaScript bridge between PHP and the browser, primarily managed by Alpine.js and Livewire.
 
-## Cross-References
-- [project-overview.md](./project-overview.md)
-- [data-flow.md](./data-flow.md)
-- [codebase-map.json](./codebase-map.json)
+### Core Utilities (`vendor/filament/support/resources/js/utilities`)
+- **`Select`**: A robust utility for managing dropdown logic and search.
+- **`Pluralize`**: String manipulation for UI labels.
+- **`Modal`**: Logic for managing overlay states and keyboard interactions.
+
+### Component Logic
+Interactive UI elements are broken down into specialized scripts:
+- **Forms**: Components like `rich-editor.js`, `tags-input.js`, and `file-upload.js` handle client-side validation and async processing.
+- **Tables**: Logic in `table.js` handles row selection, bulk actions, and polling.
+- **Notifications**: Managed by `Notification.js`, providing real-time feedback to users via the `Notification` class.
+
+---
+
+## System Entry Points
+
+- **Web Entry**: `public/index.php` routes all HTTP traffic.
+- **Admin Panel**: Accessible via the path defined in `AdminPanelProvider.php` (typically `/admin`).
+- **CLI**: `artisan` serves as the entry point for scheduled tasks, migrations, and code generation.
+
+---
+
+## Data Flow & Security
+
+1. **Request**: A user interacts with a Filament Table or Form.
+2. **Middleware**: Laravel and Filament middleware verify authentication and tenant access.
+3. **Processing**: Livewire intercepts the action, executing logic in the corresponding Resource or RelationManager.
+4. **Data Access**: The Model applies scopes (e.g., `tenant_id`) before querying MySQL.
+5. **Response**: Livewire updates only the affected DOM elements, or Filament triggers a `Notification` toast.
+
+---
+
+## Related Documentation
+- [Project Overview](./project-overview.md)
+- [Data Flow](./data-flow.md)
+- [Codebase Map](./codebase-map.json)

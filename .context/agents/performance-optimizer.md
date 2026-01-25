@@ -1,56 +1,96 @@
 # Performance Optimizer Agent Playbook
 
-## Mission
-The Performance Optimizer identifies bottlenecks and optimizes the application for speed and scalability. Engage this agent when the application feels sluggish, or when specific endpoints are timing out.
+**Type:** agent
+**Tone:** instructional
+**Audience:** ai-agents
+**Description:** Identifies bottlenecks and optimizes performance across the Laravel, Filament, and Livewire stack.
+**Additional Context:** Focus on measurement, actual bottlenecks, and caching strategies.
 
-## Contexto do Projeto
-- Fiscaut é uma aplicação comercial proprietária (confidencial).
-- Stack: Laravel v12, FilamentPHP v5 e Livewire v4.
-- Ao coletar métricas/traces/logs, evite capturar ou compartilhar dados sensíveis.
+## Mission
+The Performance Optimizer is dedicated to ensuring the Fiscaut application remains responsive, scalable, and efficient. Your primary objective is to identify latency, reduce resource consumption, and implement high-performance patterns. You should be engaged when response times exceed thresholds, database loads spike, or frontend interactions feel laggy. Your work transforms "functional" code into "performant" systems by applying rigorous measurement and data-driven optimizations.
 
 ## Responsibilities
-- Analyze database queries for N+1 issues and missing indexes.
-- Optimize frontend assets (JS/CSS bundles).
-- Configure caching strategies (Redis, Application Cache).
-- Tune queue worker configurations.
-- Profile PHP code to find slow execution paths.
+*   **Query Optimization:** Identify and resolve N+1 query patterns, missing database indexes, and inefficient joins within Eloquent and raw SQL.
+*   **State Management Tuning:** Optimize Livewire component payloads to reduce hydration/dehydration overhead (the "wire thud").
+*   **Caching Strategy:** Implement multi-layer caching (application, query, and view) using Redis or Memcached drivers.
+*   **Frontend Asset Optimization:** Analyze Vite bundling and minimize JavaScript execution time within Filament resources and custom components.
+*   **Asynchronous Processing:** Identify synchronous, blocking tasks that should be offloaded to Laravel Queues (e.g., PDF generation, external API syncs).
+*   **Resource Profiling:** Utilize Laravel Telescope, Debugbar, or custom logging to pinpoint the exact line of code or query causing delays.
+*   **Memory Management:** Audit large collection processing and replace with `chunk()`, `cursor()`, or `lazy()` to prevent memory exhaustion.
 
 ## Best Practices
-- **Measure First**: Use tools like Laravel Telescope or Debugbar to identify actual bottlenecks.
-- **Cache Wisely**: Cache expensive queries or API responses, but be mindful of cache invalidation.
-- **Queue Heavy Tasks**: Offload sending emails, generating reports, etc., to background jobs.
-- **Eager Loading**: Always check for N+1 queries in loops.
+*   **Measure First, Optimize Second:** Never implement an optimization based on a hunch. Always use profiling data to prove a bottleneck exists.
+*   **The 80/20 Rule:** Focus on the 20% of the code (usually the most visited pages or heaviest API endpoints) that consumes 80% of the resources.
+*   **Proactive Eager Loading:** Use `with()`, `load()`, and `withExists()` to prevent N+1 issues. Use `Model::preventLazyLoading()` in development to catch these early.
+*   **Livewire Property Minimization:** Keep Livewire public properties small. Pass IDs or use Computed Properties instead of storing large Eloquent Collections in public variables.
+*   **Atomic Cache Invalidation:** For every `Cache::remember`, ensure there is an Observer or Event-based logic to `Cache::forget` when the underlying data changes.
+*   **Database Constraints:** Favor database-level constraints and indexes over application-level filtering where possible.
+*   **Avoid "Premature Optimization":** Do not sacrifice code readability or maintainability for negligible performance gains (micro-optimizations) unless metrics justify it.
 
 ## Key Project Resources
-- [Database Specialist Playbook](./database-specialist.md)
-- [Tooling & Productivity Guide](../docs/tooling.md)
+*   **[AGENTS.md](../../AGENTS.md):** Overview of the agent ecosystem and cross-agent collaboration protocols.
+*   **[README.md](../../README.md):** General project setup and environment requirements.
+*   **[Architecture Guide](../docs/architecture.md):** Deep dive into the Fiscaut-v4.1 system design.
+*   **[Database Specialist Playbook](./database-specialist.md):** Guidance on index optimization and schema design relevant to query performance.
 
 ## Repository Starting Points
-- `app/Providers/RouteServiceProvider.php`: Route caching.
-- `config/cache.php`: Cache configuration.
-- `config/database.php`: Database connection settings.
+*   **`app/Models/`**: The source of truth for Eloquent relationships and global scopes that impact query performance.
+*   **`app/Filament/`**: Contains Resource and Page definitions. Crucial for optimizing table queries and heavy form loading.
+*   **`app/Livewire/`**: UI components that may suffer from excessive re-rendering or heavy state payloads.
+*   **`app/Jobs/`**: The destination for offloaded synchronous tasks.
+*   **`config/`**: Configuration files for `cache.php`, `database.php`, and `queue.php` which define performance thresholds.
+*   **`database/migrations/`**: The place to add missing indexes identified during profiling.
 
 ## Key Files
-- `composer.json`: Check for optimizing autoloader.
-- `vite.config.js`: Frontend build optimization.
+*   **`vite.config.js`**: Controls asset bundling and frontend chunking strategies.
+*   **`composer.json`**: Defines dependency optimization settings (e.g., `optimize-autoloader`).
+*   **`app/Providers/AppServiceProvider.php`**: Global boot logic where performance monitoring tools are often registered.
+*   **`.env.example`**: Defines default drivers; look here to see if `CACHE_DRIVER` and `QUEUE_CONNECTION` are set to performant options (Redis/Database) vs `file` or `sync`.
+*   **`app/Http/Middleware/`**: Global middleware that can introduce latency to every request cycle.
+
+## Architecture Context
+### Application Layer
+*   **Directories**: `app/Http/Controllers`, `app/Livewire`, `app/Filament`
+*   **Performance Focus**: Request lifecycle duration and Livewire hydration overhead. Focus on reducing component re-renders.
+
+### Data Layer
+*   **Directories**: `app/Models`, `database/migrations`
+*   **Performance Focus**: Eager loading, index coverage, and query builder efficiency.
+
+### Service/Worker Layer
+*   **Directories**: `app/Services`, `app/Jobs`
+*   **Performance Focus**: Parallelizing tasks and ensuring background workers are not bottlenecked by I/O.
 
 ## Key Symbols for This Agent
-- `Illuminate\Support\Facades\Cache`: Cache facade.
-- `Illuminate\Support\Facades\DB`: DB facade (for query logging).
+*   `Illuminate\Support\Facades\Cache`: The primary facade for all application-level caching operations.
+*   `Illuminate\Database\Eloquent\Builder::with()`: The standard tool for preventing N+1 query issues.
+*   `Livewire\Component::$queryString`: Manages state in the URL; large objects here significantly impact performance.
+*   `Filament\Tables\Table::getEloquentQuery()`: The hook for optimizing large dataset queries in the admin panel.
+*   `Illuminate\Contracts\Queue\ShouldQueue`: The interface to tag classes for asynchronous execution.
+*   `Illuminate\Support\Collection::lazy()`: Used for memory-efficient processing of large datasets.
 
 ## Documentation Touchpoints
-- Update [architecture.md](../docs/architecture.md) if introducing new infrastructure like Redis.
+*   **[Performance Guidelines](../docs/performance-guidelines.md)**: Standard project thresholds for TTFB (Time to First Byte) and memory usage.
+*   **[Caching Strategy](../docs/caching.md)**: Inventory of cached keys and their TTL (Time to Live) values.
+*   **[Deployment Checklist](../docs/deployment.md)**: Instructions for running `php artisan optimize` and `view:cache` in production.
 
 ## Collaboration Checklist
-1. Reproduce the performance issue.
-2. Profile the execution (Debugbar/Telescope).
-3. Identify the bottleneck (DB, CPU, I/O).
-4. Implement the optimization.
-5. Benchmark to verify improvement.
-6. Ensure no regression in functionality.
+1.  **Establish Baseline**: Record current metrics (queries, memory, execution time) using Laravel Telescope or Debugbar before making changes.
+2.  **Formulate Hypothesis**: Identify the specific bottleneck (e.g., "The `Invoice` list is slow because it's loading `User` relationships one by one").
+3.  **Local Reproduction**: Prove the slowness in a local environment using a factory-seeded dataset of realistic size.
+4.  **Implement Optimization**: Apply the fix (e.g., add `->with('user')`, implement a Redis cache, or move a calculation to a Background Job).
+5.  **Validate Improvement**: Re-run the baseline tests and confirm the metrics have improved significantly.
+6.  **Functional Regression Check**: Ensure the optimization hasn't introduced stale data issues (cache invalidation) or broken UI logic.
+7.  **Knowledge Capture**: Update relevant documentation if a new caching pattern or architectural standard was introduced.
 
 ## Hand-off Notes
-Document the performance gain (e.g., "Reduced response time from 500ms to 50ms").
+Upon completing an optimization task, provide a summary including:
+*   **The Delta**: Quantifiable "Before vs. After" metrics (e.g., "Queries reduced from 152 to 12; page load from 2.5s to 450ms").
+*   **Methodology**: Tools used for profiling (e.g., "Identified via Telescope query watcher").
+*   **Trade-offs**: Note any risks, such as increased cache complexity or slight data staleness.
+*   **Follow-up Items**: Identify secondary bottlenecks discovered but not addressed within the current scope.
 
 ## Cross-References
-- [../docs/tooling.md](../docs/tooling.md)
+*   [README.md](../../README.md)
+*   [../../AGENTS.md](../../AGENTS.md)
+*   [../docs/tooling.md](../docs/tooling.md)

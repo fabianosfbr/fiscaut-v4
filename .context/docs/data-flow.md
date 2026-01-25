@@ -1,61 +1,108 @@
-# Data Flow & Integrations
+# Data Flow and Integrations
 
-## Data Flow & Integrations
-Data in Fiscaut v4.1 primarily flows from user inputs in the Filament Admin Panel to the MySQL database via Eloquent Models. External integrations are minimal in the core structure but may exist for specific fiscal services.
+This document details the movement of data through the Fiscaut v4.1 application. It covers the path from user interaction in the Filament Admin Panel to database persistence and external service integrations.
 
-## Nota de Confidencialidade
-Fiscaut é um produto comercial proprietário. Documente integrações e fluxos sem expor segredos (tokens, chaves, URLs internas) ou dados sensíveis.
+## Architecture Overview
 
-## Module Dependencies
-- **app/Filament/** → Depends on `app/Models` and `Filament` vendor packages.
-- **app/Http/** → Depends on `app/Models`.
-- **app/Models/** → Depends on `Illuminate\Database\Eloquent`.
-- **database/** → Depends on Schema definitions.
+Fiscaut utilizes the **TALL stack** (Tailwind CSS, Alpine.js, Laravel, and Livewire). Data flow is primarily reactive, leveraging Livewire to synchronize the frontend state with backend logic.
 
-## Service Layer
-While a strict Service Layer is not enforced by default in Laravel, logic often resides in:
-- **Filament Resources**: `app/Filament/Resources/*Resource.php` (Handling UI & Persistence logic).
-- **Actions**: `app/Actions` (if present, for reusable business logic).
-- **Models**: `app/Models` (Business logic related to data).
+### Core Components
+- **Frontend (UI)**: Alpine.js and Filament components (found in `public/js/filament` and `vendor/filament`) manage the browser-side state and interactions.
+- **Transport**: Livewire handles asynchronous AJAX requests to bridge the client and the server.
+- **Business Logic**: Filament Resources (located in `app/Filament/Resources`) define schemas, validation, and authorization.
+- **Persistence**: Eloquent Models (`app/Models`) interface with the MySQL database.
 
-## High-level Flow
-1. **Input**: User interacts with a Filament Form or Table.
-2. **Processing**:
-   - Livewire intercepts the interaction.
-   - Validation rules in the Resource/Form are applied.
-   - Authorization policies (`app/Policies`) are checked.
-3. **Persistence**: Validated data is saved to MySQL via Eloquent.
-4. **Feedback**: UI updates via Livewire DOM diffing or Flash notifications.
+---
 
-## Escopo de dados (Tenant / Empresa)
-Boa parte das telas do admin opera com escopo por:
-- **tenant_id**: definido no usuário autenticado.
-- **empresa atual (issuer)**: em alguns recursos, o usuário também precisa ter `currentIssuer` definido para a query retornar dados.
+## Request Lifecycle
 
-Exemplos implementados:
-- `IssuerResource` lista empresas por `tenant_id` e oferece ações como download de certificado e gerenciamento de serviços: [IssuersTable.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Issuers/Tables/IssuersTable.php)
-- `CategoryTagResource` filtra por `tenant_id` + `issuer_id` e usa filtros avançados com `whereHas(tags)`: [CategoryTagsTable.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/CategoryTags/Tables/CategoryTagsTable.php)
+### 1. User Interaction
+Users interact with components such as:
+- **Form Fields**: `TextInput`, `Select`, `RichEditor`, or `DateTimePicker` (e.g., `vendor/filament/forms/resources/js/components/date-time-picker.js`).
+- **Table Actions**: Sorting, filtering, or clicking actions like "Edit" or "Delete" in `FilamentTableColumnManager`.
 
-## Fluxos de referência (Filament)
-- **Cadastro de Empresa (Issuer)**
-  - `CreateIssuer` injeta `tenant_id`, criptografa a senha do certificado, consulta dados do CNPJ e cria permissão do usuário para a empresa recém-criada: [CreateIssuer.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Issuers/Pages/CreateIssuer.php)
-  - Ações adicionais no List: download de certificado e gerenciamento de serviços: [DownloadCertificadoAction.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Issuers/Actions/DownloadCertificadoAction.php), [GerenciarServicoAction.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Issuers/Actions/GerenciarServicoAction.php)
-- **Categorias de Etiquetas (CategoryTag)**
-  - Form com campos de classificação/flags e cor: [CategoryTagForm.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/CategoryTags/Schemas/CategoryTagForm.php)
-  - Table com contagem de etiquetas, filtros (ternary/select) e busca composta: [CategoryTagsTable.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/CategoryTags/Tables/CategoryTagsTable.php)
+### 2. Processing & Validation
+- **State Synchronization**: As users type or select options, Livewire intercepts these changes and sends updates to the server.
+- **Server-Side Validation**: Rules defined in Resource files (e.g., `CategoryTagForm.php`) are executed. If validation fails, a `ValidationException` is thrown, and errors are returned to the UI.
+- **Authorization**: Laravel Policies (`app/Policies`) verify that the authenticated user has the necessary permissions (e.g., `view`, `create`, `update`) for the specific resource.
 
-## Internal Movement
-- **Events & Listeners**: Used for side effects (e.g., `UserRegistered` -> `SendWelcomeEmail`).
-- **Jobs**: Long-running tasks offloaded to the queue (e.g., generating fiscal reports).
+### 3. Persistence & Hooks
+Validated data is persisted via Eloquent.
+- **Standard Flow**: Filament's `CreateRecord` and `EditRecord` pages handle the saving process automatically.
+- **Lifecycle Hooks**: Custom logic can be injected using hooks such as `mutateFormDataBeforeCreate` or `afterSave`. For example, in `CreateIssuer.php`, company data might be enriched before being stored.
+
+### 4. UI Feedback
+- **Notifications**: The system uses the `Notification` class (`vendor/filament/notifications/resources/js/Notification.js`) to send toast messages (Success, Warning, Danger) to the user.
+- **DOM Updates**: Livewire performs DOM diffing to update only the modified parts of the page, ensuring a smooth SPA-like experience.
+
+---
+
+## Data Scoping & Multi-Tenancy
+
+Fiscaut implements strict data isolation to ensure security and privacy between different entities.
+
+### Tenant Isolation (`tenant_id`)
+Most database tables include a `tenant_id` column. Global scopes are applied to Eloquent models to ensure that users only see data belonging to their specific organization or account.
+
+### Issuer Context (`issuer_id`)
+Many fiscal operations require a specific "Active Issuer" (Empresa Atual).
+- **Session Context**: The current `issuer_id` is typically stored in the user's session.
+- **Query Scoping**: Resources like `CategoryTagsTable.php` filter records based on both the active `tenant_id` and the selected `issuer_id`.
+
+---
+
+## Key Reference Flows
+
+### Issuer (Company) Registration
+The creation of an "Issuer" involves several integration points:
+1. **CNPJ Lookup**: The system fetches public registration data via an external API.
+2. **Encryption**: Sensitive data, such as digital certificate passwords, is encrypted before being stored in the database.
+3. **Permission Granting**: Upon successful creation, the system automatically creates a permission record linking the creator to the new Issuer.
+4. **Reference**: `app/Filament/Resources/Issuers/Pages/CreateIssuer.php`.
+
+### Fiscal Document Processing
+Handling fiscal documents (NF-e, NFC-e) involves specialized actions:
+- **Certificate Management**: `DownloadCertificadoAction.php` handles the retrieval and streaming of stored digital certificates.
+- **Service Configuration**: `GerenciarServicoAction.php` allows users to enable or disable specific communication services with SEFAZ (the Brazilian tax authority).
+
+---
+
+## Internal & Background Processes
+
+### Events & Listeners
+Fiscaut uses Laravel's Event system to decouple secondary tasks:
+- **User Created**: Triggers default setting initialization.
+- **Document Issued**: Triggers email notifications to customers.
+
+### Background Jobs & Queues
+Resource-intensive tasks are processed asynchronously:
+- **Heavy Reporting**: Generation of complex fiscal summaries.
+- **SEFAZ Synchronization**: Polling government web services for document status updates or synchronization.
+
+---
 
 ## External Integrations
-- **Database**: MySQL (Connection via PDO).
-- **Filesystem**: Local or S3 (for document storage).
 
-## Observability & Failure Modes
-- **Logs**: Laravel writes to `storage/logs/laravel.log`.
-- **Exceptions**: Handled by `bootstrap/app.php` and rendered to the user (or debug page in local).
-- **Validation Errors**: Automatically displayed in Filament forms.
+| Integration | Type | Purpose |
+| :--- | :--- | :--- |
+| **MySQL** | Database | Primary relational storage. |
+| **Filesystem** | Local/S3 | Storage for encrypted `.pfx` certificates and generated XML/PDF documents. |
+| **Fiscal APIs** | External | Integration with government services for document validation, signing, and transmission. |
+
+---
+
+## Observability & Debugging
+
+### Logging
+System events, integration errors, and exceptions are logged to `storage/logs/laravel.log`. For fiscal integrations, checking these logs is critical for identifying communication failures with external APIs.
+
+### Error Handling
+- **Frontend**: Alpine.js catches client-side UI errors.
+- **Backend**: Configured in `bootstrap/app.php`, the application uses standard Laravel exception handling. In development, detailed stack traces are available via the Whoops handler.
+
+---
 
 ## Cross-References
-- [architecture.md](./architecture.md)
+- [Architecture Overview](./architecture.md)
+- **Model Definitions**: Located in `app/Models/`
+- **Filament Configuration**: Located in `app/Filament/Resources/`

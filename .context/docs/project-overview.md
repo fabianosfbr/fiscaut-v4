@@ -1,93 +1,120 @@
-# Project Overview
+# Fiscaut v4.1 - Project Overview
 
-## Project Overview
-Fiscaut v4.1 is a robust fiscal automation and management system built on the Laravel framework. It is designed to streamline tax compliance and fiscal operations for businesses, providing a centralized platform for managing fiscal documents and obligations. The system leverages the power of Filament for a modern, responsive administrative interface.
+## Introduction
+Fiscaut v4.1 is a professional-grade fiscal automation and management system built on the **Laravel** framework. It serves as a centralized platform for businesses to streamline tax compliance, manage complex fiscal documents, and handle regulatory obligations.
 
-## Status do Produto (Proprietário)
-- **Aplicação comercial proprietária**: este repositório não é open-source.
-- **Uso e distribuição**: somente por pessoas e ambientes autorizados/licenciados.
-- **Sigilo**: evite copiar/colar código e detalhes de implementação para fora de canais aprovados.
+The application is built using the **TALL stack** (Tailwind, Alpine.js, Laravel, Livewire) and leverages **Filament** to provide a highly productive, reactive administrative interface.
 
-## Codebase Reference
-> **Detailed Analysis**: For complete symbol counts, architecture layers, and dependency graphs, see [`codebase-map.json`](./codebase-map.json).
+---
 
-## Quick Facts
-- **Root**: `/root/projetos/fiscaut-v4.1`
-- **Languages**: PHP (Laravel), JavaScript (Alpine.js/Livewire), CSS (Tailwind)
-- **Frameworks**: Laravel 12, Filament 5, Livewire 4
-- **Database**: MySQL
-- **Full analysis**: [`codebase-map.json`](./codebase-map.json)
+## Technical Stack
 
-## Entry Points
-- **Web Entry**: [`public/index.php`](../public/index.php) - The standard Laravel entry point.
-- **Console Entry**: [`artisan`](../artisan) - The Laravel command-line interface.
+| Layer | Technology |
+| :--- | :--- |
+| **Backend** | PHP 8.4+ / Laravel 12 |
+| **Frontend** | Livewire 4, Alpine.js, Blade |
+| **Admin UI** | Filament 5 |
+| **CSS Framework** | Tailwind CSS 4.1 |
+| **Database** | MySQL |
+| **Asset Pipeline** | Vite |
+| **Local Dev** | Laravel Sail (Docker) |
 
-## Key Exports
-See `codebase-map.json` for a complete list of exported symbols and classes. Key resources include Filament Resources located in `app/Filament/Resources`.
+---
 
-## Principais recursos do Admin (Filament)
-- Empresas (Issuer): [IssuerResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Issuers/IssuerResource.php)
-- Assinantes (Tenant): [TenantResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Tenants/TenantResource.php)
-- Categorias de Etiquetas: [CategoryTagResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/CategoryTags/CategoryTagResource.php)
-- CFOP: [CfopResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Cfops/CfopResource.php)
-- CNAE: [CnaeResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Cnaes/CnaeResource.php)
-- Códigos de Serviço: [CodigoServicoResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/CodigosServicos/CodigoServicoResource.php)
-- Acumuladores: [AcumuladoresResource.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Resources/Acumuladores/AcumuladoresResource.php)
+## Core Architecture
 
-## Multi-tenant e escopo por empresa
-- O painel Filament registra automaticamente Resources via `discoverResources(...)`: [AdminPanelProvider.php](file:///root/projetos/fiscaut-v4.1/app/Providers/Filament/AdminPanelProvider.php)
-- Alguns recursos escopam dados por `tenant_id` e/ou pela empresa atual (issuer) do usuário, geralmente com `modifyQueryUsing` nas Tables.
+### 1. Multi-tenant Structure
+Fiscaut is designed for scalability across multiple organizations. It utilizes a two-tier hierarchy:
+- **Tenants (Assinantes)**: The top-level account or subscriber (e.g., an accounting firm).
+- **Issuers (Empresas)**: Individual fiscal entities (companies) managed under a specific tenant.
+- **Data Isolation**: Most resources are automatically scoped via `tenant_id` or the active `issuer` context to ensure strict data isolation and security.
 
-## File Structure & Code Organization
-- `app/` — Core application code, including Models, Http Controllers, and Filament Resources.
-- `bootstrap/` — Framework bootstrapping and configuration.
-- `config/` — Application configuration files.
-- `database/` — Database migrations, seeds, and factories.
-- `public/` — Publicly accessible assets (images, JS, CSS).
-- `resources/` — Views, raw assets (Sass, JS), and language files.
-- `routes/` — Route definitions (web, api, console).
-- `tests/` — Feature and Unit tests.
-- `vendor/` — Composer dependencies.
+### 2. Administrative Interface
+The backend is powered by **Filament Resources**, which encapsulate logic for:
+- **Issuer Management**: Handling fiscal entity configurations.
+- **Fiscal Parameters**: Managing CFOP, CNAE, Service Codes, and Accumulators.
+- **Tagging & Categories**: Dynamic labeling via the `CategoryTagResource`.
 
-## Technology Stack Summary
-- **Backend**: PHP 8.4 running Laravel 12.48.
-- **Frontend**: Blade templates augmented with Livewire 4 and Alpine.js.
-- **Admin Panel**: Filament 5.0 providing a full-featured admin dashboard.
-- **Styling**: Tailwind CSS 4.1.
-- **Containerization**: Laravel Sail (Docker) for local development.
+### 3. Reactive UI Components
+The system avoids full page reloads by combining **Livewire** for server-side state management with **Alpine.js** for client-side interactivity. Complex UI elements like the notification system and form schemas are managed through a unified JavaScript bridge.
 
-## Core Framework Stack
-- **Backend Layer**: Laravel Framework (MVC architecture).
-- **Frontend Layer**: Livewire for dynamic interfaces without writing extensive JavaScript.
-- **Data Layer**: Eloquent ORM for database interactions.
+---
 
-## UI & Interaction Libraries
-- **Filament**: The primary UI kit for the admin panel, providing tables, forms, and widgets.
-- **Alpine.js**: Lightweight JavaScript framework used by Livewire and Filament for client-side interactivity.
-- **Tailwind CSS**: Utility-first CSS framework for styling.
+## Key System Components
 
-## Development Tools Overview
-- **Artisan**: Powerful CLI for code generation, migrations, and system tasks.
-- **Composer**: PHP dependency manager.
-- **NPM/Vite**: Asset bundling and frontend package management.
+### UI Component Library
+The project features a suite of specialized JS-backed components located in `vendor/filament/` and `public/js/filament/`. Key components include:
 
-## Getting Started Checklist
-1. **Environment Setup**: Ensure Docker and Docker Compose are installed.
-2. **Install Dependencies**: Run `composer install` and `npm install`.
-3. **Environment Config**: Copy `.env.example` to `.env` and configure database credentials.
-4. **Start Application**: Run `./vendor/bin/sail up -d` to start the containers.
-5. **Key Generation**: Run `./vendor/bin/sail artisan key:generate`.
-6. **Migrations**: Run `./vendor/bin/sail artisan migrate --seed` to set up the database.
-7. **Access**: Visit `http://localhost` to view the application.
-8. **Review**: Check [`development-workflow.md`](./development-workflow.md) for daily tasks.
+- **Forms**: `selectFormComponent`, `richEditorFormComponent`, `fileUploadFormComponent`, `dateTimePickerFormComponent`.
+- **Tables**: `checkboxTableColumn`, `textInputTableColumn`, `toggleTableColumn`, and a comprehensive `filamentTableColumnManager`.
+- **Widgets**: `chart` components and `statsOverviewStatChart` for data visualization.
+- **Schemas**: `tabsSchemaComponent` and `wizardSchemaComponent` for multi-step data entry.
 
-## Next Steps
-- Explore the **Architecture** guide to understand the system design.
-- Review **Data Flow** to see how information moves through the system.
-- Check **Tooling** for detailed command references.
+### Notifications & Actions
+Fiscaut uses a centralized notification system (`vendor/filament/notifications/`) allowing for real-time feedback.
+- **Notification Class**: Handles the creation and dispatch of user alerts.
+- **Actions**: Encapsulates executable logic (e.g., "Export PDF", "Validate Document") that can be triggered from tables or forms.
 
-## Cross-References
-- [architecture.md](./architecture.md)
-- [development-workflow.md](./development-workflow.md)
-- [tooling.md](./tooling.md)
-- [codebase-map.json](./codebase-map.json)
+---
+
+## Directory Organization
+
+```text
+├── app/
+│   ├── Filament/          # Admin Panel resources, widgets, and custom pages
+│   ├── Models/            # Eloquent models representing fiscal entities
+│   └── Providers/         # Service providers, including Filament configuration
+├── database/
+│   └── migrations/        # Schema definitions for fiscal tables
+├── public/js/filament/    # Compiled assets for Filament UI components
+├── resources/
+│   ├── views/             # Custom Blade and Livewire views
+│   └── js/                # Application-level JavaScript (app.js)
+└── vendor/filament/       # Core framework logic for forms, tables, and schemas
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Docker and Docker Compose
+- Node.js & NPM
+- Composer
+
+### Installation Workflow
+1.  **Clone & Install Dependencies**:
+    ```bash
+    composer install
+    npm install
+    ```
+2.  **Environment Configuration**:
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
+3.  **Local Environment (Sail)**:
+    ```bash
+    ./vendor/bin/sail up -d
+    ./vendor/bin/sail artisan migrate --seed
+    ```
+4.  **Asset Compilation**:
+    ```bash
+    npm run dev
+    ```
+
+---
+
+## Development Standards
+
+- **Resource Discovery**: New management modules should be created as Filament Resources in `app/Filament/Resources/`.
+- **Query Scoping**: Always implement global scopes or use `modifyQueryUsing` in Table definitions to respect the `tenant_id` and `issuer_id`.
+- **UI Consistency**: Use the provided JS utilities and Filament components for form fields and table columns to ensure a unified user experience.
+- **Testing**: Use the `FakeEcho` and event fakes provided in the testing suite for real-time feature verification.
+
+---
+
+## Related Documentation
+- [Architecture Details](./architecture.md) — Deep dive into the system design.
+- [Development Workflow](./development-workflow.md) — Commands and daily routines.
+- [Tooling Guide](./tooling.md) — Reference for CLI and helper tools.
