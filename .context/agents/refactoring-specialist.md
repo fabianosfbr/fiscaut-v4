@@ -49,6 +49,8 @@ The Refactoring Specialist's mission is to enhance the maintainability, readabil
 - `config/filament.php`: Configuration for Filament's behavior and defaults.
 - `composer.json`: Defines dependencies and PHP version requirements (targets PHP 8.2+).
 - `phpunit.xml`: Configuration for the test suite used during validation.
+- `vendor/filament/support/resources/js/utilities/select.js`: Reference for frontend utility patterns.
+- `vendor/filament/support/resources/js/utilities/pluralize.js`: Reference for string manipulation patterns.
 
 ## Architecture Context
 - **Domain Layer (`app/Models/`)**: Contains Eloquent models. Refactor logic here into Scopes and Accessors.
@@ -60,8 +62,9 @@ The Refactoring Specialist's mission is to enhance the maintainability, readabil
 - `Filament\Resources\Resource`: Base class for admin resources; target for schema extraction.
 - `Illuminate\Database\Eloquent\Model`: Base for domain logic; target for query refactoring.
 - `Filament\Forms\Components\Schema`: Target for refactoring complex form definitions.
-- `App\Models\Traits\HasFiscalData`: (Example) Common trait for fiscal models that often requires cleanup.
-- `App\Services\BaseService`: Base class for service-layer logic.
+- `Select` (@ vendor/filament/support/resources/js/utilities/select.js): Utility for handling selection logic.
+- `blank`/`filled` (@ vendor/filament/support/resources/js/utilities/select.js): Standard helpers for value checking.
+- `extract`/`ucfirst`/`replace` (@ vendor/filament/support/resources/js/utilities/pluralize.js): Core string manipulation helpers.
 
 ## Documentation Touchpoints
 - **PHPDoc Blocks:** Ensure all refactored methods have accurate `@param` and `@return` types.
@@ -69,13 +72,13 @@ The Refactoring Specialist's mission is to enhance the maintainability, readabil
 - **Migration Guides:** If refactoring involves breaking changes, update the internal migration notes.
 
 ## Collaboration Checklist
-1. **Analyze:** Run `analyzeSymbols` on the target file to identify high cyclomatic complexity.
-2. **Baseline Check:** Execute `php artisan test` to ensure the current state is green.
-3. **Pattern Matching:** Use `searchCode` to find similar patterns elsewhere to ensure global consistency.
-4. **Transform:** Apply refactoring patterns (e.g., Extract Method to Service, Move Query to Scope).
-5. **Verify:** Re-run tests and check `phpstan` (if available) for type errors.
-6. **Peer Review:** Compare changes against the [Code Reviewer Playbook](./code-reviewer.md).
-7. **Document:** Update the README or local docs if the architectural structure of a module has changed.
+1. **Analyze:** Run `analyzeSymbols` on the target file to identify high cyclomatic complexity and "fat" methods.
+2. **Baseline Check:** Execute `php artisan test` or relevant Pest commands to ensure the current state is green.
+3. **Pattern Matching:** Use `searchCode` to find similar patterns elsewhere to ensure global consistency across Filament resources.
+4. **Transform:** Apply refactoring patterns (e.g., Extract Method to Service, Move Query to Scope, use `filled()`/`blank()` helpers).
+5. **Verify:** Re-run tests and check for type errors using available static analysis tools.
+6. **Peer Review:** Compare changes against the [Code Reviewer Playbook](./code-reviewer.md) to ensure readability.
+7. **Document:** Update the README or local docs if the architectural structure of a module has changed significantly.
 
 ## Hand-off Notes
 Upon completion of a refactoring task, provide the following summary:
@@ -83,9 +86,10 @@ Upon completion of a refactoring task, provide the following summary:
 - **Rationale:** Why was this change necessary? (e.g., "Reduced `UserResource` from 1200 lines to 400").
 - **Test Results:** Confirmation that all relevant tests passed.
 - **Follow-up:** Suggest any related areas that would benefit from similar refactoring but were out of the current scope.
-- **Risk Assessment:** Note any areas where behavior might slightly differ (e.g., changes in exception handling).
+- **Risk Assessment:** Note any areas where behavior might slightly differ (e.g., changes in exception handling or edge-case string pluralization).
 
 ## Cross-References
 - [Testing Strategy](../docs/testing-strategy.md)
 - [Code Reviewer Playbook](./code-reviewer.md)
 - [../../AGENTS.md](../../AGENTS.md)
+- [README.md](../../README.md)

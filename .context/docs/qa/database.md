@@ -1,87 +1,90 @@
 # Database Documentation - Fiscaut-v4.1
 
-This document outlines the database architecture, data access patterns, and management conventions for the Fiscaut-v4.1 project. The application leverages the Laravel ecosystem, specifically using Eloquent ORM and Filament for administrative interfaces and data management.
+This document provides a comprehensive overview of the database architecture, data access patterns, and management conventions for the Fiscaut-v4.1 project.
 
-## 1. Engine & Core Technologies
+## 1. Core Architecture
+
+The application follows a standard Laravel architecture, utilizing **Eloquent ORM** for data manipulation and **Filament v3** for the administrative management layer.
 
 - **Framework**: Laravel 10.x/11.x
 - **ORM**: Eloquent ORM (Object-Relational Mapper)
-- **Database Driver**: Configurable via `.env` (typically PostgreSQL or MySQL).
-- **Admin Interface**: Filament v3 (PHP & Livewire)
-- **Frontend Interactivity**: Alpine.js and custom JavaScript components for real-time data binding.
+- **Database Driver**: Configurable via `.env` (PostgreSQL recommended for production).
+- **Admin Interface**: Filament v3 (PHP, Livewire, and Alpine.js)
 
-## 2. Architecture & Data Flow
+## 2. Layered Data Design
 
-The system separates data logic into three distinct layers:
+Data logic is segmented into three distinct layers to ensure separation of concerns:
 
-### A. Persistence Layer (Migrations & Models)
-- **Migrations**: Located in `database/migrations/`. These define the source of truth for the schema.
-- **Models**: Located in `app/Models/`. These define business logic, attribute casting (e.g., JSON to array), and relationships.
-- **Conventions**: Use `$fillable` for mass assignment protection and define type hints for IDE support.
+### Persistence Layer (Migrations & Models)
+- **Migrations (`database/migrations/`)**: The authoritative source for the database schema.
+- **Models (`app/Models/`)**: Define business logic, attribute casting, and relationships.
+- **Convention**: Use `$fillable` or `$guarded` for mass assignment protection and define explicit type hints for IDE support.
 
-### B. Management Layer (Filament Resources)
-Filament serves as the primary interface for database interaction.
-- **Schemas**: Definition of how data is structured for forms and tables.
-- **Resources**: Map Eloquent models to the UI.
-- **Actions**: Server-side logic triggered by UI buttons (Delete, Edit, Bulk Actions).
+### Management Layer (Filament)
+Filament acts as the bridge between the database and the user interface.
+- **Resources**: Map Eloquent models to UI management modules.
+- **Schemas**: Located in `public/js/filament/schemas` and `vendor/filament/schemas`, these define the structure of forms and tables.
+- **Actions**: Server-side logic triggered by UI interactions (e.g., Bulk Delete, State Transitions).
 
-### C. UI Component Mapping
-Data fields are mapped to specific JavaScript components for optimized rendering:
-- **Text/Boolean**: `text-input.js`, `toggle.js`, and `checkbox.js`.
-- **Complex Data**: `key-value.js` (for metadata) and `rich-editor.js` (for HTML/Markdown).
+### UI Mapping Layer
+Specific JavaScript components handle specialized data types:
+- **Standard Inputs**: `text-input.js`, `toggle.js`, `checkbox.js`.
+- **Complex Metadata**: `key-value.js` handles JSON-based key-value pairs.
+- **Rich Content**: `rich-editor.js` manages HTML/Markdown storage and file attachments.
 
 ## 3. Data Access Patterns
 
-### Querying & Filtering
-The application uses a hybrid approach for data retrieval:
-- **Eloquent Queries**: Primary method for server-side logic.
-- **Eager Loading**: To prevent N+1 issues, always use `.with()` when fetching related data for tables.
-- **Client-Side Filtering**: Handled via Livewire components that intercept UI interactions and refresh the dataset without a full page reload.
+### Efficient Querying
+To ensure high performance, the application implements the following patterns:
+- **Eager Loading**: Always use `.with(['relationship'])` in Filament Resources or custom controllers to prevent N+1 query issues.
+- **Livewire Integration**: Client-side filtering and searching are handled via Livewire, which intercepts UI events and performs targeted partial refreshes of the dataset.
 
-### Select & Search Logic
-Select components utilize a dedicated utility for searching and filtering:
-- **Utility**: `vendor/filament/support/resources/js/utilities/select.js`
-- **Pattern**: Asynchronous searching is preferred for large datasets to maintain UI responsiveness.
+### Search and Selection
+The `Select` component (`vendor/filament/support/resources/js/utilities/select.js`) is the primary tool for related record selection.
+- **Pattern**: Asynchronous searching is utilized for large datasets to keep the UI responsive.
+- **Filtering**: Search queries are processed server-side through the `query()` method in the select utility.
 
 ## 4. Specialized Data Handling
 
-### JSON and Metadata
-For flexible data structures (like dynamic configurations), the system uses the **Key-Value Form Component**:
-- **Location**: `public/js/filament/forms/components/key-value.js`
-- **Storage**: Typically stored in a `json` or `text` column in the database, cast to an `array` in the Eloquent Model.
+### JSON Metadata
+For dynamic configurations or flexible schemas, the system utilizes JSON columns:
+- **Component**: `public/js/filament/forms/components/key-value.js`.
+- **Implementation**: Data is stored as a `json` or `text` column in the database and cast to an `array` or `collection` in the Eloquent Model.
 
-### Rich Content & Files
-- **Rich Editor**: Managed via `vendor/filament/forms/resources/js/components/rich-editor.js`. Handles file uploads and content formatting.
-- **File Uploads**: Uses Filament's file upload component which handles temporary storage before persisting the path to the database.
+### File and Media Persistence
+- **Rich Editor**: Managed via `vendor/filament/forms/resources/js/components/rich-editor.js`. It coordinates with Laravel's filesystem to handle uploads before saving the URL/path to the database.
+- **File Uploads**: Uses Filament’s native file upload components which manage temporary storage and lifecycle events (uploading, uploaded, validation messages).
 
-## 5. Maintenance and Development
+## 5. Development Workflow
 
-### Schema Changes
-Never modify the database structure directly. Use migrations:
+### Schema Modifications
+Directly modifying the database is strictly prohibited. Use Laravel Migrations:
+
 ```bash
-# Create a new table or modify existing
-php artisan make:migration add_status_to_users_table --table=users
+# Create a new migration
+php artisan make:migration add_field_to_table --table=target_table
 
-# Apply changes
+# Execute migrations
 php artisan migrate
 
-# Rollback last change
+# Rollback last batch
 php artisan migrate:rollback
 ```
 
 ### Seeding and Testing
-Use seeders to maintain a consistent development environment:
+Use seeders and factories to maintain consistent environments:
 - **Seeders**: `database/seeders/DatabaseSeeder.php`
-- **Factories**: `database/factories/` for generating dummy data.
+- **Factories**: `database/factories/` (used for generating dummy data during development/testing).
 
 ```bash
-# Refresh database and run all seeders
+# Reset database and re-seed
 php artisan migrate:fresh --seed
 ```
 
 ## 6. Best Practices
 
-1.  **Atomic Transactions**: Wrap multi-row updates in `DB::transaction()` to ensure data integrity.
-2.  **Validation**: Define rules in Filament Resource forms (`required`, `unique`, `max`, etc.) to prevent invalid data from reaching the database.
-3.  **Soft Deletes**: Use the `SoftDeletes` trait in Models where data retention is required for auditing purposes.
-4.  **Attribute Casting**: Explicitly cast dates, booleans, and JSON objects in the Model to ensure type consistency between the database and the PHP/JS layers.
+1.  **Atomic Transactions**: Wrap multi-table operations in `DB::transaction(function () { ... })` to ensure data integrity during failures.
+2.  **Explicit Casting**: Define `$casts` in Models for dates, booleans, and JSON objects to ensure consistency between the DB and PHP/JS layers.
+3.  **Soft Deletes**: Use the `SoftDeletes` trait on critical models (e.g., Users, Invoices) to allow for auditing and recovery.
+4.  **Validation**: Rules should be defined at the Filament Resource level (`required`, `unique`, `exists`) to prevent corrupt data entry.
+5.  **Relationship Protection**: Use `onDelete('restrict')` in migrations for critical foreign keys to prevent accidental data loss.

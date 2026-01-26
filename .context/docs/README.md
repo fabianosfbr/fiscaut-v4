@@ -1,81 +1,122 @@
-# Fiscaut Documentation Index
+# Fiscaut v4.1 Technical Documentation
 
-Welcome to the official documentation for **Fiscaut v4.1**. This repository serves as the central knowledge base for developers, maintainers, and stakeholders.
+Welcome to the technical documentation for **Fiscaut**, a proprietary fiscal and administrative management platform. This system is engineered to handle complex tax regulations, multi-tenant configurations, and fiscal automation using the TALL stack (Tailwind, Alpine.js, Laravel, Livewire).
 
-## Project Summary
+## Project Overview
 
-**Fiscaut** is a proprietary commercial application designed for fiscal and administrative management. It provides a robust interface for handling complex tax rules, issuer management, and tenant-based configurations.
+Fiscaut is designed to bridge the gap between complex Brazilian fiscal legislation and automated business management. It serves as a centralized hub for managing issuers (Companies), subscribers (Tenants), and the intricate web of tax rules (CFOP, CNAE, Simples Nacional).
 
-- **Status**: Active Development
-- **Access**: Proprietary (Internal use/Licensed clients only)
-- **Tech Stack**: Laravel v12, FilamentPHP v5 (Admin Panel), Livewire v4 (Reactive UI), and MySQL.
-
-> [!IMPORTANT]
-> **Confidencialidade**: Este é um projeto proprietário. Não compartilhe código, credenciais, dados de clientes ou detalhes de arquitetura fora dos canais autorizados da empresa.
+- **Backend:** Laravel 12 / PHP 8.2+
+- **Frontend:** Livewire 4 / Alpine.js / Tailwind CSS
+- **Admin Panel:** FilamentPHP v5
+- **Database:** MySQL 8.0
 
 ---
 
-## Documentation Guides
+## Architecture & Tech Stack
 
-Explore specific areas of the system through the following guides:
+### Framework & UI
+The application follows a **Modular Monolith** approach powered by Laravel and Filament. The UI is highly reactive, utilizing Livewire for server-side state management and Alpine.js for client-side interactions.
+
+### Component System
+The repository includes a deep integration with Filament components. Custom behaviors are often extended via JavaScript utilities:
+- **Rich Editors:** Custom handling for file uploads and validation messages (`vendor/filament/forms/resources/js/components/rich-editor.js`).
+- **Selects:** Advanced querying and filtering logic (`vendor/filament/support/resources/js/utilities/select.js`).
+- **Notifications:** A robust notification system for real-time user feedback (`vendor/filament/notifications/resources/js/Notification.js`).
+
+### Multi-Tenancy
+Fiscaut implements a multi-tenant architecture where data is scoped per **Tenant** (Subscriber). Each tenant can manage multiple **Issuers** (Companies).
+
+---
+
+## Core Documentation Guides
 
 | Guide | Description |
 | :--- | :--- |
-| 📘 [Project Overview](./project-overview.md) | High-level roadmap, business goals, and stakeholder notes. |
-| 🏗️ [Architecture Notes](./architecture.md) | Service boundaries, dependency graphs, and ADRs (Architecture Decision Records). |
-| 🚀 [Development Workflow](./development-workflow.md) | Branching strategy (GitFlow), CI/CD configurations, and setup instructions. |
-| 🧪 [Testing Strategy](./testing-strategy.md) | Unit, Feature, and Browser testing protocols and CI gates. |
-| 📖 [Glossary & Domain](./glossary.md) | Business terminology, user personas, and fiscal domain rules. |
-| 🔄 [Data Flow & Integrations](./data-flow.md) | System diagrams, external API integrations, and queue management. |
-| 🛡️ [Security & Compliance](./security.md) | Authentication models, secrets management, and LGPD/Compliance requirements. |
-| 🛠️ [Tooling & Productivity](./tooling.md) | Custom CLI scripts, IDE configurations, and automation workflows. |
+| 📘 [Project Overview](./project-overview.md) | High-level roadmap and business goals. |
+| 🏗️ [Architecture Notes](./architecture.md) | Service boundaries, dependency graphs, and ADRs. |
+| 🚀 [Development Workflow](./development-workflow.md) | Branching strategy, CI/CD, and setup instructions. |
+| 🧪 [Testing Strategy](./testing-strategy.md) | Protocols for Pest/PHPUnit and Browser testing. |
+| 📖 [Glossary & Domain](./glossary.md) | Business terminology and fiscal domain rules. |
+| 🛡️ [Security & Compliance](./security.md) | Authentication, secrets, and LGPD compliance. |
 
 ---
 
-## Filament Admin Resources
+## Admin Resources (Filament)
 
-The administrative interface is built on FilamentPHP v5. Key resources include:
+The administrative layer is organized into specific resources within `app/Filament/Resources/`.
 
-### Core Management
-- **Companies (Issuers)**: [`IssuerResource.php`](../app/Filament/Resources/Issuers/IssuerResource.php) - Management of tax-issuing entities.
-- **Subscribers (Tenants)**: [`TenantResource.php`](../app/Filament/Resources/Tenants/TenantResource.php) - Multi-tenant account management.
-- **Category Tags**: [`CategoryTagResource.php`](../app/Filament/Resources/CategoryTags/CategoryTagResource.php) - Organization and labeling system.
+### 1. Entity Management
+- **Issuers (`IssuerResource`)**: Management of tax-issuing entities, their regimes, and metadata.
+- **Tenants (`TenantResource`)**: Administration of subscriber accounts and access levels.
+- **Category Tags (`CategoryTagResource`)**: Global tagging system for organizing records.
 
-### Fiscal & Tax Configuration
-- **CFOP**: [`CfopResource.php`](../app/Filament/Resources/Cfops/CfopResource.php) - Fiscal Operations and Installments codes.
-- **CNAE**: [`CnaeResource.php`](../app/Filament/Resources/Cnaes/CnaeResource.php) - National Classification of Economic Activities.
-- **Service Codes**: [`CodigoServicoResource.php`](../app/Filament/Resources/CodigosServicos/CodigoServicoResource.php) - Municipal service tax codes.
-- **Accumulators**: [`AcumuladoresResource.php`](../app/Filament/Resources/Acumuladores/AcumuladoresResource.php) - Fiscal accumulation logic.
+### 2. Fiscal & Tax Configuration
+- **CFOP (`CfopResource`)**: Fiscal Operation and Installment codes used in tax documents.
+- **CNAE (`CnaeResource`)**: National Classification of Economic Activities mapping.
+- **Service Codes (`CodigoServicoResource`)**: Specific municipal codes for service taxation (ISS).
+- **Accumulators (`AcumuladoresResource`)**: Logic for aggregating fiscal data over specific periods.
 
-### Simples Nacional
-- **Annexes**: [`SimplesNacionalAnexoResource.php`](../app/Filament/Resources/SimplesNacionalAnexos/SimplesNacionalAnexoResource.php)
-- **Rates (Alíquotas)**: [`SimplesNacionalAliquotaResource.php`](../app/Filament/Resources/SimplesNacionalAliquotas/SimplesNacionalAliquotaResource.php)
+### 3. Simples Nacional Module
+- **Annexes (`SimplesNacionalAnexoResource`)**: Management of the various tax "Annexes" of the Simples Nacional regime.
+- **Rates (`SimplesNacionalAliquotaResource`)**: Maintenance of progressive tax rates and brackets.
 
 ---
 
 ## Repository Structure
 
 ```text
-├── app/                # Core PHP application logic (Models, Resources, Actions)
-├── bootstrap/          # Framework boilerplate
-├── config/             # Application configuration files
-├── database/           # Migrations, Seeders, and Factories
-├── docs/               # Technical documentation (You are here)
-├── public/             # Compiled assets and entry point
-├── resources/          # Views (Blade), Lang files, and Raw assets (JS/CSS)
-├── routes/             # Web, API, and Console route definitions
-├── tests/              # Automated test suites (Pest/PHPUnit)
-└── vendor/             # Composer dependencies
+├── app/
+│   ├── Filament/       # Admin panel resources, widgets, and pages
+│   ├── Models/         # Eloquent models representing the fiscal domain
+│   └── Actions/        # Reusable business logic classes
+├── config/             # Application and third-party configurations
+├── database/
+│   ├── migrations/     # Database schema evolution
+│   └── seeders/        # Initial data for fiscal codes (CFOP, CNAE)
+├── docs/               # Technical documentation index
+├── public/js/filament/ # Compiled assets for the admin interface
+├── resources/
+│   ├── views/          # Blade templates and Livewire components
+│   └── lang/           # Localization (pt_BR)
+└── tests/              # Automated test suites (Pest)
 ```
 
 ---
 
-## Tech Stack Details
+## Development Setup
 
-- **Backend**: PHP 8.2+ / Laravel 12
-- **Admin UI**: Filament v5 (TALL Stack)
-- **Frontend**: Livewire v4, Alpine.js, Tailwind CSS
-- **Database**: MySQL 8.0
-- **Dev Tools**: Docker (via `compose.yaml`), Vite, PHPStan, Laradumps
+To get started with development, ensure you have **Docker** and **PHP 8.2+** installed.
 
-For detailed implementation patterns regarding JS components (Rich Editors, Selects, Modals), refer to the internal `vendor/filament` source analysis or the [Architecture Notes](./architecture.md).
+1.  **Clone the repository:**
+    ```bash
+    git clone [repository-url]
+    cd fiscaut-v4.1
+    ```
+
+2.  **Environment Setup:**
+    ```bash
+    cp .env.example .env
+    composer install
+    npm install && npm run dev
+    ```
+
+3.  **Database Migration:**
+    ```bash
+    php artisan migrate --seed
+    ```
+
+4.  **Admin Access:**
+    Create a super-admin user to access the Filament dashboard:
+    ```bash
+    php artisan make:filament-user
+    ```
+
+---
+
+## Security & Confidentiality
+
+> [!WARNING]
+> **Confidentiality Notice:** Fiscaut is a proprietary commercial application. All source code, database schemas, and documentation are strictly confidential. Unauthorized sharing of credentials, client data, or architectural details is prohibited.
+
+For security vulnerabilities or compliance issues (LGPD), please refer to the [Security & Compliance](./security.md) guide.

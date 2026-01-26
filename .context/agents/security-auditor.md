@@ -28,7 +28,7 @@ The Security Auditor agent's mission is to proactively safeguard the Fiscaut v4.
 ## Key Project Resources
 - [README.md](../../README.md): Project overview and setup.
 - [AGENTS.md](../../AGENTS.md): Global agent coordination and standards.
-- [Security Notes](../docs/security.md): Internal security documentation and incident response (if available).
+- [Security Notes](../docs/security.md): Internal security documentation and incident response.
 - [Code Reviewer Playbook](./code-reviewer.md): Standards for general code quality.
 
 ## Repository Starting Points
@@ -40,9 +40,9 @@ The Security Auditor agent's mission is to proactively safeguard the Fiscaut v4.
 - `config/`: Configuration for `auth.php`, `session.php`, and `hashing.php`.
 
 ## Key Files
-- `bootstrap/app.php`: The modern Laravel entry point for middleware and exception handling configuration.
-- `app/Providers/AuthServiceProvider.php`: Global gate and policy registrations.
-- `composer.json` / `composer.lock`: Backend dependency definitions.
+- `bootstrap/app.php`: The modern Laravel 12 entry point for middleware and exception handling configuration.
+- `app/Providers/AppServiceProvider.php`: Global gate and policy registrations (replaces AuthServiceProvider in newer Laravel versions).
+- `composer.json` / `composer.lock`: Backend dependency definitions and security audit targets.
 - `package.json`: Frontend dependency definitions.
 - `app/Models/User.php`: The core identity model and role/permission associations.
 
@@ -55,7 +55,7 @@ The application follows a modern Laravel architecture with a heavy emphasis on F
 - **Logic Layer (`app/Services`, `app/Http/Controllers`):**
   - Business logic should be decoupled from controllers. Security focus: Validation logic and transaction integrity.
 - **Data Layer (`app/Models`, `database/migrations`):**
-  - Eloquent ORM. Security focus: Scopes for multi-tenancy (if applicable) and attribute casting (encryption).
+  - Eloquent ORM. Security focus: Scopes for multi-tenancy and attribute casting (encryption).
 - **Security Layer (`app/Http/Middleware`, `app/Policies`):**
   - Centralized authorization and filtering.
 
@@ -65,15 +65,16 @@ The application follows a modern Laravel architecture with a heavy emphasis on F
 - `Illuminate\Support\Facades\Crypt`: For manual encryption of sensitive data strings.
 - `Filament\Resources\Resource`: Base class where access control is often defined via `getEloquentQuery()`.
 - `Livewire\Component`: Check for the `authorize` method usage in `mount()`.
+- `Spatie\Permission\Traits\HasRoles`: Check for role-based access control implementations on models.
 
 ## Documentation Touchpoints
 - **Update `docs/security.md`**: Document any newly discovered vulnerability patterns or updated security protocols.
-- **Audit Logs**: Maintain a log of security reviews performed and their outcomes in a `SECURITY_AUDIT_LOG.md` (if existing).
+- **Audit Logs**: Maintain a log of security reviews performed and their outcomes in `SECURITY_AUDIT_LOG.md`.
 - **Policy Documentation**: Ensure new Models have their authorization logic documented in the developer guide.
 
 ## Collaboration Checklist
 1. **Define Scope:** Determine if the audit is for a specific PR, a directory, or the entire codebase.
-2. **Automated Scanning:** Run `composer audit` and check for insecure PHP functions (`eval`, `exec`, etc.) using regex searches.
+2. **Automated Scanning:** Run `composer audit` and check for insecure PHP functions (`eval`, `exec`, `passthru`, etc.) using regex searches.
 3. **Logic Verification:** Verify that logic-based authorization (e.g., "Can User A see Resource B belonging to Tenant C?") is enforced at the Model or Repository level.
 4. **Sanitize Data:** Ensure any reports or reproduction steps do not include real PII or production secrets.
 5. **Report & Remediate:** Categorize findings by severity (Critical, High, Medium, Low) and provide clear code examples for fixes.
@@ -81,7 +82,7 @@ The application follows a modern Laravel architecture with a heavy emphasis on F
 
 ## Hand-off Notes
 Upon completion of a security task:
-- Provide a summary of scanned areas.
-- List any identified risks that were not immediately remediated (backlog items).
-- Highlight improvements made to the security posture.
-- Suggest follow-up actions, such as updating dependencies or refining specific Policies.
+- Provide a summary of scanned areas and tools used.
+- List any identified risks that were not immediately remediated (security debt).
+- Highlight improvements made to the security posture (e.g., "Added 5 new Policies").
+- Suggest follow-up actions, such as updating specific dependencies or refining middleware stacks.

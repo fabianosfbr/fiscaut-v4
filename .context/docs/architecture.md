@@ -1,6 +1,6 @@
 # Architecture Documentation
 
-Fiscaut v4.1 is a robust commercial application built on the **TALL stack** (Tailwind CSS, Alpine.js, Laravel, and Livewire). It follows a **Modular Monolith** architecture, leveraging the FilamentPHP ecosystem to provide a highly extensible administrative interface and data management system.
+Fiscaut v4.1 is a commercial-grade tax and fiscal management application built on the **TALL stack** (Tailwind CSS, Alpine.js, Laravel, and Livewire). It employs a **Modular Monolith** architecture, leveraging the FilamentPHP ecosystem to provide a highly extensible administrative interface and sophisticated data management system.
 
 ## Technology Stack
 
@@ -18,30 +18,30 @@ Fiscaut v4.1 is a robust commercial application built on the **TALL stack** (Tai
 
 ## Architectural Layers
 
-The application follows the standard Laravel MVC pattern, enhanced by Filament's resource-based architecture.
+The application follows the standard Laravel MVC pattern, enhanced by Filament's resource-based architecture for rapid administrative development.
 
 ### 1. Domain Layer (`app/Models`)
-Represents the business entities and logic. 
+The domain layer encapsulates business entities and persistence logic.
 - **Models**: High-level entities such as `Cfop`, `Cnae`, `User`, and `SimplesNacionalAnexo`.
-- **Relationships**: Standard Eloquent relationships (HasMany, BelongsTo) define the data graph.
-- **Scoping**: Heavy use of Global Scopes or `modifyQueryUsing` for multi-tenancy and issuer-based filtering.
+- **Relationships**: Defined via standard Eloquent relationships (HasMany, BelongsTo) to maintain data integrity and the fiscal data graph.
+- **Query Scoping**: Heavy utilization of Global Scopes and `modifyQueryUsing` hooks to enforce multi-tenancy and issuer-based filtering.
 
 ### 2. Application Layer (`app/Filament` & `app/Livewire`)
-This layer handles the orchestration of business logic and user interactions.
+This layer orchestrates business logic and user interactions.
 - **Filament Resources**: Located in `app/Filament/Resources`, these act as the primary controllers for CRUD operations.
-- **Schemas & Tables**: Configuration for forms and tables is often extracted into dedicated classes within the Resource directories to promote reusability.
-- **Actions**: Custom logic for data processing (e.g., exports, downloads, status changes) is encapsulated in `Action` classes.
-- **Relation Managers**: Manage sub-resources (e.g., managing `Users` within an `Issuer` context) directly within the parent view.
+- **Schemas & Tables**: Configuration for forms and tables is often extracted into dedicated classes or methods within the Resource directories to promote reusability and clean code.
+- **Actions**: Custom logic for data processing (e.g., exports, status changes, downloads) is encapsulated in reusable `Action` and `ActionGroup` classes.
+- **Relation Managers**: Handle sub-resources (e.g., managing specific fiscal details within an `Issuer` context) directly within the parent view.
 
 ### 3. Presentation Layer (`resources/views` & JS Components)
-- **Blade Templates**: Used for structural layouts.
-- **Filament Components**: Pre-built UI components for forms, tables, and notifications.
-- **Alpine.js**: Handles client-side reactivity for complex UI elements like `RichEditor`, `Wizard`, and `Select` utilities.
-- **Assets**: Core frontend logic for Filament components is located in `public/js/filament/`.
+- **Blade Templates**: Provide the structural layouts and integrate Livewire components.
+- **Filament UI Components**: Standardized UI components for forms (Inputs, Selects, Rich Editors) and tables (Columns, Filters).
+- **Alpine.js Components**: Client-side logic for complex UI elements like `Wizard`, `Tabs`, and `RichEditor`. These are located in `public/js/filament/` and `vendor/filament/`.
+- **Assets**: Core frontend logic for Filament components is bundled and served from `public/js/filament/`.
 
 ### 4. Infrastructure Layer
-- **Service Providers**: (`app/Providers`) Bootstrap application services, register Filament panels, and configure authentication guards.
-- **Migrations**: (`database/migrations`) Define the relational schema for MySQL.
+- **Service Providers**: (`app/Providers`) Responsible for bootstrapping application services, registering Filament panels, and configuring security guards.
+- **Migrations**: (`database/migrations`) Define the relational schema for the MySQL database.
 
 ---
 
@@ -49,47 +49,47 @@ This layer handles the orchestration of business logic and user interactions.
 
 | Pattern | Implementation in Fiscaut |
 |---------|---------------------------|
-| **MVC** | Core Laravel structure (Model-View-Controller). |
+| **MVC** | Fundamental Laravel structure separating data, UI, and logic. |
 | **Resource-Based Routing** | Filament resources automatically map URL structures to specific database entities. |
-| **Tenant/Issuer Scoping** | Systematic filtering of queries based on `tenant_id` or `currentIssuer` to ensure data isolation. |
-| **Facade** | Static interfaces to internal services (e.g., `Notification::make()`). |
-| **Action Pattern** | Encapsulating specific business tasks (like "Download Report") into discrete, testable classes. |
-| **Repository (Implicit)** | Filament Resources abstract the data access layer, providing a unified interface for fetching and saving models. |
+| **Multi-Tenancy Scoping** | Systematic filtering of queries based on `tenant_id` or `currentIssuer` to ensure data isolation between different clients. |
+| **Facade/Singleton** | Static interfaces to internal services, such as the `Notification::make()` utility. |
+| **Action Pattern** | Encapsulating specific tasks (like "Download Report") into discrete, testable classes rather than bloated controllers. |
 
 ---
 
 ## Frontend Component Architecture
 
-The application utilizes a sophisticated JavaScript bridge between PHP and the browser, primarily managed by Alpine.js and Livewire.
+The application utilizes a sophisticated JavaScript bridge between the PHP backend and the browser, primarily managed by Alpine.js and Livewire.
 
-### Core Utilities (`vendor/filament/support/resources/js/utilities`)
-- **`Select`**: A robust utility for managing dropdown logic and search.
-- **`Pluralize`**: String manipulation for UI labels.
-- **`Modal`**: Logic for managing overlay states and keyboard interactions.
+### Core Utilities
+Found in `vendor/filament/support/resources/js/utilities/`:
+- **`Select`**: A robust utility class for managing dropdown logic, searching, and item selection.
+- **`Pluralize`**: String manipulation utility for generating dynamic UI labels.
+- **`Modal`**: Logic for managing overlay states, keyboard interactions (ESC to close), and accessibility.
 
 ### Component Logic
 Interactive UI elements are broken down into specialized scripts:
-- **Forms**: Components like `rich-editor.js`, `tags-input.js`, and `file-upload.js` handle client-side validation and async processing.
-- **Tables**: Logic in `table.js` handles row selection, bulk actions, and polling.
-- **Notifications**: Managed by `Notification.js`, providing real-time feedback to users via the `Notification` class.
+- **Forms**: Components like `rich-editor.js`, `tags-input.js`, and `file-upload.js` handle client-side validation, asynchronous file processing, and rich text manipulation.
+- **Tables**: Logic in `table.js` handles row selection, bulk actions, and real-time polling updates.
+- **Notifications**: Managed by the `Notification` class in `vendor/filament/notifications/resources/js/Notification.js`, providing real-time feedback via toast messages.
 
 ---
 
 ## System Entry Points
 
-- **Web Entry**: `public/index.php` routes all HTTP traffic.
-- **Admin Panel**: Accessible via the path defined in `AdminPanelProvider.php` (typically `/admin`).
-- **CLI**: `artisan` serves as the entry point for scheduled tasks, migrations, and code generation.
+- **Web Entry**: `public/index.php` routes all incoming HTTP traffic through the Laravel middleware stack.
+- **Admin Panel**: Accessible via the path defined in `AdminPanelProvider.php` (defaults to `/admin`), serving as the main interface for fiscal management.
+- **CLI**: The `artisan` command-line interface serves as the entry point for background tasks, migrations, and scheduled fiscal processing jobs.
 
 ---
 
 ## Data Flow & Security
 
-1. **Request**: A user interacts with a Filament Table or Form.
-2. **Middleware**: Laravel and Filament middleware verify authentication and tenant access.
-3. **Processing**: Livewire intercepts the action, executing logic in the corresponding Resource or RelationManager.
-4. **Data Access**: The Model applies scopes (e.g., `tenant_id`) before querying MySQL.
-5. **Response**: Livewire updates only the affected DOM elements, or Filament triggers a `Notification` toast.
+1. **Request**: A user interacts with a Filament Table or Form (e.g., updating a tax rate).
+2. **Middleware**: Laravel and Filament middleware verify session authentication and tenant access rights.
+3. **Processing**: Livewire intercepts the action via AJAX, executing logic in the corresponding Resource or RelationManager on the server.
+4. **Data Access**: The Eloquent Model applies necessary scopes (e.g., `tenant_id`) before executing the query against MySQL.
+5. **Response**: Livewire updates only the affected DOM elements using Alpine.js for smooth transitions, or triggers a `Notification` toast to confirm success.
 
 ---
 

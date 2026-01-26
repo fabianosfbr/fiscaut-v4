@@ -1,116 +1,126 @@
 # Getting Started with Fiscaut v4.1
 
-Welcome to the Fiscaut v4.1 development environment. This project is built on the **Laravel** framework, leveraging **Filament v3** for the administrative interface and **Livewire** for reactive, real-time components.
+Welcome to the development and testing environment for **Fiscaut v4.1**. This platform is a modern enterprise application built on the **Laravel** framework, utilizing the **TALL stack** (Tailwind CSS, Alpine.js, Laravel, and Livewire) with **Filament v3** as the primary administrative and data management engine.
+
+---
 
 ## Prerequisites
 
-Ensure your local environment meets the following requirements:
+Ensure your local machine satisfies the following version requirements:
 
 *   **PHP:** 8.2 or higher
 *   **Node.js:** v18.x (LTS) or higher
-*   **Composer:** Latest stable version
-*   **NPM:** Included with Node.js
+*   **Package Managers:** Composer (PHP) and NPM (JavaScript)
 *   **Database:** MySQL 8.0+, PostgreSQL, or SQLite
+*   **Tools:** Git
 
-## Installation
+---
 
-Follow these steps to initialize the project:
+## Installation Guide
 
-### 1. Clone the Repository
+Follow these steps to set up your local development instance:
+
+### 1. Repository Setup
 ```bash
 git clone <repository-url>
 cd fiscaut-v4.1
 ```
 
-### 2. Install Dependencies
-Install both backend PHP packages and frontend JavaScript dependencies:
+### 2. Dependency Management
+Install the backend and frontend dependencies:
 ```bash
-# Install PHP dependencies
+# Install PHP packages
 composer install
 
-# Install Frontend dependencies
+# Install JavaScript packages
 npm install
 ```
 
 ### 3. Environment Configuration
-Copy the template environment file and generate a unique application key:
+Create your local environment file and generate the application security key:
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-> **Note:** Open the `.env` file and configure your local database connection:
-> - `DB_CONNECTION=mysql`
-> - `DB_DATABASE=fiscaut_db`
-> - `DB_USERNAME=root`
-> - `DB_PASSWORD=`
+> **Configuration:** Open `.env` and update the `DB_CONNECTION`, `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD` settings to match your local database server.
 
-### 4. Database Setup
-Run the migrations to create the required tables and schema:
+### 4. Database Initialization
+Run the migrations to build the schema:
 ```bash
 php artisan migrate
 ```
 
-### 5. Start Development Servers
-You need to run both the Laravel server and the Vite development server simultaneously:
+---
 
-**Terminal 1 (PHP):**
+## Development Workflow
+
+To run the application, you must execute the PHP server and the frontend asset compiler simultaneously.
+
+### Running the Application
+*   **Terminal 1 (Backend):** `php artisan serve` (Accessible at `http://127.0.0.1:8000`)
+*   **Terminal 2 (Frontend/Vite):** `npm run dev` (Enables Hot Module Replacement)
+
+### Building for Production
+To compile and minify assets for testing in a production-like environment:
 ```bash
-php artisan serve
+npm run build
 ```
-
-**Terminal 2 (Vite):**
-```bash
-npm run dev
-```
-
-The application will be accessible at `http://127.0.0.1:8000`.
 
 ---
 
-## Core Architecture
+## Architecture and File Structure
 
-Fiscaut v4.1 follows a modern Laravel TALL stack (Tailwind, Alpine.js, Laravel, Livewire) architecture, with a heavy emphasis on the Filament ecosystem.
+Fiscaut v4.1 follows a modular architecture where Filament handles the UI components and Livewire manages reactivity.
 
-### Key Directories
+### Directory Map
 
-| Path | Description |
+| Path | Purpose |
 | :--- | :--- |
-| `app/Filament/Resources` | Backend CRUD resource definitions. |
-| `public/js/filament` | Compiled Filament assets and custom schema components. |
-| `vendor/filament/` | Core framework logic for Forms, Tables, and Actions. |
-| `resources/js/app.js` | Main entry point for custom JavaScript logic. |
+| `app/Filament/Resources` | PHP definitions for CRUD interfaces, forms, and tables. |
+| `vendor/filament/` | Core framework logic (Forms, Tables, Actions, Notifications). |
+| `public/js/filament/schemas` | Compiled JavaScript components for Filament schemas. |
+| `vendor/filament/support/resources/js/utilities` | Core JS utility functions (e.g., `Select`, `Pluralize`). |
+| `resources/js/` | Custom application-level JavaScript and assets. |
 
-### Filament Framework Integration
+### Core Components
 
-The project relies on Filament for its administrative UI. Key logic points include:
+The application utilizes several specialized components for data entry and display:
 
-*   **Forms:** Located in `vendor/filament/forms`. Custom logic for components like `RichEditor` and `Select` is often augmented in `vendor/filament/support/resources/js/utilities`.
-*   **Tables:** Located in `vendor/filament/tables`. Interactive columns (Toggle, Text, Checkbox) are handled via Livewire-synchronized components.
-*   **Notifications:** Managed through `vendor/filament/notifications`. You can trigger these in PHP via `Notification::make()->send()`.
+*   **Forms:** Located in `vendor/filament/forms/resources/js/components`. Key components include `RichEditor`, `Select`, `FileUpload`, and `TagsInput`.
+*   **Tables:** Located in `vendor/filament/tables/resources/js/components`. Includes interactive columns like `ToggleColumn`, `TextInputColumn`, and `CheckboxColumn`.
+*   **Notifications:** Managed via `vendor/filament/notifications`. Use `Notification::make()` in PHP to trigger real-time alerts.
 
 ---
 
-## Developer Tooling
+## Public API and Utilities
 
-### Useful Artisan Commands
+For developers extending the frontend, the following utilities are frequently used:
 
-| Command | Purpose |
+*   **`Select` Utility:** Located at `vendor/filament/support/resources/js/utilities/select.js`. Provides advanced dropdown and selection logic.
+*   **Livewire Integration:** The function `findClosestLivewireComponent` is essential for scripts interacting with Livewire's DOM structure.
+*   **Rich Editor Extensions:** Custom extensions for the Trix-based editor are found in `vendor/filament/forms/resources/js/components/rich-editor/extensions.js`.
+
+---
+
+## Essential Artisan Commands
+
+| Command | Description |
 | :--- | :--- |
-| `php artisan make:filament-resource` | Generates a new CRUD resource (Model, Pages, Resource class). |
-| `php artisan make:filament-widget` | Creates a new dashboard widget (e.g., Stats or Charts). |
-| `php artisan filament:optimize` | Caches Filament components for better production performance. |
-| `php artisan test` | Executes the PHPUnit/Pest test suite. |
-
-### Frontend Build Pipeline
-*   **Development:** `npm run dev` (Hot Module Replacement enabled).
-*   **Production:** `npm run build` (Minifies assets and generates manifests).
+| `php artisan make:filament-resource` | Create a new model-based CRUD interface. |
+| `php artisan filament:assets` | Republish Filament's frontend assets. |
+| `php artisan filament:optimize` | Cache components for performance. |
+| `php artisan test` | Run the test suite (Pest/PHPUnit). |
+| `php artisan route:list` | View all registered application routes. |
 
 ---
 
 ## Troubleshooting
 
-*   **Missing Styles/Scripts:** Ensure `npm run dev` is running. If icons are missing, try `php artisan filament:assets`.
-*   **Permission Denied:** Ensure the `storage` and `bootstrap/cache` directories are writable by your system user (`chmod -R 775 storage bootstrap/cache`).
-*   **White Screen / Class Not Found:** If you've recently updated code or installed packages, run `composer dump-autoload` and `php artisan view:clear`.
-*   **Database Errors:** Verify your `.env` credentials and ensure the database specified in `DB_DATABASE` actually exists.
+*   **Assets Not Loading:** Ensure `npm run dev` is active. If styles appear broken, run `php artisan filament:assets` to refresh vendor files.
+*   **Database Connection Issues:** Double-check the `DB_PORT` and `DB_HOST` in your `.env`. If using Docker/Sail, ensure the containers are running.
+*   **Permission Errors:** Ensure the web server has write access to `storage/` and `bootstrap/cache/`:
+    ```bash
+    chmod -R 775 storage bootstrap/cache
+    ```
+*   **Component Synchronization:** If Livewire components are not updating, verify that the `wire:key` attributes are unique within your Blade templates.
