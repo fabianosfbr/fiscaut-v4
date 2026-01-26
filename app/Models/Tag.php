@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class Tag extends Model
 {
@@ -22,5 +24,34 @@ class Tag extends Model
     public function getNameCodeAttribute()
     {
         return "{$this->code} - {$this->name}";
+    }
+
+    public static function getTagsUsedInUploadFile(): array
+    {
+        if (! Auth::check() || ! Auth::user()->currentIssuer) {
+            return [];
+        }
+
+        $issuerId = Auth::user()->currentIssuer->id;
+        $cacheKey = 'tags_used_in_upload_file_'.$issuerId;
+
+        return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
+            $tagIds = self::rightJoin('tagging_tagged', 'tagging_tags.id', '=', 'tagging_tagged.tag_id')
+                ->where('tagging_tagged.taggable_type', UploadFile::class)
+                ->whereHas('category', function ($query) use ($issuerId) {
+                    $query->where('issuer_id', $issuerId);
+                })
+                ->where('is_enable', true)
+                ->select('tagging_tags.id')
+                ->distinct()
+                ->pluck('id');
+
+            return self::whereIn('id', $tagIds)
+                ->orderBy('name', 'asc')
+                ->get()
+                ->keyBy('id')
+                ->map(fn ($tag) => $tag->code.' - '.$tag->name)
+                ->toArray();
+        });
     }
 }
