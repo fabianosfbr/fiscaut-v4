@@ -18,6 +18,11 @@ Fiscaut is a fiscal management system tailored for the Brazilian market. Underst
 *   **Valor a Deduzir:** A fixed value subtracted from the tax calculation formula to determine the effective tax rate.
 *   **Percentuais de Distribuição:** The internal breakdown of the total tax paid, distributed among different taxes (IRPJ, CSLL, COFINS, PIS, CPP, ICMS, ISS, IPI) based on the current Faixa.
 *   **NFe (Nota Fiscal Eletrônica):** The digital document representing a commercial transaction in Brazil.
+*   **CTe (Conhecimento de Transporte Eletrônico):** The digital document representing a freight/transport service transaction in Brazil.
+*   **Distribuição DF-e (DistDFe):** SEFAZ service used to retrieve authorized documents and events by incremental NSU.
+*   **NSU:** "Número Sequencial Único" used by SEFAZ distribution services to paginate and checkpoint retrieval of documents/events.
+*   **docZip:** Base64-encoded, GZip-compressed XML payload returned by SEFAZ distribution services within `retDistDFeInt`.
+*   **Manifestação do destinatário:** SEFAZ events for recipient acknowledgement (ex.: "Ciência da Operação" 210210) usually tied to a document key (chave).
 
 ### System Entities
 
