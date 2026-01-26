@@ -2,18 +2,18 @@
 
 namespace App\Filament\Resources\SimplesNacionalAnexos\RelationManagers;
 
-use Filament\Tables\Table;
-use Filament\Schemas\Schema;
-use Filament\Actions\EditAction;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
-use Filament\Forms\Components\Toggle;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
 use Filament\Tables\Filters\TernaryFilter;
-use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Table;
 
 class CnaesRelationManager extends RelationManager
 {
@@ -25,38 +25,38 @@ class CnaesRelationManager extends RelationManager
     {
         return $schema
             ->components([
-               TextInput::make('codigo_cnae')
-                            ->label('Código CNAE')
-                            ->required()
-                            ->maxLength(20)
-                            ->unique(ignoreRecord: true)
-                            ->helperText('Código CNAE conforme tabela oficial')
-                            ->placeholder('Ex: 4711-3/01')
-                            ->rules([
-                                'required',
-                                'string',
-                                'max:20',
-                                function () {
-                                    return function (string $attribute, $value, \Closure $fail) {
-                                        // Validação do formato CNAE (XXXX-X/XX)
-                                        if (!preg_match('/^\d{4}-\d{1}\/\d{2}$/', $value)) {
-                                            $fail('O código CNAE deve seguir o formato XXXX-X/XX (ex: 4711-3/01).');
-                                        }
-                                    };
-                                },
-                            ]),
+                TextInput::make('codigo_cnae')
+                    ->label('Código CNAE')
+                    ->required()
+                    ->maxLength(20)
+                    ->unique(ignoreRecord: true)
+                    ->helperText('Código CNAE conforme tabela oficial')
+                    ->placeholder('Ex: 4711-3/01')
+                    ->rules([
+                        'required',
+                        'string',
+                        'max:20',
+                        function () {
+                            return function (string $attribute, $value, \Closure $fail) {
+                                // Validação do formato CNAE (XXXX-X/XX)
+                                if (! preg_match('/^\d{4}-\d{1}\/\d{2}$/', $value)) {
+                                    $fail('O código CNAE deve seguir o formato XXXX-X/XX (ex: 4711-3/01).');
+                                }
+                            };
+                        },
+                    ]),
                 Textarea::make('descricao')
-                            ->label('Descrição')
-                            ->required()
-                            ->maxLength(500)
-                            ->rows(3)
-                            ->helperText('Descrição da atividade econômica')
-                            ->columnSpanFull(),
+                    ->label('Descrição')
+                    ->required()
+                    ->maxLength(500)
+                    ->rows(3)
+                    ->helperText('Descrição da atividade econômica')
+                    ->columnSpanFull(),
                 Toggle::make('ativo')
-                            ->label('Ativo')
-                            ->default(true)
-                            ->helperText('Define se este CNAE está ativo para uso no sistema')
-                            ->inline(false),
+                    ->label('Ativo')
+                    ->default(true)
+                    ->helperText('Define se este CNAE está ativo para uso no sistema')
+                    ->inline(false),
             ]);
     }
 
@@ -80,6 +80,7 @@ class CnaesRelationManager extends RelationManager
                         if (strlen($state) <= 60) {
                             return null;
                         }
+
                         return $state;
                     })
                     ->searchable()

@@ -15,11 +15,11 @@ class SimplesNacionalAnexo extends Model
     protected $fillable = [
         'anexo',
         'descricao',
-        'ativo'
+        'ativo',
     ];
 
     protected $casts = [
-        'ativo' => 'boolean'
+        'ativo' => 'boolean',
     ];
 
     public function aliquotas(): HasMany

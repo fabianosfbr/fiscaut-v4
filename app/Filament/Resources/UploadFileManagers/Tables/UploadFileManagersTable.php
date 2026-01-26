@@ -133,7 +133,7 @@ class UploadFileManagersTable
                             return null;
                         }
 
-                        return 'Nº de etiquetas: ' . $data['num_etiquetas'];
+                        return 'Nº de etiquetas: '.$data['num_etiquetas'];
                     }),
 
                 Filter::make('etiquetas')
@@ -149,7 +149,7 @@ class UploadFileManagersTable
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when($data['etiquetas'], function ($q) use ($data) {
                             $values = $data['etiquetas'];
-                            $q->whereHas('tagged', fn($query) => $query->whereIn('tag_id', $values));
+                            $q->whereHas('tagged', fn ($query) => $query->whereIn('tag_id', $values));
                         });
                     })
                     ->columnSpan('full'),

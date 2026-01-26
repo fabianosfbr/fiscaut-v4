@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class UploadFile extends Model
 {
     use HasTags;
-    
+
     protected $guarded = ['id'];
 
     protected $casts = [

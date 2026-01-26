@@ -2,13 +2,12 @@
 
 namespace App\Filament\Resources\SimplesNacionalAliquotas\Schemas;
 
-
-use Filament\Schemas\Schema;
 use App\Models\SimplesNacionalAnexo;
 use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 class SimplesNacionalAliquotaForm
 {
@@ -24,7 +23,7 @@ class SimplesNacionalAliquotaForm
                             ->options(
                                 SimplesNacionalAnexo::ativo()
                                     ->pluck('descricao', 'anexo')
-                                    ->map(fn($descricao, $anexo) => "Anexo {$anexo} - {$descricao}")
+                                    ->map(fn ($descricao, $anexo) => "Anexo {$anexo} - {$descricao}")
                             )
                             ->required()
                             ->searchable()

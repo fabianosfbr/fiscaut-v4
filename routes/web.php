@@ -4,7 +4,6 @@ use App\Http\Controllers\TempFileController;
 use App\Http\Controllers\UploadFileController;
 use Illuminate\Support\Facades\Route;
 
-
 Route::get('/', function () {
     return view('welcome');
 });

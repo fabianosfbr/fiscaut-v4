@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Issuer;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,7 +28,7 @@ class SimplesNacionalCalculation extends Model
         'fator_r',
         'sujeito_fator_r',
         'anexo_fator_r',
-        'detalhamento_folha'
+        'detalhamento_folha',
     ];
 
     protected $casts = [
@@ -43,7 +42,7 @@ class SimplesNacionalCalculation extends Model
         'folha_salarios_12_meses' => 'decimal:2',
         'fator_r' => 'decimal:4',
         'sujeito_fator_r' => 'boolean',
-        'detalhamento_folha' => 'array'
+        'detalhamento_folha' => 'array',
     ];
 
     public function issuer(): BelongsTo
@@ -142,4 +141,3 @@ class SimplesNacionalCalculation extends Model
         return $query->where('anexo_fator_r', $anexo);
     }
 }
-

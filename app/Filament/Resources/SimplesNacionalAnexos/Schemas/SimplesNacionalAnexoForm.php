@@ -2,12 +2,11 @@
 
 namespace App\Filament\Resources\SimplesNacionalAnexos\Schemas;
 
-use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 class SimplesNacionalAnexoForm
 {
@@ -35,7 +34,7 @@ class SimplesNacionalAnexoForm
                             ->rules([
                                 function () {
                                     return function (string $attribute, $value, \Closure $fail) {
-                                        if (!in_array($value, ['I', 'II', 'III', 'IV', 'V'])) {
+                                        if (! in_array($value, ['I', 'II', 'III', 'IV', 'V'])) {
                                             $fail('O anexo selecionado não é válido.');
                                         }
                                     };

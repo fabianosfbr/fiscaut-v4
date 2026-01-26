@@ -2,13 +2,13 @@
 
 namespace App\Filament\Resources\CodigosServicos\Tables;
 
-use Filament\Tables\Table;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Tables\Filters\Filter;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
 class CodigosServicosTable
@@ -39,11 +39,11 @@ class CodigosServicosTable
                     ->preload(),
                 Filter::make('com_cnae')
                     ->label('Com CNAE Vinculado')
-                    ->query(fn(Builder $query): Builder => $query->whereNotNull('cnae_id'))
+                    ->query(fn (Builder $query): Builder => $query->whereNotNull('cnae_id'))
                     ->toggle(),
                 Filter::make('sem_cnae')
                     ->label('Sem CNAE Vinculado')
-                    ->query(fn(Builder $query): Builder => $query->whereNull('cnae_id'))
+                    ->query(fn (Builder $query): Builder => $query->whereNull('cnae_id'))
                     ->toggle(),
             ])
             ->recordActions([

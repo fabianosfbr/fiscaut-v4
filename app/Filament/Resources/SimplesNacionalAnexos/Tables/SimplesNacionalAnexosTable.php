@@ -2,18 +2,18 @@
 
 namespace App\Filament\Resources\SimplesNacionalAnexos\Tables;
 
-use Filament\Tables\Table;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Actions\DeleteAction;
-use Filament\Tables\Filters\Filter;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class SimplesNacionalAnexosTable
 {
@@ -21,10 +21,10 @@ class SimplesNacionalAnexosTable
     {
         return $table
             ->columns([
-               TextColumn::make('anexo')
+                TextColumn::make('anexo')
                     ->label('Anexo')
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'I' => 'success',
                         'II' => 'info',
                         'III' => 'warning',
@@ -43,6 +43,7 @@ class SimplesNacionalAnexosTable
                         if (strlen($state) <= 50) {
                             return null;
                         }
+
                         return $state;
                     })
                     ->searchable()
@@ -103,11 +104,11 @@ class SimplesNacionalAnexosTable
 
                 Filter::make('com_aliquotas')
                     ->label('Com alíquotas cadastradas')
-                    ->query(fn(Builder $query): Builder => $query->has('aliquotas')),
+                    ->query(fn (Builder $query): Builder => $query->has('aliquotas')),
 
                 Filter::make('com_cnaes')
                     ->label('Com CNAEs cadastrados')
-                    ->query(fn(Builder $query): Builder => $query->has('cnaes')),
+                    ->query(fn (Builder $query): Builder => $query->has('cnaes')),
             ])
             ->recordActions([
                 ViewAction::make(),

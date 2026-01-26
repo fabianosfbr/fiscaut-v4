@@ -35,7 +35,6 @@ return new class extends Migration
             // Índice composto para consultas por empresa, tipo e período
             $table->index(['destinatario_cnpj', 'tpNf', 'data_emissao'], 'idx_nfes_destinatario_cnpj_tipo_data');
 
-
             // Índice no campo tenant_id se existir (para multi-tenancy)
             if (Schema::hasColumn('nfes', 'tenant_id')) {
                 $table->index('tenant_id', 'idx_nfes_tenant_id');
