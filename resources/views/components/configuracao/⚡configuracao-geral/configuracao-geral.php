@@ -1,17 +1,19 @@
 <?php
 
-use App\Enums\ConfiguracoesGeraisEnum;
+use Livewire\Component;
+use App\Models\CategoryTag;
+use Filament\Schemas\Schema;
 use App\Models\GeneralSetting;
+use Illuminate\Support\HtmlString;
+use Illuminate\Support\Facades\Auth;
+use Filament\Schemas\Components\Grid;
+use App\Enums\ConfiguracoesGeraisEnum;
 use Filament\Forms\Components\Checkbox;
 use Filament\Notifications\Notification;
-use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
-use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\HtmlString;
-use Livewire\Component;
+use App\Filament\Forms\Components\SelectTagGrouped;
+use Filament\Schemas\Concerns\InteractsWithSchemas;
 
 new class extends Component implements HasSchemas
 {
@@ -100,22 +102,22 @@ new class extends Component implements HasSchemas
                                     ->live()
                                     ->afterStateUpdated(fn () => $this->hasChanges = true),
 
-                                // SelectTagGrouped::make('tagsCreditoIcms')
-                                //     ->label('Notas com as etiquetas abaixo serão consideradas como credito de ICMS')
-                                //     ->multiple(true)
-                                //     ->options(CategoryTag::getAllEnabled(Auth::user()->currentIssuer->id))
-                                //     ->required(function ($get) {
+                                SelectTagGrouped::make('tagsCreditoIcms')
+                                    ->label('Notas com as etiquetas abaixo serão consideradas como credito de ICMS')
+                                    ->multiple(true)
+                                    ->options(CategoryTag::getAllEnabled(Auth::user()->currentIssuer->id))
+                                    ->required(function ($get) {
 
-                                //         return $get('isNfeTomaCreditoIcms');
-                                //     })
-                                //     ->disabled(function ($get) {
-                                //         return ! $get('isNfeTomaCreditoIcms');
-                                //     })
-                                //     ->live()
-                                //     ->afterStateUpdated(fn () => $this->hasChanges = true)
-                                //     ->validationMessages([
-                                //         'required' => 'É obrigatório informar as etiquetas para credito de ICMS',
-                                //     ]),
+                                        return $get('isNfeTomaCreditoIcms');
+                                    })
+                                    ->disabled(function ($get) {
+                                        return ! $get('isNfeTomaCreditoIcms');
+                                    })
+                                    ->live()
+                                    ->afterStateUpdated(fn () => $this->hasChanges = true)
+                                    ->validationMessages([
+                                        'required' => 'É obrigatório informar as etiquetas para credito de ICMS',
+                                    ]),
 
                             ]),
                     ]),
