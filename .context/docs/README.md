@@ -39,6 +39,7 @@ Fiscaut implements a multi-tenant architecture where data is scoped per **Tenant
 | 🧪 [Testing Strategy](./testing-strategy.md) | Protocols for Pest/PHPUnit and Browser testing. |
 | 📖 [Glossary & Domain](./glossary.md) | Business terminology and fiscal domain rules. |
 | 🛡️ [Security & Compliance](./security.md) | Authentication, secrets, and LGPD compliance. |
+| 🧾 [XmlReaderService](./xml-reader-service.md) | XML parsing conventions and migration to array-based access. |
 
 ---
 

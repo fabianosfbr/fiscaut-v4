@@ -47,7 +47,7 @@ if (! function_exists('getLabelTag')) {
         foreach ($words as $w) {
             $acronym .= substr($w, 0, 1);
         }
-        $word = $word.$acronym;
+        $word = $word . $acronym;
 
         return strtoupper($word);
     }
@@ -63,7 +63,7 @@ if (! function_exists('formatar_moeda')) {
 if (! function_exists('formatar_cep')) {
     function formatar_cep($value)
     {
-        return substr($value, 0, 5).'-'.substr($value, 5, 3);
+        return substr($value, 0, 5) . '-' . substr($value, 5, 3);
     }
 }
 
@@ -100,5 +100,62 @@ if (! function_exists('canManageIssuers')) {
 
         // return $user->hasRole('super-admin', 'admin');
         return true;
+    }
+}
+
+if (! function_exists('loadXmlReader')) {
+    function loadXmlReader($xml)
+    {
+        return app(\App\Services\Xml\XmlReaderService::class)->read($xml);
+    }
+}
+
+if (! function_exists('xml_is_assoc')) {
+    function xml_is_assoc(array $value): bool
+    {
+        $keys = array_keys($value);
+
+        return $keys !== range(0, count($keys) - 1);
+    }
+}
+
+if (! function_exists('xml_list')) {
+    function xml_list($value): array
+    {
+        if ($value === null) {
+            return [];
+        }
+
+        if (! is_array($value)) {
+            return [$value];
+        }
+
+        if ($value === []) {
+            return [];
+        }
+
+        if (xml_is_assoc($value)) {
+            return [$value];
+        }
+
+        return $value;
+    }
+}
+
+if (! function_exists('searchValueInArray')) {
+    function searchValueInArray(array $data, $needle)
+    {
+        $iterator = new RecursiveArrayIterator($data);
+        $recursive = new RecursiveIteratorIterator(
+            $iterator,
+            RecursiveIteratorIterator::SELF_FIRST
+        );
+        foreach ($recursive as $key => $value) {
+            if ($key === $needle) {
+                return $value;
+            }
+        }
+
+        return null;
     }
 }

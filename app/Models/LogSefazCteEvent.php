@@ -14,6 +14,8 @@ class LogSefazCteEvent extends Model
 
     protected $guarded = ['id'];
 
+    public $timestamps = false;
+
     public function issuer(): BelongsTo
     {
         return $this->belongsTo(Issuer::class, 'issuer_id');

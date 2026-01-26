@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LogSefazNfeEvent extends Model
 {
-    
+
     public $table = 'log_sefaz_nfe_events';
 
     protected $guarded = ['id'];
+
+    public $timestamps = false;
 
     public function issuer(): BelongsTo
     {
