@@ -50,4 +50,9 @@ class Issuer extends Model
     {
         return $this->hasMany(CategoryTag::class);
     }
+
+    public function municipio()
+    {
+        return $this->belongsTo(Municipio::class, 'cod_municipio', 'id');
+    }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Jobs\Sefaz\Process;
 
-use App\Services\Sefaz\Traits\HasCte;
 use App\Services\Sefaz\Traits\HasLogSefaz;
+use App\Services\Xml\XmlCteReaderService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -12,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 
 class ProcessXmlResponseCteSefazJob implements ShouldQueue
 {
-    use Dispatchable, HasCte, HasLogSefaz, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, HasLogSefaz, InteractsWithQueue, Queueable, SerializesModels;
 
     public $response;
 
@@ -60,6 +60,11 @@ class ProcessXmlResponseCteSefazJob implements ShouldQueue
 
         $this->registerLogCteContent($this->issuer, $numnsu, $this->maxNSU, $xml);
 
-        $this->exec($xmlReader, $xml, $this->origem);
+        app(XmlCteReaderService::class)
+            ->loadXml($xml)
+            ->setIssuer($this->issuer)
+            ->setOrigem($this->origem)
+            ->parse()
+            ->save();
     }
 }

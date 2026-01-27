@@ -3,8 +3,8 @@
 namespace App\Jobs\Sefaz\Process;
 
 use App\Services\Sefaz\Traits\HasLogSefaz;
-use App\Services\Sefaz\Traits\HasNfe;
-use App\Traits\HasXmlReader;
+use App\Services\Xml\XmlNfeReaderService;
+
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -13,7 +13,7 @@ use Illuminate\Queue\SerializesModels;
 
 class ProcessXmlResponseNfeSefazJob implements ShouldQueue
 {
-    use Dispatchable, HasLogSefaz, HasNfe, HasXmlReader, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, HasLogSefaz, InteractsWithQueue, Queueable, SerializesModels;
 
     public $response;
 
@@ -61,6 +61,11 @@ class ProcessXmlResponseNfeSefazJob implements ShouldQueue
 
         $this->registerLogNfeContent($this->issuer, $numnsu, $this->maxNSU, $xml);
 
-        $this->exec($xmlReader, $xml, $this->origem);
+        app(XmlNfeReaderService::class)
+            ->loadXml($xml)
+            ->setIssuer($this->issuer)
+            ->setOrigem($this->origem)
+            ->parse()
+            ->save();
     }
 }

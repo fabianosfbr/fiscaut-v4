@@ -2,8 +2,8 @@
 
 namespace App\Jobs\Sefaz\Process;
 
-use App\Services\Sefaz\CteService;
-use App\Services\Sefaz\NfeService;
+use App\Services\Xml\XmlCteReaderService;
+use App\Services\Xml\XmlNfeReaderService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -39,13 +39,21 @@ class ProcessDocumentXmlImportJob implements ShouldQueue
 
         // NFe
         if (isset($xmlReader['nfeProc']['NFe']) || isset($xmlReader['procEventoNFe'])) {
-            $service = app(NfeService::class)->issuer($this->issuer);
-            $service->exec($xmlReader, $xml, 'Importação');
+            app(XmlNfeReaderService::class)
+                ->loadXml($xml)
+                ->setIssuer($this->issuer)
+                ->setOrigem('IMPORTADO')
+                ->parse()
+                ->save();
         }
         // CTe
         if (isset($xmlReader['cteProc']['CTe'])) {
-            $service = app(CteService::class)->issuer($this->issuer);
-            $service->exec($xmlReader, $xml, 'Importação');
+            app(XmlCteReaderService::class)
+                ->loadXml($xml)
+                ->setIssuer($this->issuer)
+                ->setOrigem('IMPORTADO')
+                ->parse()
+                ->save();
         }
 
 
