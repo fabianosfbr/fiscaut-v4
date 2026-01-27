@@ -2,24 +2,25 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\AuthenticateSession;
-use Filament\Http\Middleware\DisableBladeIconComponents;
-use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
+use Filament\Pages\Dashboard;
 use Filament\Support\Colors\Color;
 use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
-use Illuminate\Routing\Middleware\SubstituteBindings;
-use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
+use Filament\Navigation\NavigationGroup;
+use Filament\Widgets\FilamentInfoWidget;
+use Filament\Http\Middleware\Authenticate;
+use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Cookie\Middleware\EncryptCookies;
+use Filament\Http\Middleware\AuthenticateSession;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Http\Middleware\DisableBladeIconComponents;
+use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -54,7 +55,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->renderHook(
                 PanelsRenderHook::CONTENT_START,
-                fn (): string => Blade::render('@livewire(\'issuer-switcher\')'),
+                fn(): string => Blade::render('@livewire(\'issuer-switcher\')'),
             )
             ->middleware([
                 EncryptCookies::class,
@@ -67,8 +68,53 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            ->navigationGroups([
+                NavigationGroup::make()
+                    ->label('NFe')
+                    ->icon('heroicon-o-clipboard-document-check')
+                    ->collapsed(),
+                NavigationGroup::make()
+                    ->label('CTe')
+                    ->icon('heroicon-o-clipboard-document-list')
+                    ->collapsed(),
+                NavigationGroup::make()
+                    ->label('NFSe')
+                    ->icon('heroicon-o-clipboard-document')
+                    ->collapsed(),
+                NavigationGroup::make()
+                    ->label('CFe')
+                    ->icon('heroicon-o-clipboard-document')
+                    ->collapsed(),
+                NavigationGroup::make()
+                    ->label('Demais docs. fiscais')
+                    ->icon('heroicon-o-document-duplicate')
+                    ->collapsed(),
+                NavigationGroup::make()
+                    ->label('Relatórios')
+                    ->icon('heroicon-o-chart-bar')
+                    ->collapsed(),
+                NavigationGroup::make()
+                    ->label('Ferramentas')
+                    ->icon('heroicon-o-cpu-chip')
+                    ->collapsed(),
+                NavigationGroup::make()
+                    ->label('Usuários')
+                    ->icon('heroicon-o-users')
+                    ->collapsed(),
+                NavigationGroup::make()
+                    ->label('Configurações')                    
+                    ->icon('heroicon-o-cog-6-tooth')
+                    ->collapsed(),
+                NavigationGroup::make()
+                    ->label('Administração')
+                    ->collapsed(true)
+                    ->icon('heroicon-o-adjustments-horizontal')
+                    ->collapsed(),
+
             ]);
     }
 }

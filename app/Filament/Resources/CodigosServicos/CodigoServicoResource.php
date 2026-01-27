@@ -23,7 +23,7 @@ class CodigoServicoResource extends Resource
 
     protected static bool $hasTitleCaseModelLabel = false;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Configurações';
+    protected static string|UnitEnum|null $navigationGroup = 'Administração';
 
     public static function form(Schema $schema): Schema
     {

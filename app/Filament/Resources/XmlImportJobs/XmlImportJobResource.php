@@ -19,7 +19,7 @@ class XmlImportJobResource extends Resource
 {
     protected static ?string $model = XmlImportJob::class;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Configurações';
+    protected static string|UnitEnum|null $navigationGroup = 'Administração';
 
     protected static ?string $navigationLabel = 'Histórico de Importações';
 

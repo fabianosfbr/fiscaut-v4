@@ -21,7 +21,7 @@ class SimplesNacionalAliquotaResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Alíquotas Simples Nacional';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Configurações';
+    protected static string|UnitEnum|null $navigationGroup = 'Administração';
 
     public static function form(Schema $schema): Schema
     {

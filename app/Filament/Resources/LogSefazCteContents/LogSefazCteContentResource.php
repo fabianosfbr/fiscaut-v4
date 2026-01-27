@@ -25,7 +25,7 @@ class LogSefazCteContentResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Logs de NSU - CTe';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Configurações';
+    protected static string|UnitEnum|null $navigationGroup = 'Administração';
 
 
     public static function form(Schema $schema): Schema
