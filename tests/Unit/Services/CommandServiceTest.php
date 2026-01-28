@@ -120,7 +120,8 @@ class CommandServiceTest extends TestCase
         $this->assertTrue($data['options']['withValue'][0]->required);
 
         $this->assertContains('flag', $data['options']['withoutValue']);
-        $this->assertContains('verbose', $data['options']['withoutValue']);
+        $this->assertContains('-v', $data['options']['withoutValue']);
+        $this->assertContains('-vv', $data['options']['withoutValue']);
+        $this->assertContains('-vvv', $data['options']['withoutValue']);
     }
 }
-
