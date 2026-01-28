@@ -37,10 +37,13 @@ class SefazNfeDownloadService
                 return;
             }
 
+
             // Busca as configurações da empresa
             $this->loadIssuerConfig();
+
             // Carrega o certificado digital
             $this->loadCertificate();
+
 
             // Inicializa as ferramentas NFePHP
             $this->tools = new Tools(json_encode($this->config), $this->certificate);
@@ -51,7 +54,7 @@ class SefazNfeDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha na inicialização do serviço: '.$e->getMessage());
+            throw new Exception('Falha na inicialização do serviço: ' . $e->getMessage());
         }
     }
 
@@ -94,7 +97,7 @@ class SefazNfeDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha ao carregar certificado digital: '.$e->getMessage());
+            throw new Exception('Falha ao carregar certificado digital: ' . $e->getMessage());
         }
     }
 
@@ -122,10 +125,6 @@ class SefazNfeDownloadService
                 $iterations++;
 
                 if ($iterations > $loopLimit) {
-                    Log::warning('Limite de iterações atingido no download em lote', [
-                        'issuer_id' => $this->issuer->id,
-                        'iterations' => $iterations,
-                    ]);
                     break;
                 }
 
@@ -196,7 +195,7 @@ class SefazNfeDownloadService
                 'iterations' => $iterations,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha no download em lote: '.$e->getMessage());
+            throw new Exception('Falha no download em lote: ' . $e->getMessage());
         }
     }
 
@@ -214,26 +213,17 @@ class SefazNfeDownloadService
             // Para consultas em lote, sempre usa o NSU da empresa se não informado
             $currentNsu = $ultNsu ?: $this->getLastSavedNsu();
 
-            Log::info('Iniciando download de NFe por NSU', [
-                'issuer_id' => $this->issuer->id,
-                'nsu_utilizado' => $currentNsu,
-            ]);
-
             $response = $this->shouldMockDistDFe()
                 ? $this->getMockDistDFeResponse()
                 : $this->getTools()->sefazDistDFe($currentNsu);
 
-
+            Log::channel('sefaz_log')->info('Log de consulta NFe - SEFAZ - registro - ' . explode(':', $this->issuer->razao_social)[0] . ' : ' . $response);
             // Processa a resposta
             $result = $this->processDistDFeResponse($response);
-            
+
             // SEMPRE atualiza o NSU da empresa em consultas em lote
             if ($result['ultNSU']) {
-                $this->saveLastNsu((int) $result['ultNSU']);
-                Log::info('NSU da empresa atualizado', [
-                    'issuer_id' => $this->issuer->id,
-                    'novo_nsu' => $result['ultNSU'],
-                ]);
+                $this->saveLastNsu((int) $result['ultNSU']);                
             }
 
             return $result;
@@ -244,7 +234,7 @@ class SefazNfeDownloadService
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            throw new Exception('Falha no download de NFe: '.$e->getMessage());
+            throw new Exception('Falha no download de NFe: ' . $e->getMessage());
         }
     }
 
@@ -361,7 +351,7 @@ class SefazNfeDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha ao processar resposta: '.$e->getMessage());
+            throw new Exception('Falha ao processar resposta: ' . $e->getMessage());
         }
     }
 
@@ -395,7 +385,6 @@ class SefazNfeDownloadService
                                 'schema' => $schema,
                                 'xml_content' => $content,
                             ];
-
                         } else {
                             Log::warning('Falha ao descompactar documento', [
                                 'issuer_id' => $this->issuer->id,
@@ -490,10 +479,10 @@ class SefazNfeDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha ao verificar status SEFAZ: '.$e->getMessage());
+            throw new Exception('Falha ao verificar status SEFAZ: ' . $e->getMessage());
         }
     }
- 
+
     /**
      * Realiza a manifestação de uma NF-e.
      */
@@ -501,7 +490,7 @@ class SefazNfeDownloadService
     {
         return $this->getTools()->sefazManifesta($chNFe, $tpEvento, $xJust, $nSeqEvento);
     }
- 
+
     /**
      * Manifesta ciência da operação para todos os resumos pendentes.
      */
@@ -510,20 +499,20 @@ class SefazNfeDownloadService
         $resumos = LogSefazResumoNfe::where('issuer_id', $this->issuer->id)
             ->where('is_ciente_operacao', false)
             ->get();
- 
+
         foreach ($resumos as $resumo) {
             try {
                 $response = $this->sefazManifesta($resumo->chave, '210210'); // Ciência da Operação
- 
+
                 Log::info('Log de manifestação NFe - SEFAZ', [
                     'issuer' => $this->issuer->razao_social,
                     'chave' => $resumo->chave,
                     'response' => $response,
                 ]);
- 
+
                 $standardize = new Standardize($response);
                 $std = $standardize->toStd();
- 
+
                 LogSefazManifestoEvent::create([
                     'issuer_id' => $this->issuer->id,
                     'chave' => $resumo->chave,
@@ -535,12 +524,11 @@ class SefazNfeDownloadService
                     'infEvento_xMotivo' => $std->retEvento->infEvento->xMotivo,
                     'xml' => $response,
                 ]);
- 
+
                 $resumo->update([
                     'data_ciencia_manifesto' => now(),
                     'is_ciente_operacao' => true,
                 ]);
- 
             } catch (Exception $e) {
                 Log::error('Erro ao manifestar ciência da operação', [
                     'issuer_id' => $this->issuer->id,
@@ -548,7 +536,7 @@ class SefazNfeDownloadService
                     'error' => $e->getMessage(),
                 ]);
             }
- 
+
             sleep(2);
         }
     }

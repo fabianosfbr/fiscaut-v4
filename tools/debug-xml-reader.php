@@ -38,6 +38,10 @@ foreach ($paths as $path) {
     echo "root: {$rootName}\n";
 
     if ($rootName === 'cteProc') {
+        $cteProc = $data['cteProc'] ?? [];
+        $infCte = $cteProc['CTe']['infCte'] ?? [];
+        $infDoc =  $infCte['infCTeNorm']['infDoc'] ?? [];
+
         $ide = $data['cteProc']['CTe']['infCte']['ide'] ?? [];
         $emit = $data['cteProc']['CTe']['infCte']['emit'] ?? [];
         echo "nCT: " . ($ide['nCT'] ?? 'null') . "\n";
@@ -63,4 +67,3 @@ foreach ($paths as $path) {
     echo "top-level keys: " . implode(',', array_keys($data[$rootName] ?? [])) . "\n";
     echo "\n";
 }
-

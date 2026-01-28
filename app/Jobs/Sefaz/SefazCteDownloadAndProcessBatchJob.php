@@ -13,9 +13,10 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Services\Sefaz\SefazNfeDownloadService;
+use App\Services\Sefaz\SefazCteDownloadService;
 
-class SefazNfeDownloadAndProcessBatchJob implements ShouldQueue
+
+class SefazCteDownloadAndProcessBatchJob implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -48,16 +49,16 @@ class SefazNfeDownloadAndProcessBatchJob implements ShouldQueue
     {
         try {
             // Initialize the download service
-            $service = new SefazNfeDownloadService($this->issuer);
+            $service = new SefazCteDownloadService($this->issuer);
 
             // Download documents in batch
-            $result = $service->downloadNfeInBatch($this->ultNsu);
+            $result = $service->downloadCteInBatch($this->ultNsu);
 
             $importJob = $this->createXmlImportJob($result['total_documentos']);
 
             // If documents were found, process them in a batch
             if (! empty($result['documentos'])) {
-                SefazNfeDownloadBatchJob::dispatch(
+                SefazCteDownloadBatchJob::dispatch(
                     $importJob,
                     $result['documentos'],
                     $this->issuer,

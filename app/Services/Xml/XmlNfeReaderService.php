@@ -32,7 +32,7 @@ class XmlNfeReaderService
 
             return $this;
         } catch (Exception $e) {
-            Log::error('Erro ao carregar XML: ' . $e->getMessage());
+            Log::error('Erro ao carregar XML NFe: ' . $e->getMessage());
             throw new Exception('XML inválido ou mal formatado');
         }
     }
