@@ -10,6 +10,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "archtechx/money": "^0.5.3",
         "filament/filament": "^5.0",
         "laradumps/laradumps": "^5.0",
         "laravel/framework": "^12.0",

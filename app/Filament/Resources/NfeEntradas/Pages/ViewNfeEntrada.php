@@ -2,9 +2,15 @@
 
 namespace App\Filament\Resources\NfeEntradas\Pages;
 
-use App\Filament\Resources\NfeEntradas\NfeEntradaResource;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Actions\ActionGroup;
 use Filament\Resources\Pages\ViewRecord;
+use App\Filament\Actions\DownloadXmlAction;
+use App\Filament\Actions\DownloadPdfNfeAction;
+use App\Filament\Actions\ToggleEscrituracaoAction;
+use App\Filament\Resources\NfeEntradas\NfeEntradaResource;
+use App\Filament\Actions\ClassificarDocumentoNfeAvancadoAction;
 
 class ViewNfeEntrada extends ViewRecord
 {
@@ -13,7 +19,24 @@ class ViewNfeEntrada extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            EditAction::make(),
+            Action::make('nfe-list')
+                ->label('Voltar para lista')
+                ->color('gray')
+                ->url(fn(): string => NfeEntradaResource::getUrl('index')),
+            ToggleEscrituracaoAction::make(),
+            ClassificarDocumentoNfeAvancadoAction::make(),            
+              ActionGroup::make([
+                DownloadXmlAction::make(),
+                DownloadPdfNfeAction::make(),
+            ])
+                ->button()
+                ->label('Download'),
+
         ];
+    }
+
+    public function getHeading(): string
+    {
+        return 'NFe de Entrada';
     }
 }

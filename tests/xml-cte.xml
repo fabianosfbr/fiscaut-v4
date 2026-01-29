@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cteProc xmlns="http://www.portalfiscal.inf.br/cte" versao="4.00">
+    <CTe xmlns="http://www.portalfiscal.inf.br/cte" versao="4.00">
+        <infCte Id="CTe35260103007331008045571572301956851471759822">
+            <ide>
+                <tpCTe>0</tpCTe>
+                <nCT>230195685</nCT>
+            </ide>
+            <emit>
+                <CNPJ>03007331008045</CNPJ>
+            </emit>
+        </infCte>
+    </CTe>
+</cteProc>
+

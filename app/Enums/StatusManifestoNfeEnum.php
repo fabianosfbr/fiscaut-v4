@@ -5,7 +5,7 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum StatusManifestoNfe: int implements HasColor, HasLabel
+enum StatusManifestoNfeEnum: int implements HasColor, HasLabel
 {
     case CIENTE = 210210;
     case CONFIRMADA = 210200;

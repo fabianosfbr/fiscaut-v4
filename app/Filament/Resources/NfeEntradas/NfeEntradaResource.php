@@ -10,6 +10,7 @@ use App\Filament\Resources\NfeEntradas\Schemas\NfeEntradaForm;
 use App\Filament\Resources\NfeEntradas\Schemas\NfeEntradaInfolist;
 use App\Filament\Resources\NfeEntradas\Tables\NfeEntradasTable;
 use App\Models\NotaFiscalEletronica;
+use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -43,6 +44,12 @@ class NfeEntradaResource extends Resource
     public static function table(Table $table): Table
     {
         return NfeEntradasTable::configure($table);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with(['tagged.tag']);
     }
 
     public static function getRelations(): array

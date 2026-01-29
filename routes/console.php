@@ -1,16 +1,19 @@
 <?php
 
 use App\Console\Scheduling\DynamicTaskCommandExecutor;
+use App\Models\NotaFiscalEletronica;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+Artisan::command('play', function () {
+    $nfe = NotaFiscalEletronica::find(522793);
+
+    dd($nfe->endereco_emitente_completo);
+});
 
 Artisan::command('schedule:run-dynamic {--force}', function () {
-    
+
     $arguments = [];
     if ((bool) $this->option('force')) {
         $arguments['--force'] = true;

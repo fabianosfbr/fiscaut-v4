@@ -27,5 +27,18 @@ class NotaFiscalEletronicaProdutosXmlTest extends TestCase
         $this->assertArrayHasKey('impostos', $primeiro);
         $this->assertIsArray($primeiro['impostos']);
     }
-}
 
+    public function test_endereco_destinatario_completo_extrai_do_xml_comprimido(): void
+    {
+        $xml = file_get_contents(__DIR__ . '/../../xml-nfe.xml');
+        $this->assertNotFalse($xml);
+
+        $nfe = new NotaFiscalEletronica();
+        $nfe->xml = gzcompress($xml);
+
+        $this->assertSame(
+            'AV COMENDADOR ANTONIO BORIN, 1800 - JARDIM ROSAURA - JUNDIAI/SP - CEP: 13218-641',
+            $nfe->endereco_destinatario_completo,
+        );
+    }
+}

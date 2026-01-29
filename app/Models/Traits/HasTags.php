@@ -24,7 +24,7 @@ trait HasTags
     {
         if ($tag instanceof Tag) {
             $tag = $tag;
-        } elseif (is_int($tag)) {
+        } else {
             $tag = Tag::find($tag);
         }
         $tagged = new Tagged([
@@ -38,6 +38,8 @@ trait HasTags
 
         $this->tagged()->save($tagged);
     }
+
+
 
     public function getTagsAttribute()
     {
@@ -61,14 +63,21 @@ trait HasTags
     public function tagNamesWithCode(): array
     {
         return $this->tagged->map(function ($item) {
-            return $item->tag?->code.' - '.$item?->tag_name;
+            return $item->tag?->code . ' - ' . $item?->tag_name;
+        })->toArray();
+    }
+
+    public function tagNamesWithCodeAndValue(): array
+    {
+        return $this->tagged->map(function ($item) {
+            return $item->tag->code . ' - ' . $item->tag_name . ' | R$' . number_format($item->value, 2, ',', '.');
         })->toArray();
     }
 
     public function tagAtrributes(): array
     {
         return $this->tagged->map(function ($item) {
-            return $item->tag->code.' - '.$item->tag_name.' | '.$item->value.' | '.$item->products;
+            return $item->tag->code . ' - ' . $item->tag_name . ' | ' . $item->value . ' | ' . $item->products;
         })->toArray();
     }
 
