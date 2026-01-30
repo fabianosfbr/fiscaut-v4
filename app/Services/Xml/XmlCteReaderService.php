@@ -5,8 +5,8 @@ namespace App\Services\Xml;
 use App\Events\CteCancelada;
 use App\Jobs\Sefaz\CheckNfeData;
 use App\Models\ConhecimentoTransporteEletronico;
-use App\Models\LogSefazCteEvent;
 use App\Models\Issuer;
+use App\Models\LogSefazCteEvent;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
@@ -100,13 +100,13 @@ class XmlCteReaderService
 
     private function processCteCompleta(): void
     {
-            
+
         $params = $this->preparaDadosCte();
-        
+
         Log::info('Registrando/Atualizando CTe no Fiscaut - Chave:  '.$params['chave']);
 
         $params['origem'] = $this->origem;
-        
+
         $params['tenant_id'] = $this->issuer->tenant_id;
 
         $params['xml'] = gzcompress($this->xml);
@@ -152,14 +152,14 @@ class XmlCteReaderService
                 'tenant_id' => $this->issuer->tenant_id,
             ]
         );
- 
+
         if ($tpEvento == 110111) {
             $cte = ConhecimentoTransporteEletronico::where('chave', $chave)->first();
             if ($cte) {
                 $cte->is_cancelada = true;
                 $cte->save();
             }
- 
+
             event(new CteCancelada($log));
         }
     }

@@ -32,7 +32,7 @@ class XmlNfeReaderService
 
             return $this;
         } catch (Exception $e) {
-            Log::error('Erro ao carregar XML NFe: ' . $e->getMessage());
+            Log::error('Erro ao carregar XML NFe: '.$e->getMessage());
             throw new Exception('XML inválido ou mal formatado');
         }
     }
@@ -97,7 +97,7 @@ class XmlNfeReaderService
                 break;
 
             default:
-                throw new Exception('Tipo de XML não suportado: ' . $tipoXml);
+                throw new Exception('Tipo de XML não suportado: '.$tipoXml);
         }
     }
 
@@ -105,7 +105,7 @@ class XmlNfeReaderService
     {
 
         $params = $this->preparaDadosNfe();
-        Log::info('Registrando/Atualizando NFe no Fiscaut - Chave:  ' . $params['chave']);
+        Log::info('Registrando/Atualizando NFe no Fiscaut - Chave:  '.$params['chave']);
 
         $params['origem'] = $this->origem;
 
@@ -121,7 +121,7 @@ class XmlNfeReaderService
             $params
         );
 
-        if($nfe->vICMSUFDest > 0.0) {
+        if ($nfe->vICMSUFDest > 0.0) {
             $nfe->updateQuietly([
                 'difal' => $nfe->calcularDifalProdutos(),
             ]);
@@ -159,7 +159,7 @@ class XmlNfeReaderService
                 'tipo_nfe' => $resumo['tpNF'],
                 'valor_nfe' => $resumo['vNF'],
                 'created_at' => date('Y-m-d h:i:s'),
-                'dh_emissao' => explode('T', $resumo['dhRecbto'])[0] . ' ' . explode('-', explode('T', $resumo['dhRecbto'])[1])[0],
+                'dh_emissao' => explode('T', $resumo['dhRecbto'])[0].' '.explode('-', explode('T', $resumo['dhRecbto'])[1])[0],
                 'issuer_id' => $this->issuer->id,
                 'tenant_id' => $this->issuer->tenant_id,
                 'xml' => $this->xml,
@@ -177,7 +177,7 @@ class XmlNfeReaderService
         $dhEvento = $evento['dhEvento'];
         $xEvento = $evento['xEvento'];
 
-        info('Processando evento NFe - Chave: ' . $chave . ' - Tipo: ' . $tpEvento . ' - Seq: ' . $nSeqEvento . ' - Dh: ' . $dhEvento . ' - XEvento: ' . $xEvento);
+        info('Processando evento NFe - Chave: '.$chave.' - Tipo: '.$tpEvento.' - Seq: '.$nSeqEvento.' - Dh: '.$dhEvento.' - XEvento: '.$xEvento);
         $carta_correcao = [];
         $log = LogSefazNfeEvent::updateOrCreate(
             [
@@ -420,7 +420,7 @@ class XmlNfeReaderService
         $date = $parts[0];
         $time = explode('-', $parts[1], 2)[0];
 
-        return $date . ' ' . $time;
+        return $date.' '.$time;
     }
 
     private function preparaCfops()
@@ -430,7 +430,7 @@ class XmlNfeReaderService
             $cfops[] = $value['prod']['CFOP'] ?? null;
         });
 
-        $cfops = array_filter($cfops ?? [], fn($cfop) => ! is_null($cfop) && $cfop !== '');
+        $cfops = array_filter($cfops ?? [], fn ($cfop) => ! is_null($cfop) && $cfop !== '');
         $values = array_unique($cfops);
         rsort($values);
 

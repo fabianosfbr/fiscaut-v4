@@ -3,8 +3,8 @@
 return [
     'commands' => [
         'enable_custom' => true,
-        "supported" => [
-            //ex."erp:*"
+        'supported' => [
+            // ex."erp:*"
         ],
         'exclude' => [
             'help',
@@ -35,15 +35,15 @@ return [
             'queue:*',
             'schedule:*',
             'view:*',
-            'phpunit:*'
+            'phpunit:*',
         ],
     ],
     'tool-help-cron-expression' => [
         'enable' => true,
-        'url' => 'https://crontab.cronhub.io/'
+        'url' => 'https://crontab.cronhub.io/',
     ],
     'cache' => [
-        'enabled' => !config('app.debug'),
+        'enabled' => ! config('app.debug'),
         'store' => 'file',
         'key' => 'schedule_cache_',
         'ttl' => 60 * 5,

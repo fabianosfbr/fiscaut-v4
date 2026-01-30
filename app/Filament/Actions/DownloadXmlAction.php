@@ -3,13 +3,12 @@
 namespace App\Filament\Actions;
 
 use Filament\Actions\Action;
-use Illuminate\Database\Eloquent\Model;
 
 class DownloadXmlAction
 {
     public static function make(): Action
     {
-        return  Action::make('download')
+        return Action::make('download')
             ->label('Download XML')
             ->icon('heroicon-o-document-arrow-down')
             ->requiresConfirmation()

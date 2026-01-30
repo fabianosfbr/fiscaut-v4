@@ -2,8 +2,8 @@
 
 namespace App\Services\Xml;
 
-use Exception;
 use DOMElement;
+use Exception;
 use SimpleXMLElement;
 
 class XmlReaderService
@@ -102,6 +102,7 @@ class XmlReaderService
 
             if (! array_key_exists($childName, $result)) {
                 $result[$childName] = $childValue;
+
                 continue;
             }
 

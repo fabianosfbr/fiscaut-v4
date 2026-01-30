@@ -3,8 +3,8 @@
 namespace Tests\Unit;
 
 use App\Models\Issuer;
-use App\Models\NotaFiscalEletronica;
 use App\Models\NfeApurada;
+use App\Models\NotaFiscalEletronica;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -54,4 +54,3 @@ class NotaFiscalEletronicaApuracaoTest extends TestCase
         $this->assertFalse((bool) $apuracao->status);
     }
 }
-

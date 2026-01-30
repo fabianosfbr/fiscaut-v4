@@ -2,18 +2,17 @@
 
 namespace App\Jobs\Sefaz;
 
+use App\Enums\XmlImportJobType;
 use App\Models\Issuer;
-
 use App\Models\XmlImportJob;
+use App\Services\Sefaz\SefazNfeDownloadService;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
-use App\Enums\XmlImportJobType;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Services\Sefaz\SefazNfeDownloadService;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class SefazNfeDownloadAndProcessBatchJob implements ShouldQueue
 {

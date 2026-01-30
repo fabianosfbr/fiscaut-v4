@@ -3,13 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LogSefazNfeContent extends Model
 {
-    
-
     public $table = 'log_sefaz_nfe_contents';
 
     protected $guarded = ['id'];

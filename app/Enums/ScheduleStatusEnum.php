@@ -6,9 +6,8 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum ScheduleStatusEnum: string implements HasIcon, HasColor, HasLabel
+enum ScheduleStatusEnum: string implements HasColor, HasIcon, HasLabel
 {
-
     case Active = 'active';
     case Inactive = 'inactive';
     case Trashed = 'trashed';

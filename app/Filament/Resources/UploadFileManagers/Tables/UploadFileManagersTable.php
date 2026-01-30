@@ -2,32 +2,31 @@
 
 namespace App\Filament\Resources\UploadFileManagers\Tables;
 
-use App\Models\Tag;
 use App\Enums\DocTypeEnum;
-use Filament\Tables\Table;
-use App\Models\GeneralSetting;
-use Filament\Actions\BulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ActionGroup;
-use Filament\Tables\Filters\Filter;
-use App\Jobs\DownloadLoteUploadFile;
-use Filament\Support\Icons\Heroicon;
-use Illuminate\Support\Facades\Auth;
-use Filament\Actions\BulkActionGroup;
-use Filament\Forms\Components\Select;
-use Filament\Support\Enums\Alignment;
-use Filament\Forms\Components\Checkbox;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Support\Facades\Storage;
-use Filament\Notifications\Notification;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\CheckboxList;
-use Illuminate\Database\Eloquent\Collection;
+use App\Filament\Resources\UploadFileManagers\Actions\DownloadFileAction;
 use App\Filament\Tables\Columns\TagDocsColumn;
 use App\Jobs\BulkAction\DownloadUploadFileBulkActionJob;
-use App\Filament\Resources\UploadFileManagers\Actions\DownloadFileAction;
+use App\Models\GeneralSetting;
+use App\Models\Tag;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
+use Filament\Support\Enums\Alignment;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class UploadFileManagersTable
 {
@@ -134,7 +133,7 @@ class UploadFileManagersTable
                             return null;
                         }
 
-                        return 'Nº de etiquetas: ' . $data['num_etiquetas'];
+                        return 'Nº de etiquetas: '.$data['num_etiquetas'];
                     }),
 
                 Filter::make('etiquetas')
@@ -150,7 +149,7 @@ class UploadFileManagersTable
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when($data['etiquetas'], function ($q) use ($data) {
                             $values = $data['etiquetas'];
-                            $q->whereHas('tagged', fn($query) => $query->whereIn('tag_id', $values));
+                            $q->whereHas('tagged', fn ($query) => $query->whereIn('tag_id', $values));
                         });
                     })
                     ->columnSpan('full'),

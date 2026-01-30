@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\NfeSaidas\Pages;
 
-use Filament\Support\Enums\Width;
-use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
 use App\Filament\Resources\NfeSaidas\NfeSaidaResource;
+use Filament\Resources\Pages\ListRecords;
+use Filament\Support\Enums\Width;
 
 class ListNfeSaidas extends ListRecords
 {

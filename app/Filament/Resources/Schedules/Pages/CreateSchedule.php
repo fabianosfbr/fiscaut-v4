@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\Schedules\Pages;
 
 use App\Filament\Resources\Schedules\ScheduleResource;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Validation\ValidationException;
-use Filament\Notifications\Notification;
 
 class CreateSchedule extends CreateRecord
 {

@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\LogSefazCteContents\Pages;
 
 use App\Filament\Resources\LogSefazCteContents\LogSefazCteContentResource;
-use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListLogSefazCteContents extends ListRecords

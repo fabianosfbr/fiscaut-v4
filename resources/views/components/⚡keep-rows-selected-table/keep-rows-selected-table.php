@@ -1,8 +1,7 @@
 <?php
 
-use Livewire\Component;
-
 use Livewire\Attributes\Session;
+use Livewire\Component;
 
 new class extends Component
 {

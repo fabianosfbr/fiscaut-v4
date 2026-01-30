@@ -4,7 +4,6 @@ namespace App\Jobs\Sefaz\Process;
 
 use App\Services\Sefaz\Traits\HasLogSefaz;
 use App\Services\Xml\XmlNfeReaderService;
-
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

@@ -2,23 +2,22 @@
 
 namespace App\Jobs;
 
-use Exception;
-use Throwable;
-use App\Models\User;
 use App\Models\Issuer;
-use Illuminate\Bus\Batch;
-use App\Jobs\ProcessXmlFile;
+use App\Models\User;
 use App\Models\XmlImportJob;
+use Exception;
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
+use Illuminate\Bus\Batch;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Queue\SerializesModels;
-use Filament\Notifications\Notification;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class ProcessXmlFileBatch implements ShouldQueue
 {
@@ -60,7 +59,7 @@ class ProcessXmlFileBatch implements ShouldQueue
     {
         try {
             $issuer = Issuer::find($this->importJob->issuer_id);
-            if (!$issuer) {
+            if (! $issuer) {
                 throw new Exception('Empresa não encontrada');
             }
             // Divide o array de XMLs em lotes menores para processamento
@@ -115,8 +114,8 @@ class ProcessXmlFileBatch implements ShouldQueue
                     }
                 })
                 ->catch(function (Batch $batch, Throwable $e) use ($importJobId) {
-                    $mensagemErro = 'Erro no processamento em lote: ' . $e->getMessage();
-                    Log::error('Erro na importação em lote de XML: ' . $mensagemErro);
+                    $mensagemErro = 'Erro no processamento em lote: '.$e->getMessage();
+                    Log::error('Erro na importação em lote de XML: '.$mensagemErro);
 
                     $importJob = XmlImportJob::find($importJobId);
                     if ($importJob) {
@@ -134,7 +133,7 @@ class ProcessXmlFileBatch implements ShouldQueue
                                 Notification::make()
                                     ->danger()
                                     ->title('Erro')
-                                    ->body('Ocorreu um erro ao processar a requisição: ' . $e->getMessage())
+                                    ->body('Ocorreu um erro ao processar a requisição: '.$e->getMessage())
                                     ->actions([
                                         Action::make('view')
                                             ->label('Ver detalhes')
@@ -161,11 +160,11 @@ class ProcessXmlFileBatch implements ShouldQueue
      */
     public function failed(Throwable $exception): void
     {
-        $mensagemErro = 'Falha no processamento em lote: ' . $exception->getMessage();
+        $mensagemErro = 'Falha no processamento em lote: '.$exception->getMessage();
         $this->importJob->addError($mensagemErro);
         $this->importJob->updateQuietly([
             'status' => XmlImportJob::STATUS_FAILED,
         ]);
-        Log::error('Falha na importação em lote de XML: ' . $mensagemErro);
+        Log::error('Falha na importação em lote de XML: '.$mensagemErro);
     }
 }

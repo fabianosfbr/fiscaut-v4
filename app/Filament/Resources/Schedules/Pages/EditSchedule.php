@@ -2,12 +2,9 @@
 
 namespace App\Filament\Resources\Schedules\Pages;
 
-use Filament\Actions\ViewAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\Schedules\ScheduleResource;
+use Filament\Actions\ViewAction;
+use Filament\Resources\Pages\EditRecord;
 
 class EditSchedule extends EditRecord
 {
@@ -18,7 +15,7 @@ class EditSchedule extends EditRecord
         return [
             ViewAction::make()
                 ->label('Ver histórico')
-                ->visible(fn($record) => $record->histories()->count()),
+                ->visible(fn ($record) => $record->histories()->count()),
 
         ];
     }

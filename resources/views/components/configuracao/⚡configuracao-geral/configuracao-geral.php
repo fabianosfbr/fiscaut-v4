@@ -1,19 +1,19 @@
 <?php
 
-use Livewire\Component;
-use App\Models\CategoryTag;
-use Filament\Schemas\Schema;
-use App\Models\GeneralSetting;
-use Illuminate\Support\HtmlString;
-use Illuminate\Support\Facades\Auth;
-use Filament\Schemas\Components\Grid;
 use App\Enums\ConfiguracoesGeraisEnum;
+use App\Filament\Forms\Components\SelectTagGrouped;
+use App\Models\CategoryTag;
+use App\Models\GeneralSetting;
 use Filament\Forms\Components\Checkbox;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Contracts\HasSchemas;
-use App\Filament\Forms\Components\SelectTagGrouped;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
+use Livewire\Component;
 
 new class extends Component implements HasSchemas
 {

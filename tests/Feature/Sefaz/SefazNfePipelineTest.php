@@ -40,4 +40,3 @@ class SefazNfePipelineTest extends TestCase
         $this->assertSame(2, (int) $issuer->fresh()->ult_nsu_nfe);
     }
 }
-

@@ -21,7 +21,7 @@ class TempFileDownloadTest extends TestCase
         $tempFile = TempFile::query()->create([
             'user_id' => $user->id,
             'disk' => 'local',
-            'file_path' => 'temp-downloads/' . $user->id . '/arquivo.zip',
+            'file_path' => 'temp-downloads/'.$user->id.'/arquivo.zip',
             'original_name' => 'arquivo.zip',
             'expires_at' => now()->addHour(),
         ]);
@@ -45,7 +45,7 @@ class TempFileDownloadTest extends TestCase
         $tempFile = TempFile::query()->create([
             'user_id' => $owner->id,
             'disk' => 'local',
-            'file_path' => 'temp-downloads/' . $owner->id . '/arquivo.zip',
+            'file_path' => 'temp-downloads/'.$owner->id.'/arquivo.zip',
             'original_name' => 'arquivo.zip',
             'expires_at' => now()->addHour(),
         ]);
@@ -67,7 +67,7 @@ class TempFileDownloadTest extends TestCase
         $tempFile = TempFile::query()->create([
             'user_id' => $user->id,
             'disk' => 'local',
-            'file_path' => 'temp-downloads/' . $user->id . '/arquivo.zip',
+            'file_path' => 'temp-downloads/'.$user->id.'/arquivo.zip',
             'original_name' => 'arquivo.zip',
             'expires_at' => now()->subMinute(),
         ]);
@@ -107,7 +107,7 @@ class TempFileDownloadTest extends TestCase
         $tempFile = TempFile::query()->create([
             'user_id' => $user->id,
             'disk' => 'nao_existe',
-            'file_path' => 'temp-downloads/' . $user->id . '/arquivo.zip',
+            'file_path' => 'temp-downloads/'.$user->id.'/arquivo.zip',
             'original_name' => 'arquivo.zip',
             'expires_at' => now()->addHour(),
         ]);
@@ -118,4 +118,3 @@ class TempFileDownloadTest extends TestCase
             ->assertNotFound();
     }
 }
-

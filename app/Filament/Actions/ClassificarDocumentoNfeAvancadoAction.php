@@ -2,26 +2,23 @@
 
 namespace App\Filament\Actions;
 
-use Closure;
+use App\Filament\Forms\Components\SelectTagGrouped;
 use App\Models\CategoryTag;
-use Filament\Support\RawJs;
-use Filament\Actions\Action;
 use App\Models\GeneralSetting;
-use Illuminate\Support\Facades\Auth;
-use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Grid;
+use Closure;
+use Filament\Actions\Action;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
-use Illuminate\Database\Eloquent\Model;
-use App\Filament\Forms\Components\Money;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Forms\Components\DatePicker;
-use App\Filament\Forms\Components\SelectTagGrouped;
-
+use Filament\Schemas\Components\Grid;
+use Filament\Support\RawJs;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class ClassificarDocumentoNfeAvancadoAction
 {
-
     public static function make()
     {
         return Action::make('classificar_avancado')
@@ -58,11 +55,8 @@ class ClassificarDocumentoNfeAvancadoAction
 
                 $record->refresh();   // recarrega os atributos do banco
 
-            
             });
     }
-
-
 
     private static function getFormSchema(): array
     {
@@ -95,7 +89,7 @@ class ClassificarDocumentoNfeAvancadoAction
                             return number_format($total, 2, ',', '.');
                         })
                         ->rules([
-                            fn($get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                            fn ($get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
                                 $value = str_replace(',', '.', str_replace('.', '', $value));
                                 $totalNfe = str_replace(',', '.', str_replace('.', '', $get('total_nfe')));
                                 if ($value != $totalNfe) {
@@ -134,11 +128,10 @@ class ClassificarDocumentoNfeAvancadoAction
                                 ->prefix('R$')
                                 ->placeholder('0,00')
                                 ->mask(RawJs::make('$money($input, ",", ".", 2)'))
-                                ->formatStateUsing(fn($state) => $state === null ? null : (is_numeric($state) ? number_format((float) $state, 2, ',', '.') : $state))
-                                ->dehydrateStateUsing(fn($state) => blank($state) ? null : (is_numeric($state) ? (float) $state : (float) str_replace(['.', ','], ['', '.'], $state)))
+                                ->formatStateUsing(fn ($state) => $state === null ? null : (is_numeric($state) ? number_format((float) $state, 2, ',', '.') : $state))
+                                ->dehydrateStateUsing(fn ($state) => blank($state) ? null : (is_numeric($state) ? (float) $state : (float) str_replace(['.', ','], ['', '.'], $state)))
                                 ->live(onBlur: true)
                                 ->required(),
-
 
                             Select::make('produtos')
                                 ->multiple()

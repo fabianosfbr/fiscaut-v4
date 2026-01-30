@@ -8,7 +8,6 @@ use Exception;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 use NFePHP\Common\Certificate;
-use NFePHP\CTe\Common\Standardize;
 use NFePHP\CTe\Tools;
 
 class SefazCteDownloadService
@@ -36,7 +35,6 @@ class SefazCteDownloadService
                 return;
             }
 
-
             // Busca as configurações da empresa
             $this->loadIssuerConfig();
 
@@ -52,7 +50,7 @@ class SefazCteDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha na inicialização do serviço: ' . $e->getMessage());
+            throw new Exception('Falha na inicialização do serviço: '.$e->getMessage());
         }
     }
 
@@ -85,7 +83,7 @@ class SefazCteDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha ao carregar certificado digital: ' . $e->getMessage());
+            throw new Exception('Falha ao carregar certificado digital: '.$e->getMessage());
         }
     }
 
@@ -199,7 +197,7 @@ class SefazCteDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha no download em lote: ' . $e->getMessage());
+            throw new Exception('Falha no download em lote: '.$e->getMessage());
         }
     }
 
@@ -209,18 +207,18 @@ class SefazCteDownloadService
             // Para consultas em lote, sempre usa o NSU da empresa se não informado
             $currentNsu = $ultNsu ?: $this->getLastSavedNsu();
 
-
             $response = $this->shouldMockDistDFe()
                 ? $this->getMockDistDFeResponse()
                 : $this->getTools()->sefazDistDFe($currentNsu);
 
-            Log::channel('sefaz_log')->info('Log de consulta CTE - SEFAZ - registro - ' . explode(':', $this->issuer->razao_social)[0] . ' : ' . $response);
+            Log::channel('sefaz_log')->info('Log de consulta CTE - SEFAZ - registro - '.explode(':', $this->issuer->razao_social)[0].' : '.$response);
 
             $result = $this->processDistDFeResponse($response);
 
             if ($result['ultNSU']) {
                 $this->saveLastNsu((int) $result['ultNSU']);
             }
+
             return $result;
         } catch (Exception $e) {
             Log::error('Erro no download de CTe por NSU (consulta em lote)', [
@@ -229,7 +227,7 @@ class SefazCteDownloadService
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            throw new Exception('Falha no download de CTe: ' . $e->getMessage());
+            throw new Exception('Falha no download de CTe: '.$e->getMessage());
         }
     }
 

@@ -9,10 +9,10 @@ class XmlReaderServiceTest extends TestCase
 {
     public function test_it_reads_cte_xml_as_array(): void
     {
-        $xml = file_get_contents(__DIR__ . '/../../xml-cte.xml');
+        $xml = file_get_contents(__DIR__.'/../../xml-cte.xml');
         $this->assertNotFalse($xml);
 
-        $data = (new XmlReaderService())->read($xml);
+        $data = (new XmlReaderService)->read($xml);
 
         $this->assertArrayHasKey('cteProc', $data);
         $this->assertSame('230195685', $data['cteProc']['CTe']['infCte']['ide']['nCT'] ?? null);
@@ -22,10 +22,10 @@ class XmlReaderServiceTest extends TestCase
 
     public function test_it_reads_nfe_xml_as_array(): void
     {
-        $xml = file_get_contents(__DIR__ . '/../../xml-nfe.xml');
+        $xml = file_get_contents(__DIR__.'/../../xml-nfe.xml');
         $this->assertNotFalse($xml);
 
-        $data = (new XmlReaderService())->read($xml);
+        $data = (new XmlReaderService)->read($xml);
 
         $this->assertArrayHasKey('nfeProc', $data);
         $this->assertSame('88123', $data['nfeProc']['NFe']['infNFe']['ide']['nNF'] ?? null);
@@ -39,7 +39,7 @@ class XmlReaderServiceTest extends TestCase
 
     public function test_it_preserves_attributes_and_content_for_doczip_list(): void
     {
-        $xml = <<<XML
+        $xml = <<<'XML'
 <?xml version="1.0" encoding="UTF-8"?>
 <retDistDFeInt>
   <loteDistDFeInt>
@@ -49,7 +49,7 @@ class XmlReaderServiceTest extends TestCase
 </retDistDFeInt>
 XML;
 
-        $data = (new XmlReaderService())->read($xml);
+        $data = (new XmlReaderService)->read($xml);
 
         $this->assertArrayHasKey('retDistDFeInt', $data);
         $docZip = $data['retDistDFeInt']['loteDistDFeInt']['docZip'] ?? null;
@@ -62,4 +62,3 @@ XML;
         $this->assertSame('BBB', $docZip[1]['@content'] ?? null);
     }
 }
-

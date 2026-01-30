@@ -2,14 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LogSefazCteEvent extends Model
 {
-  
-
     public $table = 'log_sefaz_cte_events';
 
     protected $guarded = ['id'];

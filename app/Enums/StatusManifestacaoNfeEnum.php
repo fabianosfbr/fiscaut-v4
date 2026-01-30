@@ -7,7 +7,6 @@ use Filament\Support\Contracts\HasLabel;
 
 enum StatusManifestacaoNfeEnum: string implements HasColor, HasLabel
 {
-
     case CONFIRMACAO_OPERACAO = '210200';
     case CIENCIA_OPERACAO = '0';
     case DESCONHECIMENTO_OPERACAO = '210220';
@@ -16,7 +15,7 @@ enum StatusManifestacaoNfeEnum: string implements HasColor, HasLabel
     public function getLabel(): ?string
     {
         return match ($this) {
-            
+
             self::CONFIRMACAO_OPERACAO => 'Confirmada',
             self::CIENCIA_OPERACAO => 'Ciente',
             self::DESCONHECIMENTO_OPERACAO => 'Desconhecida',
@@ -26,7 +25,7 @@ enum StatusManifestacaoNfeEnum: string implements HasColor, HasLabel
 
     public function getColor(): string|array|null
     {
-        return match ($this) {            
+        return match ($this) {
             self::CONFIRMACAO_OPERACAO => 'success',
             self::CIENCIA_OPERACAO => 'info',
             self::DESCONHECIMENTO_OPERACAO => 'danger',

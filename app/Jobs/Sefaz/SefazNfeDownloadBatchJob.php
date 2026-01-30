@@ -4,13 +4,13 @@ namespace App\Jobs\Sefaz;
 
 use App\Models\Issuer;
 use App\Models\XmlImportJob;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
 
 class SefazNfeDownloadBatchJob implements ShouldQueue
 {
@@ -55,7 +55,7 @@ class SefazNfeDownloadBatchJob implements ShouldQueue
         try {
             // Create individual jobs for each document
             $jobs = [];
-            foreach ($this->documentos as $documento) {               
+            foreach ($this->documentos as $documento) {
                 $jobs[] = new SefazNfeProcessDocumentJob($documento, $this->issuer, $this->importJob);
             }
 
@@ -64,7 +64,7 @@ class SefazNfeDownloadBatchJob implements ShouldQueue
 
             // Create a batch of jobs for processing
             Bus::batch($jobs)
-                ->name('Processamento de NFes SEFAZ - Issuer ' . $this->issuer->id)
+                ->name('Processamento de NFes SEFAZ - Issuer '.$this->issuer->id)
                 ->allowFailures()
                 ->then(function () use ($totalFiles, $importJobId) {
                     // All jobs completed successfully
@@ -78,8 +78,8 @@ class SefazNfeDownloadBatchJob implements ShouldQueue
                     }
                 })
                 ->catch(function (\Throwable $e) {
-                    $mensagemErro = 'Erro no processamento em lote de documentos SEFAZ: ' . $e->getMessage();
-                    Log::error('Erro no processamento em lote de NFes SEFAZ: ' . $mensagemErro);
+                    $mensagemErro = 'Erro no processamento em lote de documentos SEFAZ: '.$e->getMessage();
+                    Log::error('Erro no processamento em lote de NFes SEFAZ: '.$mensagemErro);
 
                     // Here you could add logic to handle the failure, such as:
                     // - Notifying the user
@@ -88,11 +88,11 @@ class SefazNfeDownloadBatchJob implements ShouldQueue
                 })
                 ->finally(function () use ($totalFiles) {
                     // The batch has finished executing
-                    Log::info('Processamento em lote de NFes SEFAZ concluído. Total de arquivos na consulta: ' . $totalFiles);
+                    Log::info('Processamento em lote de NFes SEFAZ concluído. Total de arquivos na consulta: '.$totalFiles);
                 })
                 ->dispatch();
         } catch (\Throwable $e) {
-            Log::error('Falha no processamento em lote de NFes SEFAZ: ' . $e->getMessage());
+            Log::error('Falha no processamento em lote de NFes SEFAZ: '.$e->getMessage());
             throw $e;
         }
     }

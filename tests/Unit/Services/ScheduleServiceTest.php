@@ -4,8 +4,8 @@ namespace Tests\Unit\Services;
 
 use App\Models\Schedule;
 use App\Services\ScheduleService;
-use Mockery;
 use Illuminate\Support\Collection;
+use Mockery;
 use Tests\TestCase;
 
 class ScheduleServiceTest extends TestCase
@@ -37,7 +37,7 @@ class ScheduleServiceTest extends TestCase
         $model = Mockery::mock(Schedule::class);
         $model->shouldReceive('active')->once()->andReturn($builder);
 
-        $service = new ScheduleService();
+        $service = new ScheduleService;
         $this->injectModel($service, $model);
 
         $result = $service->getActives();
@@ -68,7 +68,7 @@ class ScheduleServiceTest extends TestCase
         $model = Mockery::mock(Schedule::class);
         $model->shouldReceive('active')->twice()->andReturn($builder);
 
-        $service = new ScheduleService();
+        $service = new ScheduleService;
         $this->injectModel($service, $model);
 
         $cached = $service->getActives();

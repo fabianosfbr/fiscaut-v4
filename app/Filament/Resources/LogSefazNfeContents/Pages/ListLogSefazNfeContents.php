@@ -2,11 +2,8 @@
 
 namespace App\Filament\Resources\LogSefazNfeContents\Pages;
 
-use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
-use App\Filament\Resources\LogSefazNfeContents\Widgets\MaxNsuOverview;
-use App\Filament\Resources\LogSefazNfeContents\Widgets\MinNsuOverview;
 use App\Filament\Resources\LogSefazNfeContents\LogSefazNfeContentResource;
+use Filament\Resources\Pages\ListRecords;
 
 class ListLogSefazNfeContents extends ListRecords
 {

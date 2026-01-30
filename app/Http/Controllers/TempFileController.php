@@ -21,7 +21,7 @@ class TempFileController extends Controller
 
         abort_if(! is_string($disk) || $disk === '', 404);
         abort_if(! is_string($path) || $path === '', 404);
-        abort_if(Str::startsWith($path, ['/','\\']), 404);
+        abort_if(Str::startsWith($path, ['/', '\\']), 404);
         abort_if(Str::contains($path, ['..', "\0"]), 404);
         abort_if(! Str::startsWith($path, 'temp-downloads/'), 404);
 

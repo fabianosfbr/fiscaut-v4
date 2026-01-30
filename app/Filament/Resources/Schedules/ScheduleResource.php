@@ -2,20 +2,19 @@
 
 namespace App\Filament\Resources\Schedules;
 
-use UnitEnum;
-use App\Models\Schedule;
-use Filament\Tables\Table;
-use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
-use Filament\Support\Icons\Heroicon;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\Schedules\Pages\EditSchedule;
-use App\Filament\Resources\Schedules\Pages\ViewSchedule;
-use App\Filament\Resources\Schedules\Pages\ListSchedules;
 use App\Filament\Resources\Schedules\Pages\CreateSchedule;
+use App\Filament\Resources\Schedules\Pages\EditSchedule;
+use App\Filament\Resources\Schedules\Pages\ListSchedules;
+use App\Filament\Resources\Schedules\Pages\ViewSchedule;
 use App\Filament\Resources\Schedules\Schemas\ScheduleForm;
 use App\Filament\Resources\Schedules\Tables\SchedulesTable;
+use App\Models\Schedule;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class ScheduleResource extends Resource
 {

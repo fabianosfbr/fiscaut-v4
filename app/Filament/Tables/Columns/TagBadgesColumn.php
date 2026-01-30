@@ -9,27 +9,27 @@ class TagBadgesColumn extends Column
 {
     protected string $view = 'filament.tables.columns.tag-badges-column';
 
-    protected bool | Closure $showTagCode = false;
+    protected bool|Closure $showTagCode = false;
 
-    protected int | Closure $maxVisible = 2;
+    protected int|Closure $maxVisible = 2;
 
-    protected string | Closure $emptyText = '—';
+    protected string|Closure $emptyText = '—';
 
-    public function showTagCode(bool | Closure $showTagCode): static
+    public function showTagCode(bool|Closure $showTagCode): static
     {
         $this->showTagCode = $showTagCode;
 
         return $this;
     }
 
-    public function maxVisible(int | Closure $maxVisible): static
+    public function maxVisible(int|Closure $maxVisible): static
     {
         $this->maxVisible = $maxVisible;
 
         return $this;
     }
 
-    public function emptyText(string | Closure $emptyText): static
+    public function emptyText(string|Closure $emptyText): static
     {
         $this->emptyText = $emptyText;
 
@@ -51,4 +51,3 @@ class TagBadgesColumn extends Column
         return (string) $this->evaluate($this->emptyText);
     }
 }
-

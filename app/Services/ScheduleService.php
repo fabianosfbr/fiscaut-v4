@@ -6,12 +6,11 @@ use App\Models\Schedule;
 
 class ScheduleService
 {
-
     private $model;
 
     public function __construct()
     {
-        $this->model = new Schedule();
+        $this->model = new Schedule;
     }
 
     public function getActives()
@@ -19,6 +18,7 @@ class ScheduleService
         if (config('schedule.cache.enabled')) {
             return $this->getFromCache();
         }
+
         return $this->model->active()->get();
     }
 

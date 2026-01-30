@@ -2,20 +2,18 @@
 
 namespace App\Filament\Resources\NfeSaidas;
 
-use UnitEnum;
-use App\Models\NfeSaida;
-use Filament\Tables\Table;
-use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
-use App\Models\NotaFiscalEletronica;
-use Filament\Support\Icons\Heroicon;
-use App\Filament\Resources\NfeSaidas\Pages\EditNfeSaida;
-use App\Filament\Resources\NfeSaidas\Pages\ViewNfeSaida;
-use App\Filament\Resources\NfeSaidas\Pages\ListNfeSaidas;
 use App\Filament\Resources\NfeSaidas\Pages\CreateNfeSaida;
+use App\Filament\Resources\NfeSaidas\Pages\EditNfeSaida;
+use App\Filament\Resources\NfeSaidas\Pages\ListNfeSaidas;
+use App\Filament\Resources\NfeSaidas\Pages\ViewNfeSaida;
 use App\Filament\Resources\NfeSaidas\Schemas\NfeSaidaForm;
-use App\Filament\Resources\NfeSaidas\Tables\NfeSaidasTable;
 use App\Filament\Resources\NfeSaidas\Schemas\NfeSaidaInfolist;
+use App\Filament\Resources\NfeSaidas\Tables\NfeSaidasTable;
+use App\Models\NotaFiscalEletronica;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Tables\Table;
+use UnitEnum;
 
 class NfeSaidaResource extends Resource
 {

@@ -3,7 +3,6 @@
 namespace App\Filament\Actions;
 
 use Filament\Actions\Action;
-use Illuminate\Database\Eloquent\Model;
 use NFePHP\DA\NFe\Danfe;
 
 class DownloadPdfNfeAction

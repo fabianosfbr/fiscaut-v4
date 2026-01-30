@@ -2,21 +2,21 @@
 
 namespace App\Filament\Actions;
 
-use Filament\Actions\Action;
-use Illuminate\Support\Facades\Auth;
 use App\Enums\StatusManifestoNfeEnum;
+use App\Services\Sefaz\SefazNfeDownloadService;
+use Filament\Actions\Action;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Illuminate\Database\Eloquent\Model;
 use Filament\Notifications\Notification;
-use Filament\Forms\Components\DatePicker;
-use App\Services\Sefaz\SefazNfeDownloadService;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class ManifestarNfeAction
 {
     public static function make(): Action
     {
-        return  Action::make('manifestar-nfe')
+        return Action::make('manifestar-nfe')
             ->label('Manifestar')
             ->icon('heroicon-o-book-open')
             ->modalWidth('lg')
@@ -43,7 +43,7 @@ class ManifestarNfeAction
                     ])
                     ->live()
                     ->afterStateUpdated(
-                        fn($state, callable $set) => $state ? $set('justificativa', null) : $set('justificativa', 'hidden')
+                        fn ($state, callable $set) => $state ? $set('justificativa', null) : $set('justificativa', 'hidden')
                     ),
                 Textarea::make('justificativa')
                     ->label('Justificativa')
@@ -63,7 +63,6 @@ class ManifestarNfeAction
 
                 $manifestado = $service->sefazManifesta($record->chave, $data['status_manifestacao'], $justificativa);
 
-                
                 if ($manifestado) {
                     $record->update([
                         'data_manifesto' => date('Y-m-d H:i:s'),

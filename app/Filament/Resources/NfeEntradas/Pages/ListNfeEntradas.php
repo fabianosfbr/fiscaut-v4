@@ -2,12 +2,12 @@
 
 namespace App\Filament\Resources\NfeEntradas\Pages;
 
-use Filament\Support\Enums\Width;
+use App\Filament\Resources\NfeEntradas\NfeEntradaResource;
 use App\Models\NotaFiscalEletronica;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
-use App\Filament\Resources\NfeEntradas\NfeEntradaResource;
+use Filament\Support\Enums\Width;
 
 class ListNfeEntradas extends ListRecords
 {

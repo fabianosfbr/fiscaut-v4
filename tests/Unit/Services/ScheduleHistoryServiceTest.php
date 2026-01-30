@@ -28,7 +28,8 @@ class ScheduleHistoryServiceTest extends TestCase
         $relationForDelete->shouldReceive('whereNotIn')->once()->with('id', [10, 11])->andReturnSelf();
         $relationForDelete->shouldReceive('delete')->once()->andReturn(3);
 
-        $schedule = new class($relationForKeepIds, $relationForDelete) {
+        $schedule = new class($relationForKeepIds, $relationForDelete)
+        {
             public int $max_history_count = 2;
 
             private array $relations;
@@ -49,4 +50,3 @@ class ScheduleHistoryServiceTest extends TestCase
         $this->assertTrue(true);
     }
 }
-

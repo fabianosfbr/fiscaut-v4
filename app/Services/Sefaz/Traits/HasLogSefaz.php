@@ -2,13 +2,13 @@
 
 namespace App\Services\Sefaz\Traits;
 
+use App\Events\NfeCancelada;
 use App\Models\LogSefazCteContent;
 use App\Models\LogSefazCteEvent;
 use App\Models\LogSefazNfeContent;
 use App\Models\LogSefazNfeEvent;
 use App\Models\NotaFiscalEletronica;
 use Illuminate\Support\Facades\Log;
-use App\Events\NfeCancelada;
 
 trait HasLogSefaz
 {
@@ -27,7 +27,7 @@ trait HasLogSefaz
             ]
         );
 
-        Log::notice('CTe NSU consulta SEFAZ: ' . $numnsu . ' maxnsu: ' . $maxNSU . ' Empresa: ' . $this->issuer->razao_social);
+        Log::notice('CTe NSU consulta SEFAZ: '.$numnsu.' maxnsu: '.$maxNSU.' Empresa: '.$this->issuer->razao_social);
 
         return $logContent;
     }
@@ -47,7 +47,7 @@ trait HasLogSefaz
             ]
         );
 
-        Log::notice('NFe NSU consulta SEFAZ: ' . $numnsu . ' maxnsu: ' . $maxNSU . ' Empresa: ' . $this->issuer->razao_social);
+        Log::notice('NFe NSU consulta SEFAZ: '.$numnsu.' maxnsu: '.$maxNSU.' Empresa: '.$this->issuer->razao_social);
 
         return $logContent;
     }
@@ -114,13 +114,12 @@ trait HasLogSefaz
 
         if ($log->tp_evento == 110110 && $nfe) {
 
-
-            if (isset($nfe->carta_correcao) && !empty($nfe->carta_correcao)) {
+            if (isset($nfe->carta_correcao) && ! empty($nfe->carta_correcao)) {
 
                 $carta_correcao = $nfe->carta_correcao;
             }
 
-            if (!in_array($log->id, $carta_correcao)) {
+            if (! in_array($log->id, $carta_correcao)) {
                 $carta_correcao[] = $log->id;
             }
 
@@ -179,6 +178,6 @@ trait HasLogSefaz
         $date = $parts[0];
         $time = explode('-', $parts[1], 2)[0];
 
-        return $date . ' ' . $time;
+        return $date.' '.$time;
     }
 }

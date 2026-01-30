@@ -39,7 +39,7 @@ class ProcessResponseNfeSefazJob implements ShouldQueue
 
         foreach ($docZipList as $key => $doc) {
 
-            //Cada doc vira um job de processamento
+            // Cada doc vira um job de processamento
             ProcessXmlResponseNfeSefazJob::dispatch($this->issuer, $this->response, $key, $this->origem, $maxNSU)
                 ->onQueue('low');
         }

@@ -2,51 +2,42 @@
 
 namespace App\Filament\Resources\NfeEntradas\Tables;
 
-use App\Models\Tag;
-use Filament\Tables\Table;
-use App\Enums\StatusNfeEnum;
-use Filament\Actions\Action;
-use App\Models\GeneralSetting;
-use Filament\Actions\BulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
-use Filament\Actions\ActionGroup;
-use Filament\Tables\Filters\Filter;
-use Illuminate\Support\Facades\Bus;
-use App\Models\NotaFiscalEletronica;
-use Filament\Support\Icons\Heroicon;
-use Illuminate\Support\Facades\Auth;
-use Filament\Actions\BulkActionGroup;
-use Filament\Support\Enums\Alignment;
-use Illuminate\Support\Facades\Cache;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\TextColumn;
 use App\Enums\StatusManifestacaoNfeEnum;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
-use Filament\Forms\Components\DatePicker;
-use Filament\Tables\Filters\QueryBuilder;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Tables\Filters\TernaryFilter;
-use App\Filament\Actions\DownloadXmlAction;
-use Filament\Forms\Components\CheckboxList;
-use Illuminate\Database\Eloquent\Collection;
-use App\Filament\Actions\ManifestarNfeAction;
+use App\Enums\StatusNfeEnum;
+use App\Filament\Actions\ClassificarDocumentoAction;
+use App\Filament\Actions\ClassificarDocumentoEmLoteAction;
 use App\Filament\Actions\DownloadPdfNfeAction;
-use App\Services\Tagging\TagSuggestionService;
+use App\Filament\Actions\DownloadXmlAction;
+use App\Filament\Actions\DownloadXmlPdfNfeEmLoteAction;
+use App\Filament\Actions\ManifestarNfeAction;
+use App\Filament\Actions\RemoverClassificaoNfeAction;
 use App\Filament\Actions\SugerirEtiquetaAction;
+use App\Filament\Actions\ToggleEscrituacaoEmLoteAction;
+use App\Filament\Actions\ToggleEscrituracaoAction;
 use App\Filament\Tables\Columns\TagBadgesColumn;
 use App\Filament\Tables\Columns\ViewChaveColumn;
-use App\Filament\Actions\ToggleEscrituracaoAction;
-use App\Filament\Actions\ClassificarDocumentoAction;
-use App\Jobs\BulkAction\DownloadXmlNfeBulkActionJob;
-use App\Filament\Actions\RemoverClassificaoNfeAction;
-use App\Filament\Actions\DownloadXmlPdfNfeEmLoteAction;
-use App\Filament\Actions\ToggleEscrituacaoEmLoteAction;
+use App\Models\GeneralSetting;
+use App\Models\NotaFiscalEletronica;
+use App\Models\Tag;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\QueryBuilder\Constraints\NumberConstraint;
-use App\Filament\Actions\ClassificarDocumentoEmLoteAction;
+use Filament\Support\Enums\Alignment;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\QueryBuilder;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class NfeEntradasTable
 {
@@ -112,6 +103,7 @@ class NfeEntradasTable
                     ->emptyText('')
                     ->showTagCode(function () {
                         $issuerId = Auth::user()->currentIssuer->id;
+
                         return GeneralSetting::getValue(
                             name: 'configuracoes_gerais',
                             key: 'isNfeMostrarCodigoEtiqueta',
@@ -120,7 +112,6 @@ class NfeEntradasTable
                         );
                     })
                     ->toggleable(),
-
 
                 TextColumn::make('status_nota')
                     ->label('Status')
@@ -266,10 +257,10 @@ class NfeEntradasTable
 
                         $cfops = array_values(array_filter(
                             array_map(
-                                static fn(string $value): string => trim($value),
+                                static fn (string $value): string => trim($value),
                                 preg_split('/[,\s;]+/', $input, -1, PREG_SPLIT_NO_EMPTY) ?: []
                             ),
-                            static fn(string $value): bool => $value !== ''
+                            static fn (string $value): bool => $value !== ''
                         ));
 
                         if ($cfops === []) {
@@ -317,6 +308,7 @@ class NfeEntradasTable
                         if ($data['value'] === null) {
                             return $query;
                         }
+
                         return $data['value']
                             ? $query->where('vICMSUFDest', '>', 0)
                             : $query->where('valor_difal', '=', 0);
@@ -362,12 +354,11 @@ class NfeEntradasTable
                         $etiquetas = Tag::whereIn('id', $data['etiquetas'])
                             ->get()
                             ->keyBy('id')
-                            ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
+                            ->map(fn ($tag) => $tag->code.' - '.$tag->name)
                             ->toArray();
 
-                        return 'Etiquetas: ' . implode(', ', $etiquetas);
+                        return 'Etiquetas: '.implode(', ', $etiquetas);
                     }),
-
 
             ])
             ->filtersFormColumns(4)
@@ -394,7 +385,7 @@ class NfeEntradasTable
                     DownloadXmlPdfNfeEmLoteAction::make(),
                     ClassificarDocumentoEmLoteAction::make()
                         ->after(function () {
-                            Cache::forget('tags_used_in_nfe_' . Auth::user()->currentIssuer->id);
+                            Cache::forget('tags_used_in_nfe_'.Auth::user()->currentIssuer->id);
 
                             Notification::make()
                                 ->title('Etiquetas aplicadas com sucesso')

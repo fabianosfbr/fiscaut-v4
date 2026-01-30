@@ -1,19 +1,15 @@
 <?php
 
-use Livewire\Component;
-
-use Filament\Tables\Table;
-use App\Models\NotaFiscalEletronica;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Actions\Contracts\HasActions;
-use Filament\Schemas\Contracts\HasSchemas;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
-
+use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Livewire\Component;
 
 new class extends Component implements HasActions, HasSchemas, HasTable
 {
@@ -58,10 +54,10 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                     ->money('BRL'),
                 TextColumn::make('aliquota_interestadual')
                     ->label('Alíq. Origem')
-                    ->formatStateUsing(fn($state) => number_format($state, 0) . '%'),
+                    ->formatStateUsing(fn ($state) => number_format($state, 0).'%'),
                 TextColumn::make('aliquota_interna_destino')
                     ->label('Alíq. Destino')
-                    ->formatStateUsing(fn($state) => number_format($state, 0) . '%'),
+                    ->formatStateUsing(fn ($state) => number_format($state, 0).'%'),
                 TextColumn::make('difal')
                     ->label('Valor DIFAL')
                     ->money('BRL'),

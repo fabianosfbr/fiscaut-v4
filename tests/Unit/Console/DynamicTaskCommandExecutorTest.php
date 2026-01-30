@@ -100,6 +100,7 @@ class DynamicTaskCommandExecutorTest extends TestCase
             ->once()
             ->with(Mockery::on(function ($callback) use (&$successCallback) {
                 $successCallback = $callback;
+
                 return is_callable($callback);
             }))
             ->andReturnSelf();
@@ -141,4 +142,3 @@ class DynamicTaskCommandExecutorTest extends TestCase
         $successCallback();
     }
 }
-

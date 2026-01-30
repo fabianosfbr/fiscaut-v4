@@ -10,12 +10,11 @@ use App\Filament\Resources\NfeEntradas\Schemas\NfeEntradaForm;
 use App\Filament\Resources\NfeEntradas\Schemas\NfeEntradaInfolist;
 use App\Filament\Resources\NfeEntradas\Tables\NfeEntradasTable;
 use App\Models\NotaFiscalEletronica;
-use Illuminate\Database\Eloquent\Builder;
-use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use UnitEnum;
 
 class NfeEntradaResource extends Resource
 {

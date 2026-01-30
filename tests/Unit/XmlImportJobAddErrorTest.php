@@ -33,4 +33,3 @@ class XmlImportJobAddErrorTest extends TestCase
         $this->assertSame(1, preg_match('//u', $stored));
     }
 }
-

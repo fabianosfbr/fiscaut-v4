@@ -2,8 +2,8 @@
 
 namespace App\Rules;
 
-use Cron\CronExpression;
 use Closure;
+use Cron\CronExpression;
 use Illuminate\Contracts\Validation\ValidationRule;
 
 class CronValidation implements ValidationRule
@@ -15,8 +15,8 @@ class CronValidation implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-         if (!CronExpression::isValidExpression($value)) {
+        if (! CronExpression::isValidExpression($value)) {
             $fail('Expressão cron inválida');
-        }   
+        }
     }
 }

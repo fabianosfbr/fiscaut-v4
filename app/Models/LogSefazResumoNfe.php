@@ -2,13 +2,11 @@
 
 namespace App\Models;
 
-
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LogSefazResumoNfe extends Model
 {
-   
     protected $table = 'log_sefaz_resumo_nfes';
 
     protected $guarded = ['id'];

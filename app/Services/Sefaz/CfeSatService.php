@@ -53,7 +53,7 @@ class CfeSatService
             .'</soapenv:Body>'
             .'</soapenv:Envelope>';
 
-        //dd($envelope);
+        // dd($envelope);
 
         return $this->send($envelope);
     }
@@ -90,14 +90,14 @@ class CfeSatService
             $soapinfo = $ainfo;
         }
         $headsize = curl_getinfo($oCurl, CURLINFO_HEADER_SIZE);
-        //$httpcode = curl_getinfo($oCurl, CURLINFO_HTTP_CODE);
+        // $httpcode = curl_getinfo($oCurl, CURLINFO_HTTP_CODE);
         curl_close($oCurl);
-        //$responseHead = trim(substr($response, 0, $headsize));
+        // $responseHead = trim(substr($response, 0, $headsize));
         $responseBody = trim(substr($response, $headsize));
         if (! empty($oaperror)) {
             throw new \Exception('Falha de comunicação: '.$soaperror_code.' - '.$soaperror, $soaperror_code);
         }
-        $dom = new \DOMDocument();
+        $dom = new \DOMDocument;
         $dom->loadXML($responseBody);
         $node = $dom->getElementsByTagName('CfeConsultarLotesResult')->item(0);
 
@@ -114,7 +114,7 @@ class CfeSatService
         $params['origem'] = $origem;
         $params['xml'] = $content;
 
-        //caso não tenha o tenant_id na sessão para serviços rodados via job
+        // caso não tenha o tenant_id na sessão para serviços rodados via job
         if (! checkTenantId()) {
             $params['tenant_id'] = $this->issuer->tenant_id;
         }
@@ -172,7 +172,7 @@ class CfeSatService
         $minuto = substr($infCfe->hEmi->__toString(), 2, 2);
         $segundo = substr($infCfe->hEmi->__toString(), 4, 2);
 
-        //dump($ano . '-'. $mes. '-'.$dia .' '. $hora . ':'. $minuto. ':'.$segundo);
+        // dump($ano . '-'. $mes. '-'.$dia .' '. $hora . ':'. $minuto. ':'.$segundo);
 
         return new \DateTime($ano.'-'.$mes.'-'.$dia.' '.$hora.':'.$minuto.':'.$segundo);
     }

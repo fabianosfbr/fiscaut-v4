@@ -2,16 +2,16 @@
 
 namespace App\Filament\Pages\Importar;
 
-use UnitEnum;
-use Exception;
-use Filament\Pages\Page;
-use App\Models\XmlImportJob;
-use Filament\Schemas\Schema;
 use App\Jobs\ProcessXmlFileBatch;
-use Illuminate\Support\Facades\Auth;
-use Filament\Notifications\Notification;
-use Filament\Schemas\Components\Section;
+use App\Models\XmlImportJob;
+use Exception;
 use Filament\Forms\Components\FileUpload;
+use Filament\Notifications\Notification;
+use Filament\Pages\Page;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
+use UnitEnum;
 
 class XmlImport extends Page
 {
@@ -102,7 +102,7 @@ class XmlImport extends Page
 
         try {
 
-           ProcessXmlFileBatch::dispatch($data['xmlFiles'], $importJob);
+            ProcessXmlFileBatch::dispatch($data['xmlFiles'], $importJob);
 
             $importJob->updateQuietly([
                 'total_files' => count($data['xmlFiles']),
@@ -132,6 +132,4 @@ class XmlImport extends Page
             $this->isLoading = false;
         }
     }
-
-    
 }

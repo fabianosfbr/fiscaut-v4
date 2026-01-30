@@ -2,19 +2,19 @@
 
 namespace App\Jobs\BulkAction;
 
-use ZipArchive;
 use App\Models\User;
-use NFePHP\DA\NFe\Danfe;
-use Illuminate\Support\Str;
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
-use Filament\Notifications\Notification;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Str;
+use NFePHP\DA\NFe\Danfe;
+use ZipArchive;
 
 class DownloadXmlPdfNfeEmLoteActionJob implements ShouldQueue
 {
@@ -37,11 +37,11 @@ class DownloadXmlPdfNfeEmLoteActionJob implements ShouldQueue
 
     public function handle(): void
     {
-        Storage::disk('public')->makeDirectory('downloads/' . now()->format('m-Y'));
+        Storage::disk('public')->makeDirectory('downloads/'.now()->format('m-Y'));
 
-        $filename = now()->format('m-Y') . '/' . Str::random(8) . '.zip';
+        $filename = now()->format('m-Y').'/'.Str::random(8).'.zip';
 
-        $pathFile = public_path('downloads/' . $filename);
+        $pathFile = public_path('downloads/'.$filename);
 
         $zip = new ZipArchive;
         $zip->open($pathFile, ZipArchive::CREATE | ZipArchive::OVERWRITE);
@@ -81,7 +81,7 @@ class DownloadXmlPdfNfeEmLoteActionJob implements ShouldQueue
                     ->label('Baixar arquivo')
                     ->button()
                     ->openUrlInNewTab()
-                    ->url(url('') . '/downloads/' . $filename),
+                    ->url(url('').'/downloads/'.$filename),
             ])
             ->sendToDatabase(User::find($this->userId));
     }

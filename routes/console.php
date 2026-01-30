@@ -2,14 +2,12 @@
 
 use App\Console\Scheduling\DynamicTaskCommandExecutor;
 use App\Models\NotaFiscalEletronica;
-use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Log;
 
 Artisan::command('play', function () {
     $nfe = NotaFiscalEletronica::find(522811);
 
-     dd($nfe->calcularDifalProdutos());
+    dd($nfe->calcularDifalProdutos());
 });
 
 Artisan::command('schedule:run-dynamic {--force}', function () {

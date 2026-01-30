@@ -2,15 +2,14 @@
 
 namespace App\Filament\Resources\NfeSaidas\Schemas;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Group;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Infolists\Components\TextEntry;
 use App\Filament\Infolists\Components\DifalEntry;
 use App\Filament\Infolists\Components\ProductTableEntry;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Schema;
 
 class NfeSaidaInfolist
 {
@@ -48,12 +47,12 @@ class NfeSaidaInfolist
                                     ]),
 
                                 Section::make('Etiquetas')
-                                    ->hidden(fn($record) => empty($record->tagNamesWithCodeAndValue()))
+                                    ->hidden(fn ($record) => empty($record->tagNamesWithCodeAndValue()))
                                     ->schema([
                                         TextEntry::make('tags')
                                             ->hiddenLabel()
                                             ->live()
-                                            ->state(fn($record) => collect($record->tagNamesWithCodeAndValue())->map(fn($tag) => "<li>{$tag}</li>")->implode(''))
+                                            ->state(fn ($record) => collect($record->tagNamesWithCodeAndValue())->map(fn ($tag) => "<li>{$tag}</li>")->implode(''))
                                             ->columnSpanFull()
                                             ->html(),
                                     ]),
@@ -74,7 +73,7 @@ class NfeSaidaInfolist
 
                                                 TextEntry::make('emitente_cnpj')
                                                     ->label('CNPJ Emitente')
-                                                    ->formatStateUsing(fn(string $state): string => formatar_cnpj_cpf($state)),
+                                                    ->formatStateUsing(fn (string $state): string => formatar_cnpj_cpf($state)),
 
                                                 TextEntry::make('vNfe')
                                                     ->label('Valor')
@@ -86,7 +85,6 @@ class NfeSaidaInfolist
                                                 TextEntry::make('data_emissao')
                                                     ->label('Data Emissão')
                                                     ->dateTime('d/m/Y H:i'),
-
 
                                                 TextEntry::make('nat_op')
                                                     ->label('Nat. Operação'),
@@ -101,7 +99,7 @@ class NfeSaidaInfolist
                                                     ->label('Razão Social'),
                                                 TextEntry::make('destinatario_cnpj')
                                                     ->label('CNPJ')
-                                                    ->formatStateUsing(fn(string $state): string => formatar_cnpj_cpf($state)),
+                                                    ->formatStateUsing(fn (string $state): string => formatar_cnpj_cpf($state)),
                                                 TextEntry::make('destinatario_fone')
                                                     ->label('Telefone contato'),
                                                 TextEntry::make('endereco_destinatario_completo')
@@ -176,7 +174,7 @@ class NfeSaidaInfolist
                                         Section::make('Produtos')
                                             ->schema([
                                                 ProductTableEntry::make('product')
-                                                    ->hiddenLabel()
+                                                    ->hiddenLabel(),
 
                                             ]),
 
@@ -192,10 +190,10 @@ class NfeSaidaInfolist
                                         TextEntry::make('vICMSUFDest')
                                             ->label('Total DIFAL')
                                             ->money('BRL')
-                                            ->visible(fn($record) => $record->vICMSUFDest > 0)
+                                            ->visible(fn ($record) => $record->vICMSUFDest > 0)
                                             ->weight('bold'),
                                         DifalEntry::make('difals')
-                                            ->hiddenLabel()
+                                            ->hiddenLabel(),
 
                                     ]),
                             ]),

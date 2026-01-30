@@ -37,4 +37,3 @@ class ConsultaNfeEmLoteCommandTest extends TestCase
         Queue::assertPushed(SefazNfeDownloadAndProcessBatchJob::class, 1);
     }
 }
-

@@ -26,7 +26,8 @@ class CommandServiceTest extends TestCase
             'route:*',
         ]);
 
-        $help = new class extends Command {
+        $help = new class extends Command
+        {
             public function __construct()
             {
                 parent::__construct('help');
@@ -34,7 +35,8 @@ class CommandServiceTest extends TestCase
             }
         };
 
-        $routeList = new class extends Command {
+        $routeList = new class extends Command
+        {
             public function __construct()
             {
                 parent::__construct('route:list');
@@ -42,7 +44,8 @@ class CommandServiceTest extends TestCase
             }
         };
 
-        $appRun = new class extends Command {
+        $appRun = new class extends Command
+        {
             public function __construct()
             {
                 parent::__construct('app:run');
@@ -70,7 +73,8 @@ class CommandServiceTest extends TestCase
     {
         config()->set('schedule.commands.exclude', []);
 
-        $command = new class extends Command {
+        $command = new class extends Command
+        {
             public function __construct()
             {
                 parent::__construct('app:run');

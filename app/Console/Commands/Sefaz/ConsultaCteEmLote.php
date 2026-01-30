@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands\Sefaz;
 
+use App\Jobs\Sefaz\SefazCteDownloadAndProcessBatchJob;
 use App\Models\Issuer;
 use Illuminate\Console\Command;
-use App\Jobs\Sefaz\SefazCteDownloadAndProcessBatchJob;
 
 class ConsultaCteEmLote extends Command
 {
-      protected $signature = 'app:sync-cte-sefaz';
+    protected $signature = 'app:sync-cte-sefaz';
 
     protected $description = 'Sincroniza CTes com a SEFAZ';
 

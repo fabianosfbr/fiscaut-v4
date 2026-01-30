@@ -2,10 +2,10 @@
 
 namespace App\Observers;
 
-use App\Models\Schedule;
 use App\Enums\ScheduleStatusEnum;
-use App\Services\ScheduleService;
+use App\Models\Schedule;
 use App\Services\ScheduleHistoryService;
+use App\Services\ScheduleService;
 
 class ScheduleObserver
 {

@@ -3,19 +3,17 @@
 namespace App\Jobs\Sefaz;
 
 use App\Models\Issuer;
+use App\Models\LogSefazNfeContent;
 use App\Models\XmlImportJob;
+use App\Services\Xml\XmlIdentifierService;
+use App\Services\Xml\XmlNfeReaderService;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
-use App\Models\LogSefazNfeContent;
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use App\Services\Xml\XmlNfeReaderService;
-use App\Services\Xml\XmlIdentifierService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class SefazNfeProcessDocumentJob implements ShouldQueue
 {
@@ -154,7 +152,7 @@ class SefazNfeProcessDocumentJob implements ShouldQueue
             ]
         );
 
-        Log::notice('NFe NSU consulta SEFAZ: ' . $numnsu . ' maxnsu: ' . $maxNSU . ' Empresa: ' . $issuer->razao_social);
+        Log::notice('NFe NSU consulta SEFAZ: '.$numnsu.' maxnsu: '.$maxNSU.' Empresa: '.$issuer->razao_social);
 
         return $logContent;
     }

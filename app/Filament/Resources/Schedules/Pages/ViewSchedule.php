@@ -2,33 +2,21 @@
 
 namespace App\Filament\Resources\Schedules\Pages;
 
-use Filament\Tables;
-use Filament\Tables\Table;
-use Filament\Actions\Action;
-use Filament\Schemas\Schema;
-use Livewire\Attributes\Url;
+use App\Filament\Resources\Schedules\ScheduleResource;
 use App\Models\ScheduleHistory;
+use Filament\Actions\Action;
+use Filament\Actions\Contracts\HasActions;
+use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
-use Illuminate\Support\HtmlString;
-use Filament\View\PanelsRenderHook;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Contracts\HasTable;
-
-use Filament\Resources\Concerns\HasTabs;
+use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Tables\Columns\Layout\Panel;
 use Filament\Tables\Columns\Layout\Split;
-
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Actions\Contracts\HasActions;
-use Filament\Schemas\Contracts\HasSchemas;
-use Filament\Schemas\Components\RenderHook;
-use Filament\Schemas\Components\EmbeddedTable;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Actions\Concerns\InteractsWithActions;
-use Filament\Schemas\Concerns\InteractsWithSchemas;
-use App\Filament\Resources\Schedules\ScheduleResource;
-use Filament\Resources\Pages\Concerns\InteractsWithRecord;
-
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 
 class ViewSchedule extends Page implements HasActions, HasSchemas, HasTable
 {
@@ -40,19 +28,17 @@ class ViewSchedule extends Page implements HasActions, HasSchemas, HasTable
 
     protected string $view = 'filament.resources.schedules.pages.view-schedule';
 
-
     public function mount(int|string $record): void
     {
         $this->record = $this->resolveRecord($record);
     }
 
-    
     public function getTitle(): string
     {
-        return ('Mostrar histórico de execução');
+        return 'Mostrar histórico de execução';
     }
 
-        protected function getActions(): array
+    protected function getActions(): array
     {
         return [
             Action::make('clearHistory')
@@ -71,8 +57,6 @@ class ViewSchedule extends Page implements HasActions, HasSchemas, HasTable
         ];
     }
 
-    
-
     public function table(Table $table): Table
     {
         return $table
@@ -86,26 +70,24 @@ class ViewSchedule extends Page implements HasActions, HasSchemas, HasTable
                     TextColumn::make('created_at')
                         ->label('Criado em')
                         ->dateTime('d/m/Y H:i:s'),
-    
+
                     TextColumn::make('output')
-                        ->label("Saídas")
+                        ->label('Saídas')
                         ->formatStateUsing(function ($state) {
-                            if(count(explode("<br />", nl2br($state))) - 1 == 0) {
-                                return "Nenhuma saída";
+                            if (count(explode('<br />', nl2br($state))) - 1 == 0) {
+                                return 'Nenhuma saída';
                             }
 
-                            if(count(explode("<br />", nl2br($state))) - 1 == 1) {
-                                return "1 linha de saída";
+                            if (count(explode('<br />', nl2br($state))) - 1 == 1) {
+                                return '1 linha de saída';
                             }
 
-
-                            return (count(explode("<br />", nl2br($state))) - 1) . " linhas de saída";
+                            return (count(explode('<br />', nl2br($state))) - 1).' linhas de saída';
                         }),
-
 
                 ]),
                 Panel::make([
-                    TextColumn::make('output')->extraAttributes(["class" => "!max-w-max"], true)
+                    TextColumn::make('output')->extraAttributes(['class' => '!max-w-max'], true)
                         ->formatStateUsing(function ($state) {
                             return new HtmlString(nl2br($state));
                         }),

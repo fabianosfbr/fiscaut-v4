@@ -10,7 +10,6 @@ class ConhecimentoTransporteEletronico extends Model
 {
     use HasTags;
 
-    
     protected $table = 'ctes';
 
     protected $guarded = ['id'];

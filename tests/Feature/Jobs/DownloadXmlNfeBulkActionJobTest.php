@@ -58,7 +58,7 @@ class DownloadXmlNfeBulkActionJobTest extends TestCase
         Storage::disk($tempFile->disk)->assertExists($tempFile->file_path);
 
         $zipAbsolutePath = Storage::disk($tempFile->disk)->path($tempFile->file_path);
-        $zip = new ZipArchive();
+        $zip = new ZipArchive;
         $openResult = $zip->open($zipAbsolutePath);
         $this->assertTrue($openResult === true);
 

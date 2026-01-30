@@ -24,7 +24,7 @@ class DynamicTaskCommandExecutor
 
     public function registerFromDatabase(?string $artisanCommand): void
     {
-        if (!$this->shouldRegister($artisanCommand)) {
+        if (! $this->shouldRegister($artisanCommand)) {
             return;
         }
 
@@ -66,16 +66,18 @@ class DynamicTaskCommandExecutor
                 'command' => $dbSchedule->command,
                 'command_custom' => $dbSchedule->command_custom,
             ]);
+
             return;
         }
 
         $expression = (string) ($dbSchedule->expression ?? '');
-        if ($expression === '' || !CronExpression::isValidExpression($expression)) {
+        if ($expression === '' || ! CronExpression::isValidExpression($expression)) {
             $this->logger->error('Schedule dinâmico inválido: expressão cron inválida', [
                 'schedule_id' => $dbSchedule->id,
                 'command' => $commandName,
                 'expression' => $expression,
             ]);
+
             return;
         }
 
@@ -92,7 +94,7 @@ class DynamicTaskCommandExecutor
         $event->sendOutputTo($historyOutputPath);
 
         $logFilename = is_string($dbSchedule->log_filename) ? trim($dbSchedule->log_filename) : '';
-        $logFilePath = $logFilename !== '' ? storage_path('logs/' . basename($logFilename)) : null;
+        $logFilePath = $logFilename !== '' ? storage_path('logs/'.basename($logFilename)) : null;
 
         $environments = $this->normalizeEnvironments($dbSchedule->environments);
         if ($environments !== []) {
@@ -170,7 +172,7 @@ class DynamicTaskCommandExecutor
         $argumentTokens = [];
 
         foreach (($dbSchedule->params ?? []) as $argument) {
-            if (!is_array($argument)) {
+            if (! is_array($argument)) {
                 continue;
             }
 
@@ -180,7 +182,7 @@ class DynamicTaskCommandExecutor
             }
 
             if (($argument['type'] ?? null) === 'function') {
-                $value = eval('return (string) ' . $value . ';');
+                $value = eval('return (string) '.$value.';');
             }
 
             $argumentTokens[] = (string) $value;
@@ -195,7 +197,7 @@ class DynamicTaskCommandExecutor
             return array_values(array_filter(array_map('strval', $environments)));
         }
 
-        if (!is_string($environments) || trim($environments) === '') {
+        if (! is_string($environments) || trim($environments) === '') {
             return [];
         }
 
@@ -227,7 +229,7 @@ class DynamicTaskCommandExecutor
             }
 
             if ($result !== '') {
-                $output = '[' . $result . "]\n" . $output;
+                $output = '['.$result."]\n".$output;
             }
 
             $max = 50000;

@@ -2,18 +2,18 @@
 
 namespace App\Jobs\BulkAction;
 
-use ZipArchive;
 use App\Models\User;
-use Illuminate\Support\Str;
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
-use Filament\Notifications\Notification;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Str;
+use ZipArchive;
 
 class DownloadUploadFileBulkActionJob implements ShouldQueue
 {
@@ -39,11 +39,11 @@ class DownloadUploadFileBulkActionJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Storage::disk('public')->makeDirectory('downloads/' . now()->format('m-Y'));
+        Storage::disk('public')->makeDirectory('downloads/'.now()->format('m-Y'));
 
-        $filename = now()->format('m-Y') . '/' . Str::random(8) . '.zip';
+        $filename = now()->format('m-Y').'/'.Str::random(8).'.zip';
 
-        $pathFile = public_path('downloads/' . $filename);
+        $pathFile = public_path('downloads/'.$filename);
 
         $zip = new ZipArchive;
         $zip->open($pathFile, ZipArchive::CREATE | ZipArchive::OVERWRITE);
@@ -52,13 +52,13 @@ class DownloadUploadFileBulkActionJob implements ShouldQueue
             foreach ($this->records as $file) {
                 $tipoDocumentos = config('admin.doc_types');
                 if (count($file->tagged) > 1) {
-                    $name = $tipoDocumentos[$file->doc_type->value] . '/' . '#Multiplas Etiquetas/' . basename($file->path);
+                    $name = $tipoDocumentos[$file->doc_type->value].'/'.'#Multiplas Etiquetas/'.basename($file->path);
                     $file_content = Storage::disk('public')->get($file->path);
                     $zip->addFromString($name, $file_content);
                 } else {
                     foreach ($file->tagNamesWithCode() as $path) {
                         $file_content = Storage::disk('public')->get($file->path);
-                        $name = $tipoDocumentos[$file->doc_type->value] . '/' . $path . '/' . basename($file->path);
+                        $name = $tipoDocumentos[$file->doc_type->value].'/'.$path.'/'.basename($file->path);
                         $zip->addFromString($name, $file_content);
                     }
                 }
@@ -67,13 +67,13 @@ class DownloadUploadFileBulkActionJob implements ShouldQueue
             foreach ($this->records as $file) {
 
                 if (count($file->tagged) > 1) {
-                    $name = '#Multiplas Etiquetas/' . basename($file->path);
+                    $name = '#Multiplas Etiquetas/'.basename($file->path);
                     $file_content = Storage::disk('public')->get($file->path);
                     $zip->addFromString($name, $file_content);
                 } else {
                     foreach ($file->tagNamesWithCode() as $path) {
                         $file_content = Storage::disk('public')->get($file->path);
-                        $name = $path . '/' . basename($file->path);
+                        $name = $path.'/'.basename($file->path);
                         $zip->addFromString($name, $file_content);
                     }
                 }
@@ -92,7 +92,7 @@ class DownloadUploadFileBulkActionJob implements ShouldQueue
                     ->label('Baixar arquivo')
                     ->button()
                     ->openUrlInNewTab()
-                    ->url(url('') . '/downloads/' . $filename),
+                    ->url(url('').'/downloads/'.$filename),
             ])
             ->sendToDatabase(User::find($this->userId));
     }

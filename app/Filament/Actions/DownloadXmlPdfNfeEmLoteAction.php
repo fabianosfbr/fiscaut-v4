@@ -2,18 +2,15 @@
 
 namespace App\Filament\Actions;
 
-use ZipArchive;
-use NFePHP\DA\NFe\Danfe;
+use App\Jobs\BulkAction\DownloadXmlPdfNfeEmLoteActionJob;
 use Filament\Actions\BulkAction;
-use Illuminate\Support\HtmlString;
-use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Checkbox;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Grid;
 use Filament\Support\Exceptions\Halt;
-use Filament\Forms\Components\Checkbox;
-use Illuminate\Support\Facades\Storage;
-use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Collection;
-use App\Jobs\BulkAction\DownloadXmlPdfNfeEmLoteActionJob;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
 
 class DownloadXmlPdfNfeEmLoteAction
 {
@@ -41,7 +38,7 @@ class DownloadXmlPdfNfeEmLoteAction
             ])
             ->closeModalByClickingAway(false)
             ->closeModalByEscaping(false)
-            ->modalSubmitActionLabel('Sim, download')            
+            ->modalSubmitActionLabel('Sim, download')
             ->action(function (Collection $records, array $data) {
                 $baixarXml = (bool) ($data['download_xml'] ?? false);
                 $baixarPdf = (bool) ($data['download_pdf'] ?? false);
@@ -55,7 +52,7 @@ class DownloadXmlPdfNfeEmLoteAction
                     throw new Halt;
                 }
                 // Filtra apenas os registros que têm conteúdo XML
-                $recordsWithXml = $records->filter(fn($record) => ! empty($record->xml));
+                $recordsWithXml = $records->filter(fn ($record) => ! empty($record->xml));
 
                 if ($recordsWithXml->isEmpty()) {
 
@@ -80,7 +77,6 @@ class DownloadXmlPdfNfeEmLoteAction
                     ->duration(2000)
                     ->send();
 
-              
             });
     }
 }

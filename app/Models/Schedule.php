@@ -4,11 +4,10 @@ namespace App\Models;
 
 use App\Enums\ScheduleStatusEnum;
 use App\Observers\ScheduleObserver;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Console\Scheduling\ManagesFrequencies;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[ObservedBy(ScheduleObserver::class)]
 class Schedule extends Model
@@ -69,14 +68,12 @@ class Schedule extends Model
     /**
      * Creates a new instance of the model.
      *
-     * @param array $attributes
      * @return void
      */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
 
-       
     }
 
     public function histories()
@@ -102,8 +99,8 @@ class Schedule extends Model
             if (empty($value['value'])) {
                 continue;
             }
-            if (isset($value["type"]) && $value['type'] === 'function') {
-                eval ('$arguments[$argument] = (string) ' . $value['value']);
+            if (isset($value['type']) && $value['type'] === 'function') {
+                eval('$arguments[$argument] = (string) '.$value['value']);
             } else {
                 $arguments[$value['name'] ?? $argument] = $value['value'];
             }
@@ -117,13 +114,16 @@ class Schedule extends Model
         $options = collect($this->options ?? []);
 
         $options_with_value = $this->options_with_value ?? [];
-        if (!empty($options_with_value))
+        if (! empty($options_with_value)) {
             $options = $options->merge($options_with_value);
+        }
+
         return $options->map(function ($value, $key) {
 
             if (is_array($value)) {
-                if (isset($value['value']))
-                    return "--" . ($value['name'] ?? $key) . "=" . $value['value'];
+                if (isset($value['value'])) {
+                    return '--'.($value['name'] ?? $key).'='.$value['value'];
+                }
 
             } else {
                 $value = (string) $value;

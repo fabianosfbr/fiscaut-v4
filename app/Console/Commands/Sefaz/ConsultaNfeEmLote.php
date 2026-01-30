@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands\Sefaz;
 
+use App\Jobs\Sefaz\SefazNfeDownloadAndProcessBatchJob;
 use App\Models\Issuer;
 use Illuminate\Console\Command;
-use App\Jobs\Sefaz\SefazNfeDownloadAndProcessBatchJob;
 
 class ConsultaNfeEmLote extends Command
 {

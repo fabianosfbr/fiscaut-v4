@@ -7,7 +7,6 @@ use Illuminate\Support\Collection;
 
 class CommandService
 {
-
     public static function get(): Collection
     {
         $commands = collect(app(Kernel::class)->all())->sortKeys();
@@ -28,7 +27,7 @@ class CommandService
                     'name' => $command->getName(),
                     'description' => $command->getDescription(),
                     'signature' => $command->getSynopsis(),
-                    'full_name' => $command->getName() . ' (' . $command->getDescription() . ")",
+                    'full_name' => $command->getName().' ('.$command->getDescription().')',
                     'arguments' => static::getArguments($command),
                     'options' => static::getOptions($command),
                 ];
@@ -40,7 +39,7 @@ class CommandService
         $escaped = preg_quote($pattern, '/');
         $escaped = str_replace('\*', '.*', $escaped);
 
-        return '/^' . $escaped . '/';
+        return '/^'.$escaped.'/';
     }
 
     private static function getArguments($command): array
@@ -50,7 +49,7 @@ class CommandService
             $arguments[] = [
                 'name' => $argument->getName(),
                 'default' => $argument->getDefault(),
-                'required' => $argument->isRequired()
+                'required' => $argument->isRequired(),
             ];
         }
 
@@ -68,14 +67,14 @@ class CommandService
                 '-q',
                 'ansi',
                 'no-ansi',
-            ]
+            ],
         ];
         foreach ($command->getDefinition()->getOptions() as $option) {
             if ($option->acceptValue()) {
                 $options['withValue'][] = (object) [
                     'name' => $option->getName(),
                     'default' => $option->getDefault(),
-                    'required' => $option->isValueRequired()
+                    'required' => $option->isValueRequired(),
                 ];
             } else {
                 $options['withoutValue'][] = $option->getName();
@@ -84,5 +83,4 @@ class CommandService
 
         return $options;
     }
-
 }

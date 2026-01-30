@@ -39,8 +39,6 @@ trait HasTags
         $this->tagged()->save($tagged);
     }
 
-
-
     public function getTagsAttribute()
     {
         return $this->tagged->map(function (Tagged $item) {
@@ -63,21 +61,21 @@ trait HasTags
     public function tagNamesWithCode(): array
     {
         return $this->tagged->map(function ($item) {
-            return $item->tag?->code . ' - ' . $item?->tag_name;
+            return $item->tag?->code.' - '.$item?->tag_name;
         })->toArray();
     }
 
     public function tagNamesWithCodeAndValue(): array
     {
         return $this->tagged->map(function ($item) {
-            return $item->tag->code . ' - ' . $item->tag_name . ' | R$' . number_format($item->value, 2, ',', '.');
+            return $item->tag->code.' - '.$item->tag_name.' | R$'.number_format($item->value, 2, ',', '.');
         })->toArray();
     }
 
     public function tagAtrributes(): array
     {
         return $this->tagged->map(function ($item) {
-            return $item->tag->code . ' - ' . $item->tag_name . ' | ' . $item->value . ' | ' . $item->products;
+            return $item->tag->code.' - '.$item->tag_name.' | '.$item->value.' | '.$item->products;
         })->toArray();
     }
 

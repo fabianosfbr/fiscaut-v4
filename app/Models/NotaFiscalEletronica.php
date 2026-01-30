@@ -2,18 +2,17 @@
 
 namespace App\Models;
 
+use App\Enums\StatusManifestoNfeEnum;
 use App\Enums\StatusNfeEnum;
 use App\Models\Traits\HasTags;
-use Illuminate\Support\Facades\Auth;
-use App\Enums\StatusManifestoNfeEnum;
 use App\Services\Xml\XmlReaderService;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 
 class NotaFiscalEletronica extends Model
 {
     use HasTags;
-
 
     protected $table = 'nfes';
 
@@ -92,6 +91,7 @@ class NotaFiscalEletronica extends Model
     public function scopeEntradasTerceiros($query, $issuer = null)
     {
         $issuer = $issuer ?? Auth::user()->currentIssuer;
+
         return $query->where('destinatario_cnpj', $issuer->cnpj)
             ->where('emitente_cnpj', '<>', $issuer->cnpj)
             ->where('tpNf', 1);
@@ -108,6 +108,7 @@ class NotaFiscalEletronica extends Model
     public function scopeEntradasPropriasTerceiros($query, $issuer = null)
     {
         $issuer = $issuer ?? Auth::user()->currentIssuer;
+
         return $query->where('destinatario_cnpj', $issuer->cnpj)
             ->where('emitente_cnpj', '<>', $issuer->cnpj)
             ->where('tpNf', '0');
@@ -120,7 +121,7 @@ class NotaFiscalEletronica extends Model
             return [];
         }
 
-        $data = (new XmlReaderService())->read($xml);
+        $data = (new XmlReaderService)->read($xml);
         $det = $data['nfeProc']['NFe']['infNFe']['det'] ?? null;
 
         $detList = $this->normalizeList($det);
@@ -129,7 +130,7 @@ class NotaFiscalEletronica extends Model
         }
 
         return array_values(array_map(function ($detItem) {
-            if (!is_array($detItem)) {
+            if (! is_array($detItem)) {
                 return [];
             }
 
@@ -170,7 +171,7 @@ class NotaFiscalEletronica extends Model
             return '';
         }
 
-        $data = (new XmlReaderService())->read($xml);
+        $data = (new XmlReaderService)->read($xml);
 
         $ender = $data['nfeProc']['NFe']['infNFe']['dest']['enderDest'] ?? [];
         $logradouro = $ender['xLgr'] ?? null;
@@ -183,20 +184,19 @@ class NotaFiscalEletronica extends Model
 
         $endereco = $this->buildEnderecoCompletoFromFields($logradouro, $numero, $complemento, $bairro);
 
-        $cidadeUf = trim(($municipio ?? '') . ($uf ? '/' . $uf : ''));
+        $cidadeUf = trim(($municipio ?? '').($uf ? '/'.$uf : ''));
         if ($cidadeUf !== '') {
             $endereco = trim($endereco);
-            $endereco .= ($endereco !== '' ? ' - ' : '') . $cidadeUf;
+            $endereco .= ($endereco !== '' ? ' - ' : '').$cidadeUf;
         }
 
         $cepFormatado = $this->formatCep($cep);
         if ($cepFormatado !== '') {
             $endereco = trim($endereco);
-            $endereco .= ($endereco !== '' ? ' - ' : '') . 'CEP: ' . $cepFormatado;
+            $endereco .= ($endereco !== '' ? ' - ' : '').'CEP: '.$cepFormatado;
         }
 
         return trim($endereco);
-
 
         return $endereco;
     }
@@ -208,7 +208,7 @@ class NotaFiscalEletronica extends Model
             return '';
         }
 
-        $data = (new XmlReaderService())->read($xml);
+        $data = (new XmlReaderService)->read($xml);
 
         $ender = $data['nfeProc']['NFe']['infNFe']['emit']['enderEmit'] ?? [];
         $logradouro = $ender['xLgr'] ?? null;
@@ -221,26 +221,22 @@ class NotaFiscalEletronica extends Model
 
         $endereco = $this->buildEnderecoCompletoFromFields($logradouro, $numero, $complemento, $bairro);
 
-        $cidadeUf = trim(($municipio ?? '') . ($uf ? '/' . $uf : ''));
+        $cidadeUf = trim(($municipio ?? '').($uf ? '/'.$uf : ''));
         if ($cidadeUf !== '') {
             $endereco = trim($endereco);
-            $endereco .= ($endereco !== '' ? ' - ' : '') . $cidadeUf;
+            $endereco .= ($endereco !== '' ? ' - ' : '').$cidadeUf;
         }
 
         $cepFormatado = $this->formatCep($cep);
         if ($cepFormatado !== '') {
             $endereco = trim($endereco);
-            $endereco .= ($endereco !== '' ? ' - ' : '') . 'CEP: ' . $cepFormatado;
+            $endereco .= ($endereco !== '' ? ' - ' : '').'CEP: '.$cepFormatado;
         }
 
         return trim($endereco);
 
-
         return $endereco;
     }
-
-
-
 
     private function buildEnderecoCompletoFromFields(
         ?string $logradouro,
@@ -252,17 +248,17 @@ class NotaFiscalEletronica extends Model
 
         $numero = trim((string) $numero);
         if ($numero !== '') {
-            $endereco .= ($endereco !== '' ? ', ' : '') . $numero;
+            $endereco .= ($endereco !== '' ? ', ' : '').$numero;
         }
 
         $complemento = trim((string) $complemento);
         if ($complemento !== '') {
-            $endereco .= ($endereco !== '' ? ' - ' : '') . $complemento;
+            $endereco .= ($endereco !== '' ? ' - ' : '').$complemento;
         }
 
         $bairro = trim((string) $bairro);
         if ($bairro !== '') {
-            $endereco .= ($endereco !== '' ? ' - ' : '') . $bairro;
+            $endereco .= ($endereco !== '' ? ' - ' : '').$bairro;
         }
 
         return trim($endereco);
@@ -279,13 +275,13 @@ class NotaFiscalEletronica extends Model
             return $cep;
         }
 
-        return substr($cep, 0, 5) . '-' . substr($cep, 5, 3);
+        return substr($cep, 0, 5).'-'.substr($cep, 5, 3);
     }
 
     private function extrairXmlComoString(): ?string
     {
         $raw = $this->xml ?? null;
-        if (!is_string($raw) || $raw === '') {
+        if (! is_string($raw) || $raw === '') {
             return null;
         }
 
@@ -303,7 +299,7 @@ class NotaFiscalEletronica extends Model
             return [];
         }
 
-        if (!is_array($value)) {
+        if (! is_array($value)) {
             return [$value];
         }
 
@@ -326,7 +322,6 @@ class NotaFiscalEletronica extends Model
         $this->untag();
         $this->tag($tag, $this->vNfe);
     }
-
 
     public function calcularDifalProdutos(): array
     {
@@ -353,7 +348,6 @@ class NotaFiscalEletronica extends Model
 
             $origemUF = strtoupper((string) ($this->enderEmit_UF ?? ''));
             $destinoUF = strtoupper((string) ($this->enderDest_UF ?? ''));
-
 
             $aliqInter = ($this->ufExisteNoConfig($origemUF) && $this->ufExisteNoConfig($destinoUF))
                 ? (float) $this->normalizarAliquota($this->getAliquotaInterestadual($origemUF, $destinoUF))
@@ -413,7 +407,6 @@ class NotaFiscalEletronica extends Model
                 ];
             }
         }
-
 
         return $resultado;
     }

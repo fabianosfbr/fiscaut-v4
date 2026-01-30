@@ -3,18 +3,17 @@
 namespace App\Jobs\Sefaz;
 
 use App\Models\Issuer;
+use App\Models\LogSefazCteContent;
 use App\Models\XmlImportJob;
+use App\Services\Xml\XmlCteReaderService;
+use App\Services\Xml\XmlIdentifierService;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
-use App\Models\LogSefazCteContent;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use App\Services\Xml\XmlCteReaderService;
-use App\Services\Xml\XmlNfeReaderService;
-use App\Services\Xml\XmlIdentifierService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class SefazCteProcessDocumentJob implements ShouldQueue
 {
@@ -98,7 +97,6 @@ class SefazCteProcessDocumentJob implements ShouldQueue
         $this->importJob->incrementNumDocuments();
     }
 
-
     /**
      * Processa evento de CTe
      */
@@ -133,7 +131,7 @@ class SefazCteProcessDocumentJob implements ShouldQueue
             ]
         );
 
-        Log::notice('CTe NSU consulta SEFAZ: ' . $numnsu . ' maxnsu: ' . $maxNSU . ' Emissor: ' . $issuer->razao_social);
+        Log::notice('CTe NSU consulta SEFAZ: '.$numnsu.' maxnsu: '.$maxNSU.' Emissor: '.$issuer->razao_social);
 
         return $logContent;
     }

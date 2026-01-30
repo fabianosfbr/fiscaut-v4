@@ -3,14 +3,13 @@
 namespace App\Models;
 
 use App\Observers\ScheduleHistoryObserver;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Model;
 
 #[ObservedBy(ScheduleHistoryObserver::class)]
 class ScheduleHistory extends Model
 {
-  /**
+    /**
      * The database table used by the model.
      *
      * @var string
@@ -33,13 +32,12 @@ class ScheduleHistory extends Model
     /**
      * Creates a new instance of the model.
      *
-     * @param array $attributes
      * @return void
      */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
-        
+
     }
 
     public function command()

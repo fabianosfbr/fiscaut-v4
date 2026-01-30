@@ -33,7 +33,7 @@ class Tag extends Model
         }
 
         $issuerId = Auth::user()->currentIssuer->id;
-        $cacheKey = 'tags_used_in_upload_file_' . $issuerId;
+        $cacheKey = 'tags_used_in_upload_file_'.$issuerId;
 
         return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
             $tagIds = self::rightJoin('tagging_tagged', 'tagging_tags.id', '=', 'tagging_tagged.tag_id')
@@ -50,7 +50,7 @@ class Tag extends Model
                 ->orderBy('name', 'asc')
                 ->get()
                 ->keyBy('id')
-                ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
+                ->map(fn ($tag) => $tag->code.' - '.$tag->name)
                 ->toArray();
         });
     }
@@ -62,7 +62,7 @@ class Tag extends Model
         }
 
         $issuerId = Auth::user()->currentIssuer->id;
-        $cacheKey = 'tags_used_in_nfe_' . $issuerId;
+        $cacheKey = 'tags_used_in_nfe_'.$issuerId;
 
         return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
             $tagIds = self::rightJoin('tagging_tagged', 'tagging_tags.id', '=', 'tagging_tagged.tag_id')
@@ -79,7 +79,7 @@ class Tag extends Model
                 ->orderBy('name', 'asc')
                 ->get()
                 ->keyBy('id')
-                ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
+                ->map(fn ($tag) => $tag->code.' - '.$tag->name)
                 ->toArray();
         });
     }
@@ -91,7 +91,7 @@ class Tag extends Model
         }
 
         $issuerId = Auth::user()->currentIssuer->id;
-        $cacheKey = 'tags_used_in_cte_' . $issuerId;
+        $cacheKey = 'tags_used_in_cte_'.$issuerId;
 
         return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
             $tagIds = self::rightJoin('tagging_tagged', 'tagging_tags.id', '=', 'tagging_tagged.tag_id')
@@ -108,7 +108,7 @@ class Tag extends Model
                 ->orderBy('name', 'asc')
                 ->get()
                 ->keyBy('id')
-                ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
+                ->map(fn ($tag) => $tag->code.' - '.$tag->name)
                 ->toArray();
         });
     }
