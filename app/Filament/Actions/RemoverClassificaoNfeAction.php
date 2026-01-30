@@ -6,6 +6,7 @@ use App\Models\CategoryTag;
 use Filament\Actions\Action;
 use App\Models\GeneralSetting;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
@@ -42,6 +43,8 @@ class RemoverClassificaoNfeAction
                 $record->update([
                     'data_entrada' => null,
                 ]);
+
+                Cache::forget('tags_used_in_nfe_' . Auth::user()->currentIssuer->id);
 
                 Notification::make()
                     ->success()

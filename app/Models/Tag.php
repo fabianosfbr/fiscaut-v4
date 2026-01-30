@@ -33,7 +33,7 @@ class Tag extends Model
         }
 
         $issuerId = Auth::user()->currentIssuer->id;
-        $cacheKey = 'tags_used_in_upload_file_'.$issuerId;
+        $cacheKey = 'tags_used_in_upload_file_' . $issuerId;
 
         return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
             $tagIds = self::rightJoin('tagging_tagged', 'tagging_tags.id', '=', 'tagging_tagged.tag_id')
@@ -50,7 +50,65 @@ class Tag extends Model
                 ->orderBy('name', 'asc')
                 ->get()
                 ->keyBy('id')
-                ->map(fn ($tag) => $tag->code.' - '.$tag->name)
+                ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
+                ->toArray();
+        });
+    }
+
+    public static function getTagsUsedInNfe(): array
+    {
+        if (! Auth::check() || ! Auth::user()->currentIssuer) {
+            return [];
+        }
+
+        $issuerId = Auth::user()->currentIssuer->id;
+        $cacheKey = 'tags_used_in_nfe_' . $issuerId;
+
+        return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
+            $tagIds = self::rightJoin('tagging_tagged', 'tagging_tags.id', '=', 'tagging_tagged.tag_id')
+                ->where('tagging_tagged.taggable_type', NotaFiscalEletronica::class)
+                ->whereHas('category', function ($query) use ($issuerId) {
+                    $query->where('issuer_id', $issuerId);
+                })
+                ->where('is_enable', true)
+                ->select('tagging_tags.id')
+                ->distinct()
+                ->pluck('id');
+
+            return self::whereIn('id', $tagIds)
+                ->orderBy('name', 'asc')
+                ->get()
+                ->keyBy('id')
+                ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
+                ->toArray();
+        });
+    }
+
+    public static function getTagsUsedInCte(): array
+    {
+        if (! Auth::check() || ! Auth::user()->currentIssuer) {
+            return [];
+        }
+
+        $issuerId = Auth::user()->currentIssuer->id;
+        $cacheKey = 'tags_used_in_cte_' . $issuerId;
+
+        return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
+            $tagIds = self::rightJoin('tagging_tagged', 'tagging_tags.id', '=', 'tagging_tagged.tag_id')
+                ->where('tagging_tagged.taggable_type', ConhecimentoTransporteEletronico::class)
+                ->whereHas('category', function ($query) use ($issuerId) {
+                    $query->where('issuer_id', $issuerId);
+                })
+                ->where('is_enable', true)
+                ->select('tagging_tags.id')
+                ->distinct()
+                ->pluck('id');
+
+            return self::whereIn('id', $tagIds)
+                ->orderBy('name', 'asc')
+                ->get()
+                ->keyBy('id')
+                ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
                 ->toArray();
         });
     }

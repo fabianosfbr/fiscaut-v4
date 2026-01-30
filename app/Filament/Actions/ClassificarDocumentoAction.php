@@ -2,14 +2,15 @@
 
 namespace App\Filament\Actions;
 
-use App\Filament\Forms\Components\SelectTagGrouped;
 use App\Models\CategoryTag;
-use App\Models\GeneralSetting;
 use Filament\Actions\Action;
-use Filament\Forms\Components\DatePicker;
-use Filament\Notifications\Notification;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\GeneralSetting;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Notification;
+use Filament\Forms\Components\DatePicker;
+use App\Filament\Forms\Components\SelectTagGrouped;
 
 class ClassificarDocumentoAction
 {
@@ -52,8 +53,6 @@ class ClassificarDocumentoAction
                     ->options(CategoryTag::getAllEnabled(Auth::user()->currentIssuer->id)),
             ])
             ->action(function (array $data, Model $record) {
-
-        
                 $record->retag($data['tag_id']);
 
                 if (isset($data['data_entrada'])) {
@@ -61,6 +60,8 @@ class ClassificarDocumentoAction
                         'data_entrada' => $data['data_entrada'],
                     ]);
                 }
+
+                Cache::forget('tags_used_in_nfe_' . Auth::user()->currentIssuer->id);
 
                 Notification::make()
                     ->success()
