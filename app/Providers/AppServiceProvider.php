@@ -47,5 +47,10 @@ class AppServiceProvider extends ServiceProvider
             TablesRenderHook::SELECTION_INDICATOR_ACTIONS_BEFORE,
             fn(): string => Blade::render('@livewire(\'keep-rows-selected-table\')'),
         );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::CONTENT_START,
+            fn(): string => Blade::render('@livewire(\'issuer-switcher\')'),
+        );
     }
 }
