@@ -1,6 +1,6 @@
 # Project Rules and Guidelines
 
-> Auto-generated from .context/docs on 2026-01-26T19:47:22.354Z
+> Auto-generated from .context/docs on 2026-01-30T19:38:34.836Z
 
 ## README
 
@@ -41,10 +41,13 @@ Fiscaut implements a multi-tenant architecture where data is scoped per **Tenant
 | :--- | :--- |
 | 📘 [Project Overview](./project-overview.md) | High-level roadmap and business goals. |
 | 🏗️ [Architecture Notes](./architecture.md) | Service boundaries, dependency graphs, and ADRs. |
+| 🧩 [Filament Admin](./filament-admin.md) | Inventário de Resources, Pages e Actions do painel. |
 | 🚀 [Development Workflow](./development-workflow.md) | Branching strategy, CI/CD, and setup instructions. |
 | 🧪 [Testing Strategy](./testing-strategy.md) | Protocols for Pest/PHPUnit and Browser testing. |
 | 📖 [Glossary & Domain](./glossary.md) | Business terminology and fiscal domain rules. |
 | 🛡️ [Security & Compliance](./security.md) | Authentication, secrets, and LGPD compliance. |
+| 🛠️ [Application Services](./services.md) | Documentation for core business logic and external integrations. |
+| ⚡ [Background Jobs](./jobs.md) | Guide to asynchronous queues, bulk actions, and SEFAZ pipelines. |
 | 🧾 [XmlReaderService](./xml-reader-service.md) | XML parsing conventions and migration to array-based access. |
 
 ---
@@ -52,6 +55,7 @@ Fiscaut implements a multi-tenant architecture where data is scoped per **Tenant
 ## Admin Resources (Filament)
 
 The administrative layer is organized into specific resources within `app/Filament/Resources/`.
+For an up-to-date inventory (resources/pages/actions), see [Filament Admin](./filament-admin.md).
 
 ### 1. Entity Management
 - **Issuers (`IssuerResource`)**: Management of tax-issuing entities, their regimes, and metadata.
@@ -129,7 +133,7 @@ To get started with development, ensure you have **Docker** and **PHP 8.2+** ins
 For security vulnerabilities or compliance issues (LGPD), please refer to the [Security & Compliance](./security.md) guide.
 
 
-## qa/README
+## README
 
 # Quality Assurance and Developer Q&A
 

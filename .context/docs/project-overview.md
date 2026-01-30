@@ -40,6 +40,13 @@ The backend is powered by **Filament Resources**, which encapsulate logic for:
 ### 3. Reactive UI Components
 The system bridges PHP and JavaScript to maintain a seamless user experience. It uses **Livewire** for server-side state management and **Alpine.js** for client-side interactivity. Complex UI elements like the notification system and form schemas are managed through a unified JavaScript bridge located in `vendor/filament/` and `public/js/filament/`.
 
+### 4. Advanced XML Processing
+The system utilizes a specialized array-based processing engine for fiscal documents, replacing legacy generic parsers.
+- **Micro-services**: Dedicated `XmlNfeReaderService` and `XmlCteReaderService` for accurate schema handling.
+- **Normalization**: Automatically converts complex XML trees into associative arrays with predictable structures (lists, attributes, content).
+- **Compliance**: Adheres to strict SEFAZ schemas for NFe and CTe processing.
+
+
 ---
 
 ## Key System Components

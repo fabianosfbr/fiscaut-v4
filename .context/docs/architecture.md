@@ -32,6 +32,7 @@ This layer orchestrates business logic and user interactions.
 - **Schemas & Tables**: Configuration for forms and tables is often extracted into dedicated classes or methods within the Resource directories to promote reusability and clean code.
 - **Actions**: Custom logic for data processing (e.g., exports, status changes, downloads) is encapsulated in reusable `Action` and `ActionGroup` classes.
 - **Relation Managers**: Handle sub-resources (e.g., managing specific fiscal details within an `Issuer` context) directly within the parent view.
+  - See [Filament Admin](./filament-admin.md) for a concrete inventory of resources/pages/actions in `app/Filament`.
 
 ### 3. Presentation Layer (`resources/views` & JS Components)
 - **Blade Templates**: Provide the structural layouts and integrate Livewire components.
@@ -96,4 +97,5 @@ Interactive UI elements are broken down into specialized scripts:
 ## Related Documentation
 - [Project Overview](./project-overview.md)
 - [Data Flow](./data-flow.md)
+- [Filament Admin](./filament-admin.md)
 - [Codebase Map](./codebase-map.json)

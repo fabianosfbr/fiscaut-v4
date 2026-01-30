@@ -1,139 +1,35 @@
-# XmlReaderService (XML → array)
+# XML Reader Services
 
-O `XmlReaderService` padroniza a leitura de XMLs fiscais (NF-e, CT-e e eventos) e retorna um **array associativo** estruturado, pronto para ser consumido por serviços/jobs de persistência.
+O projeto agora utiliza serviços dedicados para a leitura de XMLs de NF-e e CT-e, substituindo a antiga implementação genérica.
 
-## Assinatura
+## Serviços Disponíveis
 
+### XmlNfeReaderService
+Responsável pela leitura de XMLs de Nota Fiscal Eletrônica (NF-e).
+
+**Assinatura:**
 ```php
-use App\Services\Xml\XmlReaderService;
+use App\Services\Xml\XmlNfeReaderService;
 
-$reader = app(XmlReaderService::class)->read($xmlString);
+$nfeData = app(XmlNfeReaderService::class)->read($xmlString);
 ```
 
-- Retorno: `array` associativo.
-- Erros: lança exceção em XML malformado/ilegível.
+### XmlCteReaderService
+Responsável pela leitura de XMLs de Conhecimento de Transporte Eletrônico (CT-e).
 
-## Estrutura do retorno (convenções)
-
-O retorno é uma árvore baseada nos elementos do XML, com as seguintes regras:
-
-- **Chave raiz**: o nome do elemento raiz do XML (ex.: `nfeProc`, `cteProc`, `procEventoNFe`, `procEventoCTe`, `resNFe`, `resEvento`, `retDistDFeInt`).
-- **Elemento folha sem atributos**: `string` (sem cast numérico).
-- **Elemento com filhos**: `array` associativo, com as chaves sendo os nomes dos elementos filhos.
-- **Repetição de tags**: vira `array[]` (lista).
-- **Atributos**: armazenados em `@attributes`:
-  - `['@attributes' => ['Id' => '...', 'NSU' => '...']]`
-- **Texto + atributos e/ou texto + filhos**: o conteúdo textual fica em `@content`:
-  - `['@attributes' => [...], '@content' => '...']`
-
-### Exemplo de tipos (ilustrativo)
-
-O array retornado contém todos os dados necessários para a camada de persistência extrair e salvar. Exemplo de estrutura (ilustrativa):
-
+**Assinatura:**
 ```php
-[
-  'nfeProc' => [
-    'NFe' => [
-      'infNFe' => [
-        'ide' => [
-          'nNF' => '123',
-        ],
-        'emit' => [
-          'xNome' => '...',
-          'CNPJ' => '...',
-        ],
-        'det' => [
-          [
-            'prod' => [ 'cProd' => '...', 'xProd' => '...' ],
-            'imposto' => [ 'ICMS' => [ /* ... */ ] ],
-          ],
-        ],
-      ],
-    ],
-    'protNFe' => [
-      'infProt' => [
-        'chNFe' => '...',
-        'cStat' => '100',
-      ],
-    ],
-  ],
-]
+use App\Services\Xml\XmlCteReaderService;
+
+$cteData = app(XmlCteReaderService::class)->read($xmlString);
 ```
 
-## Exemplos de uso (nova sintaxe por array)
+## Estrutura do Retorno
+Ambos os serviços retornam um `array` associativo seguindo as convenções de estrutura do XML original.
 
-### 1) Acesso a elementos aninhados
+- **Chave raiz**: Baseada no tipo de documento (ex: `nfeProc`, `cteProc`).
+- **Listas**: Elementos repetitivos são normalizados para arrays.
+- **Atributos**: Acessíveis via chave `@attributes` quando necessário.
 
-```php
-$numero = $xml['nfeProc']['NFe']['infNFe']['ide']['nNF'] ?? null;
-$chave = $xml['nfeProc']['protNFe']['infProt']['chNFe'] ?? null;
-```
-
-### 2) Acesso a listas (repetição de tags)
-
-```php
-$itens = $xml['nfeProc']['NFe']['infNFe']['det'] ?? [];
-
-foreach ($itens as $det) {
-    $codigo = $det['prod']['cProd'] ?? null;
-    $descricao = $det['prod']['xProd'] ?? null;
-}
-```
-
-### 3) Elementos opcionais
-
-```php
-$ie = $xml['nfeProc']['NFe']['infNFe']['emit']['IE'] ?? null;
-$im = $xml['nfeProc']['NFe']['infNFe']['emit']['IM'] ?? null;
-```
-
-### 4) Atributos + conteúdo (docZip da SEFAZ)
-
-O `docZip` costuma vir como lista com `@attributes` e `@content`:
-
-```php
-$docZipList = $xml['retDistDFeInt']['loteDistDFeInt']['docZip'] ?? [];
-
-foreach ($docZipList as $docZip) {
-    $nsu = $docZip['@attributes']['NSU'] ?? null;
-    $base64Gzip = $docZip['@content'] ?? '';
-}
-```
-
-## Guia de migração (antigo → novo)
-
-### Exemplo solicitado
-
-- Antes:
-
-```php
-$reader->value('nfeProc.retEvento')->get();
-```
-
-- Depois:
-
-```php
-$reader['nfeProc']['retEvento'];
-```
-
-### Padrões comuns
-
-- **Leitura simples (um valor)**  
-  - Antes: `$reader->value('protNFe.infProt.chNFe')->sole()`  
-  - Depois: `$xml['nfeProc']['protNFe']['infProt']['chNFe'] ?? null`
-
-- **Leitura de lista**  
-  - Antes: `$reader->value('NFe.infNFe.det')->get()`  
-  - Depois: `$xml['nfeProc']['NFe']['infNFe']['det'] ?? []`
-
-- **Checagem de existência**  
-  - Antes: `if ($reader->value('procEventoNFe')->get())`  
-  - Depois: `if (!empty($xml['procEventoNFe'] ?? null))`
-
-## Referência de API
-
-### `XmlReaderService::read(string $xml): array`
-
-- Faz o parse do XML e retorna o array estruturado conforme as convenções acima.
-- Lança exceção quando o XML estiver malformado, vazio ou não puder ser parseado.
-
+## Migração
+A antiga `NfeService` e `CteService` foram descontinuadas em favor destes leitores especializados que oferecem melhor tipagem e manutenção.
