@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\StatusNfeEnum;
 use App\Models\Traits\HasTags;
+use Illuminate\Support\Facades\Auth;
 use App\Enums\StatusManifestoNfeEnum;
 use App\Services\Xml\XmlReaderService;
 use Illuminate\Database\Eloquent\Model;
@@ -85,6 +86,30 @@ class NotaFiscalEletronica extends Model
         ]);
 
         return $newStatus;
+    }
+
+    public function scopeEntradasTerceiros($query, $issuer = null)
+    {
+        $issuer = $issuer ?? Auth::user()->currentIssuer;
+        return $query->where('destinatario_cnpj', $issuer->cnpj)
+            ->where('emitente_cnpj', '<>', $issuer->cnpj)
+            ->where('tpNf', 1);
+    }
+
+    public function scopeEntradasProprias($query, $issuer = null)
+    {
+        $issuer = $issuer ?? Auth::user()->currentIssuer;
+
+        return $query->where('emitente_cnpj', $issuer->cnpj)
+            ->where('tpNf', '0');
+    }
+
+    public function scopeEntradasPropriasTerceiros($query, $issuer = null)
+    {
+        $issuer = $issuer ?? Auth::user()->currentIssuer;
+        return $query->where('destinatario_cnpj', $issuer->cnpj)
+            ->where('emitente_cnpj', '<>', $issuer->cnpj)
+            ->where('tpNf', '0');
     }
 
     public function getProdutosAttribute(): array
@@ -175,7 +200,7 @@ class NotaFiscalEletronica extends Model
         return $endereco;
     }
 
-        public function getEnderecoEmitenteCompletoAttribute(): string
+    public function getEnderecoEmitenteCompletoAttribute(): string
     {
         $xml = $this->extrairXmlComoString();
         if ($xml === null) {
@@ -212,6 +237,9 @@ class NotaFiscalEletronica extends Model
 
         return $endereco;
     }
+
+
+
 
     private function buildEnderecoCompletoFromFields(
         ?string $logradouro,

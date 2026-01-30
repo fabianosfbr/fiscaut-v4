@@ -40,6 +40,7 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->passwordReset()
             ->profile(isSimple: false)
+            ->databaseNotifications()
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -52,11 +53,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class,
                 FilamentInfoWidget::class,
-            ])
-            ->renderHook(
-                PanelsRenderHook::CONTENT_START,
-                fn(): string => Blade::render('@livewire(\'issuer-switcher\')'),
-            )
+            ])            
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

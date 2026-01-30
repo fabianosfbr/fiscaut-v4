@@ -2,11 +2,12 @@
 
 namespace App\Filament\Resources\NfeEntradas\Pages;
 
-use App\Filament\Resources\NfeEntradas\NfeEntradaResource;
+use Filament\Support\Enums\Width;
 use App\Models\NotaFiscalEletronica;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Support\Enums\Width;
+use Filament\Schemas\Components\Tabs\Tab;
+use App\Filament\Resources\NfeEntradas\NfeEntradaResource;
 
 class ListNfeEntradas extends ListRecords
 {
@@ -20,6 +21,34 @@ class ListNfeEntradas extends ListRecords
     public function getMaxContentWidth(): Width
     {
         return Width::Full;
+    }
+
+    public function getHeading(): string
+    {
+        return 'Notas Fiscais Eletrônicas';
+    }
+
+    public function getTabs(): array
+    {
+
+        return [
+            'propria' => Tab::make()
+                ->label('Entrada de Terceiros')
+                ->query(function () {
+                    return NotaFiscalEletronica::query()->entradasTerceiros();
+                }),
+            'terceiro' => Tab::make()
+                ->label('Entrada Própria')
+                ->query(function () {
+                    return NotaFiscalEletronica::query()->entradasProprias();
+                }),
+            'propria_terceiro' => Tab::make()
+                ->label('Entrada Própria de Terceiros')
+                ->query(function () {
+                    return NotaFiscalEletronica::query()->entradasPropriasTerceiros();
+                }),
+
+        ];
     }
 
     public function applySuggestedTag(int $recordId, int $tagId): void

@@ -21,8 +21,6 @@ class UploadFileManagerResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Demais docs. fiscais';
 
-    protected static ?string $recordTitleAttribute = 'title';
-
     public static function form(Schema $schema): Schema
     {
         return UploadFileManagerForm::configure($schema);

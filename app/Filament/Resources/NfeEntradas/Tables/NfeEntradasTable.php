@@ -5,9 +5,11 @@ namespace App\Filament\Resources\NfeEntradas\Tables;
 use Filament\Tables\Table;
 use Filament\Actions\Action;
 use App\Models\GeneralSetting;
+use Filament\Actions\BulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Actions\ActionGroup;
+use Illuminate\Support\Facades\Bus;
 use App\Models\NotaFiscalEletronica;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +18,9 @@ use Filament\Support\Enums\Alignment;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Notifications\Notification;
 use App\Filament\Actions\DownloadXmlAction;
+use Illuminate\Database\Eloquent\Collection;
 use App\Filament\Actions\ManifestarNfeAction;
 use App\Filament\Actions\DownloadPdfNfeAction;
 use App\Services\Tagging\TagSuggestionService;
@@ -25,7 +29,9 @@ use App\Filament\Tables\Columns\TagBadgesColumn;
 use App\Filament\Tables\Columns\ViewChaveColumn;
 use App\Filament\Actions\ToggleEscrituracaoAction;
 use App\Filament\Actions\ClassificarDocumentoAction;
+use App\Jobs\BulkAction\DownloadXmlNfeBulkActionJob;
 use App\Filament\Actions\RemoverClassificaoNfeAction;
+use App\Filament\Actions\DownloadXmlPdfNfeEmLoteAction;
 
 class NfeEntradasTable
 {
@@ -129,6 +135,7 @@ class NfeEntradasTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    DownloadXmlPdfNfeEmLoteAction::make(),
                 ]),
             ]);
     }

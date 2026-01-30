@@ -13,7 +13,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('upload-file.preview');
 
     Route::get('process-download/{tempFile}', [TempFileController::class, 'download'])
-        ->name('process-download.download');
+        ->name('process-dowload.download');
 
     // Route::get('nfse/pdf/{id}', [NfsePdfController::class, 'showPdf'])
     //     ->name('nfse.pdf.show');
