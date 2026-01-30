@@ -105,7 +105,7 @@ class XmlNfeReaderService
     {
 
         $params = $this->preparaDadosNfe();
-        Log::info('Registrando/Atualizando NFe no Fiscaut - Chave:  '.$params['chave']);
+        Log::info('Registrando/Atualizando NFe no Fiscaut - Chave:  ' . $params['chave']);
 
         $params['origem'] = $this->origem;
 
@@ -120,6 +120,12 @@ class XmlNfeReaderService
             ],
             $params
         );
+
+        if($nfe->vICMSUFDest > 0.0) {
+            $nfe->updateQuietly([
+                'difal' => $nfe->calcularDifalProdutos(),
+            ]);
+        }
 
         if (! is_null($params['refNFe'])) {
 
@@ -334,7 +340,6 @@ class XmlNfeReaderService
             'vPIS' => $total['vPIS'] ?? null,
             'vCOFINS' => $total['vCOFINS'] ?? null,
             'vOutro' => $total['vOutro'] ?? null,
-            'difal' => $this->getDifal(),
             'serie' => $ide['serie'] ?? null,
             'modFrete' => $transp['modFrete'] ?? null,
             'vTotTrib' => $total['vTotTrib'] ?? 0,
@@ -430,84 +435,5 @@ class XmlNfeReaderService
         rsort($values);
 
         return $values;
-    }
-
-    private function getDifal(): ?array
-    {
-        $difal = [];
-        $produtos = xml_list($this->data['nfeProc']['NFe']['infNFe']['det'] ?? null);
-        $ufEmitente = $this->data['nfeProc']['NFe']['infNFe']['emit']['enderEmit']['UF'] ?? null;
-        $ufDestinatario = $this->data['nfeProc']['NFe']['infNFe']['dest']['enderDest']['UF'] ?? null;
-
-        foreach ($produtos as $key => $produto) {
-
-            $difalCalculado = $this->calculaDifalProduto($produto, $ufEmitente, $ufDestinatario);
-            if (isset($difalCalculado['valor_imposto']) && $difalCalculado['valor_imposto'] > 0) {
-                array_push($difal, $difalCalculado);
-            }
-        }
-
-        return count($difal) > 0 ? $difal : null;
-    }
-
-    private function calculaDifalProduto($data, $ufEmitente, $ufDestinatario)
-    {
-        $aliqs = config('admin.aliqs');
-
-        $produto = $data['prod'];
-
-        $imposto = $data['imposto'];
-
-        $is_SN = searchValueInArray($imposto, 'CSOSN');
-
-        if (! is_null($is_SN)) {
-            $index = array_search($ufDestinatario, $aliqs['UF']);
-            $aliq_interestadual = searchValueInArray($imposto, 'pICMSInter') ?? $aliqs[$ufEmitente][$index];
-            $aliq_destino = searchValueInArray($imposto, 'pICMSUFDest') ?? $aliqs[$ufDestinatario][$index];
-
-            $base_operacao = $produto['vProd'];
-
-            $icms_operacao = $base_operacao * $aliq_interestadual / 100;
-
-            $nova_base = ($base_operacao - $icms_operacao) / (1 - $aliq_destino / 100);
-
-            $valor_difal = ($nova_base * $aliq_destino / 100) - $icms_operacao;
-
-            $valores = [
-                'produto' => $produto['xProd'],
-                'valor_contabil' => number_format($produto['vProd'], 2),
-                'base_calculo' => number_format($nova_base, 2),
-                'aliq_interna' => number_format($aliq_interestadual, 2),
-                'aliq_destino' => number_format($aliq_destino, 2),
-                'valor_icms' => number_format($icms_operacao, 2),
-                'valor_imposto' => number_format($valor_difal, 2),
-            ];
-
-            return $valores;
-        } else {
-            $index = array_search($ufDestinatario, $aliqs['UF']);
-            $aliq_interestadual = $aliqs[$ufEmitente][$index] ?? 0;
-            $aliq_destino = $aliqs[$ufDestinatario][$index] ?? 0;
-
-            $base_operacao = $produto['vProd'];
-
-            $icms_operacao = $base_operacao * $aliq_interestadual / 100;
-
-            $nova_base = ($base_operacao - $icms_operacao) / (1 - $aliq_destino / 100);
-
-            $valor_difal = ($nova_base * $aliq_destino / 100) - $icms_operacao;
-
-            $valores = [
-                'produto' => $produto['xProd'],
-                'valor_contabil' => number_format($produto['vProd'], 2),
-                'base_calculo' => number_format($nova_base, 2),
-                'aliq_interna' => number_format($aliq_interestadual, 2),
-                'aliq_destino' => number_format($aliq_destino, 2),
-                'valor_icms' => number_format($icms_operacao, 2),
-                'valor_imposto' => number_format($valor_difal, 2),
-            ];
-
-            return $valores;
-        }
     }
 }

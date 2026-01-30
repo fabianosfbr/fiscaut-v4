@@ -9,6 +9,7 @@ use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Livewire;
 use Filament\Infolists\Components\TextEntry;
+use App\Filament\Infolists\Components\DifalEntry;
 use App\Filament\Infolists\Components\AudioPlayerEntry;
 use App\Filament\Infolists\Components\ProductTableEntry;
 
@@ -174,7 +175,7 @@ class NfeEntradaInfolist
                                             ]),
 
                                         Section::make('Produtos')
-                                            ->schema([                                                
+                                            ->schema([
                                                 ProductTableEntry::make('product')
                                                     ->hiddenLabel()
 
@@ -182,6 +183,22 @@ class NfeEntradaInfolist
 
                                     ]),
 
+                            ]),
+                        Tabs\Tab::make('Impostos Debitados')
+                            ->id('impostos-debitados')
+                            ->schema([
+                                Section::make('Diferencial de Alíquota (DIFAL)')
+                                    ->description('Cálculo do diferencial de alíquota entre estado de origem e destino. As alíquotas são obtidas automaticamente da tabela de ICMS interestadual do sistema.')
+                                    ->schema([
+                                        TextEntry::make('vICMSUFDest')
+                                            ->label('Total DIFAL')
+                                            ->money('BRL')
+                                            ->visible(fn($record) => $record->vICMSUFDest > 0)
+                                            ->weight('bold'),
+                                        DifalEntry::make('difals')
+                                            ->hiddenLabel()
+                                        
+                                    ]),
                             ]),
                     ]),
             ]);

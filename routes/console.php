@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 
 Artisan::command('play', function () {
-    $nfe = NotaFiscalEletronica::find(522793);
+    $nfe = NotaFiscalEletronica::find(522811);
 
-    dd($nfe->endereco_emitente_completo);
+     dd($nfe->calcularDifalProdutos());
 });
 
 Artisan::command('schedule:run-dynamic {--force}', function () {

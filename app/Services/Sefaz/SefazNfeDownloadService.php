@@ -488,8 +488,7 @@ class SefazNfeDownloadService
      */
     public function sefazManifesta(string $chNFe, string $tpEvento, string $xJust = '', int $nSeqEvento = 1): bool
     {
-        //$response = $this->getTools()->sefazManifesta($chNFe, $tpEvento, $xJust, $nSeqEvento);
-        $response = '<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><soap:Body><nfeRecepcaoEventoNFResult xmlns="http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcaoEvento4"><retEnvEvento versao="1.00" xmlns="http://www.portalfiscal.inf.br/nfe"><idLote>202601291531306</idLote><tpAmb>1</tpAmb><verAplic>AN_1.8.7</verAplic><cOrgao>91</cOrgao><cStat>128</cStat><xMotivo>Lote de evento processado</xMotivo><retEvento versao="1.00"><infEvento Id="ID891261370920556" xmlns="http://www.portalfiscal.inf.br/nfe"><tpAmb>1</tpAmb><verAplic>AN_1.8.7</verAplic><cOrgao>91</cOrgao><cStat>135</cStat><xMotivo>Evento registrado e vinculado a NF-e</xMotivo><chNFe>35260100286330000357550010005322111006560024</chNFe><tpEvento>210200</tpEvento><xEvento>Confirmacao da Operacao</xEvento><nSeqEvento>1</nSeqEvento><CNPJDest>67758169000186</CNPJDest><dhRegEvento>2026-01-29T15:31:21-03:00</dhRegEvento><nProt>891261370920556</nProt></infEvento></retEvento></retEnvEvento></nfeRecepcaoEventoNFResult></soap:Body></soap:Envelope>';
+        $response = $this->getTools()->sefazManifesta($chNFe, $tpEvento, $xJust, $nSeqEvento);
 
         Log::info('Log de manifestação NFe - SEFAZ', [
             'issuer' => $this->issuer->razao_social,

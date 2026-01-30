@@ -5,6 +5,6 @@
     <div {{ $getExtraAttributeBag() }}>
         {{ $getState() }}
         
-        <livewire:product-table-infolist :products="$record->produtos" />
+        <livewire:difal-table-infolist :difals="$record->difal" />
     </div>
 </x-dynamic-component>
