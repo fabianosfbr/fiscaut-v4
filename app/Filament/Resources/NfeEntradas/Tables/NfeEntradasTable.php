@@ -18,6 +18,7 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 use Filament\Actions\BulkActionGroup;
 use Filament\Support\Enums\Alignment;
+use Illuminate\Support\Facades\Cache;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -43,7 +44,9 @@ use App\Filament\Actions\ClassificarDocumentoAction;
 use App\Jobs\BulkAction\DownloadXmlNfeBulkActionJob;
 use App\Filament\Actions\RemoverClassificaoNfeAction;
 use App\Filament\Actions\DownloadXmlPdfNfeEmLoteAction;
+use App\Filament\Actions\ToggleEscrituacaoEmLoteAction;
 use Filament\QueryBuilder\Constraints\NumberConstraint;
+use App\Filament\Actions\ClassificarDocumentoEmLoteAction;
 
 class NfeEntradasTable
 {
@@ -133,12 +136,10 @@ class NfeEntradasTable
                     ->searchable(),
             ])
             ->filters([
-
-
                 QueryBuilder::make()
                     ->constraints([
                         NumberConstraint::make('vICMS')->label('ICMS'),
-                        NumberConstraint::make('vPIS')->label('PIS'),                        
+                        NumberConstraint::make('vPIS')->label('PIS'),
                         NumberConstraint::make('vCOFINS')->label('COFINS'),
                         NumberConstraint::make('vIPI')->label('IPI'),
                         NumberConstraint::make('vSeg')->label('Seguro'),
@@ -375,7 +376,8 @@ class NfeEntradasTable
             ->recordActions([
                 ActionGroup::make([
                     SugerirEtiquetaAction::make(),
-                    ViewAction::make(),
+                    ViewAction::make()
+                        ->label('Detalhes'),
                     ManifestarNfeAction::make(),
                     ToggleEscrituracaoAction::make(),
                     ClassificarDocumentoAction::make(),
@@ -388,8 +390,17 @@ class NfeEntradasTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    ToggleEscrituacaoEmLoteAction::make(),
                     DownloadXmlPdfNfeEmLoteAction::make(),
+                    ClassificarDocumentoEmLoteAction::make()
+                        ->after(function () {
+                            Cache::forget('tags_used_in_nfe_' . Auth::user()->currentIssuer->id);
+
+                            Notification::make()
+                                ->title('Etiquetas aplicadas com sucesso')
+                                ->success()
+                                ->send();
+                        }),
                 ]),
             ]);
     }

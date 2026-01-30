@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources\NfeSaidas\Pages;
 
-use App\Filament\Resources\NfeSaidas\NfeSaidaResource;
+use Filament\Support\Enums\Width;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\NfeSaidas\NfeSaidaResource;
 
 class ListNfeSaidas extends ListRecords
 {
@@ -12,8 +13,16 @@ class ListNfeSaidas extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            CreateAction::make(),
-        ];
+        return [];
+    }
+
+    public function getHeading(): string
+    {
+        return 'Notas Fiscais Eletrônicas';
+    }
+
+    public function getMaxContentWidth(): Width
+    {
+        return Width::Full;
     }
 }
