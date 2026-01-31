@@ -66,6 +66,7 @@ Observação: existe uma pasta `app/Filament/Resources/BulkActions/` (Schemas/Ta
 - [ClassificarDocumentoNfeAvancadoAction.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Actions/ClassificarDocumentoNfeAvancadoAction.php)
 - [DownloadPdfNfeAction.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Actions/DownloadPdfNfeAction.php)
 - [DownloadXmlAction.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Actions/DownloadXmlAction.php)
+- [DownloadXmlPdfCteEmLoteAction.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Actions/DownloadXmlPdfCteEmLoteAction.php)
 - [DownloadXmlPdfNfeEmLoteAction.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Actions/DownloadXmlPdfNfeEmLoteAction.php)
 - [ManifestarNfeAction.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Actions/ManifestarNfeAction.php)
 - [RemoverClassificaoNfeAction.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Actions/RemoverClassificaoNfeAction.php)
@@ -83,4 +84,3 @@ Observação: existe uma pasta `app/Filament/Resources/BulkActions/` (Schemas/Ta
 - Columns (Tables): [app/Filament/Tables/Columns](file:///root/projetos/fiscaut-v4.1/app/Filament/Tables/Columns)
 - Form components: [app/Filament/Forms/Components](file:///root/projetos/fiscaut-v4.1/app/Filament/Forms/Components)
 - Infolist components: [app/Filament/Infolists/Components](file:///root/projetos/fiscaut-v4.1/app/Filament/Infolists/Components)
-

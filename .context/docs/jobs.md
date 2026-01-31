@@ -26,7 +26,15 @@ The application processes certain tasks in the background using Laravel's Queue 
     -   Includes credit footer if configured.
     -   Notifies the user via database notification when the ZIP is ready.
 
-### 2. DownloadUploadFileBulkActionJob
+### 2. DownloadXmlPdfCteEmLoteActionJob
+**Location:** `App\Jobs\BulkAction\DownloadXmlPdfCteEmLoteActionJob`
+-   **Purpose:** Generates a ZIP archive containing XMLs and/or PDFs (DACTE) for a selected list of CTe records.
+-   **Key Features:**
+    -   Generates PDFs on-the-fly using `NFePHP\DA\CTe\Dacte`.
+    -   Includes credit footer if configured.
+    -   Notifies the user via database notification when the ZIP is ready.
+
+### 3. DownloadUploadFileBulkActionJob
 **Location:** `App\Jobs\BulkAction\DownloadUploadFileBulkActionJob`
 -   **Purpose:** Creates a ZIP download for generic file uploads (documents managed in the `UploadFileManager`).
 -   **Key Features:**
