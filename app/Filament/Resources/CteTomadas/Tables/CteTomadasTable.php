@@ -4,6 +4,7 @@ namespace App\Filament\Resources\CteTomadas\Tables;
 
 use App\Filament\Actions\DownloadPdfCteAction;
 use App\Filament\Actions\DownloadXmlAction;
+use App\Filament\Actions\DownloadXmlPdfCteEmLoteAction;
 use App\Filament\Tables\Columns\ViewChaveColumn;
 use App\Models\ConhecimentoTransporteEletronico;
 use Filament\Actions\ActionGroup;
@@ -91,6 +92,7 @@ class CteTomadasTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    DownloadXmlPdfCteEmLoteAction::make(),
                     DeleteBulkAction::make(),
                 ]),
             ]);
