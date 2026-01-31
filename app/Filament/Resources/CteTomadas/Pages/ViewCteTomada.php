@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\CteTomadas\Pages;
 
 use App\Filament\Resources\CteTomadas\CteTomadaResource;
-use Filament\Actions\EditAction;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewCteTomada extends ViewRecord
@@ -13,7 +13,10 @@ class ViewCteTomada extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            EditAction::make(),
+            Action::make('cte-list')
+                ->label('Voltar para lista')
+                ->color('gray')
+                ->url(fn (): string => CteTomadaResource::getUrl('index')),
         ];
     }
 }
