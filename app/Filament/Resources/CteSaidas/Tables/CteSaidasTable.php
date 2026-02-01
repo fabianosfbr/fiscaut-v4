@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\CteTomadas\Tables;
+namespace App\Filament\Resources\CteSaidas\Tables;
 
 use App\Filament\Actions\DownloadPdfCteAction;
 use App\Filament\Actions\DownloadXmlAction;
@@ -20,7 +20,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
-class CteTomadasTable
+class CteSaidasTable
 {
     public static function configure(Table $table): Table
     {
@@ -29,7 +29,7 @@ class CteTomadasTable
             ->defaultSort('data_emissao', 'desc')
             ->modifyQueryUsing(function (Builder $query) {
                 $issuer = Auth::user()->currentIssuer;
-                $query->where('destinatario_cnpj', $issuer->cnpj);
+                $query->where('emitente_cnpj', $issuer->cnpj);
             })
             ->columns([
                 TextColumn::make('nCTe')
@@ -37,13 +37,13 @@ class CteTomadasTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('emitente_razao_social')
-                    ->label('Emitente')
+                TextColumn::make('destinatario_razao_social')
+                    ->label('Destinatário')
                     ->limit(30)
-                    ->searchable(['emitente_nome', 'emitente_cnpj'])
+                    ->searchable(['destinatario_nome', 'destinatario_cnpj'])
                     ->size('sm')
                     ->description(function (ConhecimentoTransporteEletronico $record) {
-                        return $record->emitente_cnpj;
+                        return $record->destinatario_cnpj;
                     }),
 
                 TextColumn::make('cfop')
