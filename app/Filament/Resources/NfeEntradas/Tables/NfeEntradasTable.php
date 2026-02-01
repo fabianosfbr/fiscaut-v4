@@ -86,9 +86,10 @@ class NfeEntradasTable
                     ->toggleable()
                     ->date('d/m/Y'),
 
-                IconColumn::make('processed')
+                IconColumn::make('apurada.status')
                     ->label('Apurada')
                     ->boolean()
+                    ->default(false)
                     ->alignment(Alignment::Center)
                     ->toggleable(),
 
@@ -257,10 +258,10 @@ class NfeEntradasTable
 
                         $cfops = array_values(array_filter(
                             array_map(
-                                static fn (string $value): string => trim($value),
+                                static fn(string $value): string => trim($value),
                                 preg_split('/[,\s;]+/', $input, -1, PREG_SPLIT_NO_EMPTY) ?: []
                             ),
-                            static fn (string $value): bool => $value !== ''
+                            static fn(string $value): bool => $value !== ''
                         ));
 
                         if ($cfops === []) {
@@ -287,14 +288,12 @@ class NfeEntradasTable
                             return $query;
                         }
 
-                        $issuer = Auth::user()->currentIssuer;
-
                         return $data['value']
-                            ? $query->whereHas('apuracoes', function ($query) use ($issuer) {
-                                $query->where('issuer_id', $issuer->id);
-                            })
-                            : $query->whereDoesntHave('apuracoes', function ($query) use ($issuer) {
-                                $query->where('issuer_id', $issuer->id);
+                            ? $query->whereHas('apurada', fn (Builder $query): Builder => $query->where('status', true))
+                            : $query->where(function (Builder $query): Builder {
+                                return $query
+                                    ->whereDoesntHave('apurada')
+                                    ->orWhereHas('apurada', fn (Builder $query): Builder => $query->where('status', false));
                             });
                     }),
 
@@ -354,10 +353,10 @@ class NfeEntradasTable
                         $etiquetas = Tag::whereIn('id', $data['etiquetas'])
                             ->get()
                             ->keyBy('id')
-                            ->map(fn ($tag) => $tag->code.' - '.$tag->name)
+                            ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
                             ->toArray();
 
-                        return 'Etiquetas: '.implode(', ', $etiquetas);
+                        return 'Etiquetas: ' . implode(', ', $etiquetas);
                     }),
 
             ])
@@ -385,7 +384,7 @@ class NfeEntradasTable
                     DownloadXmlPdfNfeEmLoteAction::make(),
                     ClassificarDocumentoEmLoteAction::make()
                         ->after(function () {
-                            Cache::forget('tags_used_in_nfe_'.Auth::user()->currentIssuer->id);
+                            Cache::forget('tags_used_in_nfe_' . Auth::user()->currentIssuer->id);
 
                             Notification::make()
                                 ->title('Etiquetas aplicadas com sucesso')

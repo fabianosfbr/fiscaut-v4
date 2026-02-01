@@ -162,9 +162,6 @@ class GeneralSetting extends Model
             ]);
         }
 
-        // Invalida cache após alteração
-        self::invalidateCacheByParams($name, $issuerId, $tenantId);
-
         return $setting;
     }
 
@@ -183,6 +180,7 @@ class GeneralSetting extends Model
         }
 
         $cacheKey = self::getCacheKey($name, $issuerId, $tenantId);
+        
 
         try {
             return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($name, $issuerId, $tenantId) {
@@ -224,19 +222,40 @@ class GeneralSetting extends Model
      */
     public function invalidateCache(): void
     {
-        self::invalidateCacheByParams($this->name, $this->issuer_id, $this->tenant_id);
+        $currentName = $this->name;
+        $currentIssuerId = $this->issuer_id;
+        $currentTenantId = $this->tenant_id;
+
+        $originalName = $this->getOriginal('name') ?? $currentName;
+        $originalIssuerId = $this->getOriginal('issuer_id') ?? $currentIssuerId;
+        $originalTenantId = $this->getOriginal('tenant_id') ?? $currentTenantId;
+
+        $currentKeys = self::payloadKeys($this->payload);
+        $originalKeys = self::payloadKeys($this->getOriginal('payload'));
+
+        self::invalidateCacheByParams($currentName, $currentIssuerId, $currentTenantId, $currentKeys);
+
+        if (
+            $originalName !== $currentName ||
+            $originalIssuerId !== $currentIssuerId ||
+            $originalTenantId !== $currentTenantId
+        ) {
+            self::invalidateCacheByParams($originalName, $originalIssuerId, $originalTenantId, $originalKeys);
+        }
     }
 
     /**
      * Invalida cache por parâmetros específicos
      */
-    public static function invalidateCacheByParams(string $name, ?int $issuerId = null, ?int $tenantId = null): void
+    public static function invalidateCacheByParams(string $name, ?int $issuerId = null, ?int $tenantId = null, ?array $keys = null): void
     {
         try {
             $cacheKey = self::getCacheKey($name, $issuerId, $tenantId);
 
-            // Invalida por tags para pegar todas as variações
-            Cache::forget($cacheKey);
+            $keysToForget = $keys ?? array_keys(self::querySettings($name, $issuerId, $tenantId));
+
+            self::forgetCacheKeys($cacheKey, $keysToForget);
+            Cache::put(self::CACHE_PREFIX.':last_cleared', now()->toDateTimeString(), self::CACHE_TTL);
 
             // Log da invalidação para debugging
             Log::info('GeneralSetting cache invalidated', [
@@ -244,6 +263,7 @@ class GeneralSetting extends Model
                 'issuer_id' => $issuerId,
                 'tenant_id' => $tenantId,
                 'cache_key' => $cacheKey,
+                'keys_count' => count($keysToForget),
             ]);
         } catch (\Exception $e) {
             Log::error('Failed to invalidate GeneralSetting cache', [
@@ -253,6 +273,35 @@ class GeneralSetting extends Model
                 'tenant_id' => $tenantId,
             ]);
         }
+    }
+
+    private static function forgetCacheKeys(string $baseCacheKey, array $keys): void
+    {
+        Cache::forget($baseCacheKey);
+
+        foreach ($keys as $key) {
+            if (! is_string($key) || $key === '') {
+                continue;
+            }
+
+            Cache::forget($baseCacheKey.":{$key}");
+        }
+    }
+
+    private static function payloadKeys($payload): array
+    {
+        if (is_array($payload)) {
+            return array_keys($payload);
+        }
+
+        if (is_string($payload) && $payload !== '') {
+            $decoded = json_decode($payload, true);
+            if (is_array($decoded)) {
+                return array_keys($decoded);
+            }
+        }
+
+        return [];
     }
 
     /**
@@ -383,9 +432,6 @@ class GeneralSetting extends Model
         unset($payload[$key]);
 
         $setting->update(['payload' => $payload]);
-
-        // Invalida cache
-        self::invalidateCacheByParams($name, $issuerId, $tenantId);
 
         return true;
     }

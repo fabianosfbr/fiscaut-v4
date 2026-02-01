@@ -2,16 +2,17 @@
 
 namespace App\Filament\Resources\CteTomadas;
 
-use App\Filament\Resources\CteTomadas\Pages\ListCteTomadas;
-use App\Filament\Resources\CteTomadas\Pages\ViewCteTomada;
-use App\Filament\Resources\CteTomadas\Schemas\CteTomadaForm;
-use App\Filament\Resources\CteTomadas\Schemas\CteTomadaInfolist;
-use App\Filament\Resources\CteTomadas\Tables\CteTomadasTable;
-use App\Models\ConhecimentoTransporteEletronico;
-use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
-use Filament\Tables\Table;
 use UnitEnum;
+use Filament\Tables\Table;
+use Filament\Schemas\Schema;
+use Filament\Resources\Resource;
+use Illuminate\Database\Eloquent\Builder;
+use App\Models\ConhecimentoTransporteEletronico;
+use App\Filament\Resources\CteTomadas\Pages\ViewCteTomada;
+use App\Filament\Resources\CteTomadas\Pages\ListCteTomadas;
+use App\Filament\Resources\CteTomadas\Schemas\CteTomadaForm;
+use App\Filament\Resources\CteTomadas\Tables\CteTomadasTable;
+use App\Filament\Resources\CteTomadas\Schemas\CteTomadaInfolist;
 
 class CteTomadaResource extends Resource
 {
@@ -40,6 +41,12 @@ class CteTomadaResource extends Resource
     public static function table(Table $table): Table
     {
         return CteTomadasTable::configure($table);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with(['tagged.tag', 'apurada']);
     }
 
     public static function getRelations(): array

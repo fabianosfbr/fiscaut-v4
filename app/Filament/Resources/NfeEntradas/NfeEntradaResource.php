@@ -46,7 +46,7 @@ class NfeEntradaResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['tagged.tag']);
+            ->with(['tagged.tag', 'apurada']);
     }
 
     public static function getRelations(): array

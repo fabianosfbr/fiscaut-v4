@@ -12,6 +12,7 @@ enum ConfiguracoesGeraisEnum: string implements HasLabel
     case IsNfeMostrarCodigoEtiqueta = 'isNfeMostrarCodigoEtiqueta';
     case IsNfeTomaCreditoIcms = 'isNfeTomaCreditoIcms';
     case VerificarUfEmitenteDestinatario = 'verificar_uf_emitente_destinatario';
+    case IsClassificarCteVinculadoANfe = 'isClassificarCteVinculadoANfe';
 
     public function getLabel(): string
     {
@@ -20,6 +21,7 @@ enum ConfiguracoesGeraisEnum: string implements HasLabel
             self::IsNfeManifestarAutomatica => 'Manifestação automática pelo Fiscaut',
             self::IsNfeClassificarSomenteManifestacao => 'Classificação somente após manifestação',
             self::IsNfeMostrarCodigoEtiqueta => 'Mostrar código da etiqueta ao invés do nome abreviado',
+            self::IsClassificarCteVinculadoANfe => 'Classificar CTE vinculado a NFe quando etiquetada',
             self::IsNfeTomaCreditoIcms => 'Considerar como crédito de ICMS as NF com CFOP 1.401',
             self::VerificarUfEmitenteDestinatario => 'Verificar UF emitente X UF destinatário',
         };

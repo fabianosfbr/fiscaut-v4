@@ -2,12 +2,14 @@
 
 namespace App\Filament\Actions;
 
-use App\Models\ConhecimentoTransporteEletronico;
 use Filament\Actions\Action;
-use Filament\Notifications\Notification;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\GeneralSetting;
+use App\Models\NotaFiscalEletronica;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Notification;
+use App\Models\ConhecimentoTransporteEletronico;
 
 class RemoverClassificaoNfeAction
 {
@@ -22,23 +24,16 @@ class RemoverClassificaoNfeAction
             ->modalSubmitActionLabel('Sim, remover')
             ->action(function (array $data, Model $record) {
 
-                $ctes = ConhecimentoTransporteEletronico::whereJsonContains('nfe_chave', ['chave' => $record->chave])
-                    ->where('tomador_cnpj', $record->destinatario_cnpj)->get();
-                if (isset($ctes)) {
-                    foreach ($ctes as $cte) {
-                        $cte->untag();
-                        $cte->update([
-                            'data_entrada' => null,
-                        ]);
-                    }
-                }
+
+                self::removeSameTagToCte($record);
 
                 $record->untag();
                 $record->update([
                     'data_entrada' => null,
                 ]);
 
-                Cache::forget('tags_used_in_nfe_'.Auth::user()->currentIssuer->id);
+                Cache::forget('tags_used_in_nfe_' . Auth::user()->currentIssuer->id);
+
 
                 Notification::make()
                     ->success()
@@ -47,5 +42,34 @@ class RemoverClassificaoNfeAction
                     ->duration(3000)
                     ->send();
             });
+    }
+
+    private static function removeSameTagToCte(Model $record): void
+    {
+        $isClassificarCteVinculadoANfe = GeneralSetting::getValue(
+            name: 'configuracoes_gerais',
+            key: 'isClassificarCteVinculadoANfe',
+            default: false,
+            issuerId: Auth::user()->currentIssuer->id
+        );
+
+        if ($isClassificarCteVinculadoANfe && $record instanceof NotaFiscalEletronica) {
+            $nfeChave = trim((string) $record->chave);
+
+            $ctes = ConhecimentoTransporteEletronico::query()
+                ->whereNfeChave($nfeChave)
+                ->get();
+
+            if ($ctes->isNotEmpty()) {
+                foreach ($ctes as $cte) {
+                    $cte->untag();
+                    $cte->update([
+                        'data_entrada' => null,
+                    ]);
+                }
+            }
+
+            Cache::forget('tags_used_in_cte_' . Auth::user()->currentIssuer->id);
+        }
     }
 }

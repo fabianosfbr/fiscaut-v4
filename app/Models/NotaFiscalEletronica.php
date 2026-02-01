@@ -14,7 +14,7 @@ class NotaFiscalEletronica extends Model
 {
     use HasTags;
 
-    protected $table = 'nfes';
+    protected $table = 'nfes';    
 
     protected $guarded = ['id'];
 
@@ -28,7 +28,6 @@ class NotaFiscalEletronica extends Model
         'cobranca' => 'array',
         'parcela' => 'array',
         'cfops' => 'array',
-        'processed' => 'boolean',
     ];
 
     public function nfeReferenciada()
@@ -36,14 +35,14 @@ class NotaFiscalEletronica extends Model
         return $this->hasMany(NfeReferenciada::class, 'nfe_id', 'id');
     }
 
-    public function apuracoes()
+    public function apurada()
     {
-        return $this->hasMany(NfeApurada::class, 'nfe_id');
+        return $this->hasOne(NfeApurada::class, 'nfe_id')->where('issuer_id', Auth::user()->currentIssuer->id);
     }
 
     public function isApuradaParaEmpresa(Issuer $issuer): bool
     {
-        $apuracao = $this->apuracoes()
+        $apuracao = $this->apurada()
             ->where('issuer_id', $issuer->id)
             ->latest('id')
             ->first();
@@ -52,24 +51,20 @@ class NotaFiscalEletronica extends Model
             return (bool) $apuracao->status;
         }
 
-        return (bool) ($this->processed ?? false);
+        return (bool) false;
     }
 
     public function toggleApuracao(Issuer $issuer): bool
     {
-        $apuracao = $this->apuracoes()
+        $apuracao = $this->apurada()
             ->where('issuer_id', $issuer->id)
             ->latest('id')
             ->first();
 
         if ($apuracao === null) {
-            $this->apuracoes()->create([
+            $this->apurada()->create([
                 'issuer_id' => $issuer->id,
                 'status' => true,
-            ]);
-
-            $this->updateQuietly([
-                'processed' => true,
             ]);
 
             return true;
@@ -79,10 +74,6 @@ class NotaFiscalEletronica extends Model
 
         $apuracao->update([
             'status' => $newStatus,
-        ]);
-
-        $this->updateQuietly([
-            'processed' => $newStatus,
         ]);
 
         return $newStatus;

@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Throwable;
 use App\Enums\StatusCteEnum;
 use App\Models\Traits\HasTags;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use App\Services\Xml\XmlReaderService;
 use Illuminate\Database\Eloquent\Model;
-use Throwable;
 
 class ConhecimentoTransporteEletronico extends Model
 {
@@ -538,14 +540,14 @@ class ConhecimentoTransporteEletronico extends Model
             return null;
         }
 
-        $texto = trim(($logradouro ?? '').($numero !== null ? ', '.$numero : ''));
+        $texto = trim(($logradouro ?? '') . ($numero !== null ? ', ' . $numero : ''));
 
         if ($complemento !== null) {
-            $texto .= ', '.$complemento;
+            $texto .= ', ' . $complemento;
         }
 
         if ($bairro !== null) {
-            $texto .= ', '.$bairro;
+            $texto .= ', ' . $bairro;
         }
 
         return trim($texto) === '' ? null : $texto;
@@ -619,5 +621,107 @@ class ConhecimentoTransporteEletronico extends Model
         }
 
         return null;
+    }
+
+    public function scopeWhereNfeChave($query, string $chave)
+    {
+        $chave = trim($chave);
+        $driver = $query->getConnection()->getDriverName();
+        $table = $query->getModel()->getTable();
+
+        if ($driver === 'mysql') {
+            return $query->whereRaw(
+                "(JSON_SEARCH({$table}.nfe_chave, 'one', ?) is not null or JSON_SEARCH({$table}.nfe_chave, 'one', ?, null, '$[*].chave') is not null)",
+                [$chave, $chave],
+            );
+        }
+
+        if ($driver === 'sqlite') {
+            return $query->whereRaw(
+                "exists (select 1 from json_each({$table}.nfe_chave) where json_each.value = ? or json_extract(json_each.value, '$.chave') = ?)",
+                [$chave, $chave],
+            );
+        }
+
+        return $query->where(function ($query) use ($chave) {
+            $query
+                ->whereJsonContains('nfe_chave->*.chave', $chave)
+                ->orWhereJsonContains('nfe_chave', $chave);
+        });
+    }
+
+    public function scopeTomadasEntrada($query, $issuer)
+    {
+
+        $query->join('nfes', function ($join) use ($issuer) {
+            $join->on('ctes.nfe_chave', '=', 'nfes.chave');
+            $join->on('nfes.destinatario_cnpj', '=', DB::raw("'" . $issuer . "'"));
+        })
+            ->select('ctes.*', 'nfes.chave as chave_nfe');
+
+        return $query;
+    }
+
+    public function scopeTomadasSaida($query, $issuer)
+    {
+
+        $query->join('nfes', function ($join) use ($issuer) {
+            $join->on('ctes.nfe_chave', '=', 'nfes.chave');
+            $join->on('nfes.emitente_cnpj', '=', DB::raw("'" . $issuer . "'"));
+        })
+            ->select('ctes.*', 'nfes.chave as chave_nfe');
+
+        return $query;
+    }
+
+
+    public function apurada()
+    {
+        return $this->hasOne(CteApurada::class, 'cte_id')->where('issuer_id', Auth::user()->currentIssuer->id);
+    }
+
+    public function isApuradaParaEmpresa(Issuer $issuer): bool
+    {
+        $apuracao = $this->apurada()
+            ->where('issuer_id', $issuer->id)
+            ->latest('id')
+            ->first();
+
+        if ($apuracao !== null) {
+            return (bool) $apuracao->status;
+        }
+
+        return (bool)  false;
+    }
+
+    public function toggleApuracao(Issuer $issuer): bool
+    {
+        $apuracao = $this->apurada()
+            ->where('issuer_id', $issuer->id)
+            ->latest('id')
+            ->first();
+
+        if ($apuracao === null) {
+            $this->apurada()->create([
+                'issuer_id' => $issuer->id,
+                'status' => true,
+            ]);
+
+            return true;
+        }
+
+        $newStatus = ! $apuracao->status;
+
+        $apuracao->update([
+            'status' => $newStatus,
+        ]);
+
+        return $newStatus;
+    }
+
+        public function retag(string $tag)
+    {
+        $this->untag();
+        $this->tag($tag, $this->vCTe);
     }
 }

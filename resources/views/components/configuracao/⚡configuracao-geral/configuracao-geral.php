@@ -52,6 +52,8 @@ new class extends Component implements HasSchemas
             $currentIssuer->tenant_id
         );
 
+        // dd($settings);
+
         $this->form->fill($settings);
     }
 
@@ -70,37 +72,38 @@ new class extends Component implements HasSchemas
                                     ->label(ConfiguracoesGeraisEnum::IsNfeClassificarNaEntrada->getLabel())
                                     ->helperText('Quando ativado, permite informar a data de entrada ao classificar uma NFe')
                                     ->live()
-                                    ->afterStateUpdated(fn () => $this->hasChanges = true),
+                                    ->afterStateUpdated(fn() => $this->hasChanges = true),
 
                                 Checkbox::make(ConfiguracoesGeraisEnum::IsNfeManifestarAutomatica->value)
                                     ->label(ConfiguracoesGeraisEnum::IsNfeManifestarAutomatica->getLabel())
                                     ->helperText('Quando ativado, o sistema realizará a manifestação automática das notas')
                                     ->live()
-                                    ->afterStateUpdated(fn () => $this->hasChanges = true),
+                                    ->afterStateUpdated(fn() => $this->hasChanges = true),
 
                                 Checkbox::make(ConfiguracoesGeraisEnum::IsNfeClassificarSomenteManifestacao->value)
                                     ->label(ConfiguracoesGeraisEnum::IsNfeClassificarSomenteManifestacao->getLabel())
                                     ->helperText('Quando ativado, a classificação da NFe só será realizada após a manifestação')
                                     ->live()
-                                    ->afterStateUpdated(fn () => $this->hasChanges = true),
+                                    ->afterStateUpdated(fn() => $this->hasChanges = true),
 
                                 Checkbox::make(ConfiguracoesGeraisEnum::IsNfeMostrarCodigoEtiqueta->value)
                                     ->label(ConfiguracoesGeraisEnum::IsNfeMostrarCodigoEtiqueta->getLabel())
                                     ->helperText('Quando ativado, o sistema mostrará o código da etiqueta ao invés do nome abreviado')
                                     ->live(onBlur: true)
-                                    ->afterStateUpdated(fn () => $this->hasChanges = true),
+                                    ->afterStateUpdated(fn() => $this->hasChanges = true),
 
                                 Checkbox::make(ConfiguracoesGeraisEnum::IsNfeTomaCreditoIcms->value)
                                     ->label(ConfiguracoesGeraisEnum::IsNfeTomaCreditoIcms->getLabel())
                                     ->helperText('Quando ativado, o sistema considerará crédito de ICMS para notas com CFOP 1.401')
                                     ->live()
-                                    ->afterStateUpdated(fn () => $this->hasChanges = true),
+                                    ->afterStateUpdated(fn() => $this->hasChanges = true),
 
                                 Checkbox::make(ConfiguracoesGeraisEnum::VerificarUfEmitenteDestinatario->value)
                                     ->label(ConfiguracoesGeraisEnum::VerificarUfEmitenteDestinatario->getLabel())
                                     ->helperText('Quando ativado, verifica a UF do emitente e destinatário para processar os CFOPs corretamente')
                                     ->live()
-                                    ->afterStateUpdated(fn () => $this->hasChanges = true),
+                                    ->afterStateUpdated(fn() => $this->hasChanges = true),
+
 
                                 SelectTagGrouped::make('tagsCreditoIcms')
                                     ->label('Notas com as etiquetas abaixo serão consideradas como credito de ICMS')
@@ -114,10 +117,16 @@ new class extends Component implements HasSchemas
                                         return ! $get('isNfeTomaCreditoIcms');
                                     })
                                     ->live()
-                                    ->afterStateUpdated(fn () => $this->hasChanges = true)
+                                    ->afterStateUpdated(fn() => $this->hasChanges = true)
                                     ->validationMessages([
                                         'required' => 'É obrigatório informar as etiquetas para credito de ICMS',
                                     ]),
+
+                                Checkbox::make(ConfiguracoesGeraisEnum::IsClassificarCteVinculadoANfe->value)
+                                    ->label(ConfiguracoesGeraisEnum::IsClassificarCteVinculadoANfe->getLabel())
+                                    ->helperText('Quando ativado, o sistema classificará o CTE vinculado à NFe quando etiquetado')
+                                    ->live()
+                                    ->afterStateUpdated(fn() => $this->hasChanges = true),
 
                             ]),
                     ]),
@@ -177,7 +186,7 @@ new class extends Component implements HasSchemas
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Erro ao salvar')
-                ->body(new HtmlString('Ocorreu um erro ao salvar as configurações.<br>'.$e->getMessage()))
+                ->body(new HtmlString('Ocorreu um erro ao salvar as configurações.<br>' . $e->getMessage()))
                 ->danger()
                 ->send();
         } finally {
