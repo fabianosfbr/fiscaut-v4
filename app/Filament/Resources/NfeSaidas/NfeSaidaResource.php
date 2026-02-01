@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\NfeSaidas;
 
-use App\Filament\Resources\NfeSaidas\Pages\CreateNfeSaida;
-use App\Filament\Resources\NfeSaidas\Pages\EditNfeSaida;
 use App\Filament\Resources\NfeSaidas\Pages\ListNfeSaidas;
 use App\Filament\Resources\NfeSaidas\Pages\ViewNfeSaida;
 use App\Filament\Resources\NfeSaidas\Schemas\NfeSaidaForm;
@@ -55,9 +53,8 @@ class NfeSaidaResource extends Resource
     {
         return [
             'index' => ListNfeSaidas::route('/'),
-            'create' => CreateNfeSaida::route('/create'),
             'view' => ViewNfeSaida::route('/{record}'),
-            'edit' => EditNfeSaida::route('/{record}/edit'),
+
         ];
     }
 }

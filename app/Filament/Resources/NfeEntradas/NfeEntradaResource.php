@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\NfeEntradas;
 
-use App\Filament\Resources\NfeEntradas\Pages\CreateNfeEntrada;
-use App\Filament\Resources\NfeEntradas\Pages\EditNfeEntrada;
 use App\Filament\Resources\NfeEntradas\Pages\ListNfeEntradas;
 use App\Filament\Resources\NfeEntradas\Pages\ViewNfeEntrada;
 use App\Filament\Resources\NfeEntradas\Schemas\NfeEntradaForm;
@@ -62,9 +60,8 @@ class NfeEntradaResource extends Resource
     {
         return [
             'index' => ListNfeEntradas::route('/'),
-            'create' => CreateNfeEntrada::route('/create'),
             'view' => ViewNfeEntrada::route('/{record}'),
-            'edit' => EditNfeEntrada::route('/{record}/edit'),
+
         ];
     }
 }

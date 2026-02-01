@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\CteSaidas;
 
-use App\Filament\Resources\CteSaidas\Pages\CreateCteSaida;
-use App\Filament\Resources\CteSaidas\Pages\EditCteSaida;
 use App\Filament\Resources\CteSaidas\Pages\ListCteSaidas;
 use App\Filament\Resources\CteSaidas\Pages\ViewCteSaida;
 use App\Filament\Resources\CteSaidas\Schemas\CteSaidaForm;
@@ -55,9 +53,8 @@ class CteSaidaResource extends Resource
     {
         return [
             'index' => ListCteSaidas::route('/'),
-            'create' => CreateCteSaida::route('/create'),
             'view' => ViewCteSaida::route('/{record}'),
-            'edit' => EditCteSaida::route('/{record}/edit'),
+
         ];
     }
 }

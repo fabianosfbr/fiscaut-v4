@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\CteTomadas;
 
-use App\Filament\Resources\CteTomadas\Pages\CreateCteTomada;
-use App\Filament\Resources\CteTomadas\Pages\EditCteTomada;
 use App\Filament\Resources\CteTomadas\Pages\ListCteTomadas;
 use App\Filament\Resources\CteTomadas\Pages\ViewCteTomada;
 use App\Filament\Resources\CteTomadas\Schemas\CteTomadaForm;
@@ -55,9 +53,8 @@ class CteTomadaResource extends Resource
     {
         return [
             'index' => ListCteTomadas::route('/'),
-            'create' => CreateCteTomada::route('/create'),
             'view' => ViewCteTomada::route('/{record}'),
-            'edit' => EditCteTomada::route('/{record}/edit'),
+
         ];
     }
 }
