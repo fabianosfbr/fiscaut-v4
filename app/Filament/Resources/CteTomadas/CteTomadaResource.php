@@ -21,9 +21,9 @@ class CteTomadaResource extends Resource
 
     protected static ?string $pluralLabel = 'CTes Tomadas';
 
-    protected static ?string $navigationLabel = 'CTe Tomadas';
+    protected static ?string $navigationLabel = 'CTe Tomada';
 
-    protected static ?string $slug = 'ctes-tomadas';
+    protected static ?string $slug = 'ctes-tomada';
 
     protected static string|UnitEnum|null $navigationGroup = 'CTe';
 

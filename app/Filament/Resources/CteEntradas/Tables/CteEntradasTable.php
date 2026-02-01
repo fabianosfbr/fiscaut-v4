@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\CteTomadas\Tables;
+namespace App\Filament\Resources\CteEntradas\Tables;
 
 use App\Filament\Actions\DownloadPdfCteAction;
 use App\Filament\Actions\DownloadXmlAction;
@@ -19,7 +19,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
-class CteTomadasTable
+class CteEntradasTable
 {
     public static function configure(Table $table): Table
     {

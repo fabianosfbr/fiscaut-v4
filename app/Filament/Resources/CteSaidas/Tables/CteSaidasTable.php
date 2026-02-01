@@ -9,7 +9,6 @@ use App\Filament\Tables\Columns\ViewChaveColumn;
 use App\Models\ConhecimentoTransporteEletronico;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\TextColumn;
@@ -153,7 +152,6 @@ class CteSaidasTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DownloadXmlPdfCteEmLoteAction::make(),
-                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
