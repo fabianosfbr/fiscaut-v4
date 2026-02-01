@@ -1,7 +1,11 @@
 {
   "mcpServers": {
-    "my-server": {
-      "httpUrl": "http://localhost:3000/mcp"
+    "ai-context": {
+      "command": "npx",
+      "args": [
+        "@ai-coders/context",
+        "mcp"
+      ]
     }
   },
   "$version": 2
