@@ -1,14 +1,14 @@
 {
   "active": [
     {
-      "slug": "resource-aliquotas-simples-nacional",
-      "path": "plans/resource-aliquotas-simples-nacional.md",
-      "title": "Plano — Resource de Alíquotas do Simples Nacional",
-      "summary": "Implementar um Filament Resource para manter a tabela `simples_nacional_aliquotas` (por anexo e faixa), seguindo a mesma organização do Resource de CFOP (Resource + Pages + Schema + Table).",
-      "linkedAt": "2026-01-24T20:32:49.849Z",
+      "slug": "sefaz-nfse-download-service",
+      "path": "plans/sefaz-nfse-download-service.md",
+      "title": "SefazNfseDownloadService Implementation",
+      "summary": "Implementation of SefazNfseDownloadService following existing patterns from SefazCteDownloadService and SefazNfeDownloadService, using legacy connection from NfseOldService",
+      "linkedAt": "2026-02-01T21:43:46.450Z",
       "status": "active"
     }
   ],
   "completed": [],
-  "primary": "resource-aliquotas-simples-nacional"
+  "primary": "sefaz-nfse-download-service"
 }
