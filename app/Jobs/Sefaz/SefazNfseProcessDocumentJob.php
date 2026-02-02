@@ -3,18 +3,19 @@
 namespace App\Jobs\Sefaz;
 
 use App\Models\Issuer;
-use App\Models\LogSefazNfseEvent;
-use App\Models\NotaFiscalServico;
+use Illuminate\Support\Str;
 use App\Models\XmlImportJob;
+use App\Events\NfseCancelada;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Carbon;
+use App\Models\LogSefazNfseEvent;
+use App\Models\NotaFiscalServico;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
-use Illuminate\Support\Carbon;
 
 class SefazNfseProcessDocumentJob implements ShouldQueue
 {
@@ -48,8 +49,6 @@ class SefazNfseProcessDocumentJob implements ShouldQueue
 
                 return;
             }
-
-
         } catch (\Throwable $e) {
             Log::error('Erro ao processar documento NFSe da SEFAZ', [
                 'issuer_id' => $this->issuer->id,
@@ -99,6 +98,7 @@ class SefazNfseProcessDocumentJob implements ShouldQueue
             'numero' => (int) ($xmlObj->infNFSe->nNFSe ?? 0),
             'codigo_verificacao' => (string) ($xmlObj->infNFSe->DPS->infDPS->codVerif ?? null),
             'chave' => $chave,
+            'origem' => $this->documento['origem'] ?? 'SEFAZ',
             'valor_servico' => (float) ($xmlObj->infNFSe->valores->vLiq ?? null),
             'data_emissao' => $dataEmissao,
             'prestador_cnpj' => (string) ($xmlObj->infNFSe->emit->CNPJ ?? $xmlObj->infNFSe->emit->CPF ?? null),
@@ -140,18 +140,20 @@ class SefazNfseProcessDocumentJob implements ShouldQueue
             $dhEvento = Carbon::parse($dataHoraGeracao);
         }
 
-        $cMotivo = (string) ($xmlObj->infEvento->pedRegEvento->infPedReg->e105103->cMotivo ?? $xmlObj->infEvento->pedRegEvento->infPedReg->e105102->cMotivo ?? $xmlObj->infEvento->pedRegEvento->infPedReg->e101101->cMotivo ?? null);        
-        LogSefazNfseEvent::updateOrCreate([
+        $cMotivo = (string) ($xmlObj->infEvento->pedRegEvento->infPedReg->e105103->cMotivo ?? $xmlObj->infEvento->pedRegEvento->infPedReg->e105102->cMotivo ?? $xmlObj->infEvento->pedRegEvento->infPedReg->e101101->cMotivo ?? null);
+        $log = LogSefazNfseEvent::updateOrCreate([
             'chave' => $chave,
             'c_motivo' => $cMotivo !== '' ? $cMotivo : null,
         ], [
             'dh_evento' => $dhEvento ?? now(),
-            'x_desc' => (string) ($xmlObj->infEvento->pedRegEvento->infPedReg->e105103->xDesc ?? $xmlObj->infEvento->pedRegEvento->infPedReg->e105102->xDesc ?? $xmlObj->infEvento->pedRegEvento->infPedReg->e101101->xDesc ??null),
+            'x_desc' => (string) ($xmlObj->infEvento->pedRegEvento->infPedReg->e105103->xDesc ?? $xmlObj->infEvento->pedRegEvento->infPedReg->e105102->xDesc ?? $xmlObj->infEvento->pedRegEvento->infPedReg->e101101->xDesc ?? null),
             'c_motivo' => $cMotivo !== '' ? $cMotivo : null,
-            'x_motivo' => (string) ($xmlObj->infEvento->pedRegEvento->infPedReg->e105103->xMotivo ?? $xmlObj->infEvento->pedRegEvento->infPedReg->e105102->xMotivo ?? $xmlObj->infEvento->pedRegEvento->infPedReg->e101101->xMotivo ??null),
+            'x_motivo' => (string) ($xmlObj->infEvento->pedRegEvento->infPedReg->e105103->xMotivo ?? $xmlObj->infEvento->pedRegEvento->infPedReg->e105102->xMotivo ?? $xmlObj->infEvento->pedRegEvento->infPedReg->e101101->xMotivo ?? null),
             'ch_substituta' => (string) ($xmlObj->infEvento->pedRegEvento->infPedReg->e105103->chSubstituta ?? $xmlObj->infEvento->pedRegEvento->infPedReg->e105102->chSubstituta ?? $xmlObj->infEvento->pedRegEvento->infPedReg->e101101->chSubstituta ?? null),
             'xml' => $xml,
         ]);
+
+        event(new NfseCancelada($log));
 
         $this->importJob->incrementNumEvents();
     }

@@ -7,6 +7,7 @@ use App\Models\GeneralSetting;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Actions\ActionGroup;
+use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Auth;
 use Filament\Actions\BulkActionGroup;
 use Filament\Support\Enums\Alignment;
@@ -15,6 +16,8 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Notifications\Notification;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Actions\SugerirEtiquetaAction;
 use App\Filament\Tables\Columns\TagBadgesColumn;
@@ -23,7 +26,7 @@ use App\Filament\Actions\ClassificarDocumentoAction;
 use App\Filament\Actions\RemoverClassificaoNfeAction;
 use App\Filament\Actions\ToggleEscrituacaoEmLoteAction;
 use App\Filament\Actions\ClassificarDocumentoEmLoteAction;
-
+use Filament\Tables\Filters\TernaryFilter;
 
 class NfseEntradasTable
 {
@@ -112,8 +115,89 @@ class NfseEntradasTable
                     ->date('d/m/Y'),
             ])
             ->filters([
-                //
+                Filter::make('data_emissao')
+                    ->label('Data de Emissão')
+                    ->columnSpan(2)
+                    ->schema([
+                        DatePicker::make('data_emissao_inicio')
+                            ->label('Data Emissão Início')
+                            ->columnSpan(1),
+                        DatePicker::make('data_emissao_fim')
+                            ->label('Data Emissão Final')
+                            ->columnSpan(1),
+                    ])->columns(2)
+                    ->indicateUsing(function (array $data): ?string {
+                        if (empty($data['data_emissao_inicio']) && empty($data['data_emissao_fim'])) {
+                            return null;
+                        }
+
+                        $inicio = $data['data_emissao_inicio'] ? date('d/m/Y', strtotime($data['data_emissao_inicio'])) : '...';
+                        $fim = $data['data_emissao_fim'] ? date('d/m/Y', strtotime($data['data_emissao_fim'])) : '...';
+
+                        return "Emissão: {$inicio} até {$fim}";
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (! empty($data['data_emissao_inicio'])) {
+                            $query->whereDate('data_emissao', '>=', $data['data_emissao_inicio']);
+                        }
+                        if (! empty($data['data_emissao_fim'])) {
+                            $query->whereDate('data_emissao', '<=', $data['data_emissao_fim']);
+                        }
+
+                        return $query;
+                    }),
+
+                Filter::make('data_entrada')
+                    ->label('Data de Entrada')
+                    ->columnSpan(2)
+                    ->schema([
+                        DatePicker::make('data_entrada_inicio')
+                            ->label('Data Entrada Início')
+                            ->columnSpan(1),
+                        DatePicker::make('data_entrada_fim')
+                            ->label('Data Entrada Final')
+                            ->columnSpan(1),
+                    ])->columns(2)
+                    ->indicateUsing(function (array $data): ?string {
+                        if (empty($data['data_entrada_inicio']) && empty($data['data_entrada_fim'])) {
+                            return null;
+                        }
+
+                        $inicio = $data['data_entrada_inicio'] ? date('d/m/Y', strtotime($data['data_entrada_inicio'])) : '...';
+                        $fim = $data['data_entrada_fim'] ? date('d/m/Y', strtotime($data['data_entrada_fim'])) : '...';
+
+                        return "Entrada: {$inicio} até {$fim}";
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (! empty($data['data_entrada_inicio'])) {
+                            $query->whereDate('data_entrada', '>=', $data['data_entrada_inicio']);
+                        }
+                        if (! empty($data['data_entrada_fim'])) {
+                            $query->whereDate('data_entrada', '<=', $data['data_entrada_fim']);
+                        }
+
+                        return $query;
+                    }),
+
+                TernaryFilter::make('status_nota')
+                    ->label('Nota Ativa')
+                    ->columnSpan(1)
+                    ->placeholder('Todos')
+                    ->trueLabel('Sim')
+                    ->falseLabel('Não')
+                    ->query(function (Builder $query, array $data): Builder {
+                        if ($data['value'] === null) {
+                            return $query;
+                        }
+
+                        return $data['value']
+                            ? $query->where('cancelada', false)
+                            : $query->where('cancelada', true);
+                    }),
             ])
+            ->filtersFormColumns(4)
+            ->persistFiltersInSession()
+            ->deferFilters(true)
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make()

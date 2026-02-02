@@ -24,6 +24,7 @@ class NotaFiscalServico extends Model
     protected $casts = [
         'data_emissao' => 'datetime',
         'import_data' => 'array',
+        'cancelada' => 'boolean',
     ];
 
     private bool $nfseXmlDataLoaded = false;

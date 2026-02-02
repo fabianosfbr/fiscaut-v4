@@ -1,7 +1,5 @@
 <?php
 
-use DOMDocument;
-use SimpleXMLElement;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -174,5 +172,4 @@ if (! function_exists('prettyPrintXmlToBrowser')) {
         echo nl2br(str_replace(' ', '&nbsp;', htmlspecialchars($xmlString)));
     }
 }
-
 

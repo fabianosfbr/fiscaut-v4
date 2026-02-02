@@ -3,43 +3,41 @@
 namespace App\Listeners;
 
 use App\Enums\StatusNfeEnum;
-use App\Events\NfeCancelada;
+use App\Events\NfseCancelada;
 use App\Models\NotaFiscalEletronica;
+use App\Models\NotaFiscalServico;
 use App\Services\Xml\XmlIdentifierService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 use NFePHP\NFe\Complements;
 
-class AtualizarStatusNfeCancelada implements ShouldQueue
+class AtualizarStatusNfseCancelada implements ShouldQueue
 {
     use InteractsWithQueue;
 
     /**
      * Handle the event.
      */
-    public function handle(NfeCancelada $event): void
+    public function handle(NfseCancelada $event): void
     {
 
         try {
             // Busca a nota fiscal pela chave de acesso
-            $notaFiscal = NotaFiscalEletronica::where('chave', $event->event->chave)
-                ->where('status_nota', '!=', StatusNfeEnum::CANCELADA)
+            $notaFiscal = NotaFiscalServico::where('chave', $event->event->chave)
+                ->where('cancelada', false)
                 ->first();
 
             if ($notaFiscal) {
 
-                $detalhes = XmlIdentifierService::obterDetalhesEvento($event->event->xml);
-
-                if ($detalhes['tpEvento'] == 110111) {
-                    $xml = Complements::cancelRegister(gzuncompress($notaFiscal->xml), $event->event->xml);
+                if (str_contains(strtolower($event->event->x_desc), 'cancelamento')) {
+                    
                     $notaFiscal->updateQuietly([
-                        'xml' => gzcompress($xml),
-                        'status_nota' => StatusNfeEnum::CANCELADA,
+                        'cancelada' => true,
                     ]);
                 }
 
-                Log::info('Status da NFe atualizado para CANCELADA', [
+                Log::info('Status da NFS-e atualizado para CANCELADA', [
                     'chave_acesso' => $event->event->chave,
                     'issuer_id' => $event->event->issuer_id,
                     'tenant_id' => $event->event->tenant_id,
@@ -47,7 +45,7 @@ class AtualizarStatusNfeCancelada implements ShouldQueue
             }
         } catch (\Exception $e) {
             Log::error('Erro ao atualizar status da NFe cancelada', [
-                'chave_acesso' => $event->event->chave,
+                'chave' => $event->event->chave,
                 'error' => $e->getMessage(),
                 'issuer_id' => $event->event->issuer_id,
                 'tenant_id' => $event->event->tenant_id,

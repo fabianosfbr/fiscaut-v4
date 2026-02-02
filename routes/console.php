@@ -1,13 +1,19 @@
 <?php
 
 use App\Console\Scheduling\DynamicTaskCommandExecutor;
+use App\Events\NfseCancelada;
+use App\Models\LogSefazNfseEvent;
 use App\Models\NotaFiscalEletronica;
 use Illuminate\Support\Facades\Artisan;
 
-Artisan::command('play', function () {
-    $nfe = NotaFiscalEletronica::find(522811);
 
-    dd($nfe->calcularDifalProdutos());
+Artisan::command('play', function () {
+
+    $logs = LogSefazNfseEvent::get();
+
+    foreach ($logs as $log) {
+        event(new NfseCancelada($log));
+    }
 });
 
 Artisan::command('schedule:run-dynamic {--force}', function () {
