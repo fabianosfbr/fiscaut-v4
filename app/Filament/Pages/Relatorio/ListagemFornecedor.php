@@ -34,6 +34,7 @@ class ListagemFornecedor extends Page implements HasActions, HasSchemas, HasTabl
     public function table(Table $table): Table
     {
         return $table
+            ->recordUrl(null)
             ->query(function () {
                 $issuer = Auth::user()->currentIssuer;
                 $baseQuery = NotaFiscalEletronica::query()

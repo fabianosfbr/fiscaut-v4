@@ -34,6 +34,7 @@ class ListagemCliente extends Page implements HasActions, HasSchemas, HasTable
     public function table(Table $table): Table
     {
         return $table
+         ->recordUrl(null)
             ->query(function () {
                 $issuer = Auth::user()->currentIssuer;
                 $baseQuery = NotaFiscalEletronica::query()
