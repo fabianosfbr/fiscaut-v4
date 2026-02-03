@@ -15,9 +15,9 @@ return new class extends Migration
     {
         Schema::create('feature_consumptions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedDecimal('consumption')->nullable();
+            $table->decimal('consumption', 10, 4)->nullable();
             $table->timestamp('expired_at')->nullable();
-            $table->foreignIdFor(\LucasDotVin\Soulbscription\Models\Feature::class)->constrained()->cascadeOnDelete();
+            $table->foreignId('feature_id')->constrained('features')->cascadeOnDelete();
             $table->timestamps();
 
             if (config('soulbscription.models.subscriber.uses_uuid')) {

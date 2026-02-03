@@ -11,6 +11,8 @@ class FiscalDashboardKpis extends StatsOverviewWidget
 {
     // protected ?string $heading = 'Documentos do mês';
 
+    protected static ?int $sort = 1;
+
     protected function getStats(): array
     {
         $user = Auth::user();

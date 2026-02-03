@@ -12,9 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('tenants', function (Blueprint $table) {
-
-            $table->dropForeign('tenants_plan_id_foreign');
-            $table->dropColumn('plan_id');
+            if (Schema::hasColumn('tenants', 'plan_id')) {
+                $table->dropForeign(['plan_id']);
+                $table->dropColumn('plan_id');
+            }
 
         });
     }
@@ -24,8 +25,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('tenant', function (Blueprint $table) {
-            //
+        Schema::table('tenants', function (Blueprint $table) {
         });
     }
 };

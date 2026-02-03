@@ -2,15 +2,16 @@
 
 namespace App\Services\DashboardFiscal;
 
-use App\Jobs\DashboardFiscal\AggregateMonthlyFiscalStatsJob;
+use Throwable;
 use App\Models\User;
 use App\Models\Tenant;
-use Carbon\CarbonImmutable;
-use Filament\Notifications\Notification;
 use Illuminate\Bus\Batch;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
-use Throwable;
+use Filament\Notifications\Notification;
+use App\Jobs\DashboardFiscal\AggregateMonthlyFiscalStatsJob;
+use App\Jobs\DashboardFiscal\AggregateMonthlyFiscalFinancialStatsJob;
 
 class FiscalDashboardEtlService
 {
@@ -48,7 +49,7 @@ class FiscalDashboardEtlService
                 ]);
             })
             ->dispatch();
-        
+
         $batchIds[] = $batch->id;
 
         return $batchIds;
@@ -56,28 +57,35 @@ class FiscalDashboardEtlService
 
     private function buildTenantJobs(int $tenantId, array $months, ?string $issuerCnpj): array
     {
-        $metrics = [
+        $dimensions = [
             ['doc_tipo' => 'nfe', 'tipo' => 'saida'],
             ['doc_tipo' => 'nfe', 'tipo' => 'entrada'],
             ['doc_tipo' => 'cte', 'tipo' => 'saida'],
             ['doc_tipo' => 'cte', 'tipo' => 'entrada'],
             ['doc_tipo' => 'cte', 'tipo' => 'tomador'],
             ['doc_tipo' => 'nfse', 'tipo' => 'tomador'],
+            ['doc_tipo' => 'nfse', 'tipo' => 'saida'],
         ];
 
         $jobs = [];
 
         foreach ($months as $monthKey) {
-            foreach ($metrics as $metric) {
+            foreach ($dimensions as $dim) {
                 $jobs[] = (new AggregateMonthlyFiscalStatsJob(
                     tenantId: $tenantId,
                     monthKey: $monthKey,
-                    docTipo: $metric['doc_tipo'],
-                    tipo: $metric['tipo'],
+                    docTipo: $dim['doc_tipo'],
+                    tipo: $dim['tipo'],
                     issuerCnpj: $issuerCnpj,
                 ))->onQueue('low');
 
-                //ds('Job: ' . $monthKey . ' ' . $metric['doc_tipo'] . ' ' . $metric['tipo']);
+                $jobs[] = (new AggregateMonthlyFiscalFinancialStatsJob(
+                    tenantId: $tenantId,
+                    monthKey: $monthKey,
+                    docTipo: $dim['doc_tipo'],
+                    tipo: $dim['tipo'],
+                    issuerCnpj: $issuerCnpj,
+                ))->onQueue('low');
             }
         }
 

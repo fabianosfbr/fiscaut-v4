@@ -16,6 +16,7 @@ class FiscalDashboardReadService
                 ->where('tenant_id', $tenantId)
                 ->where('issuer', $issuerCnpj)
                 ->where('periodo', 'mensal')
+                ->where('metrica', 'qtd')
                 ->where('data', $monthKey)
                 ->whereIn('doc_tipo', ['nfe', 'cte', 'nfse'])
                 ->get(['doc_tipo', 'tipo', 'valor']);
@@ -52,6 +53,7 @@ class FiscalDashboardReadService
                 ->where('tenant_id', $tenantId)
                 ->where('issuer', $issuerCnpj)
                 ->where('periodo', 'mensal')
+                ->where('metrica', 'qtd')
                 ->whereIn('data', $monthKeys)
                 ->whereIn('doc_tipo', ['nfe', 'cte', 'nfse'])
                 ->get(['data', 'doc_tipo', 'tipo', 'valor']);
@@ -95,4 +97,3 @@ class FiscalDashboardReadService
         });
     }
 }
-

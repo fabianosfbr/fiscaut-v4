@@ -55,6 +55,7 @@ class AggregateMonthlyFiscalStatsJob implements ShouldQueue
                     'periodo' => 'mensal',
                     'doc_tipo' => $this->docTipo,
                     'tipo' => $this->tipo,
+                    'metrica' => 'qtd',
                     'data' => $this->monthKey,
                 ],
                 [
@@ -80,6 +81,7 @@ class AggregateMonthlyFiscalStatsJob implements ShouldQueue
         return match ($this->tipo) {
             'saida' => ['nfes', 'emitente_cnpj', 'data_emissao'],
             'entrada' => ['nfes', 'destinatario_cnpj', 'data_emissao'],
+            'tomador' => ['ctes', 'tomador_cnpj', 'data_emissao'],
             default => throw new \InvalidArgumentException("tipo inválido para nfe: {$this->tipo}"),
         };
     }
@@ -98,6 +100,7 @@ class AggregateMonthlyFiscalStatsJob implements ShouldQueue
     {
         return match ($this->tipo) {
             'tomador' => ['nfses', 'tomador_cnpj', 'data_emissao'],
+            'saida' => ['nfses', 'prestador_cnpj', 'data_emissao'],
             default => throw new \InvalidArgumentException("tipo inválido para nfse: {$this->tipo}"),
         };
     }

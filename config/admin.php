@@ -25,6 +25,8 @@ return [
         '8' => 'Planilhas de controle',
     ],
 
+    'min_days_to_display' => 15,
+    'min_months_to_display' => 12,
     'cnpj_ja_api_key' => env('CNPJ_JA_API_KEY'),
     'sieg_api_key' => env('SIEG_API_KEY'),
     'sieg_url' => env('SIEG_URL'),
