@@ -1,0 +1,58 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Models\Issuer;
+use Carbon\CarbonImmutable;
+use Illuminate\Console\Command;
+use App\Services\DashboardFiscal\FiscalDashboardEtlService;
+
+class IssuerStatiticUpdate extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'app:issuer-statitic-update {--issuer=} {--from=} {--to=}';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Atualiza estatísticas mensais (cache) do dashboard fiscal em batch';
+
+    /**
+     * Execute the console command.
+     */
+    public function handle()
+    {
+
+        $issuer = $this->option('issuer');
+        $from = $this->option('from');
+        $to = $this->option('to');
+        
+
+        $issuerCnpj = is_string($issuer) && $issuer !== '' ? $issuer : null;
+        $fromMonth = is_string($from) && $from !== '' ? $from : now()->toImmutable()->startOfMonth()->format('Y-m');
+        $toMonth = is_string($to) && $to !== '' ? $to : now()->toImmutable()->startOfMonth()->format('Y-m');
+
+        $issuers = Issuer::with('tenant')
+            ->where('is_enabled', true)
+            ->when($issuerCnpj !== null, fn($q) => $q->where('cnpj', $issuerCnpj))
+            ->get();
+
+        foreach ($issuers as $issuer) {
+            // Dispatch the batch job
+            app(FiscalDashboardEtlService::class)
+                ->dispatchMonthlyRefresh(
+                    tenantId: $issuer->tenant_id,
+                    issuerCnpj: $issuer->cnpj,
+                    fromMonth: $fromMonth,
+                    toMonth: $toMonth,
+                );
+        }
+
+    }
+}
