@@ -579,45 +579,134 @@ class StatisticData
 
 
 
-    public static function produtosMaisVendidos($issuer, $activeFilter)
+    public static function produtosMaisVendidos($issuer)
     {
-        $values = [];
+        $tenantId = (int) ($issuer->tenant_id ?? 0);
+        $issuerCnpj = (string) ($issuer->cnpj ?? '');
 
-        // $totalSeller = NotaFiscalEletronica::leftJoin('nfe_products', 'nfes.id', '=', 'nfe_products.nfe_id')
-        //     ->where('emitente_cnpj', $issuer->cnpj)
-        //     ->where('data_emissao', '>=', $activeFilter)
-        //     ->sum('nfe_products.valor_total');
-
-        $productSeller = NotaFiscalEletronica::leftJoin('nfe_products', 'nfes.id', '=', 'nfe_products.nfe_id')
-            ->select(
-                DB::raw('(sum(nfe_products.valor_total)) as total'),
-                DB::raw('(sum(nfe_products.quantidade)) as amount'),
-                'codigo_produto',
-                'descricao_produto',
-
-            )
-
-            ->where('emitente_cnpj', $issuer->cnpj)
-            ->where('status_nota', 100)
-            ->where('data_emissao', '>=', $activeFilter)
-            ->orderBy('total', 'desc')
-            ->groupBy('nfe_products.codigo_produto')
-            ->groupBy('nfe_products.quantidade')
-            ->groupBy('nfe_products.descricao_produto')
-            ->limit(15)
-            ->get();
-
-        foreach ($productSeller as $row) {
-
-            $values[] = [
-                // 'total' => 'R$ ' . number_format($row->total, 2, ',', '.') . ' (' . number_format($row->total / $totalSeller * 100, 2, ',', '.') . '%)',
-                'total' => $row->total,
-                'label' => $row->descricao_produto,
-                'amount' => $row->amount,
-            ];
+        if ($tenantId <= 0 || $issuerCnpj === '') {
+            return [];
         }
 
-        return $values;
+        $startDate = now()->subMonths(12)->startOfDay();
+        try {
+            $cacheKey = sprintf(
+                'dashboard_fiscal:produtos_mais_vendidos:tenant=%d:issuer=%s:since=%s:limit=%d',
+                $tenantId,
+                $issuerCnpj,
+                $startDate->toDateString(),
+                15,
+            );
+
+            return Cache::remember($cacheKey, now()->addMinutes(120), function () use ($tenantId, $issuerCnpj, $startDate) {
+                $accumulator = [];
+
+                NotaFiscalEletronica::query()
+                    ->where('tenant_id', $tenantId)
+                    ->where('emitente_cnpj', $issuerCnpj)
+                    ->where('status_nota', 100)
+                    ->where('data_emissao', '>=', $startDate)
+                    ->orderBy('id')
+                    ->select(['id', 'xml'])
+                    ->chunkById(200, function ($nfes) use (&$accumulator) {
+                        foreach ($nfes as $nfe) {
+                            $items = $nfe->produtos ?? [];
+                            if (! is_array($items) || $items === []) {
+                                continue;
+                            }
+
+                            self::accumulateProdutosMaisVendidos($accumulator, $items);
+                        }
+                    });
+
+                return self::finalizeProdutosMaisVendidos($accumulator, 15);
+            });
+        } catch (\Throwable $e) {
+            Log::error('Falha ao calcular produtos mais vendidos a partir do XML da NF-e', [
+                'tenant_id' => $tenantId,
+                'issuer' => $issuerCnpj,
+                'error' => $e->getMessage(),
+            ]);
+
+            return [];
+        }
+    }
+
+    public static function produtosMaisVendidosFromXmlItens(array $produtosPorNfe, int $limit = 15): array
+    {
+        $accumulator = [];
+
+        foreach ($produtosPorNfe as $items) {
+            if (! is_array($items) || $items === []) {
+                continue;
+            }
+
+            self::accumulateProdutosMaisVendidos($accumulator, $items);
+        }
+
+        return self::finalizeProdutosMaisVendidos($accumulator, $limit);
+    }
+
+    private static function accumulateProdutosMaisVendidos(array &$accumulator, array $items): void
+    {
+        foreach ($items as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $codigo = trim((string) ($item['cProd'] ?? ''));
+            $descricao = trim((string) ($item['xProd'] ?? ''));
+
+            if ($codigo === '' && $descricao === '') {
+                continue;
+            }
+
+            $key = $codigo !== ''
+                ? $codigo
+                : (function_exists('mb_strtolower') ? mb_strtolower($descricao) : strtolower($descricao));
+
+            if (! array_key_exists($key, $accumulator)) {
+                $accumulator[$key] = [
+                    'label' => $descricao !== '' ? $descricao : $codigo,
+                    'amount' => 0.0,
+                    'total' => 0.0,
+                ];
+            } elseif ($accumulator[$key]['label'] === '' && $descricao !== '') {
+                $accumulator[$key]['label'] = $descricao;
+            }
+
+            $accumulator[$key]['amount'] += self::normalizeMoney($item['qCom'] ?? null);
+            $accumulator[$key]['total'] += self::normalizeMoney($item['vProd'] ?? null);
+        }
+    }
+
+    private static function finalizeProdutosMaisVendidos(array $accumulator, int $limit): array
+    {
+        $rows = array_values($accumulator);
+
+        usort($rows, function (array $a, array $b) {
+            $aAmount = (float) ($a['amount'] ?? 0.0);
+            $bAmount = (float) ($b['amount'] ?? 0.0);
+
+            if ($aAmount === $bAmount) {
+                $aTotal = (float) ($a['total'] ?? 0.0);
+                $bTotal = (float) ($b['total'] ?? 0.0);
+
+                return $bTotal <=> $aTotal;
+            }
+
+            return $bAmount <=> $aAmount;
+        });
+
+        $rows = array_slice($rows, 0, max(0, $limit));
+
+        return array_map(function (array $row) {
+            return [
+                'total' => self::normalizeMoney($row['total'] ?? 0.0),
+                'label' => (string) ($row['label'] ?? ''),
+                'amount' => self::normalizeMoney($row['amount'] ?? 0.0),
+            ];
+        }, $rows);
     }
 
     public static function topClientes($issuer, $activeFilter)
