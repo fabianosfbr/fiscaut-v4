@@ -29,8 +29,8 @@ class EntradaVsImpostoPageTest extends TestCase
                 ],
             ]);
 
-        $page = new EntradaVsImposto();
-        $page->generateData(new Issuer());
+        $page = new EntradaVsImposto;
+        $page->generateData(new Issuer);
 
         $this->assertArrayHasKey('01-2026', $page->faturamento);
 
@@ -51,10 +51,9 @@ class EntradaVsImpostoPageTest extends TestCase
 
     public function test_generate_data_with_null_issuer_keeps_empty_array(): void
     {
-        $page = new EntradaVsImposto();
+        $page = new EntradaVsImposto;
         $page->generateData(null);
 
         $this->assertSame([], $page->faturamento);
     }
 }
-

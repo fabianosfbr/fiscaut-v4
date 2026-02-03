@@ -2,12 +2,12 @@
 
 namespace App\Filament\Pages\Relatorio;
 
-use UnitEnum;
-use App\Models\Issuer;
-use Filament\Pages\Page;
-use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Auth;
 use App\Filament\Widgets\StatisticData;
+use App\Models\Issuer;
+use Filament\Notifications\Notification;
+use Filament\Pages\Page;
+use Illuminate\Support\Facades\Auth;
+use UnitEnum;
 
 class Faturamento extends Page
 {

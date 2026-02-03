@@ -2,16 +2,13 @@
 
 namespace App\Services\DashboardFiscal;
 
-use Throwable;
-use App\Models\User;
-use App\Models\Tenant;
-use Illuminate\Bus\Batch;
+use App\Jobs\DashboardFiscal\AggregateMonthlyFiscalFinancialStatsJob;
+use App\Jobs\DashboardFiscal\AggregateMonthlyFiscalStatsJob;
 use Carbon\CarbonImmutable;
+use Illuminate\Bus\Batch;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
-use Filament\Notifications\Notification;
-use App\Jobs\DashboardFiscal\AggregateMonthlyFiscalStatsJob;
-use App\Jobs\DashboardFiscal\AggregateMonthlyFiscalFinancialStatsJob;
+use Throwable;
 
 class FiscalDashboardEtlService
 {
@@ -88,8 +85,6 @@ class FiscalDashboardEtlService
                 ))->onQueue('low');
             }
         }
-
-
 
         return $jobs;
     }

@@ -2,8 +2,8 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\StatisticIssuer;
 use App\Models\NotaFiscalEletronica;
+use App\Models\StatisticIssuer;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -14,8 +14,6 @@ class StatisticData
     /**
      * Retorna série mensal a partir do cache persistente em `statistic_issuers`.
      *
-     * @param  int  $tenantId
-     * @param  string  $issuerCnpj
      * @param  array<int, string>  $monthKeys  Lista de meses no formato `YYYY-MM`.
      * @param  string  $docTipo  Ex.: nfe, cte, nfse.
      * @param  string  $tipo  Ex.: entrada, saida, tomador.
@@ -74,8 +72,6 @@ class StatisticData
     /**
      * Série mensal com filtro de categoria fiscal sem persistência no banco.
      *
-     * @param  int  $tenantId
-     * @param  string  $issuerCnpj
      * @param  array<int, string>  $monthKeys  Lista de meses no formato `YYYY-MM`.
      * @param  string  $tipo  entrada|saida
      * @param  string  $categoria  Ex.: faturamento ou anexo:II.
@@ -577,8 +573,6 @@ class StatisticData
         return $months;
     }
 
-
-
     public static function produtosMaisVendidos($issuer)
     {
         $tenantId = (int) ($issuer->tenant_id ?? 0);
@@ -726,7 +720,6 @@ class StatisticData
             ->limit(15)
             ->get();
 
-
         return $topClient;
     }
 
@@ -746,7 +739,6 @@ class StatisticData
             ->groupBy('emitente_razao_social')
             ->limit(15)
             ->get();
-
 
         return $topFornecedores;
     }
@@ -827,8 +819,6 @@ class StatisticData
         );
     }
 
-
-
     public function getSaidaMensalNfe($issuer)
     {
         $min_config = config('admin.min_months_to_display');
@@ -843,7 +833,6 @@ class StatisticData
             metrica: 'valor_total',
         );
     }
-
 
     public function getCteEntradaMensal($issuer)
     {

@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Relatorios;
 
-use PHPUnit\Framework\TestCase;
 use App\Services\Relatorios\ListagemProdutosService;
+use PHPUnit\Framework\TestCase;
 
 class ListagemProdutosServiceTest extends TestCase
 {
@@ -75,4 +75,3 @@ class ListagemProdutosServiceTest extends TestCase
         $this->assertSame(1, $semCodigo['itens']);
     }
 }
-

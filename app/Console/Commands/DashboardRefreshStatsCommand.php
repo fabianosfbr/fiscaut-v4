@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Models\Issuer;
-use Illuminate\Console\Command;
 use App\Services\DashboardFiscal\FiscalDashboardEtlService;
+use Illuminate\Console\Command;
 
 class DashboardRefreshStatsCommand extends Command
 {
@@ -18,14 +18,13 @@ class DashboardRefreshStatsCommand extends Command
         $from = $this->option('from');
         $to = $this->option('to');
 
-
         $issuerCnpj = is_string($issuer) && $issuer !== '' ? $issuer : null;
         $fromMonth = is_string($from) && $from !== '' ? $from : now()->toImmutable()->startOfMonth()->format('Y-m');
         $toMonth = is_string($to) && $to !== '' ? $to : now()->toImmutable()->startOfMonth()->format('Y-m');
 
         $issuers = Issuer::with('tenant')
             ->where('is_enabled', true)
-            ->when($issuerCnpj !== null, fn($q) => $q->where('cnpj', $issuerCnpj))
+            ->when($issuerCnpj !== null, fn ($q) => $q->where('cnpj', $issuerCnpj))
             ->get();
 
         foreach ($issuers as $issuer) {

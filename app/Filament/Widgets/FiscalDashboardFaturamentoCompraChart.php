@@ -2,11 +2,8 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Issuer;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Auth;
-use App\Filament\Widgets\StatisticData;
-
 
 class FiscalDashboardFaturamentoCompraChart extends ChartWidget
 {

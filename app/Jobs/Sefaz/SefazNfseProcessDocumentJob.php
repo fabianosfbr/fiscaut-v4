@@ -2,20 +2,20 @@
 
 namespace App\Jobs\Sefaz;
 
-use App\Models\Issuer;
-use Illuminate\Support\Str;
-use App\Models\XmlImportJob;
 use App\Events\NfseCancelada;
-use Illuminate\Bus\Batchable;
-use Illuminate\Bus\Queueable;
-use Illuminate\Support\Carbon;
+use App\Models\Issuer;
 use App\Models\LogSefazNfseEvent;
 use App\Models\NotaFiscalServico;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\XmlImportJob;
+use Illuminate\Bus\Batchable;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class SefazNfseProcessDocumentJob implements ShouldQueue
 {

@@ -48,4 +48,3 @@ class StatisticDataProdutosMaisVendidosTest extends TestCase
         $this->assertSame('A', $rows[0]['label']);
     }
 }
-

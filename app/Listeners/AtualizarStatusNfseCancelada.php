@@ -2,15 +2,11 @@
 
 namespace App\Listeners;
 
-use App\Enums\StatusNfeEnum;
 use App\Events\NfseCancelada;
-use App\Models\NotaFiscalEletronica;
 use App\Models\NotaFiscalServico;
-use App\Services\Xml\XmlIdentifierService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
-use NFePHP\NFe\Complements;
 
 class AtualizarStatusNfseCancelada implements ShouldQueue
 {
@@ -31,7 +27,7 @@ class AtualizarStatusNfseCancelada implements ShouldQueue
             if ($notaFiscal) {
 
                 if (str_contains(strtolower($event->event->x_desc), 'cancelamento')) {
-                    
+
                     $notaFiscal->updateQuietly([
                         'cancelada' => true,
                     ]);

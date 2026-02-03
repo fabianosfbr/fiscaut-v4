@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Throwable;
 use App\Enums\StatusCteEnum;
 use App\Models\Traits\HasTags;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 use App\Services\Xml\XmlReaderService;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class ConhecimentoTransporteEletronico extends Model
 {
@@ -540,14 +540,14 @@ class ConhecimentoTransporteEletronico extends Model
             return null;
         }
 
-        $texto = trim(($logradouro ?? '') . ($numero !== null ? ', ' . $numero : ''));
+        $texto = trim(($logradouro ?? '').($numero !== null ? ', '.$numero : ''));
 
         if ($complemento !== null) {
-            $texto .= ', ' . $complemento;
+            $texto .= ', '.$complemento;
         }
 
         if ($bairro !== null) {
-            $texto .= ', ' . $bairro;
+            $texto .= ', '.$bairro;
         }
 
         return trim($texto) === '' ? null : $texto;
@@ -655,7 +655,7 @@ class ConhecimentoTransporteEletronico extends Model
 
         $query->join('nfes', function ($join) use ($issuer) {
             $join->on('ctes.nfe_chave', '=', 'nfes.chave');
-            $join->on('nfes.destinatario_cnpj', '=', DB::raw("'" . $issuer . "'"));
+            $join->on('nfes.destinatario_cnpj', '=', DB::raw("'".$issuer."'"));
         })
             ->select('ctes.*', 'nfes.chave as chave_nfe');
 
@@ -667,13 +667,12 @@ class ConhecimentoTransporteEletronico extends Model
 
         $query->join('nfes', function ($join) use ($issuer) {
             $join->on('ctes.nfe_chave', '=', 'nfes.chave');
-            $join->on('nfes.emitente_cnpj', '=', DB::raw("'" . $issuer . "'"));
+            $join->on('nfes.emitente_cnpj', '=', DB::raw("'".$issuer."'"));
         })
             ->select('ctes.*', 'nfes.chave as chave_nfe');
 
         return $query;
     }
-
 
     public function apurada()
     {
@@ -691,7 +690,7 @@ class ConhecimentoTransporteEletronico extends Model
             return (bool) $apuracao->status;
         }
 
-        return (bool)  false;
+        return (bool) false;
     }
 
     public function toggleApuracao(Issuer $issuer): bool
@@ -719,7 +718,7 @@ class ConhecimentoTransporteEletronico extends Model
         return $newStatus;
     }
 
-        public function retag(string $tag)
+    public function retag(string $tag)
     {
         $this->untag();
         $this->tag($tag, $this->vCTe);

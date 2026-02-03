@@ -2,14 +2,14 @@
 
 namespace App\Filament\Actions;
 
-use Filament\Actions\Action;
+use App\Models\ConhecimentoTransporteEletronico;
 use App\Models\GeneralSetting;
 use App\Models\NotaFiscalEletronica;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Notifications\Notification;
-use App\Models\ConhecimentoTransporteEletronico;
 
 class RemoverClassificaoNfeAction
 {
@@ -24,7 +24,6 @@ class RemoverClassificaoNfeAction
             ->modalSubmitActionLabel('Sim, remover')
             ->action(function (array $data, Model $record) {
 
-
                 self::removeSameTagToCte($record);
 
                 $record->untag();
@@ -32,8 +31,7 @@ class RemoverClassificaoNfeAction
                     'data_entrada' => null,
                 ]);
 
-                Cache::forget('tags_used_in_nfe_' . Auth::user()->currentIssuer->id);
-
+                Cache::forget('tags_used_in_nfe_'.Auth::user()->currentIssuer->id);
 
                 Notification::make()
                     ->success()
@@ -69,7 +67,7 @@ class RemoverClassificaoNfeAction
                 }
             }
 
-            Cache::forget('tags_used_in_cte_' . Auth::user()->currentIssuer->id);
+            Cache::forget('tags_used_in_cte_'.Auth::user()->currentIssuer->id);
         }
     }
 }

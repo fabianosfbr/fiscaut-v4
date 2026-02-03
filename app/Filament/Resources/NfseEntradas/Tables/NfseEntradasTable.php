@@ -2,31 +2,27 @@
 
 namespace App\Filament\Resources\NfseEntradas\Tables;
 
-use Filament\Tables\Table;
-use App\Models\GeneralSetting;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
-use Filament\Actions\ActionGroup;
-use Filament\Tables\Filters\Filter;
-use Illuminate\Support\Facades\Auth;
-use Filament\Actions\BulkActionGroup;
-use Filament\Support\Enums\Alignment;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Notifications\Notification;
-use Filament\Forms\Components\DatePicker;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Actions\SugerirEtiquetaAction;
-use App\Filament\Tables\Columns\TagBadgesColumn;
-use App\Filament\Actions\ToggleEscrituracaoAction;
 use App\Filament\Actions\ClassificarDocumentoAction;
+use App\Filament\Actions\ClassificarDocumentoEmLoteAction;
 use App\Filament\Actions\RemoverClassificaoNfeAction;
 use App\Filament\Actions\ToggleEscrituacaoEmLoteAction;
-use App\Filament\Actions\ClassificarDocumentoEmLoteAction;
+use App\Filament\Actions\ToggleEscrituracaoAction;
+use App\Filament\Tables\Columns\TagBadgesColumn;
+use App\Models\GeneralSetting;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Notifications\Notification;
+use Filament\Support\Enums\Alignment;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class NfseEntradasTable
 {
@@ -70,12 +66,9 @@ class NfseEntradasTable
                     ->alignment(Alignment::Center)
                     ->toggleable(),
 
-
-
                 TextColumn::make('valor_servico')
                     ->label('Valor')
                     ->money('BRL'),
-
 
                 TextColumn::make('data_entrada')
                     ->label('Entrada')
@@ -106,7 +99,6 @@ class NfseEntradasTable
                         return $record->cancelada ? 'Cancelada' : 'Ativa';
                     })
                     ->badge(),
-
 
                 TextColumn::make('data_emissao')
                     ->label('Emissão')

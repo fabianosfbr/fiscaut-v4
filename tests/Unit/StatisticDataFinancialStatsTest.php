@@ -65,4 +65,3 @@ class StatisticDataFinancialStatsTest extends TestCase
         $this->assertSame(0.0, $stats['comparativos']['yoy']['pct']);
     }
 }
-

@@ -2,18 +2,18 @@
 
 namespace App\Filament\Pages\Relatorio;
 
-use UnitEnum;
-use Filament\Pages\Page;
-use Filament\Tables\Table;
 use App\Models\NotaFiscalEletronica;
-use Illuminate\Support\Facades\Auth;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Actions\Contracts\HasActions;
-use Filament\Schemas\Contracts\HasSchemas;
-use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
+use Filament\Pages\Page;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
+use UnitEnum;
 
 class ListagemFornecedor extends Page implements HasActions, HasSchemas, HasTable
 {
@@ -50,7 +50,7 @@ class ListagemFornecedor extends Page implements HasActions, HasSchemas, HasTabl
                     ->orderByDesc('total');
             })
             ->columns([
-                 TextColumn::make('emitente_razao_social')
+                TextColumn::make('emitente_razao_social')
                     ->label('Razão Social')
                     ->searchable(),
                 TextColumn::make('emitente_cnpj')

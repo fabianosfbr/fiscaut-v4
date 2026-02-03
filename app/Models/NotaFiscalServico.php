@@ -4,18 +4,13 @@ namespace App\Models;
 
 use App\Models\Traits\HasTags;
 use App\Services\Xml\XmlReaderService;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Auth;
 use Throwable;
 
 class NotaFiscalServico extends Model
 {
-
     use HasTags;
-
 
     protected $table = 'nfses';
 
@@ -236,7 +231,7 @@ class NotaFiscalServico extends Model
 
     private function nfseGet(string ...$paths): mixed
     {
-        $data = $this->nfseRoot();   
+        $data = $this->nfseRoot();
         if (! is_array($data)) {
             return null;
         }
@@ -272,7 +267,6 @@ class NotaFiscalServico extends Model
         } catch (Throwable) {
             $this->nfseXmlData = null;
         }
-
 
         return $this->nfseXmlData;
     }

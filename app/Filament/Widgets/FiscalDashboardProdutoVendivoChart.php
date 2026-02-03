@@ -23,7 +23,6 @@ class FiscalDashboardProdutoVendivoChart extends ChartWidget
 
         $response = StatisticData::produtosMaisVendidos($issuer);
 
-
         $response = array_reverse($response);
 
         $data = [];
@@ -57,7 +56,6 @@ class FiscalDashboardProdutoVendivoChart extends ChartWidget
                         'rgba(235, 40, 194, 0.83)',
                     ],
 
-
                 ],
 
             ],
@@ -89,7 +87,6 @@ class FiscalDashboardProdutoVendivoChart extends ChartWidget
                         // 'color' => 'rgb(255, 99, 132)'
                     ],
                 ],
-
 
             ],
         ];

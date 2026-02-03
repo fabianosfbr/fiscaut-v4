@@ -14,7 +14,7 @@ class NotaFiscalEletronica extends Model
 {
     use HasTags;
 
-    protected $table = 'nfes';    
+    protected $table = 'nfes';
 
     protected $guarded = ['id'];
 

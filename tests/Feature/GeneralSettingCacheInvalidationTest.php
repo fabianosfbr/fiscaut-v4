@@ -42,4 +42,3 @@ class GeneralSettingCacheInvalidationTest extends TestCase
         $this->assertSame('default', $valueDefault);
     }
 }
-

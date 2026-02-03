@@ -49,7 +49,7 @@ class AtualizarStatusCteCancelada implements ShouldQueue
             Log::error('Erro ao atualizar status do CTE cancelada', [
                 'chave_acesso' => $event->event->chave,
                 'error' => $e->getMessage(),
-                'issuer_id' => $event->event->issuer_id,    
+                'issuer_id' => $event->event->issuer_id,
                 'tenant_id' => $event->event->tenant_id,
             ]);
 

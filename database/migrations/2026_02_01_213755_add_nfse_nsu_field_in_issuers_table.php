@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('issuers', function (Blueprint $table) {
             $table->integer('ult_nfse_nsu')->default(0)->after('ult_nsu_cte');
-            
+
         });
     }
 

@@ -107,4 +107,3 @@ class RelatorioEntradaSaidaChart extends ChartWidget
         ];
     }
 }
-

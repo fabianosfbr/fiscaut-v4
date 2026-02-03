@@ -16,18 +16,15 @@ class DownloadNfseJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 3;
-    
+
     public $backoff = 60; // 60 seconds
-    
+
     protected Issuer $issuer;
-    
+
     protected ?string $nsu;
 
     /**
      * Create a new job instance.
-     *
-     * @param  Issuer  $issuer
-     * @param  string|null  $nsu
      */
     public function __construct(Issuer $issuer, ?string $nsu = null)
     {
@@ -49,9 +46,9 @@ class DownloadNfseJob implements ShouldQueue
             ]);
 
             $service = new SefazNfseDownloadService($this->issuer);
-            
+
             $result = $service->downloadNfseInBatch($this->nsu);
-            
+
             Log::info('Job de download de NFSE concluído com sucesso', [
                 'issuer_id' => $this->issuer->id,
                 'issuer_nome' => $this->issuer->razao_social,
@@ -75,12 +72,11 @@ class DownloadNfseJob implements ShouldQueue
     /**
      * Handle a job failure.
      *
-     * @param  \Throwable  $exception
      * @return void
      */
     public function failed(\Throwable $exception)
     {
-        Log::error('Job de download de NFSE falhou após ' . $this->tries . ' tentativas', [
+        Log::error('Job de download de NFSE falhou após '.$this->tries.' tentativas', [
             'issuer_id' => $this->issuer->id,
             'error' => $exception->getMessage(),
             'trace' => $exception->getTraceAsString(),

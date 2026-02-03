@@ -2,17 +2,17 @@
 
 namespace App\Filament\Actions;
 
+use App\Filament\Forms\Components\SelectTagGrouped;
 use App\Models\CategoryTag;
-use Filament\Actions\Action;
+use App\Models\ConhecimentoTransporteEletronico;
 use App\Models\GeneralSetting;
 use App\Models\NotaFiscalEletronica;
+use Filament\Actions\Action;
+use Filament\Forms\Components\DatePicker;
+use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Notifications\Notification;
-use Filament\Forms\Components\DatePicker;
-use App\Models\ConhecimentoTransporteEletronico;
-use App\Filament\Forms\Components\SelectTagGrouped;
 
 class ClassificarDocumentoAction
 {
@@ -64,8 +64,7 @@ class ClassificarDocumentoAction
                     ]);
                 }
 
-                Cache::forget('tags_used_in_nfe_' . Auth::user()->currentIssuer->id);
-
+                Cache::forget('tags_used_in_nfe_'.Auth::user()->currentIssuer->id);
 
                 Notification::make()
                     ->success()
@@ -86,13 +85,12 @@ class ClassificarDocumentoAction
         );
 
         if ($isClassificarCteVinculadoANfe && $record instanceof NotaFiscalEletronica) {
-            //Aplica a mesma tag ao CTe do tomador
+            // Aplica a mesma tag ao CTe do tomador
             $nfeChave = trim((string) $record->chave);
 
             $ctes = ConhecimentoTransporteEletronico::query()
                 ->whereNfeChave($nfeChave)
                 ->get();
-
 
             if ($ctes->isNotEmpty()) {
                 foreach ($ctes as $cte) {
@@ -106,7 +104,7 @@ class ClassificarDocumentoAction
                 }
             }
 
-            Cache::forget('tags_used_in_cte_' . Auth::user()->currentIssuer->id);
+            Cache::forget('tags_used_in_cte_'.Auth::user()->currentIssuer->id);
         }
     }
 }

@@ -47,12 +47,12 @@ class NfeEntradaInfolist
                                     ]),
 
                                 Section::make('Etiquetas')
-                                    ->hidden(fn($record) => empty($record->tagNamesWithCodeAndValue()))
+                                    ->hidden(fn ($record) => empty($record->tagNamesWithCodeAndValue()))
                                     ->schema([
                                         TextEntry::make('tags')
                                             ->hiddenLabel()
                                             ->live()
-                                            ->state(fn($record) => collect($record->tagNamesWithCodeAndValue())->map(fn($tag) => "<li>{$tag}</li>")->implode(''))
+                                            ->state(fn ($record) => collect($record->tagNamesWithCodeAndValue())->map(fn ($tag) => "<li>{$tag}</li>")->implode(''))
                                             ->columnSpanFull()
                                             ->html(),
                                     ]),
@@ -69,7 +69,7 @@ class NfeEntradaInfolist
 
                                                 TextEntry::make('apurada.status')
                                                     ->label('Apurada')
-                                                    ->state(fn($record) => $record->apurada?->status ? 'Sim' : 'Não')
+                                                    ->state(fn ($record) => $record->apurada?->status ? 'Sim' : 'Não')
                                                     ->badge()
                                                     ->columnSpan(1),
 
@@ -77,7 +77,6 @@ class NfeEntradaInfolist
                                                     ->label('Origem')
                                                     ->columnSpan(1)
                                                     ->placeholder('Não informado'),
-
 
                                             ]),
                                     ])
@@ -99,7 +98,7 @@ class NfeEntradaInfolist
 
                                                 TextEntry::make('emitente_cnpj')
                                                     ->label('CNPJ Emitente')
-                                                    ->formatStateUsing(fn(string $state): string => formatar_cnpj_cpf($state)),
+                                                    ->formatStateUsing(fn (string $state): string => formatar_cnpj_cpf($state)),
 
                                                 TextEntry::make('vNfe')
                                                     ->label('Valor')
@@ -125,7 +124,7 @@ class NfeEntradaInfolist
                                                     ->label('Razão Social'),
                                                 TextEntry::make('destinatario_cnpj')
                                                     ->label('CNPJ')
-                                                    ->formatStateUsing(fn(string $state): string => formatar_cnpj_cpf($state)),
+                                                    ->formatStateUsing(fn (string $state): string => formatar_cnpj_cpf($state)),
                                                 TextEntry::make('destinatario_fone')
                                                     ->label('Telefone contato'),
                                                 TextEntry::make('endereco_destinatario_completo')
@@ -216,7 +215,7 @@ class NfeEntradaInfolist
                                         TextEntry::make('vICMSUFDest')
                                             ->label('Total DIFAL')
                                             ->money('BRL')
-                                            ->visible(fn($record) => $record->vICMSUFDest > 0)
+                                            ->visible(fn ($record) => $record->vICMSUFDest > 0)
                                             ->weight('bold'),
                                         DifalEntry::make('difals')
                                             ->hiddenLabel(),

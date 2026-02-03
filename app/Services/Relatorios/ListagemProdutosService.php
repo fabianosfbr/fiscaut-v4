@@ -111,4 +111,3 @@ class ListagemProdutosService
         return strtolower($value);
     }
 }
-

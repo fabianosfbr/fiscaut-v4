@@ -2,11 +2,10 @@
 
 namespace App\Filament\Resources\NfseEntradas\Pages;
 
-use Filament\Actions\Action;
-use Filament\Actions\EditAction;
-use Filament\Resources\Pages\ViewRecord;
 use App\Filament\Actions\ToggleEscrituracaoAction;
 use App\Filament\Resources\NfseEntradas\NfseEntradaResource;
+use Filament\Actions\Action;
+use Filament\Resources\Pages\ViewRecord;
 
 class ViewNfseEntrada extends ViewRecord
 {

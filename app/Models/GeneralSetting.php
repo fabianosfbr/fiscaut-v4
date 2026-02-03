@@ -180,7 +180,6 @@ class GeneralSetting extends Model
         }
 
         $cacheKey = self::getCacheKey($name, $issuerId, $tenantId);
-        
 
         try {
             return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($name, $issuerId, $tenantId) {

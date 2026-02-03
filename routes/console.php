@@ -3,9 +3,7 @@
 use App\Console\Scheduling\DynamicTaskCommandExecutor;
 use App\Events\NfseCancelada;
 use App\Models\LogSefazNfseEvent;
-use App\Models\NotaFiscalEletronica;
 use Illuminate\Support\Facades\Artisan;
-
 
 Artisan::command('play', function () {
 

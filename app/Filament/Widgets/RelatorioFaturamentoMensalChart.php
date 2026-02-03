@@ -54,4 +54,3 @@ class RelatorioFaturamentoMensalChart extends ChartWidget
         return 'bar';
     }
 }
-

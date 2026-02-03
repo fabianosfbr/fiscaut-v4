@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\NfseEntradas\Pages;
 
-use Filament\Support\Enums\Width;
-use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
 use App\Filament\Resources\NfseEntradas\NfseEntradaResource;
+use Filament\Resources\Pages\ListRecords;
+use Filament\Support\Enums\Width;
 
 class ListNfseEntradas extends ListRecords
 {

@@ -2,18 +2,18 @@
 
 namespace App\Filament\Pages\Relatorio;
 
-use UnitEnum;
-use Filament\Pages\Page;
-use Filament\Tables\Table;
 use App\Models\NotaFiscalEletronica;
-use Illuminate\Support\Facades\Auth;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Actions\Contracts\HasActions;
-use Filament\Schemas\Contracts\HasSchemas;
-use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
+use Filament\Pages\Page;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
+use UnitEnum;
 
 class ListagemCliente extends Page implements HasActions, HasSchemas, HasTable
 {
@@ -34,7 +34,7 @@ class ListagemCliente extends Page implements HasActions, HasSchemas, HasTable
     public function table(Table $table): Table
     {
         return $table
-         ->recordUrl(null)
+            ->recordUrl(null)
             ->query(function () {
                 $issuer = Auth::user()->currentIssuer;
                 $baseQuery = NotaFiscalEletronica::query()

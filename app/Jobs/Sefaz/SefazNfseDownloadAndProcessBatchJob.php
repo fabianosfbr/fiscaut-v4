@@ -76,4 +76,3 @@ class SefazNfseDownloadAndProcessBatchJob implements ShouldQueue
         ]);
     }
 }
-
