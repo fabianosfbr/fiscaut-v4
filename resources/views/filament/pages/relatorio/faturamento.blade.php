@@ -6,9 +6,9 @@
                     Gerar Declaração de Faturamento Mensal
                 </div>
 
-                <x-filament::button type="button" wire:click="gerarDeclaracao">
+                {{-- <x-filament::button type="button" wire:click="gerarDeclaracao">
                     Gerar
-                </x-filament::button>
+                </x-filament::button> --}}
             </div>
 
             <div class="mt-4">
