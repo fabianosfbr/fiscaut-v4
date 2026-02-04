@@ -32,6 +32,7 @@ class AliquotasRelationManager extends RelationManager
                     ->minValue(0)
                     ->step(0.01)
                     ->prefix('R$')
+                    ->currencyMask(thousandSeparator: '.', decimalSeparator: ',', precision: 2)
                     ->helperText('Valor inicial da faixa de receita bruta')
                     ->rules([
                         'required',
@@ -53,6 +54,7 @@ class AliquotasRelationManager extends RelationManager
                     ->minValue(0)
                     ->step(0.01)
                     ->prefix('R$')
+                    ->currencyMask(thousandSeparator: '.', decimalSeparator: ',', precision: 2)
                     ->helperText('Valor final da faixa de receita bruta')
                     ->rules([
                         'required',
@@ -102,6 +104,7 @@ class AliquotasRelationManager extends RelationManager
                     ->minValue(0)
                     ->step(0.01)
                     ->prefix('R$')
+                    ->currencyMask(thousandSeparator: '.', decimalSeparator: ',', precision: 2)
                     ->helperText('Valor a ser deduzido no cálculo do imposto')
                     ->default(0)
                     ->rules([

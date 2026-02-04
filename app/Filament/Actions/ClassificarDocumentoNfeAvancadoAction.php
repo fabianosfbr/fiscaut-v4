@@ -13,7 +13,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Grid;
-use Filament\Support\RawJs;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
@@ -124,14 +123,11 @@ class ClassificarDocumentoNfeAvancadoAction
                                 ->options(CategoryTag::getAllEnabled(Auth::user()->currentIssuer->id)),
 
                             TextInput::make('valor')
-                                ->label('Valor')
                                 ->prefix('R$')
-                                ->placeholder('0,00')
-                                ->mask(RawJs::make('$money($input, ",", ".", 2)'))
-                                ->formatStateUsing(fn ($state) => $state === null ? null : (is_numeric($state) ? number_format((float) $state, 2, ',', '.') : $state))
-                                ->dehydrateStateUsing(fn ($state) => blank($state) ? null : (is_numeric($state) ? (float) $state : (float) str_replace(['.', ','], ['', '.'], $state)))
                                 ->live(onBlur: true)
-                                ->required(),
+                                ->required()
+                                ->currencyMask(thousandSeparator: '.', decimalSeparator: ',', precision: 2)
+                                ->numeric(),
 
                             Select::make('produtos')
                                 ->multiple()

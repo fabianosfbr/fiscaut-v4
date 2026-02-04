@@ -40,6 +40,7 @@ class SimplesNacionalAliquotaForm
                                     ->minValue(0)
                                     ->step(0.01)
                                     ->prefix('R$')
+                                    ->currencyMask(thousandSeparator: '.', decimalSeparator: ',', precision: 2)
                                     ->helperText('Valor inicial da faixa de receita')
                                     ->rules([
                                         'required',
@@ -62,6 +63,7 @@ class SimplesNacionalAliquotaForm
                                     ->minValue(0)
                                     ->step(0.01)
                                     ->prefix('R$')
+                                    ->currencyMask(thousandSeparator: '.', decimalSeparator: ',', precision: 2)
                                     ->helperText('Valor final da faixa de receita')
                                     ->rules([
                                         'required',

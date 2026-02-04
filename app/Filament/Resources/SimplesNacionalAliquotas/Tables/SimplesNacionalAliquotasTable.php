@@ -104,9 +104,11 @@ class SimplesNacionalAliquotasTable
                                 TextInput::make('faixa_inicial_min')
                                     ->label('Faixa Inicial Mínima')
                                     ->numeric()
+                                    ->currencyMask(thousandSeparator: '.', decimalSeparator: ',', precision: 2)
                                     ->prefix('R$'),
                                 TextInput::make('faixa_final_max')
                                     ->label('Faixa Final Máxima')
+                                    ->currencyMask(thousandSeparator: '.', decimalSeparator: ',', precision: 2)
                                     ->numeric()
                                     ->prefix('R$'),
                             ]),
