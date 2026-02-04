@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\NfseEntradas\Schemas;
 
+use App\Models\LogSefazNfseEvent;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
@@ -330,11 +331,27 @@ class NfseEntradaInfolist
                                             ->schema([
                                                 TextEntry::make('data_cancelamento')
                                                     ->label('Data de Cancelamento')
+                                                    ->state(function ($record) {
+                                                        $cancelamento = LogSefazNfseEvent::query()
+                                                            ->where('chave', $record->chave)
+                                                            ->where('.x_desc', 'like', '%Cancelamento%')
+                                                            ->first();
+
+                                                        return $cancelamento->dh_evento ? $cancelamento->dh_evento->format('d/m/Y') : null;
+                                                    })
                                                     ->date('d/m/Y')
                                                     ->placeholder('Não informado'),
 
                                                 TextEntry::make('motivo_cancelamento')
                                                     ->label('Motivo do Cancelamento')
+                                                    ->state(function ($record) {
+                                                        $cancelamento = LogSefazNfseEvent::query()
+                                                            ->where('chave', $record->chave)
+                                                            ->where('.x_desc', 'like', '%Cancelamento%')
+                                                            ->first();
+
+                                                        return $cancelamento->x_motivo ?? null;
+                                                    })
                                                     ->columnSpan(2)
                                                     ->placeholder('Não informado'),
                                             ]),
