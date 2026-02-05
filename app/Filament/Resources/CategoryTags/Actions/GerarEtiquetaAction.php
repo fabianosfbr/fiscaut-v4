@@ -17,7 +17,7 @@ class GerarEtiquetaAction
             ->label('Gerar Etiquetas')
             ->requiresConfirmation()
             ->modalDescription('Esta ação irá gerar as etiquetas padrão para a empresa atual. Deseja continuar?')
-            ->hidden(CategoryTag::where('issuer_id', Auth::user()->currentIssuer->id)->get()->count() > 0)
+            ->visible(fn() => Auth::user()->currentIssuer->categoryTags()->count() === 0)
             ->action(function () {
 
                 $categoryData = config('tags.default');
