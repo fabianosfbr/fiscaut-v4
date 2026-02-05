@@ -18,7 +18,8 @@
         "nfephp-org/sped-cte": "dev-master",
         "nfephp-org/sped-da": "dev-master",
         "nfephp-org/sped-nfe": "^5.2",
-        "nfse-br/danfse": "^1.0"
+        "nfse-br/danfse": "^1.0",
+        "octopyid/filament-palette": "^1.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

@@ -4,6 +4,7 @@
 @source '../../../../app/Filament/Pages/**/*';
 @source '../../../../resources/views/filament/app/**/*';
 @source '../../../../resources/views/filament/pages/**/*';
+@source '../../../../vendor/octopyid/filament-palette/resources';
 
 
 .ts-control {
