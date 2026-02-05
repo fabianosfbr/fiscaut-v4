@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 
 class EditTenant extends Page
 {
-    protected static ?string $title = 'Editar Organização Principal';
+    protected static ?string $title = 'Organização Principal';
 
     protected static ?int $navigationSort = 3;
 
