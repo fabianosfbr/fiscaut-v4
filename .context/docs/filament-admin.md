@@ -56,7 +56,9 @@ Observação: existe uma pasta `app/Filament/Resources/BulkActions/` (Schemas/Ta
 ## Pages (fora de Resources)
 
 - [XmlImport.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Pages/Importar/XmlImport.php)
+- [SiegImport.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Pages/Importar/SiegImport.php)
 - [ConfiguracaoGeralPage.php](file:///root/projetos/fiscaut-v4.1/app/Filament/Pages/Configuracoes/ConfiguracaoGeralPage.php)
+
 
 ## Actions
 

@@ -83,7 +83,40 @@ Follows the same Coordinator -> Batch Manager -> Worker pattern as NFe.
     -   Uses `XmlCteReaderService` for parsing CTe documents.
     -   Logs content to `LogSefazCteContent`.
 
-### 3. Cross-Referencing
+### 3. Sieg Integration Pipeline
+
+Integration with the SIEG API for bulk downloading of fiscal documents.
+
+#### SiegConnect
+**Location:** `App\Jobs\Sieg\SiegConnect`
+-   **Role:** The Connector / Coordinator.
+-   **Logic:**
+    -   Connects to the SIEG API (`BaixarXmlsV2`) using the tenant's API key.
+    -   Iterates through pages of results using `Skip` and `Take`.
+    -   creates a tracking `XmlImportJob`.
+    -   Dispatches `ProcessXmlSiegBatch` to process downloaded XMLs.
+    -   Handles API polling limits (sleeping 300ms between requests).
+
+#### ProcessXmlSiegBatch
+**Location:** `App\Jobs\Sieg\ProcessXmlSiegBatch`
+-   **Role:** The Batch Manager.
+-   **Logic:**
+    -   Receives a list of base64 encoded XMLs.
+    -   Chunks them into smaller groups (batch size 50).
+    -   Decodes base64 content.
+    -   Dispatches individual `ProcessXmlSieg` jobs into a bus batch.
+    -   Monitors completion to update `XmlImportJob` status and notify the user.
+
+#### ProcessXmlSieg
+**Location:** `App\Jobs\Sieg\ProcessXmlSieg`
+-   **Role:** The Worker.
+-   **Logic:**
+    -   Identifies the XML type using `XmlIdentifierService`.
+    -   Delegates parsing to `XmlNfeReaderService` (for NFe, Events, Summaries) or `XmlCteReaderService` (for CTe, Events).
+    -   Sets the origin as 'SIEG'.
+    -   Persists data to the database.
+
+### 4. Cross-Referencing
 
 #### CheckNfeData
 **Location:** `App\Jobs\Sefaz\CheckNfeData`

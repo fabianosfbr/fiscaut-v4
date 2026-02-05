@@ -214,3 +214,8 @@
 {"timestamp":"2026-02-02T19:03:26.987Z","tool":"context","action":"fillSingle","status":"success","details":{"params":{"action":"fillSingle","filePath":"/root/projetos/fiscaut-v4.1/.context/agents/refactoring-specialist.md"},"result":{"success":true}}}
 {"timestamp":"2026-02-02T19:03:39.220Z","tool":"context","action":"fillSingle","status":"success","details":{"params":{"action":"fillSingle","filePath":"/root/projetos/fiscaut-v4.1/.context/agents/bug-fixer.md"},"result":{"success":true}}}
 {"timestamp":"2026-02-02T19:04:12.932Z","tool":"context","action":"listToFill","status":"success","details":{"params":{"action":"listToFill","repoPath":"/root/projetos/fiscaut-v4.1"},"result":{"success":true}}}
+{"timestamp":"2026-02-05T19:03:29.458Z","tool":"context","action":"check","status":"success","details":{"params":{"action":"check","repoPath":"/root/projetos/fiscaut-v4.1"}}}
+{"timestamp":"2026-02-05T19:03:37.363Z","tool":"workflow-status","action":"workflow-status","status":"success","details":{"params":{},"result":{"success":true,"currentPhase":{"code":"V","name":"Validation"},"scale":"Medium"}}}
+{"timestamp":"2026-02-05T19:03:37.388Z","tool":"context","action":"listToFill","status":"success","details":{"params":{"action":"listToFill","target":"all"},"result":{"success":true}}}
+{"timestamp":"2026-02-05T19:04:08.322Z","tool":"context","action":"fill","status":"success","details":{"params":{"action":"fill","repoPath":"/root/projetos/fiscaut-v4.1","limit":5},"result":{"success":true}}}
+{"timestamp":"2026-02-05T19:07:33.688Z","tool":"context","action":"fill","status":"success","details":{"params":{"action":"fill","repoPath":"/root/projetos/fiscaut-v4.1","offset":5,"limit":25},"result":{"success":true}}}
