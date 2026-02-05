@@ -2,31 +2,25 @@
 
 namespace App\Filament\Pages\Relatorio;
 
-use UnitEnum;
-use Filament\Pages\Page;
-use Filament\Tables\Table;
-use Illuminate\Support\Str;
-use Illuminate\Support\Collection;
-use Illuminate\Support\HtmlString;
 use App\Models\NfeTagAgregadorView;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Grouping\Group;
-use App\Models\NotaFiscalEletronica;
-use Illuminate\Support\Facades\Auth;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Contracts\HasTable;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\DatePicker;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\TextInput;
+use Filament\Pages\Page;
+use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Tables\Columns\Summarizers\Sum;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Actions\Concerns\InteractsWithActions;
-use Filament\Schemas\Concerns\InteractsWithSchemas;
-use App\Services\Relatorios\ListagemProdutosService;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Grouping\Group;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
+use UnitEnum;
 
 class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas, HasTable
 {
@@ -42,7 +36,6 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
 
     protected static string|UnitEnum|null $navigationGroup = 'Relatórios';
 
-
     protected string $view = 'filament.pages.relatorio.relatorio-resumo-etiqueta-nfe';
 
     public function table(Table $table): Table
@@ -51,6 +44,7 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
             ->recordUrl(null)
             ->query(function () {
                 $issuer = Auth::user()->currentIssuer;
+
                 return NfeTagAgregadorView::query()
                     ->where('issuer_id', $issuer->id)
                     ->whereNotNull('data_entrada')
@@ -80,7 +74,7 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                     ->label(new HtmlString('Valor<br/>NFe'))
                     ->money('BRL')
                     ->summarize([
-                        Sum::make()->label('Total NFe')->money('BRL')
+                        Sum::make()->label('Total NFe')->money('BRL'),
                     ]),
                 TextColumn::make('vBC')
                     ->label(new HtmlString('Base<br/>Cálculo'))
@@ -142,16 +136,16 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                                 $data['etiqueta'],
                                 function ($q) use ($data) {
                                     return $q->where('code', $data['etiqueta'])
-                                        ->orWhere('tag', 'like', '%' . $data['etiqueta'] . '%');
+                                        ->orWhere('tag', 'like', '%'.$data['etiqueta'].'%');
                                 },
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
-                        if (!$data['etiqueta']) {
+                        if (! $data['etiqueta']) {
                             return null;
                         }
 
-                        return 'Etiqueta: ' . $data['etiqueta'];
+                        return 'Etiqueta: '.$data['etiqueta'];
                     })->columnSpan(1),
                 Filter::make('numero')
                     ->schema([
@@ -168,11 +162,11 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
-                        if (!$data['numero']) {
+                        if (! $data['numero']) {
                             return null;
                         }
 
-                        return 'Nº NFSe: ' . $data['numero'];
+                        return 'Nº NFSe: '.$data['numero'];
                     })->columnSpan(1),
             ])
             ->filtersFormColumns(4)

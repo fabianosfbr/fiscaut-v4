@@ -2,28 +2,21 @@
 
 namespace App\Filament\Pages\Relatorio;
 
-
-use UnitEnum;
-use Filament\Pages\Page;
-use Filament\Tables\Table;
-use Illuminate\Support\Str;
-use Illuminate\Support\Collection;
-use Illuminate\Support\HtmlString;
 use App\Models\NfseTagAgregadorView;
-use Filament\Tables\Grouping\Group;
-use App\Models\NotaFiscalEletronica;
-use Illuminate\Support\Facades\Auth;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Contracts\HasTable;
-use Illuminate\Database\Eloquent\Model;
+use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
+use Filament\Pages\Page;
+use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Tables\Columns\Summarizers\Sum;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Actions\Concerns\InteractsWithActions;
-use Filament\Schemas\Concerns\InteractsWithSchemas;
-use App\Services\Relatorios\ListagemProdutosService;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Grouping\Group;
+use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
+use UnitEnum;
 
 class RelatorioResumoEtiquetaNfse extends Page implements HasActions, HasSchemas, HasTable
 {
@@ -39,7 +32,6 @@ class RelatorioResumoEtiquetaNfse extends Page implements HasActions, HasSchemas
 
     protected static string|UnitEnum|null $navigationGroup = 'Relatórios';
 
-
     protected string $view = 'filament.pages.relatorio.relatorio-resumo-etiqueta-nfse';
 
     public function table(Table $table): Table
@@ -48,6 +40,7 @@ class RelatorioResumoEtiquetaNfse extends Page implements HasActions, HasSchemas
             ->recordUrl(null)
             ->query(function () {
                 $issuer = Auth::user()->currentIssuer;
+
                 return NfseTagAgregadorView::query()
                     ->where('issuer_id', $issuer->id)
                     ->whereNotNull('data_entrada')
@@ -77,7 +70,7 @@ class RelatorioResumoEtiquetaNfse extends Page implements HasActions, HasSchemas
                     ->label(new HtmlString('Valor NFSe'))
                     ->money('BRL')
                     ->summarize([
-                        Sum::make()->label('Total NFSe')->money('BRL')
+                        Sum::make()->label('Total NFSe')->money('BRL'),
                     ]),
             ])
             ->filters([

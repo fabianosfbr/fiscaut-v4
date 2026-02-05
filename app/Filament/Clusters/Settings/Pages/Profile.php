@@ -2,20 +2,17 @@
 
 namespace App\Filament\Clusters\Settings\Pages;
 
-use Filament\Pages\Page;
-use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Auth;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
-use Filament\Schemas\Components\Section;
-use Filament\Support\Enums\IconPosition;
-use Filament\Infolists\Components\TextEntry;
 use App\Filament\Clusters\Settings\SettingsCluster;
 use App\Filament\Infolists\Components\GenerateApiKeyEntry;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
+use Filament\Pages\Page;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 
 class Profile extends Page
 {
-
     protected static ?string $title = 'Meu Perfil';
 
     protected static ?int $navigationSort = 1;
@@ -75,7 +72,7 @@ class Profile extends Page
                             ->color('gray')
                             ->copyable()
                             ->copyableState(fn ($state) => $state)
-                            ->formatStateUsing(fn ($state) => $state ? '***********************************' . substr($state, -4) : '-')
+                            ->formatStateUsing(fn ($state) => $state ? '***********************************'.substr($state, -4) : '-')
                             ->columnSpan(1),
                         GenerateApiKeyEntry::make('generate_api_token')
                             ->label('Token')

@@ -2,18 +2,17 @@
 
 namespace App\Filament\Clusters\Settings\Pages;
 
-use Filament\Pages\Page;
-use Filament\Schemas\Schema;
+use App\Filament\Clusters\Settings\SettingsCluster;
 use Filament\Facades\Filament;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
-use Illuminate\Validation\Rules\Password;
-use Filament\Forms\Components\MarkdownEditor;
 use Filament\Schemas\Components\Utilities\Get;
-use App\Filament\Clusters\Settings\SettingsCluster;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class ChangePassword extends Page
 {
@@ -40,8 +39,8 @@ class ChangePassword extends Page
                             ->password()
                             ->rule(Password::default())
                             ->autocomplete('new-password')
-                            ->dehydrated(fn($state): bool => filled($state))
-                            ->dehydrateStateUsing(fn($state): string => Hash::make($state))
+                            ->dehydrated(fn ($state): bool => filled($state))
+                            ->dehydrateStateUsing(fn ($state): string => Hash::make($state))
                             ->live(debounce: 500)
                             ->same('passwordConfirmation')
                             ->autofocus(),
@@ -49,7 +48,7 @@ class ChangePassword extends Page
                             ->label('Confirmar senha')
                             ->password()
                             ->required()
-                            ->visible(fn(Get $get): bool => filled($get('password')))
+                            ->visible(fn (Get $get): bool => filled($get('password')))
                             ->dehydrated(false),
                     ]),
                 // ...
@@ -68,7 +67,7 @@ class ChangePassword extends Page
 
         if (request()->hasSession() && array_key_exists('password', $data)) {
             request()->session()->put([
-                'password_hash_' . Filament::getAuthGuard() => $data['password'],
+                'password_hash_'.Filament::getAuthGuard() => $data['password'],
             ]);
         }
 
