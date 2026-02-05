@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Sieg;
 
 use App\Models\Issuer;
 use App\Models\User;
 use App\Models\XmlImportJob;
-use Exception;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Bus\Batch;
@@ -19,7 +18,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-class ProcessXmlFileBatch implements ShouldQueue
+class ProcessXmlSiegBatch implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -49,7 +48,8 @@ class ProcessXmlFileBatch implements ShouldQueue
      */
     public function __construct(
         protected array $xmlContents,
-        protected XmlImportJob $importJob
+        protected XmlImportJob $importJob,
+        protected Issuer $issuer
     ) {}
 
     /**
@@ -58,28 +58,26 @@ class ProcessXmlFileBatch implements ShouldQueue
     public function handle(): void
     {
         try {
-            $issuer = Issuer::find($this->importJob->issuer_id);
-            if (! $issuer) {
-                throw new Exception('Empresa não encontrada');
-            }
             // Divide o array de XMLs em lotes menores para processamento
             $chunks = array_chunk($this->xmlContents, $this->batchSize);
 
             $jobs = [];
             foreach ($chunks as $chunk) {
-                foreach ($chunk as $xmlContent) {
-                    Log::info('Processando XML', ['xmlContent' => $xmlContent]);
+                foreach ($chunk as $xmlBase64) {
+                    // Decodificar o XML da base64
+                    $xmlContent = base64_decode($xmlBase64);
 
                     // Criar um job para processar o XML
-                    $jobs[] = new ProcessXmlFile($xmlContent, $this->importJob, $issuer);
+                    $jobs[] = new ProcessXmlSieg($xmlContent, $this->importJob, $this->issuer);
                 }
             }
+
             $importJobId = $this->importJob->id;
 
             // Cria um batch de jobs para processamento
 
             Bus::batch($jobs)
-                ->name('Processamento de XMLs')
+                ->name('Processamento de XMLs SIEG')
                 ->allowFailures()
                 ->then(function (Batch $batch) use ($importJobId) {
                     // All jobs completed successfully
@@ -105,7 +103,6 @@ class ProcessXmlFileBatch implements ShouldQueue
                                         Action::make('view')
                                             ->label('Ver detalhes')
                                             ->button()
-                                            ->openUrlInNewTab()
                                             ->url(route('filament.admin.resources.xml-import-history.index', ['record' => $jobId])),
                                     ])
                                     ->sendToDatabase($user);
@@ -138,7 +135,6 @@ class ProcessXmlFileBatch implements ShouldQueue
                                         Action::make('view')
                                             ->label('Ver detalhes')
                                             ->button()
-                                            ->openUrlInNewTab()
                                             ->url(route('filament.admin.resources.xml-import-history.index', ['record' => $jobId])),
                                     ])
                                     ->sendToDatabase($user);
@@ -158,7 +154,7 @@ class ProcessXmlFileBatch implements ShouldQueue
     /**
      * Handle a job failure.
      */
-    public function failed(Throwable $exception): void
+    public function failed(\Throwable $exception): void
     {
         $mensagemErro = 'Falha no processamento em lote: '.$exception->getMessage();
         $this->importJob->addError($mensagemErro);
