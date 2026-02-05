@@ -337,7 +337,7 @@ class NfseEntradaInfolist
                                                             ->where('.x_desc', 'like', '%Cancelamento%')
                                                             ->first();
 
-                                                        return $cancelamento->dh_evento ? $cancelamento->dh_evento->format('d/m/Y') : null;
+                                                        return $cancelamento?->dh_evento ? $cancelamento->dh_evento->format('d/m/Y') : null;
                                                     })
                                                     ->date('d/m/Y')
                                                     ->placeholder('Não informado'),
@@ -350,7 +350,7 @@ class NfseEntradaInfolist
                                                             ->where('.x_desc', 'like', '%Cancelamento%')
                                                             ->first();
 
-                                                        return $cancelamento->x_motivo ?? null;
+                                                        return $cancelamento?->x_motivo ?? null;
                                                     })
                                                     ->columnSpan(2)
                                                     ->placeholder('Não informado'),
