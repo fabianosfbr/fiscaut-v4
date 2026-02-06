@@ -676,7 +676,13 @@ class ConhecimentoTransporteEletronico extends Model
 
     public function apurada()
     {
-        return $this->hasOne(CteApurada::class, 'cte_id')->where('issuer_id', Auth::user()->currentIssuer->id);
+        $user = Auth::user();
+
+        if ($user && $user->currentIssuer) {
+            return $this->hasOne(CteApurada::class, 'cte_id')->where('issuer_id', $user->currentIssuer->id);
+        }
+
+        return $this->hasOne(CteApurada::class, 'cte_id')->whereRaw('1 = 0');
     }
 
     public function isApuradaParaEmpresa(Issuer $issuer): bool

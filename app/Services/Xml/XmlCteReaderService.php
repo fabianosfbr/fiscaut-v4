@@ -122,7 +122,7 @@ class XmlCteReaderService
         if (! is_null($params['nfe_chave'])) {
 
             // Disparar evento de verificar NFe associada
-            CheckNfeData::dispatch($cte)->onQueue('low');
+            CheckNfeData::dispatch($cte);
         }
     }
 

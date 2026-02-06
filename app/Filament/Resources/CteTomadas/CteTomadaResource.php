@@ -43,11 +43,6 @@ class CteTomadaResource extends Resource
         return CteTomadasTable::configure($table);
     }
 
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->with(['tagged.tag', 'apurada']);
-    }
 
     public static function getRelations(): array
     {

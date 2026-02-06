@@ -29,8 +29,8 @@ class CheckNfeData implements ShouldQueue
      * Execute the job.
      */
     public function handle(): void
-    {
-        $chave_nfe = json_decode($this->cte->nfe_chave, true);
+    {      
+        $chave_nfe = is_string($this->cte->nfe_chave) ? json_decode($this->cte->nfe_chave, true) : $this->cte->nfe_chave;
 
         if (! is_null($chave_nfe)) {
 
@@ -85,6 +85,7 @@ class CheckNfeData implements ShouldQueue
                 'nfe_vNfe' => null,
                 'nfe_tpNf' => null,
             ];
+
 
             $meta['nfe_destinatario_cnpj'] = $nfe->destinatario_cnpj;
             $meta['nfe_destinatario_razao_social'] = $nfe->destinatario_cnpj;
