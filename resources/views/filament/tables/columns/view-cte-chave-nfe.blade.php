@@ -1,6 +1,9 @@
 <p class="text-sm bg-gray-100 rounded-lg" style="position: relative;">
     @php
         $chaves = $getRecord()->nfe_chave;
+        if(is_string($chaves)){
+            $chaves = json_decode($chaves, true);
+        }        
     @endphp
 
     @if (!is_null($chaves))
