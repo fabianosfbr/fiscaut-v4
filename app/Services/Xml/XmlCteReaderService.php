@@ -156,11 +156,10 @@ class XmlCteReaderService
         if ($tpEvento == 110111) {
             $cte = ConhecimentoTransporteEletronico::where('chave', $chave)->first();
             if ($cte) {
-                $cte->is_cancelada = true;
-                $cte->save();
+                event(new CteCancelada($log));
+              
             }
 
-            event(new CteCancelada($log));
         }
     }
 
