@@ -14,6 +14,7 @@ class XmlImportJobsTable
     {
         return $table
             ->defaultSort('created_at', 'desc')
+            ->recordUrl(null)
             ->columns([
                 TextColumn::make('created_at')
                     ->label('Data de Criação')
@@ -32,8 +33,8 @@ class XmlImportJobsTable
                         }
 
                         // Se o owner é um Issuer, usa o campo 'razao_social'
-                        if ($record->owner instanceof \App\Models\Company) {
-                            return Str::limit($record->owner->razao_social, 20);
+                        if ($record->owner instanceof \App\Models\Issuer) {
+                            return Str::limit($record->owner->razao_social, 25);
                         }
 
                         // Fallback para outros tipos
@@ -87,7 +88,7 @@ class XmlImportJobsTable
                         'success' => XmlImportJob::STATUS_COMPLETED,
                         'danger' => XmlImportJob::STATUS_FAILED,
                     ])
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
                         XmlImportJob::STATUS_PENDING => 'Pendente',
                         XmlImportJob::STATUS_PROCESSING => 'Processando',
                         XmlImportJob::STATUS_COMPLETED => 'Concluído',
