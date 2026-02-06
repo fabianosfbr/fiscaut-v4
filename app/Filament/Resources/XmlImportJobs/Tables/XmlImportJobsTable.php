@@ -6,6 +6,7 @@ use App\Models\XmlImportJob;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 
 class XmlImportJobsTable
@@ -13,8 +14,7 @@ class XmlImportJobsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultSort('created_at', 'desc')
-            ->recordUrl(null)
+            ->defaultSort('created_at', 'desc')            
             ->columns([
                 TextColumn::make('created_at')
                     ->label('Data de Criação')
@@ -45,7 +45,7 @@ class XmlImportJobsTable
                             $query->whereHasMorph('owner', [\App\Models\User::class], function ($query) use ($search) {
                                 $query->where('name', 'like', "%{$search}%");
                             })
-                                ->orWhereHasMorph('owner', [\App\Models\Company::class], function ($query) use ($search) {
+                                ->orWhereHasMorph('owner', [\App\Models\Issuer::class], function ($query) use ($search) {
                                     $query->where('razao_social', 'like', "%{$search}%");
                                 });
                         });
@@ -56,9 +56,9 @@ class XmlImportJobsTable
                                 ->whereColumn('users.id', 'xml_import_jobs.owner_id')
                                 ->where('xml_import_jobs.owner_type', \App\Models\User::class)
                                 ->union(
-                                    \App\Models\Company::select('razao_social')
+                                    \App\Models\Issuer::select('razao_social')
                                         ->whereColumn('companies.id', 'xml_import_jobs.owner_id')
-                                        ->where('xml_import_jobs.owner_type', \App\Models\Company::class)
+                                        ->where('xml_import_jobs.owner_type', \App\Models\Issuer::class)
                                 ),
                             $direction
                         );
@@ -69,16 +69,20 @@ class XmlImportJobsTable
                     ->badge()
                     ->searchable(),
                 TextColumn::make('total_files')
-                    ->label('Total de Arquivos')
+                    ->label(new HtmlString('Total de<br/>Arquivos'))
+                    ->alignCenter()
                     ->sortable(),
                 TextColumn::make('num_documents')
                     ->label('Documentos')
+                    ->alignCenter()
                     ->sortable(),
                 TextColumn::make('num_events')
                     ->label('Eventos')
+                    ->alignCenter()
                     ->sortable(),
                 TextColumn::make('error_files')
-                    ->label('Com Erro')
+                    ->label(new HtmlString('Arquivos<br/>Com Erro'))
+                    ->alignCenter()
                     ->sortable(),
                 TextColumn::make('status')
                     ->label('Status')

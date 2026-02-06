@@ -40,14 +40,14 @@ class AtualizarStatusNfeCancelada implements ShouldQueue
                 }
 
                 Log::info('Status da NFe atualizado para CANCELADA', [
-                    'chave_acesso' => $event->event->chave,
+                    'chave' => $event->event->chave,
                     'issuer_id' => $event->event->issuer_id,
                     'tenant_id' => $event->event->tenant_id,
                 ]);
             }
         } catch (\Exception $e) {
             Log::error('Erro ao atualizar status da NFe cancelada', [
-                'chave_acesso' => $event->event->chave,
+                'chave' => $event->event->chave,
                 'error' => $e->getMessage(),
                 'issuer_id' => $event->event->issuer_id,
                 'tenant_id' => $event->event->tenant_id,

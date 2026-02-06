@@ -172,7 +172,7 @@ class XmlImportJob extends Model
             }
         }
 
-        return 'base64:'.base64_encode($value);
+        return 'base64:' . base64_encode($value);
     }
 
     /**
@@ -181,6 +181,14 @@ class XmlImportJob extends Model
     public function incrementProcessedFiles(): self
     {
         $this->processed_files++;
+        $this->save();
+
+        return $this;
+    }
+
+    public function incrementTotalFiles(): self
+    {
+        $this->total_files++;
         $this->save();
 
         return $this;

@@ -23,7 +23,7 @@ class AtualizarStatusCteCancelada implements ShouldQueue
 
         try {
             // Busca o conhecimento de transporte pela chave de acesso
-            $cte = ConhecimentoTransporteEletronico::where('chave_acesso', $event->event->chave)
+            $cte = ConhecimentoTransporteEletronico::where('chave', $event->event->chave)
                 ->where('status_cte', '!=', StatusCteEnum::CANCELADA)
                 ->first();
 

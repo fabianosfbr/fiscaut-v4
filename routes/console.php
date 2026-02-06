@@ -1,17 +1,21 @@
 <?php
 
 use App\Console\Scheduling\DynamicTaskCommandExecutor;
-use App\Events\NfseCancelada;
-use App\Models\LogSefazNfseEvent;
+use App\Events\NfeCancelada;
+use App\Models\LogSefazNfeEvent;
 use Illuminate\Support\Facades\Artisan;
 
 Artisan::command('play', function () {
 
-    $logs = LogSefazNfseEvent::get();
+    $log = LogSefazNfeEvent::find(1215547);
 
-    foreach ($logs as $log) {
-        event(new NfseCancelada($log));
-    }
+
+    event(new NfeCancelada($log));
+    dd($log);
+
+    // foreach ($logs as $log) {
+    //     event(new NfseCancelada($log));
+    // }
 });
 
 Artisan::command('schedule:run-dynamic {--force}', function () {

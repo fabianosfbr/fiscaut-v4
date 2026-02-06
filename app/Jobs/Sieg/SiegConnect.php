@@ -46,57 +46,22 @@ class SiegConnect implements ShouldQueue
 
     protected $skip = 0;
 
-    /**
-     * Dados da requisição
-     */
-    protected $tipoDocumento;
+    protected XmlImportJob $importJob;
 
-    protected $tipoCnpj;
 
-    protected $dataInicial;
 
-    protected $dataFinal;
-
-    protected $cnpj;
-
-    protected $importJob;
-
-    protected $userId;
-
-    protected $tenantId;
-
-    protected $issuerId;
-
-    protected $owner_type;
-
-    protected $owner_id;
 
     /**
      * Create a new job instance.
      */
     public function __construct(
-        int $tipoDocumento,
-        string $tipoCnpj,
-        string $dataInicial,
-        string $dataFinal,
-        string $cnpj,
-        int $userId,
-        int $tenantId,
-        int $issuerId,
-        string $owner_type,
-        int $owner_id
-    ) {
-        $this->tipoDocumento = $tipoDocumento;
-        $this->tipoCnpj = $tipoCnpj;
-        $this->dataInicial = $dataInicial;
-        $this->dataFinal = $dataFinal;
-        $this->cnpj = $cnpj;
-        $this->userId = $userId;
-        $this->tenantId = $tenantId;
-        $this->issuerId = $issuerId;
-        $this->owner_type = $owner_type;
-        $this->owner_id = $owner_id;
-    }
+        protected int $tipoDocumento,
+        protected string $tipoCnpj,
+        protected string $dataInicial,
+        protected string $dataFinal,       
+        protected int $issuerId,
+        protected int $importJobId,
+    ) {}
 
     /**
      * Execute the job.
@@ -108,31 +73,16 @@ class SiegConnect implements ShouldQueue
             // $dataInicial = Carbon::createFromFormat('Y-m-d', $this->dataInicial)->startOfDay()->format('Y-m-d\TH:i:s.\0\0\0\Z');
             // $dataFinal = Carbon::createFromFormat('Y-m-d', $this->dataFinal)->endOfDay()->format('Y-m-d\TH:i:s.\9\9\9\Z');
 
-            $user = User::find($this->userId);
-            $tenant = Tenant::find($this->tenantId);
-            $issuer = Issuer::find($this->issuerId);
+            $issuer = Issuer::with('tenant')->find($this->issuerId);
+            $tenant = $issuer->tenant;
 
             if (! isset($tenant->sieg_key)) {
                 throw new Exception('Chave de API SIEG não configurada para o tenant '.$tenant->name);
             }
-            $this->cnpj = $issuer->cnpj;
-            // Criar o job de importação
-            $importJob = XmlImportJob::createQuietly([
-                'user_id' => $user->id,
-                'tenant_id' => $tenant->id,
-                'issuer_id' => $issuer->id,
-                'owner_type' => $this->owner_type,
-                'owner_id' => $this->owner_id,
-                'import_type' => XmlImportJobType::SYSTEM,
-                'status' => XmlImportJob::STATUS_PENDING,
-                'processed_files' => 0,
-                'imported_files' => 0,
-                'error_files' => 0,
-                'total_files' => 0,
-                'errors' => [],
-            ]);
+            $cnpj = $issuer->cnpj;
+  
 
-            $this->importJob = $importJob;
+            $this->importJob = XmlImportJob::find($this->importJobId);
             $totalDocumentos = 0;
             $temMaisResultados = true;
             $this->skip = 0;
@@ -151,16 +101,16 @@ class SiegConnect implements ShouldQueue
                 // Adicionar o CNPJ conforme o tipo selecionado
                 switch ($this->tipoCnpj) {
                     case 'emitente':
-                        $payload['CnpjEmit'] = $this->cnpj;
+                        $payload['CnpjEmit'] = $cnpj;
                         break;
                     case 'destinatario':
-                        $payload['CnpjDest'] = $this->cnpj;
+                        $payload['CnpjDest'] = $cnpj;
                         break;
                     case 'tomador':
-                        $payload['CnpjToma'] = $this->cnpj;
+                        $payload['CnpjToma'] = $cnpj;
                         break;
                     case 'remetente':
-                        $payload['CnpjReme'] = $this->cnpj;
+                        $payload['CnpjReme'] = $cnpj;
                         break;
                 }
 
@@ -188,7 +138,7 @@ class SiegConnect implements ShouldQueue
                         }
 
                         // Processar os XMLs retornados
-                        $this->processarXmls($resultados, $importJob);
+                        $this->processarXmls($resultados, $this->importJob);
                     } else {
                         $this->enviarNotificacao(
                             'Atenção',
@@ -204,15 +154,15 @@ class SiegConnect implements ShouldQueue
                     if ($response->status() === 404) {
                         $errorMessage = 'Nenhum arquivo XML localizado.';
 
-                        $importJob->updateQuietly(['status' => XmlImportJob::STATUS_COMPLETED]);
+                        $this->importJob->updateQuietly(['status' => XmlImportJob::STATUS_COMPLETED]);
                         $this->enviarNotificacao('Consulta Finalizada', $errorMessage, 'danger');
                     } else {
                         $responseData = $response->json();
                         if (is_array($responseData) && ! empty($responseData[0])) {
                             $errorMessage = $responseData[0];
                         }
-                        $importJob->addError($errorMessage);
-                        $importJob->updateQuietly(['status' => XmlImportJob::STATUS_FAILED]);
+                        $this->importJob->addError($errorMessage);
+                        $this->importJob->updateQuietly(['status' => XmlImportJob::STATUS_FAILED]);
                         $this->enviarNotificacao('Erro', $errorMessage, 'danger');
                     }
 

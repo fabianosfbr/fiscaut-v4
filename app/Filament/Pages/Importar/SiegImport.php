@@ -2,20 +2,23 @@
 
 namespace App\Filament\Pages\Importar;
 
-use App\Jobs\Sieg\SiegConnect;
-use App\Models\XmlImportJob;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
-use Filament\Notifications\Notification;
+use UnitEnum;
+use App\Models\User;
+use App\Models\Issuer;
 use Filament\Pages\Page;
+use App\Models\XmlImportJob;
+use Filament\Schemas\Schema;
+use App\Jobs\Sieg\SiegConnect;
+use App\Enums\XmlImportJobType;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Grid;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\DatePicker;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use UnitEnum;
 
 class SiegImport extends Page
 {
@@ -154,19 +157,16 @@ class SiegImport extends Page
                 return;
             }
 
-            // Dispatch o job para processar a conexão com a API SIEG de forma assíncrona
             $user = Auth::user();
+            $importJob = $this->createImportJob($user->currentIssuer, $user);
+            // Dispatch o job para processar a conexão com a API SIEG de forma assíncrona
             SiegConnect::dispatch(
                 (int) $data['tipoDocumento'],
                 $this->tipoCnpj,
                 $data['dataInicial'],
-                $data['dataFinal'],
-                $user->currentIssuer->cnpj,
-                $user->id,
-                $user->tenant_id,
+                $data['dataFinal'],            
                 $user->currentIssuer->id,
-                $user::class,
-                $user->id,
+                $importJob->id,
             );
 
             // Exibe uma notificação informando que o processo foi iniciado
@@ -175,36 +175,35 @@ class SiegImport extends Page
                 ->body('A importação dos documentos foi iniciada e será processada em segundo plano. Você receberá notificações sobre o progresso.')
                 ->success()
                 ->send();
-
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Erro')
-                ->body('Ocorreu um erro ao iniciar o processamento: '.$e->getMessage())
+                ->body('Ocorreu um erro ao iniciar o processamento: ' . $e->getMessage())
                 ->danger()
                 ->send();
 
-            Log::error('Erro ao iniciar importação SIEG: '.$e->getMessage());
+            Log::error('Erro ao iniciar importação SIEG: ' . $e->getMessage());
         } finally {
             $this->isLoading = false;
         }
     }
 
-    /**
-     * Processa os XMLs retornados pela API em lote
-     */
-    protected function processarXmls(array $xmls, XmlImportJob $importJob): void
+    private function createImportJob(Issuer $issuer, User $user): XmlImportJob
     {
-        // Atualiza o total de arquivos no job de importação
-        $importJob->updateQuietly([
-            'total_files' => count($xmls),
+        return  XmlImportJob::createQuietly([
+            'user_id' => $user->id,
+            'tenant_id' => $issuer->tenant_id,
+            'issuer_id' => $issuer->id,
+            'owner_type' => $user::class,
+            'owner_id' => $user->id,
+            'import_type' => XmlImportJobType::SYSTEM,
             'status' => XmlImportJob::STATUS_PENDING,
+            'processed_files' => 0,
+            'imported_files' => 0,
+            'error_files' => 0,
+            'total_files' => 0,
+            'errors' => [],
         ]);
-
-        // Cria um job de processamento em lote para todos os XMLs
-        // ProcessXmlSiegBatch::dispatch($xmls, $importJob);
-
-        // Registra no log o início do processamento
-        info('Iniciado processamento em lote de '.count($xmls).' documentos XML do SIEG');
     }
 
     /**
