@@ -24,6 +24,7 @@ class NotaFiscalEletronica extends Model
         'status_nota' => StatusNfeEnum::class,
         'status_manifestacao' => StatusManifestoNfeEnum::class,
         'carta_correcao' => 'array',
+        'nfe_chave' => 'array',
         'difal' => 'array',
         'cobranca' => 'array',
         'parcela' => 'array',
