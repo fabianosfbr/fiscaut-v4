@@ -14,14 +14,12 @@ class ListParametroGerals extends ListRecords
     {
         return [
             CreateAction::make()
-            ->label('Adicionar Novo'),
+                ->label('Adicionar Novo'),
         ];
     }
 
-     public function getHeading(): string
+    public function getHeading(): string
     {
         return 'Parâmetros Gerais';
     }
-
-    
 }

@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources\ParametroGerals\Pages;
 
-use App\Models\PlanoDeConta;
-use App\Models\HistoricoContabil;
-use Illuminate\Support\Facades\Auth;
-use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\ParametroGerals\ParametroGeralResource;
+use App\Models\HistoricoContabil;
+use App\Models\PlanoDeConta;
+use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Auth;
 
 class CreateParametroGeral extends CreateRecord
 {
@@ -36,7 +36,6 @@ class CreateParametroGeral extends CreateRecord
         $data['codigo'] = $data['params'];
         $data['descricao'] = $data['params'];
         $data['tipo'] = 'debito';
-
 
         $data['issuer_id'] = $issuerId;
 

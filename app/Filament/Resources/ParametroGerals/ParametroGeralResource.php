@@ -8,17 +8,16 @@ use App\Filament\Resources\ParametroGerals\Pages\ListParametroGerals;
 use App\Filament\Resources\ParametroGerals\Schemas\ParametroGeralForm;
 use App\Filament\Resources\ParametroGerals\Tables\ParametroGeralsTable;
 use App\Models\ParametroGeral;
-use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class ParametroGeralResource extends Resource
 {
     protected static ?string $model = ParametroGeral::class;
 
-      protected static ?string $navigationLabel = 'Parâmetros Gerais';
+    protected static ?string $navigationLabel = 'Parâmetros Gerais';
 
     protected static string|UnitEnum|null $navigationGroup = 'Configurações';
 

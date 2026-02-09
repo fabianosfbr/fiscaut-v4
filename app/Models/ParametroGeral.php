@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class ParametroGeral extends Model
 {
     protected $with = ['plano_de_conta'];
+
     protected $table = 'contabil_parametros_gerais';
 
     protected $guarded = ['id'];
-
 
     protected $casts = [
         'params' => 'array',
@@ -23,7 +23,7 @@ class ParametroGeral extends Model
         'is_inclusivo' => 'boolean',
     ];
 
-    //Plano de contas
+    // Plano de contas
     public function plano_de_conta()
     {
         return $this->belongsTo(PlanoDeConta::class, 'conta_contabil', 'id');

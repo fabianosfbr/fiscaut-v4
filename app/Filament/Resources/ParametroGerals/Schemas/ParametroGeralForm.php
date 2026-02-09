@@ -2,16 +2,15 @@
 
 namespace App\Filament\Resources\ParametroGerals\Schemas;
 
-use Filament\Schemas\Schema;
+use App\Filament\Forms\Components\SelectPlanoDeConta;
 use App\Models\HistoricoContabil;
-use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\ToggleButtons;
-use App\Filament\Forms\Components\SelectPlanoDeConta;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 
 class ParametroGeralForm
 {
@@ -51,19 +50,21 @@ class ParametroGeralForm
                                     ->orderBy('codigo', 'asc')
                                     ->get()
                                     ->map(function ($item) {
-                                        $item->codigo_descricao = $item->codigo . ' | ' . $item->descricao;
+                                        $item->codigo_descricao = $item->codigo.' | '.$item->descricao;
+
                                         return $item;
                                     })
 
                                     ->pluck('codigo_descricao', 'codigo');
+
                                 return $values;
                             })
                             ->columnSpan(2),
 
-                        Hidden::make('id')
+                        Hidden::make('id'),
                     ])
                     ->columns(3)
-                    ->columnSpanFull(),                
+                    ->columnSpanFull(),
 
             ]);
     }

@@ -2,12 +2,11 @@
 
 namespace App\Filament\Resources\ParametroGerals\Pages;
 
-use App\Models\PlanoDeConta;
-use App\Models\HistoricoContabil;
-use Filament\Actions\DeleteAction;
-use Illuminate\Support\Facades\Auth;
-use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\ParametroGerals\ParametroGeralResource;
+use App\Models\HistoricoContabil;
+use App\Models\PlanoDeConta;
+use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Auth;
 
 class EditParametroGeral extends EditRecord
 {
@@ -27,7 +26,6 @@ class EditParametroGeral extends EditRecord
 
         return $data;
     }
-
 
     public function mutateFormDataBeforeSave(array $data): array
     {
@@ -53,8 +51,6 @@ class EditParametroGeral extends EditRecord
         $data['descricao_historico'] = $descricao_historico;
         $data['codigo'] = $data['params'];
         $data['descricao'] = $data['params'];
-
-
 
         return $data;
     }
