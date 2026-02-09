@@ -22,4 +22,6 @@ class CreateFornecedor extends CreateRecord
 
         return $this->getResource()::getUrl('index');
     }
+
+    
 }
