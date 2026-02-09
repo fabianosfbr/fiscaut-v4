@@ -109,6 +109,7 @@ class AdminPanelProvider extends PanelProvider
                     ->collapsed(),
 
             ])
+            ->sidebarCollapsibleOnDesktop()
             ->userMenuItems([
                 Action::make('profile')
                     ->label('Meu Perfil')
