@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Layouts;
 use App\Filament\Resources\Layouts\Pages\CreateLayout;
 use App\Filament\Resources\Layouts\Pages\EditLayout;
 use App\Filament\Resources\Layouts\Pages\ListLayouts;
+use App\Filament\Resources\Layouts\RelationManagers\LayoutColumnsRelationManager;
 use App\Filament\Resources\Layouts\Schemas\LayoutForm;
 use App\Filament\Resources\Layouts\Tables\LayoutsTable;
 use App\Models\Layout;
@@ -35,7 +36,7 @@ class LayoutResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            LayoutColumnsRelationManager::class,
         ];
     }
 
