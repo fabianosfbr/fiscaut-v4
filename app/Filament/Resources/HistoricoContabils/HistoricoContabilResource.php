@@ -8,17 +8,16 @@ use App\Filament\Resources\HistoricoContabils\Pages\ListHistoricoContabils;
 use App\Filament\Resources\HistoricoContabils\Schemas\HistoricoContabilForm;
 use App\Filament\Resources\HistoricoContabils\Tables\HistoricoContabilsTable;
 use App\Models\HistoricoContabil;
-use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class HistoricoContabilResource extends Resource
 {
     protected static ?string $model = HistoricoContabil::class;
 
-     protected static ?string $modelLabel = 'Histórico Contábil';
+    protected static ?string $modelLabel = 'Histórico Contábil';
 
     protected static ?string $pluralModelLabel = 'Históricos Contábeis';
 
