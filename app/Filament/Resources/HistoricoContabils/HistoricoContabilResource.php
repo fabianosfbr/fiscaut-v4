@@ -21,7 +21,7 @@ class HistoricoContabilResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Históricos Contábeis';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Configurações';
+    protected static string|UnitEnum|null $navigationGroup = 'Contabilidade';
 
     public static function form(Schema $schema): Schema
     {
