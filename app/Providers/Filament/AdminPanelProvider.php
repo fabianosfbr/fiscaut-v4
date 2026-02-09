@@ -83,6 +83,10 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-o-clipboard-document')
                     ->collapsed(),
                 NavigationGroup::make()
+                    ->label('Contabilidade')
+                    ->icon('heroicon-o-cpu-chip')
+                    ->collapsed(),
+                NavigationGroup::make()
                     ->label('Demais docs. fiscais')
                     ->icon('heroicon-o-document-duplicate')
                     ->collapsed(),
