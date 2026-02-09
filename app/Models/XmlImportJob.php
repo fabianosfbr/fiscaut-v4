@@ -172,7 +172,7 @@ class XmlImportJob extends Model
             }
         }
 
-        return 'base64:' . base64_encode($value);
+        return 'base64:'.base64_encode($value);
     }
 
     /**

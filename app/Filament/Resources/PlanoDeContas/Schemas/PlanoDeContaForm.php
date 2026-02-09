@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\PlanoDeContas\Schemas;
 
-use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 class PlanoDeContaForm
 {
@@ -30,7 +30,7 @@ class PlanoDeContaForm
                             ->default('A'),
                     ])
                     ->columnSpanFull()
-                    ->columns(2)
+                    ->columns(2),
             ]);
     }
 }

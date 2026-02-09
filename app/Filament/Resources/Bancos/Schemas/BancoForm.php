@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\Bancos\Schemas;
 
-use Filament\Schemas\Schema;
+use App\Filament\Forms\Components\SelectPlanoDeConta;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
-use App\Filament\Forms\Components\SelectPlanoDeConta;
+use Filament\Schemas\Schema;
 
 class BancoForm
 {
@@ -24,6 +24,7 @@ class BancoForm
                                 if ($state) {
                                     return sanitize($state);
                                 }
+
                                 return null;
                             })
                             ->columnSpan(1),
@@ -31,12 +32,12 @@ class BancoForm
                             ->label('Agência')
                             ->required()
                             ->columnSpan(1)
-                            ->dehydrateStateUsing(fn(string $state): string => (string) $state),
+                            ->dehydrateStateUsing(fn (string $state): string => (string) $state),
                         TextInput::make('conta')
                             ->label('Nº da Conta')
                             ->required()
                             ->columnSpan(1)
-                            ->dehydrateStateUsing(fn(string $state): string => (string) $state),
+                            ->dehydrateStateUsing(fn (string $state): string => (string) $state),
                         SelectPlanoDeConta::make('conta_contabil')
                             ->label('Conta contabil')
                             ->required()

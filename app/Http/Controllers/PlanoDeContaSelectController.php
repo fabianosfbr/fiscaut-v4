@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\PlanoDeConta;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
 class PlanoDeContaSelectController extends Controller
@@ -16,7 +15,7 @@ class PlanoDeContaSelectController extends Controller
         $issuerId = Auth::user()->currentIssuer->id;
 
         // Verifica se o termo de busca foi passado
-        if (!$params) {
+        if (! $params) {
             return response()->json(['message' => 'Por favor, informe um termo de busca.'], 400);
         }
 

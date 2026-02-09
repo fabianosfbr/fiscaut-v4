@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\Fornecedors\Schemas;
 
-use Filament\Schemas\Schema;
+use App\Filament\Forms\Components\SelectPlanoDeConta;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
-use App\Filament\Forms\Components\SelectPlanoDeConta;
+use Filament\Schemas\Schema;
 
 class FornecedorForm
 {

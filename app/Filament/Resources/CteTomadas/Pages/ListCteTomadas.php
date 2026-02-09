@@ -2,12 +2,12 @@
 
 namespace App\Filament\Resources\CteTomadas\Pages;
 
-use Filament\Support\Enums\Width;
-use Illuminate\Support\Facades\Auth;
+use App\Filament\Resources\CteTomadas\CteTomadaResource;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
-use App\Filament\Resources\CteTomadas\CteTomadaResource;
+use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class ListCteTomadas extends ListRecords
 {
@@ -35,10 +35,10 @@ class ListCteTomadas extends ListRecords
         return [
             'entrada' => Tab::make()
                 ->label('CTe NF Entrada')
-                ->modifyQueryUsing(fn(Builder $query) => $query->whereJsonContains('metadata', ['nfe_destinatario_cnpj' => $issuer->cnpj])),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereJsonContains('metadata', ['nfe_destinatario_cnpj' => $issuer->cnpj])),
             'saida' => Tab::make()
                 ->label('CTe NF Saídas')
-                ->modifyQueryUsing(fn(Builder $query) => $query->whereJsonContains('metadata', ['nfe_emitente_cnpj' => $issuer->cnpj])),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereJsonContains('metadata', ['nfe_emitente_cnpj' => $issuer->cnpj])),
             'all' => Tab::make()
                 ->label('Todos'),
         ];

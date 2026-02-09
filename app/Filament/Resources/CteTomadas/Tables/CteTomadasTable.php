@@ -2,33 +2,33 @@
 
 namespace App\Filament\Resources\CteTomadas\Tables;
 
-use Filament\Tables\Table;
-use App\Models\GeneralSetting;
+use App\Filament\Actions\ClassificarDocumentoAction;
+use App\Filament\Actions\DownloadPdfCteAction;
+use App\Filament\Actions\DownloadXmlAction;
+use App\Filament\Actions\DownloadXmlPdfCteEmLoteAction;
+use App\Filament\Actions\RemoverClassificaoNfeAction;
+use App\Filament\Actions\ToggleEscrituracaoAction;
+use App\Filament\Tables\Columns\TagBadgesColumn;
+use App\Filament\Tables\Columns\ViewChaveColumn;
 use App\Jobs\Sefaz\CheckNfeData;
-use Filament\Actions\BulkAction;
-use Filament\Actions\ViewAction;
+use App\Models\ConhecimentoTransporteEletronico;
+use App\Models\GeneralSetting;
 use Filament\Actions\ActionGroup;
-use Filament\Tables\Filters\Filter;
-use Illuminate\Support\Facades\Auth;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Support\Enums\Alignment;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
-use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\TernaryFilter;
-use App\Filament\Actions\DownloadXmlAction;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use App\Filament\Actions\DownloadPdfCteAction;
-use App\Filament\Tables\Columns\TagBadgesColumn;
-use App\Filament\Tables\Columns\ViewChaveColumn;
-use App\Models\ConhecimentoTransporteEletronico;
-use App\Filament\Actions\ToggleEscrituracaoAction;
-use App\Filament\Actions\ClassificarDocumentoAction;
-use App\Filament\Actions\RemoverClassificaoNfeAction;
-use App\Filament\Actions\DownloadXmlPdfCteEmLoteAction;
+use Illuminate\Support\Facades\Auth;
 
 class CteTomadasTable
 {
@@ -133,7 +133,7 @@ class CteTomadasTable
                 TextColumn::make('tpCTe')
                     ->label('Tipo')
                     ->alignCenter()
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         '0' => 'Normal',
                         '1' => 'Compl. de valor',
                         '2' => 'Anulação',
@@ -211,11 +211,11 @@ class CteTomadasTable
                         }
 
                         return $data['value']
-                            ? $query->whereHas('apurada', fn(Builder $query): Builder => $query->where('status', true))
+                            ? $query->whereHas('apurada', fn (Builder $query): Builder => $query->where('status', true))
                             : $query->where(function (Builder $query): Builder {
                                 return $query
                                     ->whereDoesntHave('apurada')
-                                    ->orWhereHas('apurada', fn(Builder $query): Builder => $query->where('status', false));
+                                    ->orWhereHas('apurada', fn (Builder $query): Builder => $query->where('status', false));
                             });
                     }),
 

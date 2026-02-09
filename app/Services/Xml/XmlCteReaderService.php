@@ -157,7 +157,7 @@ class XmlCteReaderService
             $cte = ConhecimentoTransporteEletronico::where('chave', $chave)->first();
             if ($cte) {
                 event(new CteCancelada($log));
-              
+
             }
 
         }

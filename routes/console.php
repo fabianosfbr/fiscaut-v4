@@ -9,7 +9,6 @@ Artisan::command('play', function () {
 
     $log = LogSefazNfeEvent::find(1215547);
 
-
     event(new NfeCancelada($log));
     dd($log);
 

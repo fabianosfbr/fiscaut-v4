@@ -2,9 +2,7 @@
 
 namespace App\Jobs\Sieg;
 
-use App\Enums\XmlImportJobType;
 use App\Models\Issuer;
-use App\Models\Tenant;
 use App\Models\User;
 use App\Models\XmlImportJob;
 use Carbon\Carbon;
@@ -48,9 +46,6 @@ class SiegConnect implements ShouldQueue
 
     protected XmlImportJob $importJob;
 
-
-
-
     /**
      * Create a new job instance.
      */
@@ -58,7 +53,7 @@ class SiegConnect implements ShouldQueue
         protected int $tipoDocumento,
         protected string $tipoCnpj,
         protected string $dataInicial,
-        protected string $dataFinal,       
+        protected string $dataFinal,
         protected int $issuerId,
         protected int $importJobId,
     ) {}
@@ -80,7 +75,6 @@ class SiegConnect implements ShouldQueue
                 throw new Exception('Chave de API SIEG não configurada para o tenant '.$tenant->name);
             }
             $cnpj = $issuer->cnpj;
-  
 
             $this->importJob = XmlImportJob::find($this->importJobId);
             $totalDocumentos = 0;

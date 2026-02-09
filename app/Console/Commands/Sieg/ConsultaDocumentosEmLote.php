@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands\Sieg;
 
+use App\Enums\XmlImportJobType;
+use App\Jobs\Sieg\SiegConnect;
 use App\Models\Issuer;
 use App\Models\XmlImportJob;
-use App\Jobs\Sieg\SiegConnect;
-use App\Enums\XmlImportJobType;
 use Illuminate\Console\Command;
 
 class ConsultaDocumentosEmLote extends Command
@@ -39,15 +39,13 @@ class ConsultaDocumentosEmLote extends Command
         $start = $this->option('start');
         $end = $this->option('end');
 
-
         $end = is_string($end) && $end !== '' ? $end : now()->format('Y-m-d');
         $start = is_string($start) && $start !== '' ? $start : now()->toImmutable()->subDay(2)->format('Y-m-d');
-
 
         $issuers = Issuer::with('tenant')
             ->where('is_enabled', true)
             ->where('sync_sieg', true)
-            ->when($issuerId !== null, fn($q) => $q->where('id', $issuerId))
+            ->when($issuerId !== null, fn ($q) => $q->where('id', $issuerId))
             ->get();
 
         foreach ($issuers as $issuer) {
@@ -56,7 +54,7 @@ class ConsultaDocumentosEmLote extends Command
 
             SiegConnect::dispatch(
                 1, //  tipo documento
-                'CnpjEmit', // Tipo CNPJ                
+                'CnpjEmit', // Tipo CNPJ
                 $start,
                 $end,
                 $issuer->id,
@@ -65,17 +63,7 @@ class ConsultaDocumentosEmLote extends Command
 
             SiegConnect::dispatch(
                 1, //  tipo documento
-                'CnpjDest', // Tipo CNPJ                
-                $start,
-                $end,
-                $issuer->id,
-                $importJob->id,
-            );
-
-
-            SiegConnect::dispatch(
-                2, //  tipo documento
-                'CnpjEmit', // Tipo CNPJ                
+                'CnpjDest', // Tipo CNPJ
                 $start,
                 $end,
                 $issuer->id,
@@ -84,7 +72,7 @@ class ConsultaDocumentosEmLote extends Command
 
             SiegConnect::dispatch(
                 2, //  tipo documento
-                'CnpjDest', // Tipo CNPJ                
+                'CnpjEmit', // Tipo CNPJ
                 $start,
                 $end,
                 $issuer->id,
@@ -93,7 +81,7 @@ class ConsultaDocumentosEmLote extends Command
 
             SiegConnect::dispatch(
                 2, //  tipo documento
-                'CnpjRem', // Tipo CNPJ                
+                'CnpjDest', // Tipo CNPJ
                 $start,
                 $end,
                 $issuer->id,
@@ -102,7 +90,16 @@ class ConsultaDocumentosEmLote extends Command
 
             SiegConnect::dispatch(
                 2, //  tipo documento
-                'CnpjTom', // Tipo CNPJ                
+                'CnpjRem', // Tipo CNPJ
+                $start,
+                $end,
+                $issuer->id,
+                $importJob->id,
+            );
+
+            SiegConnect::dispatch(
+                2, //  tipo documento
+                'CnpjTom', // Tipo CNPJ
                 $start,
                 $end,
                 $issuer->id,
@@ -117,7 +114,7 @@ class ConsultaDocumentosEmLote extends Command
 
     private function createImportJob(Issuer $issuer): XmlImportJob
     {
-        return  XmlImportJob::createQuietly([
+        return XmlImportJob::createQuietly([
             'tenant_id' => $issuer->tenant_id,
             'issuer_id' => $issuer->id,
             'owner_type' => $issuer::class,

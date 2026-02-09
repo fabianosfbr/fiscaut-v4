@@ -2,20 +2,20 @@
 
 namespace App\Filament\Resources\Fornecedors\Tables;
 
-use Filament\Tables\Table;
-use Filament\Actions\EditAction;
-use Illuminate\Support\Facades\Auth;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class FornecedorsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
-           ->recordUrl(null)
+            ->recordUrl(null)
             ->modifyQueryUsing(function (Builder $query) {
                 $query->where('issuer_id', Auth::user()->currentIssuer->id);
             })

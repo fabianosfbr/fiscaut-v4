@@ -8,11 +8,10 @@ use App\Filament\Resources\PlanoDeContas\Pages\ListPlanoDeContas;
 use App\Filament\Resources\PlanoDeContas\Schemas\PlanoDeContaForm;
 use App\Filament\Resources\PlanoDeContas\Tables\PlanoDeContasTable;
 use App\Models\PlanoDeConta;
-use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class PlanoDeContaResource extends Resource
 {
@@ -21,7 +20,6 @@ class PlanoDeContaResource extends Resource
     protected static ?string $navigationLabel = 'Plano de Contas';
 
     protected static string|UnitEnum|null $navigationGroup = 'Configurações';
-
 
     public static function form(Schema $schema): Schema
     {

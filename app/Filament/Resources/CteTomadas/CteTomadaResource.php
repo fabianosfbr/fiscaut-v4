@@ -11,7 +11,6 @@ use App\Models\ConhecimentoTransporteEletronico;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
 class CteTomadaResource extends Resource
@@ -42,7 +41,6 @@ class CteTomadaResource extends Resource
     {
         return CteTomadasTable::configure($table);
     }
-
 
     public static function getRelations(): array
     {

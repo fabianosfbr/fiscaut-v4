@@ -18,7 +18,7 @@ class ListFornecedors extends ListRecords
         ];
     }
 
-       public function getHeading(): string
+    public function getHeading(): string
     {
         return 'Fornecedores';
     }

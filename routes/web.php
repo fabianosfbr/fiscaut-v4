@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PlanoDeContaSelectController;
 use App\Http\Controllers\TempFileController;
 use App\Http\Controllers\UploadFileController;
-use App\Http\Controllers\PlanoDeContaSelectController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
@@ -18,7 +18,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('filament/remote-select/search', [PlanoDeContaSelectController::class, 'search'])
         ->name('filament.remote-select.search');
-
 
     // Route::get('nfse/pdf/{id}', [NfsePdfController::class, 'showPdf'])
     //     ->name('nfse.pdf.show');

@@ -8,20 +8,18 @@ use App\Filament\Resources\Fornecedors\Pages\ListFornecedors;
 use App\Filament\Resources\Fornecedors\Schemas\FornecedorForm;
 use App\Filament\Resources\Fornecedors\Tables\FornecedorsTable;
 use App\Models\Fornecedor;
-use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class FornecedorResource extends Resource
 {
     protected static ?string $model = Fornecedor::class;
 
-     protected static ?string $navigationLabel = 'Fornecedores';
+    protected static ?string $navigationLabel = 'Fornecedores';
 
-
-      protected static string|UnitEnum|null $navigationGroup = 'Configurações';
+    protected static string|UnitEnum|null $navigationGroup = 'Configurações';
 
     public static function form(Schema $schema): Schema
     {

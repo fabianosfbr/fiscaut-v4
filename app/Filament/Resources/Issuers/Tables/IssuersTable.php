@@ -95,7 +95,6 @@ class IssuersTable
                     $hoje = Carbon::now();
                     $diasRestantes = round($hoje->diffInDays($dataVencimento, false));
 
-
                     if ($diasRestantes < 0) {
                         $diasVencidos = round(abs($diasRestantes));
 

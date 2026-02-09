@@ -2,16 +2,14 @@
 
 namespace App\Filament\Resources\PlanoDeContas\Tables;
 
-use Filament\Tables\Table;
-use Filament\Actions\EditAction;
-use Illuminate\Support\Facades\Auth;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class PlanoDeContasTable
 {
@@ -50,10 +48,10 @@ class PlanoDeContasTable
                     ->trueLabel('Analítica')
                     ->falseLabel('Sintética')
                     ->queries(
-                        true: fn(Builder $query) => $query->where('tipo', 'A'),
-                        false: fn(Builder $query) => $query->where('tipo', 'S'),
-                        blank: fn(Builder $query) => $query,
-                    )
+                        true: fn (Builder $query) => $query->where('tipo', 'A'),
+                        false: fn (Builder $query) => $query->where('tipo', 'S'),
+                        blank: fn (Builder $query) => $query,
+                    ),
             ])
             ->recordActions([
                 EditAction::make(),

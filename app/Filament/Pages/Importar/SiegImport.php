@@ -2,23 +2,23 @@
 
 namespace App\Filament\Pages\Importar;
 
-use UnitEnum;
-use App\Models\User;
-use App\Models\Issuer;
-use Filament\Pages\Page;
-use App\Models\XmlImportJob;
-use Filament\Schemas\Schema;
-use App\Jobs\Sieg\SiegConnect;
 use App\Enums\XmlImportJobType;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
-use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Grid;
-use Filament\Notifications\Notification;
-use Filament\Schemas\Components\Section;
+use App\Jobs\Sieg\SiegConnect;
+use App\Models\Issuer;
+use App\Models\User;
+use App\Models\XmlImportJob;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
+use Filament\Pages\Page;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use UnitEnum;
 
 class SiegImport extends Page
 {
@@ -164,7 +164,7 @@ class SiegImport extends Page
                 (int) $data['tipoDocumento'],
                 $this->tipoCnpj,
                 $data['dataInicial'],
-                $data['dataFinal'],            
+                $data['dataFinal'],
                 $user->currentIssuer->id,
                 $importJob->id,
             );
@@ -178,11 +178,11 @@ class SiegImport extends Page
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Erro')
-                ->body('Ocorreu um erro ao iniciar o processamento: ' . $e->getMessage())
+                ->body('Ocorreu um erro ao iniciar o processamento: '.$e->getMessage())
                 ->danger()
                 ->send();
 
-            Log::error('Erro ao iniciar importação SIEG: ' . $e->getMessage());
+            Log::error('Erro ao iniciar importação SIEG: '.$e->getMessage());
         } finally {
             $this->isLoading = false;
         }
@@ -190,7 +190,7 @@ class SiegImport extends Page
 
     private function createImportJob(Issuer $issuer, User $user): XmlImportJob
     {
-        return  XmlImportJob::createQuietly([
+        return XmlImportJob::createQuietly([
             'user_id' => $user->id,
             'tenant_id' => $issuer->tenant_id,
             'issuer_id' => $issuer->id,

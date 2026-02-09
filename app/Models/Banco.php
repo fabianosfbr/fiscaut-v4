@@ -10,7 +10,6 @@ class Banco extends Model
 
     protected $table = 'contabil_bancos';
 
-
     public function plano_de_conta()
     {
         return $this->belongsTo(PlanoDeConta::class, 'conta_contabil', 'id');

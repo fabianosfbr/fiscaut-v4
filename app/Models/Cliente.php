@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Cliente extends Model
 {
-     protected $guarded = ['id'];
+    protected $guarded = ['id'];
 
     protected $table = 'contabil_clientes';
 
@@ -16,7 +16,7 @@ class Cliente extends Model
         'colunas_arquivo' => 'array',
     ];
 
-    //Plano de contas
+    // Plano de contas
     public function plano_de_conta()
     {
         return $this->belongsTo(PlanoDeConta::class, 'conta_contabil', 'id');

@@ -14,7 +14,7 @@ class XmlImportJobsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultSort('created_at', 'desc')            
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('created_at')
                     ->label('Data de Criação')
@@ -92,7 +92,7 @@ class XmlImportJobsTable
                         'success' => XmlImportJob::STATUS_COMPLETED,
                         'danger' => XmlImportJob::STATUS_FAILED,
                     ])
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         XmlImportJob::STATUS_PENDING => 'Pendente',
                         XmlImportJob::STATUS_PROCESSING => 'Processando',
                         XmlImportJob::STATUS_COMPLETED => 'Concluído',

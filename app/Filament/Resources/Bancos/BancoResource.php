@@ -8,11 +8,10 @@ use App\Filament\Resources\Bancos\Pages\ListBancos;
 use App\Filament\Resources\Bancos\Schemas\BancoForm;
 use App\Filament\Resources\Bancos\Tables\BancosTable;
 use App\Models\Banco;
-use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class BancoResource extends Resource
 {
