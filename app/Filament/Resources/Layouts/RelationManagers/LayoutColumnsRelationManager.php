@@ -23,38 +23,11 @@ class LayoutColumnsRelationManager extends RelationManager
 
     protected static ?string $recordTitleAttribute = 'excel_column_name';
 
-
+    protected static ?string $title = 'Estrutura da Planilha';
+    
     public function form(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                Forms\Components\TextInput::make('excel_column_name')
-                    ->label('Nome da Coluna no Excel')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('target_column_name')
-                    ->label('Descrição')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Select::make('data_type')
-                    ->label('Tipo de Dado')
-                    ->live()
-                    ->options([
-                        'text' => 'Texto',
-                        'number' => 'Número',
-                        'date' => 'Data',
-                    ])
-                    ->required(),
-                Forms\Components\TextInput::make('format')
-                    ->label('Formato')
-                    ->maxLength(255),
-
-                Forms\Components\Toggle::make('is_sanitize')
-                    ->label('Limpar conteúdo')
-                    ->default(false)
-                    ->columnSpanFull(),
-                // ...
-            ]);
+        return LayoutColumnSchema::configure($schema);
     }
 
     public function table(Table $table): Table
