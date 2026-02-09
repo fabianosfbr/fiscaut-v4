@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Enums\TipoFonteDeDadosEnum;
 use App\Enums\TipoRegraExportacaoEnum;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class LayoutRule extends Model
 {
@@ -19,7 +18,6 @@ class LayoutRule extends Model
         'rule_type' => TipoRegraExportacaoEnum::class,
         'data_source_type' => TipoFonteDeDadosEnum::class,
     ];
-
 
     public function layout()
     {

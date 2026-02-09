@@ -10,11 +10,10 @@ use App\Filament\Resources\Layouts\RelationManagers\LayoutRulesRelationManager;
 use App\Filament\Resources\Layouts\Schemas\LayoutForm;
 use App\Filament\Resources\Layouts\Tables\LayoutsTable;
 use App\Models\Layout;
-use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class LayoutResource extends Resource
 {

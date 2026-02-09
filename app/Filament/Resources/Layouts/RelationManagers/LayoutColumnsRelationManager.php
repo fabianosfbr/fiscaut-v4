@@ -2,20 +2,15 @@
 
 namespace App\Filament\Resources\Layouts\RelationManagers;
 
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use App\Models\LayoutColumn;
+use App\Filament\Resources\Layouts\Schemas\LayoutColumnSchema;
 use Filament\Actions\CreateAction;
 use Filament\Actions\EditAction;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Resources\RelationManagers\RelationManager;
-use App\Filament\Resources\Layouts\Schemas\LayoutColumnSchema;
-use Filament\Forms;
-use Filament\Schemas\Schema;
+use Filament\Tables\Table;
 
 class LayoutColumnsRelationManager extends RelationManager
 {
@@ -24,7 +19,7 @@ class LayoutColumnsRelationManager extends RelationManager
     protected static ?string $recordTitleAttribute = 'excel_column_name';
 
     protected static ?string $title = 'Estrutura da Planilha';
-    
+
     public function form(Schema $schema): Schema
     {
         return LayoutColumnSchema::configure($schema);
@@ -55,7 +50,7 @@ class LayoutColumnsRelationManager extends RelationManager
                 TextColumn::make('data_type')
                     ->label('Tipo de Dado')
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'text' => 'gray',
                         'number' => 'primary',
                         'date' => 'warning',
@@ -91,7 +86,6 @@ class LayoutColumnsRelationManager extends RelationManager
             ->headerActions([
                 CreateAction::make()
                     ->label('Adicionar Novo'),
-
 
             ])
             ->defaultSort('excel_column_name', 'asc');

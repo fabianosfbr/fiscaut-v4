@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\Layouts\Schemas;
 
-use Filament\Schemas\Schema;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 class LayoutForm
 {
@@ -23,10 +23,10 @@ class LayoutForm
                         Textarea::make('description')
                             ->label('Descrição')
                             ->maxLength(255)
-                            ->columnSpanFull()
+                            ->columnSpanFull(),
                     ])
                     ->columns(2)
-                    ->columnSpanFull()
+                    ->columnSpanFull(),
             ]);
     }
 }

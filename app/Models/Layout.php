@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Issuer;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Layout extends Model
 {
@@ -27,6 +25,7 @@ class Layout extends Model
     {
         return $this->hasMany(LayoutColumn::class);
     }
+
     public function layoutRules()
     {
         return $this->hasMany(LayoutRule::class);

@@ -2,21 +2,16 @@
 
 namespace App\Filament\Resources\Layouts\Schemas;
 
-use Filament\Schemas\Schema;
 use App\Models\HistoricoContabil;
-use App\Enums\TipoFonteDeDadosEnum;
 use Filament\Forms\Components\Radio;
-use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Components\Grid;
-use App\Enums\TipoRegraExportacaoEnum;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\Toggle;
+use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 
 class LayoutRuleSchema
 {
@@ -47,8 +42,6 @@ class LayoutRuleSchema
                     ->label('Nome da Regra')
                     ->required()
                     ->maxLength(255),
-
-
 
                 Select::make('data_source_type')
                     ->label('Tipo de Fonte de Dados')
@@ -88,8 +81,8 @@ class LayoutRuleSchema
 
                         return [];
                     })
-                    ->required(fn(Get $get): bool => $get('data_source_type') === 'column')
-                    ->visible(fn(Get $get): bool => $get('data_source_type') === 'column')
+                    ->required(fn (Get $get): bool => $get('data_source_type') === 'column')
+                    ->visible(fn (Get $get): bool => $get('data_source_type') === 'column')
                     ->searchable(),
 
                 Select::make('date_adjustment')
@@ -108,8 +101,8 @@ class LayoutRuleSchema
 
                 TextInput::make('data_source_constant')
                     ->label('Código do Plano de Contas')
-                    ->required(fn(Get $get): bool => $get('data_source_type') === 'constant')
-                    ->visible(fn(Get $get): bool => $get('data_source_type') === 'constant'),
+                    ->required(fn (Get $get): bool => $get('data_source_type') === 'constant')
+                    ->visible(fn (Get $get): bool => $get('data_source_type') === 'constant'),
 
                 Select::make('data_source_table')
                     ->label('Tabela')
@@ -119,8 +112,8 @@ class LayoutRuleSchema
                         'contabil_clientes' => 'Clientes',
                         'contabil_fornecedores' => 'Fornecedores',
                     ])
-                    ->required(fn(Get $get): bool => $get('data_source_type') === 'query')
-                    ->visible(fn(Get $get): bool => $get('data_source_type') === 'query')
+                    ->required(fn (Get $get): bool => $get('data_source_type') === 'query')
+                    ->visible(fn (Get $get): bool => $get('data_source_type') === 'query')
                     ->live()
                     ->afterStateUpdated(function (Set $set) {
                         $set('data_source_attribute', null);
@@ -153,10 +146,11 @@ class LayoutRuleSchema
                                 'nome' => 'Razão Social',
                             ];
                         }
+
                         return [];
                     })
-                    ->required(fn(Get $get): bool => $get('data_source_type') === 'query')
-                    ->visible(fn(Get $get): bool => $get('data_source_type') === 'query')
+                    ->required(fn (Get $get): bool => $get('data_source_type') === 'query')
+                    ->visible(fn (Get $get): bool => $get('data_source_type') === 'query')
                     ->reactive(),
 
                 Select::make('data_source_condition')
@@ -165,8 +159,8 @@ class LayoutRuleSchema
                         '=' => 'Igual a',
                         'like' => 'Contém',
                     ])
-                    ->required(fn(Get $get): bool => $get('data_source_type') === 'query')
-                    ->visible(fn(Get $get): bool => $get('data_source_type') === 'query'),
+                    ->required(fn (Get $get): bool => $get('data_source_type') === 'query')
+                    ->visible(fn (Get $get): bool => $get('data_source_type') === 'query'),
 
                 Select::make('data_source_value_type')
                     ->label('Tipo de Valor da Pesquisa')
@@ -174,8 +168,8 @@ class LayoutRuleSchema
                         'constant' => 'Valor Constante',
                         'column' => 'Coluna do Excel',
                     ])
-                    ->required(fn(Get $get): bool => $get('data_source_type') === 'query')
-                    ->visible(fn(Get $get): bool => $get('data_source_type') === 'query')
+                    ->required(fn (Get $get): bool => $get('data_source_type') === 'query')
+                    ->visible(fn (Get $get): bool => $get('data_source_type') === 'query')
                     ->reactive()
                     ->afterStateUpdated(function (Set $set, $state) {
                         if ($state !== 'column') {
@@ -199,16 +193,14 @@ class LayoutRuleSchema
 
                         return [];
                     })
-                    ->required(fn(Get $get): bool => $get('data_source_type') === 'query' && $get('data_source_value_type') === 'column')
-                    ->visible(fn(Get $get): bool => $get('data_source_type') === 'query' && $get('data_source_value_type') === 'column')
+                    ->required(fn (Get $get): bool => $get('data_source_type') === 'query' && $get('data_source_value_type') === 'column')
+                    ->visible(fn (Get $get): bool => $get('data_source_type') === 'query' && $get('data_source_value_type') === 'column')
                     ->searchable(),
 
                 TextInput::make('data_source_search_constant')
                     ->label('Valor Constante para Pesquisa')
-                    ->required(fn(Get $get): bool => $get('data_source_type') === 'query' && $get('data_source_value_type') === 'constant')
-                    ->visible(fn(Get $get): bool => $get('data_source_type') === 'query' && $get('data_source_value_type') === 'constant'),
-
-
+                    ->required(fn (Get $get): bool => $get('data_source_type') === 'query' && $get('data_source_value_type') === 'constant')
+                    ->visible(fn (Get $get): bool => $get('data_source_type') === 'query' && $get('data_source_value_type') === 'constant'),
 
                 Select::make('data_source_historico')
                     ->label('Cód. Histórico')
@@ -219,7 +211,8 @@ class LayoutRuleSchema
                             ->orderBy('codigo', 'asc')
                             ->get()
                             ->map(function ($item) {
-                                $item->codigo_descricao = $item->codigo . ' | ' . $item->descricao;
+                                $item->codigo_descricao = $item->codigo.' | '.$item->descricao;
+
                                 return $item;
                             })
 
@@ -227,8 +220,8 @@ class LayoutRuleSchema
 
                         return $values;
                     })
-                    ->required(fn(Get $get): bool => $get('data_source_type') === 'constant' || $get('data_source_type') === 'query' && $get('data_source_table') === 'contabil_clientes' || $get('data_source_table') === 'contabil_fornecedores')
-                    ->visible(fn(Get $get): bool => $get('data_source_type') === 'constant' || $get('data_source_type') === 'query' && $get('data_source_table') === 'contabil_clientes' || $get('data_source_table') === 'contabil_fornecedores'),
+                    ->required(fn (Get $get): bool => $get('data_source_type') === 'constant' || $get('data_source_type') === 'query' && $get('data_source_table') === 'contabil_clientes' || $get('data_source_table') === 'contabil_fornecedores')
+                    ->visible(fn (Get $get): bool => $get('data_source_type') === 'constant' || $get('data_source_type') === 'query' && $get('data_source_table') === 'contabil_clientes' || $get('data_source_table') === 'contabil_fornecedores'),
 
                 Select::make('condition_type')
                     ->label('Tipo de Condição')
@@ -255,8 +248,8 @@ class LayoutRuleSchema
                         'column' => 'Coluna',
                         'constant' => 'Constante',
                     ])
-                    ->required(fn(Get $get): bool => $get('condition_type') === 'if')
-                    ->visible(fn(Get $get): bool => $get('condition_type') === 'if')
+                    ->required(fn (Get $get): bool => $get('condition_type') === 'if')
+                    ->visible(fn (Get $get): bool => $get('condition_type') === 'if')
                     ->live()
                     ->afterStateUpdated(function (Set $set, $state) {
                         if ($state !== 'column' && $state !== 'query') {
@@ -280,14 +273,14 @@ class LayoutRuleSchema
 
                         return [];
                     })
-                    ->required(fn(Get $get): bool => $get('condition_type') === 'if' && $get('condition_data_source_type') === 'column')
-                    ->visible(fn(Get $get): bool => $get('condition_type') === 'if' && $get('condition_data_source_type') === 'column')
+                    ->required(fn (Get $get): bool => $get('condition_type') === 'if' && $get('condition_data_source_type') === 'column')
+                    ->visible(fn (Get $get): bool => $get('condition_type') === 'if' && $get('condition_data_source_type') === 'column')
                     ->searchable(),
 
                 TextInput::make('condition_data_source_constant')
                     ->label('Valor Constante (Condição)')
-                    ->required(fn(Get $get): bool => $get('condition_type') === 'if' && $get('condition_data_source_type') === 'constant')
-                    ->visible(fn(Get $get): bool => $get('condition_type') === 'if' && $get('condition_data_source_type') === 'constant'),
+                    ->required(fn (Get $get): bool => $get('condition_type') === 'if' && $get('condition_data_source_type') === 'constant')
+                    ->visible(fn (Get $get): bool => $get('condition_type') === 'if' && $get('condition_data_source_type') === 'constant'),
 
                 Select::make('condition_operator')
                     ->label('Operador da Condição')
@@ -302,15 +295,15 @@ class LayoutRuleSchema
                         'contains' => 'Contém',
                         'not_contains' => 'Não Contém',
                         'empty' => 'Vazio',
-                        'not_empty' => 'Não Vazio'
+                        'not_empty' => 'Não Vazio',
                     ])
-                    ->required(fn(Get $get): bool => $get('condition_type') === 'if')
-                    ->visible(fn(Get $get): bool => $get('condition_type') === 'if'),
+                    ->required(fn (Get $get): bool => $get('condition_type') === 'if')
+                    ->visible(fn (Get $get): bool => $get('condition_type') === 'if'),
 
                 TextInput::make('condition_value')
                     ->label('Valor da Condição')
-                    ->required(fn(Get $get): bool => $get('condition_type') === 'if' && !in_array($get('condition_operator'), ['empty', 'not_empty']))
-                    ->visible(fn(Get $get): bool => $get('condition_type') === 'if' && !in_array($get('condition_operator'), ['empty', 'not_empty'])),
+                    ->required(fn (Get $get): bool => $get('condition_type') === 'if' && ! in_array($get('condition_operator'), ['empty', 'not_empty']))
+                    ->visible(fn (Get $get): bool => $get('condition_type') === 'if' && ! in_array($get('condition_operator'), ['empty', 'not_empty'])),
 
                 TextInput::make('default_value')
                     ->label('Valor Padrão')
@@ -318,8 +311,6 @@ class LayoutRuleSchema
                         return $get('rule_type') !== 'historico_contabil';
                     })
                     ->nullable(),
-
-
 
                 Select::make('data_source_historical_columns')
                     ->label('Colunas do Excel para Processar Parâmetros')

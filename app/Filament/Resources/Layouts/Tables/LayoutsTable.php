@@ -3,16 +3,15 @@
 namespace App\Filament\Resources\Layouts\Tables;
 
 use App\Models\Layout;
-use Filament\Tables\Table;
 use Filament\Actions\Action;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Illuminate\Support\Facades\Auth;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class LayoutsTable
 {
@@ -44,8 +43,8 @@ class LayoutsTable
                     ->action(function (Layout $record) {
 
                         $newLayout = $record->duplicateWithRelationships();
-                        $newLayout->name = $record->name . ' - Cópia';
-                        $newLayout->name = $record->description . ' - Cópia';
+                        $newLayout->name = $record->name.' - Cópia';
+                        $newLayout->name = $record->description.' - Cópia';
                         $newLayout->save();
                     }),
 
@@ -56,6 +55,7 @@ class LayoutsTable
                                 ->title('Não é possível excluir o leiaute, pois existem colunas vinculadas a ele.')
                                 ->danger()
                                 ->send();
+
                             return;
                         }
 
@@ -64,6 +64,7 @@ class LayoutsTable
                                 ->title('Não é possível excluir o leiaute, pois existem regras vinculadas a ele.')
                                 ->danger()
                                 ->send();
+
                             return;
                         }
 

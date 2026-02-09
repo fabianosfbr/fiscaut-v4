@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\Layouts\Pages;
 
-use Filament\Actions\DeleteAction;
+use App\Filament\Resources\Layouts\LayoutResource;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Contracts\Support\Htmlable;
-use App\Filament\Resources\Layouts\LayoutResource;
 
 class EditLayout extends EditRecord
 {
@@ -16,11 +15,10 @@ class EditLayout extends EditRecord
         return [];
     }
 
-    public function getTitle(): string | Htmlable
+    public function getTitle(): string|Htmlable
     {
         return 'Gerenciar Leiaute';
     }
-
 
     protected function getRedirectUrl(): string
     {

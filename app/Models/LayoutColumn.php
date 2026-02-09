@@ -2,15 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class LayoutColumn extends Model
 {
-
     protected $table = 'contabil_layout_columns';
-    protected $guarded = ['id'];
 
+    protected $guarded = ['id'];
 
     public function layout()
     {

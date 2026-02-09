@@ -4,11 +4,8 @@ namespace App\Enums;
 
 use Filament\Support\Contracts\HasLabel;
 
-
-
 enum TipoFonteDeDadosEnum: string implements HasLabel
 {
-
     case COLUNA = 'column';
     case CONSTANTE = 'constant';
     case CONSULTA = 'query';

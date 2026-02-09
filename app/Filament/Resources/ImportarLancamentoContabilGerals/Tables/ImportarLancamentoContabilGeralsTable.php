@@ -2,16 +2,15 @@
 
 namespace App\Filament\Resources\ImportarLancamentoContabilGerals\Tables;
 
-use Filament\Tables\Table;
-use Filament\Actions\EditAction;
-use Illuminate\Support\Facades\Auth;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class ImportarLancamentoContabilGeralsTable
 {
@@ -21,6 +20,7 @@ class ImportarLancamentoContabilGeralsTable
             ->recordUrl(null)
             ->modifyQueryUsing(function (Builder $query) {
                 $user = Auth::user();
+
                 return $query->where('user_id', Auth::user()->id)
                     ->where('valor', '!=', 0)
                     ->where('issuer_id', $user->currentIssuer->id);
@@ -35,7 +35,7 @@ class ImportarLancamentoContabilGeralsTable
                     ->searchable()
                     ->badge()
                     ->tooltip(function (Model $record) {
-                        if (!is_null($record->metadata) && isset($record->metadata['descricao_debito'])) {
+                        if (! is_null($record->metadata) && isset($record->metadata['descricao_debito'])) {
                             return $record->metadata['descricao_debito'];
                         }
 
@@ -49,7 +49,7 @@ class ImportarLancamentoContabilGeralsTable
                     ->searchable()
                     ->badge()
                     ->tooltip(function (Model $record) {
-                        if (!is_null($record->metadata) && isset($record->metadata['descricao_credito'])) {
+                        if (! is_null($record->metadata) && isset($record->metadata['descricao_credito'])) {
 
                             return $record->metadata['descricao_credito'];
                         }
@@ -59,7 +59,6 @@ class ImportarLancamentoContabilGeralsTable
                     ->color('danger')
                     ->copyable(),
 
-
                 TextColumn::make('valor')
                     ->label('Valor')
                     ->formatStateUsing(function ($state) {
@@ -67,9 +66,8 @@ class ImportarLancamentoContabilGeralsTable
                             return '';
                         }
 
-                        return 'R$ ' . number_format($state, 2, ',', '.');
+                        return 'R$ '.number_format($state, 2, ',', '.');
                     }),
-
 
                 TextColumn::make('historico')
                     ->label('Histórico Contábil')
@@ -83,11 +81,11 @@ class ImportarLancamentoContabilGeralsTable
 
                 IconColumn::make('is_exist')
                     ->label('Vínculo')
-                    ->boolean()
+                    ->boolean(),
             ])
             ->filters([
                 TernaryFilter::make('is_exist')
-                    ->label('Possui Vínculo')
+                    ->label('Possui Vínculo'),
             ])
             ->recordActions([
                 EditAction::make(),

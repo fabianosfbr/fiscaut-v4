@@ -2,17 +2,13 @@
 
 namespace App\Filament\Resources\Layouts\RelationManagers;
 
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Form;
-use App\Models\LayoutRule;
-use Filament\Tables\Table;
-use Filament\Schemas\Schema;
-use Filament\Actions\EditAction;
-use Filament\Actions\CreateAction;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Resources\RelationManagers\RelationManager;
 use App\Filament\Resources\Layouts\Schemas\LayoutRuleSchema;
+use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
+use Filament\Tables;
+use Filament\Tables\Table;
 
 class LayoutRulesRelationManager extends RelationManager
 {
@@ -47,8 +43,8 @@ class LayoutRulesRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('rule_type')
                     ->label('Tipo de Regra')
                     ->badge()
-                    ->formatStateUsing(fn($state) => $state?->getLabel() ?? 'Desconhecido')
-                    ->color(fn(string $state): string => match ((string) $state) {
+                    ->formatStateUsing(fn ($state) => $state?->getLabel() ?? 'Desconhecido')
+                    ->color(fn (string $state): string => match ((string) $state) {
                         'data_da_operacao' => 'warning',
                         'operacao_de_debito' => 'danger',
                         'operacao_de_credito' => 'success',
@@ -60,8 +56,8 @@ class LayoutRulesRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('data_source_type')
                     ->label('Tipo de Fonte')
                     ->badge()
-                    ->formatStateUsing(fn($state) => $state?->getLabel() ?? 'Desconhecido')
-                    ->color(fn(string $state): string => match ((string) $state) {
+                    ->formatStateUsing(fn ($state) => $state?->getLabel() ?? 'Desconhecido')
+                    ->color(fn (string $state): string => match ((string) $state) {
                         'column' => 'gray',
                         'constant' => 'primary',
                         'query' => 'warning',
