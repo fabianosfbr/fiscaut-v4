@@ -92,11 +92,11 @@ class ImportarLancamentoContabilJob implements ShouldQueue
                 ->body('Todos os registros foram processados com sucesso.')
                 ->sendToDatabase($user);
         } catch (Exception $e) {
-            Log::error('Erro no Job ImportarLancamentoContabilJob: ' . $e->getMessage());
+            Log::error('Erro no Job ImportarLancamentoContabilJob: '.$e->getMessage());
 
             $jobProgress?->update([
                 'status' => 'failed',
-                'message' => 'Erro: ' . $e->getMessage(),
+                'message' => 'Erro: '.$e->getMessage(),
             ]);
 
             throw $e;

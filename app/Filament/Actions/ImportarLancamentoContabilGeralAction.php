@@ -14,10 +14,8 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\HtmlString;
 
 class ImportarLancamentoContabilGeralAction
 {
@@ -58,7 +56,7 @@ class ImportarLancamentoContabilGeralAction
                     if (! empty($missingColumns)) {
                         Notification::make()
                             ->title('Colunas Ausentes')
-                            ->body('As seguintes colunas estão faltando no arquivo Excel: ' . implode(', ', $missingColumns))
+                            ->body('As seguintes colunas estão faltando no arquivo Excel: '.implode(', ', $missingColumns))
                             ->danger()
                             ->persistent()
                             ->send();
@@ -68,7 +66,7 @@ class ImportarLancamentoContabilGeralAction
                     }
 
                     // Cria o registro de progresso
-                    $jobProgress =  $jobProgress = JobProgress::create([
+                    $jobProgress = $jobProgress = JobProgress::create([
                         'status' => 'pending',
                         'progress' => 0,
                         'message' => 'Aguardando início do processamento...',
@@ -95,7 +93,7 @@ class ImportarLancamentoContabilGeralAction
                     Log::error($e->getMessage());
                     Notification::make()
                         ->title('Erro na Importação')
-                        ->body('Ocorreu um erro ao iniciar a importação: ' . $e->getMessage())
+                        ->body('Ocorreu um erro ao iniciar a importação: '.$e->getMessage())
                         ->danger()
                         ->send();
 

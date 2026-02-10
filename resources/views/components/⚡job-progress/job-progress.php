@@ -1,17 +1,18 @@
 <?php
 
-use Livewire\Component;
 use App\Models\JobProgress;
-use Livewire\Attributes\On;
-use Illuminate\Support\Facades\Log;
+use Livewire\Component;
 
 new class extends Component
 {
     public ?string $jobId = null;
+
     public bool $poll = true;
 
     public int $progress = 0;
+
     public string $status = 'pending';
+
     public ?string $message = null;
 
     public bool $isVisible = false;
@@ -34,6 +35,7 @@ new class extends Component
     {
         if (! $this->jobId) {
             $this->isVisible = false;
+
             return;
         }
 
@@ -41,12 +43,13 @@ new class extends Component
 
         if (! $progress) {
             $this->isVisible = false;
+
             return;
         }
 
         $this->progress = $progress->progress;
-        $this->status   = $progress->status;
-        $this->message  = $progress->message;
+        $this->status = $progress->status;
+        $this->message = $progress->message;
 
         // Se o status for 'done' ou 'failed', o job finalizou
         if (in_array($this->status, ['done', 'failed'])) {
