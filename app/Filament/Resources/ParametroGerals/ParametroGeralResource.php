@@ -19,7 +19,9 @@ class ParametroGeralResource extends Resource
 
     protected static ?string $navigationLabel = 'Parâmetros Gerais';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Configurações';
+    protected static string|UnitEnum|null $navigationGroup = 'Contabilidade';
+
+    protected static ?int $navigationSort = 4;
 
     public static function form(Schema $schema): Schema
     {
