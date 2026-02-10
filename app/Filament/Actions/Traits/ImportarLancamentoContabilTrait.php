@@ -2,28 +2,24 @@
 
 namespace App\Filament\Actions\Traits;
 
-use Exception;
-
-use App\Models\Layout;
-use App\Models\PlanoDeConta;
-use App\Models\ParametroGeral;
-use Illuminate\Support\Carbon;
+use App\Enums\TipoRegraExportacaoEnum;
 use App\Models\HistoricoContabil;
-
+use App\Models\ImportarLancamentoContabil;
+use App\Models\Layout;
+use App\Models\ParametroGeral;
+use App\Models\PlanoDeConta;
+use Exception;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
-use App\Enums\TipoRegraExportacaoEnum;
-use App\Models\ImportarLancamentoContabil;
 
 trait ImportarLancamentoContabilTrait
 {
-
-
     private static function prepareData(array $dataFile, Layout $layout, $user = null): Collection
     {
-        $preparedData = new Collection();
+        $preparedData = new Collection;
 
         // Contadores e estrutura do relatório de processamento
         $processedCount = 0;
@@ -64,8 +60,7 @@ trait ImportarLancamentoContabilTrait
                 $rowLine['texto_linha'] = implode(' ', self::resolveHistoricoContabilValue($rule, $row, $layout));
             }
 
-
-            if (!is_null($rowLine['valor_da_operacao'])) {
+            if (! is_null($rowLine['valor_da_operacao'])) {
 
                 $debito = isset($rowLine['operacao_de_debito']['conta_contabil_code']) ? $rowLine['operacao_de_debito']['conta_contabil_code'] : $rowLine['operacao_de_debito']['conta_contabil'] ?? null;
                 $credito = isset($rowLine['operacao_de_credito']['conta_contabil_code']) ? $rowLine['operacao_de_credito']['conta_contabil_code'] : $rowLine['operacao_de_credito']['conta_contabil'] ?? null;
@@ -77,19 +72,18 @@ trait ImportarLancamentoContabilTrait
                     'valor' => $rowLine['valor_da_operacao'],
                     'debito' => $debito,
                     'credito' => $credito,
-                    'is_exist' => !is_null($rowLine['data_da_operacao'] ?? null) && !is_null($rowLine['operacao_de_debito']['conta_contabil'] ?? null) && !is_null($rowLine['operacao_de_credito']['conta_contabil'] ?? null),
+                    'is_exist' => ! is_null($rowLine['data_da_operacao'] ?? null) && ! is_null($rowLine['operacao_de_debito']['conta_contabil'] ?? null) && ! is_null($rowLine['operacao_de_credito']['conta_contabil'] ?? null),
                     'metadata' => [
                         'descricao_debito' => $debito !== null ? self::getDescricaoDebito($rowLine) : null,
                         'descricao_credito' => $credito !== null ? self::getDescricaoCredito($rowLine) : null,
                         'cod_historico' => $debito !== null && $credito !== null ? self::getCodigoHistorico($rowLine) : null,
                         'historico' => $debito !== null && $credito !== null ? self::getHistorico(self::getCodigoHistorico($rowLine), $issuer_id) : null,
-                        'texto_linha' => $rowLine['texto_linha'] . ' (' . self::getCodigoHistorico($rowLine) . ')',
+                        'texto_linha' => $rowLine['texto_linha'].' ('.self::getCodigoHistorico($rowLine).')',
                         'row' => $row,
-                    ]
+                    ],
                 ];
 
-
-                $import = new ImportarLancamentoContabil();
+                $import = new ImportarLancamentoContabil;
                 $import->issuer_id = $issuer_id;
                 $import->user_id = $user_id;
                 $import->data = $rowLine['data_da_operacao'];
@@ -100,7 +94,6 @@ trait ImportarLancamentoContabilTrait
                 $import->metadata = $data['metadata'];
 
                 $import->historico = self::substituirCaracteresHistoricoContabil($import);
-
 
                 $import->saveQuietly();
 
@@ -127,7 +120,6 @@ trait ImportarLancamentoContabilTrait
             }
         }
 
-
         // Monta e salva relatório na sessão para exibição ao usuário
         $report = [
             'total_linhas' => count($dataFile),
@@ -142,7 +134,7 @@ trait ImportarLancamentoContabilTrait
             $sessionKey = sprintf('importar_lancamento_contabil.report.%s.%s', $issuer_id, $user_id);
             session()->put($sessionKey, $report);
         } catch (\Throwable $e) {
-            Log::warning('Não foi possível salvar o relatório de importação na sessão: ' . $e->getMessage());
+            Log::warning('Não foi possível salvar o relatório de importação na sessão: '.$e->getMessage());
         }
 
         // A exibição do relatório agora é feita em uma página dedicada do Filament,
@@ -175,7 +167,7 @@ trait ImportarLancamentoContabilTrait
                 }
 
                 // Retorna pares "coluna: valor" para que o texto do histórico contenha o nome da coluna junto do conteúdo
-                $searchValues[] = $col . ': ' . (is_null($value) ? '' : (string) $value);
+                $searchValues[] = $col.': '.(is_null($value) ? '' : (string) $value);
             }
         }
 
@@ -204,7 +196,7 @@ trait ImportarLancamentoContabilTrait
 
         $value = $row[$rule->data_source] ?? null;
 
-        if (!isset($value) || !$column) {
+        if (! isset($value) || ! $column) {
             return null;
         }
 
@@ -218,8 +210,9 @@ trait ImportarLancamentoContabilTrait
     private static function formatNumberValue($value, $column)
     {
 
-        if ($value < 0)
+        if ($value < 0) {
             $value = $value * -1;
+        }
 
         return (float) $value;
     }
@@ -234,14 +227,14 @@ trait ImportarLancamentoContabilTrait
                 default => $value
             };
 
-
-            if (!$date) {
+            if (! $date) {
                 return Carbon::now();
             }
 
             return $date;
         } catch (Exception $e) {
-            Log::error("Erro ao formatar a data: " . $e->getMessage());
+            Log::error('Erro ao formatar a data: '.$e->getMessage());
+
             return null;
         }
     }
@@ -256,10 +249,9 @@ trait ImportarLancamentoContabilTrait
             return PlanoDeConta::where('codigo', $codigo)->first();
         });
 
-        if (!$planoDeConta) {
+        if (! $planoDeConta) {
             return null;
         }
-
 
         return [
             'conta_contabil' => $planoDeConta->codigo,
@@ -294,7 +286,6 @@ trait ImportarLancamentoContabilTrait
             }
         }
 
-
         // Busca todos os parâmetros cadastrados
         $params = ParametroGeral::where('issuer_id', $layout->issuer_id)->orderBy('order')->get();
 
@@ -302,12 +293,10 @@ trait ImportarLancamentoContabilTrait
         foreach ($params as $index => $parametro) {
             // Converte os termos do parâmetro para maiúsculo
             $termosOrig = is_array($parametro->params) ? $parametro->params : [];
-            $termos = array_values(array_filter(array_map(fn($termo) => mb_strtoupper((string) $termo, 'UTF-8'), $termosOrig), fn($t) => $t !== ''));
-
+            $termos = array_values(array_filter(array_map(fn ($termo) => mb_strtoupper((string) $termo, 'UTF-8'), $termosOrig), fn ($t) => $t !== ''));
 
             // Verifica se os termos estão presentes nos valores de busca
             $termosEncontrados = self::verificarTermos($termos, $searchValues, (bool) $parametro->is_inclusivo);
-
 
             if ($termosEncontrados) {
                 $value = $parametro->toArray();
@@ -324,10 +313,9 @@ trait ImportarLancamentoContabilTrait
     /**
      * Verifica se os termos estão presentes nos valores de busca
      *
-     * @param array $termos Array de termos a serem buscados
-     * @param array $searchValues Array de valores onde buscar
-     * @param bool $isInclusivo Se true, todos os termos devem estar presentes
-     * @return bool
+     * @param  array  $termos  Array de termos a serem buscados
+     * @param  array  $searchValues  Array de valores onde buscar
+     * @param  bool  $isInclusivo  Se true, todos os termos devem estar presentes
      */
     private static function verificarTermos(array $termos, array $searchValues, bool $isInclusivo): bool
     {
@@ -343,10 +331,11 @@ trait ImportarLancamentoContabilTrait
                     }
                 }
                 // Se qualquer termo não for encontrado, retorna false
-                if (!$termoEncontrado) {
+                if (! $termoEncontrado) {
                     return false;
                 }
             }
+
             return true;
         } else {
             // Modo OU: pelo menos um termo deve estar presente
@@ -357,6 +346,7 @@ trait ImportarLancamentoContabilTrait
                     }
                 }
             }
+
             return false;
         }
     }
@@ -376,34 +366,31 @@ trait ImportarLancamentoContabilTrait
             }
 
             $query = sprintf(
-                'SELECT * FROM %s WHERE %s %s ? AND issuer_id = ' . $rule->layout->issuer_id . ' LIMIT 1',
+                'SELECT * FROM %s WHERE %s %s ? AND issuer_id = '.$rule->layout->issuer_id.' LIMIT 1',
                 $rule->data_source_table,
                 $rule->data_source_attribute,
                 $rule->data_source_condition
             );
 
-
             $searchValue = $rule->data_source_condition === 'like' ? "%$searchValue%" : $searchValue;
 
-            if (is_string($searchValue) && trim($searchValue) !== "") {
+            if (is_string($searchValue) && trim($searchValue) !== '') {
                 $result = DB::select($query, [$searchValue]);
 
                 $data = isset($result[0]) ? (array) $result[0] : [];
                 $data['codigo_historico'] = $rule->data_source_historico ?? null;
             }
 
-
             return $data ?? null;
         } catch (Exception $e) {
-            Log::error("Erro ao executar a query: " . $e->getMessage());
+            Log::error('Erro ao executar a query: '.$e->getMessage());
+
             return $rule->default_value ?? null;
         }
     }
 
     private static function applyCondition($rule, $row, $layout, $value)
     {
-
-
 
         if ($rule->condition_type === 'none' || $value === null) {
             return $value;
@@ -414,8 +401,7 @@ trait ImportarLancamentoContabilTrait
 
             $conditionResult = self::evaluateCondition($rule, trim($conditionValue));
 
-
-            if (!$conditionResult) {
+            if (! $conditionResult) {
 
                 if (isset($rule->default_value)) {
                     return $rule->default_value;
@@ -423,7 +409,6 @@ trait ImportarLancamentoContabilTrait
 
                 return null;
             }
-
 
             if ($rule->rule_type === TipoRegraExportacaoEnum::DATA_DA_OPERACAO) {
 
@@ -439,8 +424,8 @@ trait ImportarLancamentoContabilTrait
     /**
      * Aplica um ajuste de data baseado no tipo de ajuste especificado
      *
-     * @param string $adjustmentType Tipo de ajuste ('same', 'd-1', 'd+1')
-     * @param mixed $value Valor da data a ser ajustado
+     * @param  string  $adjustmentType  Tipo de ajuste ('same', 'd-1', 'd+1')
+     * @param  mixed  $value  Valor da data a ser ajustado
      * @return mixed Valor ajustado
      */
     private static function applyDateAdjustment($adjustmentType, $value)
@@ -471,9 +456,11 @@ trait ImportarLancamentoContabilTrait
     {
         try {
             $conditionResult = DB::select($rule->condition_data_source, ['row' => $row, 'layout' => $layout]);
+
             return $conditionResult[0]->value ?? '';
         } catch (Exception $e) {
-            Log::error("Erro ao executar a query da condição: " . $e->getMessage());
+            Log::error('Erro ao executar a query da condição: '.$e->getMessage());
+
             return null;
         }
     }
@@ -482,7 +469,10 @@ trait ImportarLancamentoContabilTrait
     {
         // Normaliza os valores para comparação
         $normalizeValue = function ($value) {
-            if (is_null($value)) return '';
+            if (is_null($value)) {
+                return '';
+            }
+
             return trim((string) $value);
         };
 
@@ -492,7 +482,6 @@ trait ImportarLancamentoContabilTrait
         // Normaliza os valores antes da comparação
         $normalizedConditionValue = $normalizeValue($conditionValue);
         $normalizedRuleValue = $normalizeValue($ruleValue);
-
 
         // Operadores com valores normalizados
         switch ($operator) {
@@ -511,19 +500,15 @@ trait ImportarLancamentoContabilTrait
             case 'contains':
                 return str_contains($normalizedConditionValue, $normalizedRuleValue);
             case 'not_contains':
-                return !str_contains($normalizedConditionValue, $normalizedRuleValue);
+                return ! str_contains($normalizedConditionValue, $normalizedRuleValue);
             case 'empty':
                 return empty($conditionValue);
             case 'not_empty':
-                return !empty($conditionValue);
+                return ! empty($conditionValue);
             default:
                 return false;
         }
     }
-
-
-
-
 
     private static function getDescricaoDebito($row)
     {
@@ -570,7 +555,8 @@ trait ImportarLancamentoContabilTrait
 
     /**
      * Obtém o próximo dia útil
-     * @param \DateTimeImmutable|\Carbon\Carbon $date
+     *
+     * @param  \DateTimeImmutable|\Carbon\Carbon  $date
      * @return \DateTimeImmutable|\Carbon\Carbon
      */
     private static function getNextWorkingDay($date)
@@ -587,7 +573,7 @@ trait ImportarLancamentoContabilTrait
             // Mantém compatibilidade com Carbon
             $nextDay = $date->copy()->addDay();
 
-            while (!$nextDay->isWeekday()) {
+            while (! $nextDay->isWeekday()) {
                 $nextDay->addDay();
             }
 
@@ -597,7 +583,8 @@ trait ImportarLancamentoContabilTrait
 
     /**
      * Obtém o dia útil anterior
-     * @param \DateTimeImmutable|\Carbon\Carbon $date
+     *
+     * @param  \DateTimeImmutable|\Carbon\Carbon  $date
      * @return \DateTimeImmutable|\Carbon\Carbon
      */
     private static function getPreviousWorkingDay($date)
@@ -614,7 +601,7 @@ trait ImportarLancamentoContabilTrait
             // Mantém compatibilidade com Carbon
             $previousDay = $date->copy()->subDay();
 
-            while (!$previousDay->isWeekday()) {
+            while (! $previousDay->isWeekday()) {
                 $previousDay->subDay();
             }
 
@@ -622,15 +609,12 @@ trait ImportarLancamentoContabilTrait
         }
     }
 
-
     private static function substituirCaracteresHistoricoContabil($lancamento)
     {
         $texto = $lancamento->metadata['historico'];
 
-
         // Encontra todos os marcadores no formato #ALGO no texto
         preg_match_all('/#[^\s#]+/u', $texto, $matches);
-
 
         // Para cada marcador encontrado
         foreach ($matches[0] as $index => $marcador) {
@@ -664,7 +648,7 @@ trait ImportarLancamentoContabilTrait
                     break;
 
                 default:
-                    $codigo = strtr($codigo, "_", " ");
+                    $codigo = strtr($codigo, '_', ' ');
                     // Verifica se é uma chave do array row
                     if (isset($lancamento->metadata['row'][$codigo])) {
                         $valor = $lancamento->metadata['row'][$codigo];

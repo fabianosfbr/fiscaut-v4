@@ -2,13 +2,12 @@
 
 namespace App\Filament\Resources\ImportarLancamentoContabilGerals\Pages;
 
-use Filament\Support\Enums\Width;
-use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
-use App\Filament\Actions\ImportarLancamentoContabilGeralAction;
 use App\Filament\Actions\GerarArquivoTxtLancamentoContabilGeral;
-use App\Filament\Resources\ImportarLancamentoContabilGerals\Widgets\ImportLancamentoOverview;
+use App\Filament\Actions\ImportarLancamentoContabilGeralAction;
 use App\Filament\Resources\ImportarLancamentoContabilGerals\ImportarLancamentoContabilGeralResource;
+use App\Filament\Resources\ImportarLancamentoContabilGerals\Widgets\ImportLancamentoOverview;
+use Filament\Resources\Pages\ListRecords;
+use Filament\Support\Enums\Width;
 
 class ListImportarLancamentoContabilGerals extends ListRecords
 {
@@ -29,7 +28,7 @@ class ListImportarLancamentoContabilGerals extends ListRecords
         ];
     }
 
-        public function getMaxContentWidth(): Width
+    public function getMaxContentWidth(): Width
     {
         return Width::Full;
     }

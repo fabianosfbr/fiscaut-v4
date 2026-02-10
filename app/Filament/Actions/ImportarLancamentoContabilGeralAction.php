@@ -12,7 +12,6 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
-
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -20,7 +19,6 @@ use Illuminate\Support\Facades\Storage;
 class ImportarLancamentoContabilGeralAction
 {
     use ImportarLancamentoContabilTrait;
-
 
     public static function make(): Action
     {
@@ -54,10 +52,10 @@ class ImportarLancamentoContabilGeralAction
                     $fileReader = (new OptimizedExcelImport($layout, $filePath));
                     $missingColumns = $fileReader->validateExcelColumns();
 
-                    if (!empty($missingColumns)) {
+                    if (! empty($missingColumns)) {
                         Notification::make()
                             ->title('Colunas Ausentes')
-                            ->body('As seguintes colunas estão faltando no arquivo Excel: ' . implode(', ', $missingColumns))
+                            ->body('As seguintes colunas estão faltando no arquivo Excel: '.implode(', ', $missingColumns))
                             ->danger()
                             ->persistent()
                             ->send();
@@ -82,7 +80,7 @@ class ImportarLancamentoContabilGeralAction
                     Log::error($e->getMessage());
                     Notification::make()
                         ->title('Erro na Importação')
-                        ->body('Ocorreu um erro ao iniciar a importação: ' . $e->getMessage())
+                        ->body('Ocorreu um erro ao iniciar a importação: '.$e->getMessage())
                         ->danger()
                         ->send();
 

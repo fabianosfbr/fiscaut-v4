@@ -2,23 +2,22 @@
 
 namespace App\Filament\Actions;
 
-use Illuminate\Support\Str;
+use App\Filament\Forms\Components\SelectPlanoDeConta;
+use App\Models\HistoricoContabil;
+use App\Models\ImportarLancamentoContabil;
 use App\Models\PlanoDeConta;
 use Filament\Actions\Action;
-use App\Models\HistoricoContabil;
-use Illuminate\Support\Facades\Auth;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Checkbox;
-use Illuminate\Support\Facades\Storage;
+use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Fieldset;
-use App\Models\ImportarLancamentoContabil;
 use Illuminate\Database\Eloquent\Collection;
-use App\Filament\Forms\Components\SelectPlanoDeConta;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class GerarArquivoTxtLancamentoContabilGeral
 {
-
     public static function make(): Action
     {
         return Action::make('gerar-arquivo-txt-lancamento-contabil-geral')
@@ -41,7 +40,7 @@ class GerarArquivoTxtLancamentoContabilGeral
                     ->default(false),
 
                 Fieldset::make('Registros sem lançamento')
-                    ->visible(fn(callable $get) => $get('is_exist') === false)
+                    ->visible(fn (callable $get) => $get('is_exist') === false)
                     ->schema([
                         SelectPlanoDeConta::make('conta_contabil')
                             ->label('Conta contabil')
@@ -57,7 +56,8 @@ class GerarArquivoTxtLancamentoContabilGeral
                                     ->orderBy('codigo', 'asc')
                                     ->get()
                                     ->map(function ($item) {
-                                        $item->codigo_descricao = $item->codigo . ' | ' . $item->descricao;
+                                        $item->codigo_descricao = $item->codigo.' | '.$item->descricao;
+
                                         return $item;
                                     })
 
@@ -67,17 +67,16 @@ class GerarArquivoTxtLancamentoContabilGeral
                             })
                             ->columnSpan(2),
 
-                    ])
+                    ]),
             ])
             ->action(function (array $data, $action) {
-                $user =  Auth::user();
+                $user = Auth::user();
                 $lancamentos = ImportarLancamentoContabil::where('issuer_id', $user->currentIssuer->id)
                     ->where('user_id', $user->id)
                     ->where('valor', '!=', 0)
-                    ->when($data['is_exist'], fn($query) => $query->where('is_exist', $data['is_exist'])) // Aplica o filtro apenas se is_exist for true
+                    ->when($data['is_exist'], fn ($query) => $query->where('is_exist', $data['is_exist'])) // Aplica o filtro apenas se is_exist for true
                     ->orderBy('id', 'asc')
                     ->get();
-
 
                 if ($lancamentos->count() == 0) {
 
@@ -90,7 +89,7 @@ class GerarArquivoTxtLancamentoContabilGeral
                     $action->halt();
                 }
 
-                $filename = now()->format('m-Y') . '/' . Str::random(8) . '.txt';
+                $filename = now()->format('m-Y').'/'.Str::random(8).'.txt';
 
                 if (isset($data['conta_contabil'])) {
                     $conta_contabil = PlanoDeConta::where('issuer_id', $user->currentIssuer->id)
@@ -99,13 +98,11 @@ class GerarArquivoTxtLancamentoContabilGeral
                     $data['descricao_conta_contabil'] = $conta_contabil?->nome;
                 }
 
-
                 $txtContent = $this->gerarRelatorio($lancamentos, $data, ';');
 
                 $txtContentAnsi = mb_convert_encoding($txtContent, 'Windows-1252', 'UTF-8');
 
                 Storage::disk('downloads-files')->put($filename, $txtContentAnsi);
-
 
                 Notification::make()
                     ->title('Exportação iniciada')
@@ -119,8 +116,7 @@ class GerarArquivoTxtLancamentoContabilGeral
                         ->delete();
                 }
 
-
-                return response()->download(public_path('/downloads/' . $filename));
+                return response()->download(public_path('/downloads/'.$filename));
             });
     }
 
@@ -128,9 +124,9 @@ class GerarArquivoTxtLancamentoContabilGeral
     {
 
         $linhas = $lancamentos
-            ->map(fn($lancamento) => $this->formatarConteudo($lancamento, $data, $separador));
+            ->map(fn ($lancamento) => $this->formatarConteudo($lancamento, $data, $separador));
 
-        return $linhas->implode(PHP_EOL) . PHP_EOL;
+        return $linhas->implode(PHP_EOL).PHP_EOL;
     }
 
     private function formatarConteudo($lancamento, array $params, string $separador): string
@@ -139,12 +135,10 @@ class GerarArquivoTxtLancamentoContabilGeral
         $data = $lancamento->data->format('d/m/Y');
         $valorFormatado = number_format(abs($lancamento->valor), 2, ',', '');
 
-
         $semLancamento = false;
 
-        //Não possui lançamento
+        // Não possui lançamento
         if ($lancamento->is_exist == false) {
-
 
             $semLancamento = true;
             if (is_null($lancamento->credito)) {
@@ -163,7 +157,6 @@ class GerarArquivoTxtLancamentoContabilGeral
                 $lancamento->metadata = $metadata;
             }
         }
-
 
         return implode($separador, [
             $data,
