@@ -6,6 +6,7 @@ use App\Filament\Actions\Traits\ImportarLancamentoContabilTrait;
 use App\Imports\OptimizedExcelImport;
 use App\Jobs\ImportarLancamentoContabilJob;
 use App\Models\ImportarLancamentoContabil;
+use App\Models\JobProgress;
 use App\Models\Layout;
 use Exception;
 use Filament\Actions\Action;
@@ -13,8 +14,10 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\HtmlString;
 
 class ImportarLancamentoContabilGeralAction
 {
@@ -55,7 +58,7 @@ class ImportarLancamentoContabilGeralAction
                     if (! empty($missingColumns)) {
                         Notification::make()
                             ->title('Colunas Ausentes')
-                            ->body('As seguintes colunas estão faltando no arquivo Excel: '.implode(', ', $missingColumns))
+                            ->body('As seguintes colunas estão faltando no arquivo Excel: ' . implode(', ', $missingColumns))
                             ->danger()
                             ->persistent()
                             ->send();
@@ -64,23 +67,35 @@ class ImportarLancamentoContabilGeralAction
                         $action->halt();
                     }
 
+                    // Cria o registro de progresso
+                    $jobProgress =  $jobProgress = JobProgress::create([
+                        'status' => 'pending',
+                        'progress' => 0,
+                        'message' => 'Aguardando início do processamento...',
+                    ]);
+
+                    session()->put('jobProgressId', $jobProgress->id);
+
                     // Dispara o Job em background
                     ImportarLancamentoContabilJob::dispatch(
                         $layout->id,
                         $relativePath,
-                        Auth::user()->id
+                        Auth::user()->id,
+                        $jobProgress->id
                     );
 
                     Notification::make()
                         ->title('Importação Iniciada')
-                        ->body('O arquivo está sendo processado em segundo plano. Você será notificado quando terminar.')
+                        ->body('O arquivo será processado em segundo plano.')
                         ->success()
                         ->send();
+
+                    redirect(request()->header('Referer'));
                 } catch (Exception $e) {
                     Log::error($e->getMessage());
                     Notification::make()
                         ->title('Erro na Importação')
-                        ->body('Ocorreu um erro ao iniciar a importação: '.$e->getMessage())
+                        ->body('Ocorreu um erro ao iniciar a importação: ' . $e->getMessage())
                         ->danger()
                         ->send();
 

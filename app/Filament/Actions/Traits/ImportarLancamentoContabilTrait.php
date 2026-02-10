@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Log;
 
 trait ImportarLancamentoContabilTrait
 {
-    private static function prepareData(array $dataFile, Layout $layout, $user = null): Collection
+    private static function prepareData(array $dataFile, Layout $layout, $user = null, $jobProgress = null): Collection
     {
         $preparedData = new Collection;
 
@@ -32,8 +32,20 @@ trait ImportarLancamentoContabilTrait
         // Ordena as regras pela posição
         $rules = $layout->layoutRules()->orderBy('position')->get();
 
+        $totalRows = count($dataFile);
+
         foreach ($dataFile as $index => $row) {
             $rowNumber = $index + 1;
+
+            // Atualiza o progresso a cada 10 linhas ou no final
+            if ($jobProgress && ($rowNumber % 10 === 0 || $rowNumber === $totalRows)) {
+                $percentage = 10 + (int) (($rowNumber / $totalRows) * 80); // Inicia em 10% e vai até 90%
+                $jobProgress->update([
+                    'progress' => $percentage,
+                    'message' => "Processando linha {$rowNumber} de {$totalRows}...",
+                ]);
+            }
+
             $rowLine = [];
             $rowLine['operacao_de_debito'] = null;
             $rowLine['operacao_de_credito'] = null;

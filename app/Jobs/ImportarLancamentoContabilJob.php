@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Filament\Actions\Traits\ImportarLancamentoContabilTrait;
 use App\Imports\OptimizedExcelImport;
+use App\Models\JobProgress;
 use App\Models\Layout;
 use App\Models\User;
 use Exception;
@@ -26,7 +27,8 @@ class ImportarLancamentoContabilJob implements ShouldQueue
     public function __construct(
         protected int $layoutId,
         protected string $relativePath,
-        protected int $userId
+        protected int $userId,
+        protected ?string $jobProgressId = null
     ) {}
 
     /**
@@ -36,8 +38,14 @@ class ImportarLancamentoContabilJob implements ShouldQueue
     {
         $layout = Layout::find($this->layoutId);
         $user = User::find($this->userId);
+        $jobProgress = $this->jobProgressId ? JobProgress::find($this->jobProgressId) : null;
 
         if (! $layout || ! $user) {
+            $jobProgress?->update([
+                'status' => 'failed',
+                'message' => 'Layout ou Usuário não encontrado.',
+            ]);
+
             return;
         }
 
@@ -46,20 +54,45 @@ class ImportarLancamentoContabilJob implements ShouldQueue
         if (! file_exists($filePath)) {
             Log::error("Job ImportarLancamentoContabilJob: Arquivo não encontrado em {$filePath}");
 
+            $jobProgress?->update([
+                'status' => 'failed',
+                'message' => 'Arquivo não encontrado.',
+            ]);
+
             return;
         }
 
         try {
+            $jobProgress?->update([
+                'status' => 'running',
+                'progress' => 0,
+                'message' => 'Lendo arquivo Excel...',
+            ]);
+
             $fileReader = (new OptimizedExcelImport($layout, $filePath));
             $excelData = $fileReader->getData();
 
-            // Simulação de progresso se fosse necessário, mas prepareData processa tudo de uma vez.
-            // Para Filament Actions em background com progresso real, o ideal seria iterar aqui.
+            $jobProgress?->update([
+                'progress' => 10,
+                'message' => 'Processando dados...',
+            ]);
 
-            self::prepareData($excelData, $layout, $user);
+            self::prepareData($excelData, $layout, $user, $jobProgress);
+
+            $jobProgress?->update([
+                'status' => 'done',
+                'progress' => 100,
+                'message' => 'Importação concluída com sucesso!',
+            ]);
 
         } catch (Exception $e) {
             Log::error('Erro no Job ImportarLancamentoContabilJob: '.$e->getMessage());
+
+            $jobProgress?->update([
+                'status' => 'failed',
+                'message' => 'Erro: '.$e->getMessage(),
+            ]);
+
             throw $e;
         } finally {
             if (Storage::disk('local')->exists($this->relativePath)) {

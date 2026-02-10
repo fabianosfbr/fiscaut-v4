@@ -20,9 +20,14 @@ class ImportLancamentoOverview extends StatsOverviewWidget
             ->first();
 
         return [
-            Stat::make('Nº registros importados', $resultados->total_registros),
-            Stat::make('Nº registros com vínculo', $resultados->total_vinculados ?? 0),
-            Stat::make('Nº registros sem vínculo', $resultados->total_desvinculados ?? 0),
+            Stat::make('Nº registros importados', $resultados->total_registros)
+                ->chart([7, 2, 10, 3, 15, 4, 17]),
+            Stat::make('Nº registros com vínculo', $resultados->total_vinculados ?? 0)
+                ->chart([7, 2, 10, 3, 15, 4, 17])
+                ->color('warning'),
+            Stat::make('Nº registros sem vínculo', $resultados->total_desvinculados ?? 0)
+                ->chart([7, 2, 10, 3, 15, 4, 17])
+                ->color('danger'),
         ];
     }
 }
