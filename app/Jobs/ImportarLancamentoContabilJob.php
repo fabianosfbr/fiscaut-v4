@@ -8,6 +8,7 @@ use App\Models\JobProgress;
 use App\Models\Layout;
 use App\Models\User;
 use Exception;
+use Filament\Notifications\Notification;
 use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -85,12 +86,17 @@ class ImportarLancamentoContabilJob implements ShouldQueue
                 'message' => 'Importação concluída com sucesso!',
             ]);
 
+            Notification::make()
+                ->success()
+                ->title('Importação concluída')
+                ->body('Todos os registros foram processados com sucesso.')
+                ->sendToDatabase($user);
         } catch (Exception $e) {
-            Log::error('Erro no Job ImportarLancamentoContabilJob: '.$e->getMessage());
+            Log::error('Erro no Job ImportarLancamentoContabilJob: ' . $e->getMessage());
 
             $jobProgress?->update([
                 'status' => 'failed',
-                'message' => 'Erro: '.$e->getMessage(),
+                'message' => 'Erro: ' . $e->getMessage(),
             ]);
 
             throw $e;
