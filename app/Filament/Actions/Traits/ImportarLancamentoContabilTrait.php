@@ -21,7 +21,7 @@ trait ImportarLancamentoContabilTrait
 {
 
 
-    private static function prepareData(array $dataFile, Layout $layout): Collection
+    private static function prepareData(array $dataFile, Layout $layout, $user = null): Collection
     {
         $preparedData = new Collection();
 
@@ -31,7 +31,7 @@ trait ImportarLancamentoContabilTrait
         $errorDetails = [];
         $warningDetails = [];
 
-        $user_id = Auth::user()->id;
+        $user_id = $user ? $user->id : Auth::user()->id;
         $issuer_id = $layout->issuer_id;
         // Ordena as regras pela posição
         $rules = $layout->layoutRules()->orderBy('position')->get();

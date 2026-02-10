@@ -5,6 +5,7 @@ namespace App\Filament\Actions;
 use Exception;
 use App\Models\Layout;
 use Filament\Actions\Action;
+use App\Jobs\ImportarLancamentoContabilJob;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Imports\OptimizedExcelImport;
@@ -29,7 +30,6 @@ class ImportarLancamentoContabilGeralAction
             ->action(function (array $data, Action $action) {
                 $layout = Layout::find($data['layout_id']);
 
-
                 $relativePath = $data['excel_file'];
                 $filePath = Storage::disk('local')->path($relativePath);
 
@@ -44,10 +44,7 @@ class ImportarLancamentoContabilGeralAction
                 }
 
                 try {
-
                     $fileReader = (new OptimizedExcelImport($layout, $filePath));
-                 
-
                     $missingColumns = $fileReader->validateExcelColumns();
 
                     if (!empty($missingColumns)) {
@@ -58,23 +55,31 @@ class ImportarLancamentoContabilGeralAction
                             ->persistent()
                             ->send();
 
-                        Storage::disk('local')->delete($relativePath); // Remove o arquivo temporário
+                        Storage::disk('local')->delete($relativePath);
                         $action->halt();
                     }
 
+                    // Dispara o Job em background
+                    ImportarLancamentoContabilJob::dispatch(
+                        $layout->id,
+                        $relativePath,
+                        Auth::user()->id
+                    );
 
-                    $excelData = $fileReader->getData();
+                    Notification::make()
+                        ->title('Importação Iniciada')
+                        ->body('O arquivo está sendo processado em segundo plano. Você será notificado quando terminar.')
+                        ->success()
+                        ->send();
 
-                    self::prepareData($excelData, $layout);
                 } catch (Exception $e) {
                     Log::error($e->getMessage());
-                    Log::error($e->getTraceAsString());
                     Notification::make()
                         ->title('Erro na Importação')
-                        ->body('Ocorreu um erro ao importar o arquivo Excel: ' . $e->getMessage())
+                        ->body('Ocorreu um erro ao iniciar a importação: ' . $e->getMessage())
                         ->danger()
                         ->send();
-                } finally {
+                    
                     if (Storage::disk('local')->exists($relativePath)) {
                         Storage::disk('local')->delete($relativePath);
                     }
