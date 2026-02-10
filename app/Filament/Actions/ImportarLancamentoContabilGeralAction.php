@@ -2,19 +2,20 @@
 
 namespace App\Filament\Actions;
 
-use Exception;
-use App\Models\Layout;
-use Filament\Actions\Action;
-use App\Jobs\ImportarLancamentoContabilJob;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
+use App\Filament\Actions\Traits\ImportarLancamentoContabilTrait;
 use App\Imports\OptimizedExcelImport;
+use App\Jobs\ImportarLancamentoContabilJob;
+use App\Models\ImportarLancamentoContabil;
+use App\Models\Layout;
+use Exception;
+use Filament\Actions\Action;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
-use Illuminate\Support\Facades\Storage;
 use Filament\Notifications\Notification;
 
-use Filament\Forms\Components\FileUpload;
-use App\Filament\Actions\Traits\ImportarLancamentoContabilTrait;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ImportarLancamentoContabilGeralAction
 {
@@ -27,6 +28,12 @@ class ImportarLancamentoContabilGeralAction
             ->label('Importar Arquivo')
             ->modalHeading('Importar Arquivo Excel')
             ->modalSubmitActionLabel('Sim, importar arquivo')
+            ->before(function () {
+                $user = Auth::user();
+                ImportarLancamentoContabil::where('issuer_id', $user->currentIssuer->id)
+                    ->where('user_id', $user->id)
+                    ->delete();
+            })
             ->action(function (array $data, Action $action) {
                 $layout = Layout::find($data['layout_id']);
 
@@ -71,7 +78,6 @@ class ImportarLancamentoContabilGeralAction
                         ->body('O arquivo está sendo processado em segundo plano. Você será notificado quando terminar.')
                         ->success()
                         ->send();
-
                 } catch (Exception $e) {
                     Log::error($e->getMessage());
                     Notification::make()
@@ -79,7 +85,7 @@ class ImportarLancamentoContabilGeralAction
                         ->body('Ocorreu um erro ao iniciar a importação: ' . $e->getMessage())
                         ->danger()
                         ->send();
-                    
+
                     if (Storage::disk('local')->exists($relativePath)) {
                         Storage::disk('local')->delete($relativePath);
                     }
