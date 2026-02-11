@@ -4,22 +4,19 @@
         <div class="fi-log-manager-toolbar-content">
             {{ $this->content }}
         </div>
-        @if (true)
-            <div class="fi-log-manager-toolbar-actions">
-                <x-filament::button
-                    x-on:click="window.dispatchEvent(new CustomEvent('open-modal', { detail: { id: 'filament-log-manager-delete-log-file-modal' } }));"
-                    :disabled="is_null($this->logFile)" type="button" color="danger">
-                    Deletar
-                </x-filament::button>
-            </div>
-        @endif
-        @if (true)
-            <div class="fi-log-manager-toolbar-actions">
-                <x-filament::button wire:click="download" :disabled="is_null($this->logFile)" type="button" color="primary">
-                    Download
-                </x-filament::button>
-            </div>
-        @endif
+        <div class="fi-log-manager-toolbar-actions">
+            <x-filament::button wire:click="download" :disabled="is_null($this->logFile)" type="button" color="primary">
+                Download
+            </x-filament::button>
+        </div>
+        <div class="fi-log-manager-toolbar-actions">
+            <x-filament::button
+                x-on:click="window.dispatchEvent(new CustomEvent('open-modal', { detail: { id: 'filament-log-manager-delete-log-file-modal' } }));"
+                :disabled="is_null($this->logFile)" type="button" color="danger">
+                Deletar
+            </x-filament::button>
+        </div>
+
     </div>
     <hr class="fi-log-manager-divider">
     <div x-data="{ isCardOpen: null }" class="fi-log-manager-log-list">
@@ -29,7 +26,7 @@
                 <a @click="isCardOpen = isCardOpen == {{ $key }} ? null : {{ $key }} "
                     style="cursor: pointer;" class="fi-log-manager-log-summary">
                     <span>[{{ $log['date'] }}]</span>
-                    {{ Str::limit($log['text'], 100) }}
+                    {{ Str::limit($log['text'], 120) }}
                 </a>
             </div>
             <div x-show="isCardOpen=={{ $key }}" class="fi-log-manager-log-details no-top-radius">
@@ -54,13 +51,13 @@
             Tem certeza de que deseja deletar este arquivo de log?
         </x-slot>
         <x-slot name="footerActions">
-            <x-filament::button type="button" x-on:click="isOpen = false" color="secondary" outlined="true"
-                class="filament-page-modal-button-action">
-                Cancelar
-            </x-filament::button>
             <x-filament::button wire:click="delete" x-on:click="isOpen = false" type="button" color="danger"
                 class="filament-page-modal-button-action">
                 Confirmar
+            </x-filament::button>
+            <x-filament::button type="button" x-on:click="isOpen = false" color="secondary" outlined="true"
+                class="filament-page-modal-button-action">
+                Cancelar
             </x-filament::button>
         </x-slot>
     </x-filament::modal>
