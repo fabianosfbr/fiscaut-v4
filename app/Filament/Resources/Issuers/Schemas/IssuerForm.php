@@ -362,7 +362,7 @@ class IssuerForm
                                             ->columnSpanFull(),
 
                                         TextEntry::make('certificado_info_upload')
-                                            ->label('')
+                                            ->hiddenLabel()
                                             ->state(new HtmlString('
                                 <div style="padding: 12px; background-color: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px; margin-bottom: 16px;">
                                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
