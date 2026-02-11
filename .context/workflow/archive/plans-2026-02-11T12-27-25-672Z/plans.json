@@ -1,0 +1,14 @@
+{
+  "active": [
+    {
+      "slug": "sefaz-nfse-download-service",
+      "path": "plans/sefaz-nfse-download-service.md",
+      "title": "SefazNfseDownloadService Implementation",
+      "summary": "Implementation of SefazNfseDownloadService following existing patterns from SefazCteDownloadService and SefazNfeDownloadService, using legacy connection from NfseOldService",
+      "linkedAt": "2026-02-01T21:43:46.450Z",
+      "status": "active"
+    }
+  ],
+  "completed": [],
+  "primary": "sefaz-nfse-download-service"
+}

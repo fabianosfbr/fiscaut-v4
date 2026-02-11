@@ -1,41 +1,34 @@
 project:
-  name: "sefaz-nfse-download-service"
+  name: "gerar-txt-das-nfe-integracao-dominio"
   scale: MEDIUM
-  started: "2026-02-01T21:41:08.049Z"
-  current_phase: V
+  started: "2026-02-11T12:27:25.676Z"
+  current_phase: R
 
 phases:
   P:
     status: filled
-    started_at: "2026-02-01T21:41:08.049Z"
-    completed_at: "2026-02-01T21:43:58.904Z"
+    started_at: "2026-02-11T12:27:25.676Z"
+    completed_at: "2026-02-11T12:33:18.627Z"
   R:
-    status: completed
-    started_at: "2026-02-01T21:43:58.908Z"
-    completed_at: "2026-02-01T21:44:10.259Z"
+    status: in_progress
+    started_at: "2026-02-11T12:33:18.629Z"
   E:
-    status: completed
-    started_at: "2026-02-01T21:44:10.262Z"
-    completed_at: "2026-02-01T21:51:54.980Z"
+    status: pending
   V:
-    status: completed
-    started_at: "2026-02-01T21:51:54.983Z"
-    completed_at: "2026-02-01T21:52:37.994Z"
+    status: pending
   C:
     status: skipped
     reason: "Not required for scale MEDIUM"
 
 execution:
   history:
-    - timestamp: "2026-02-01T21:52:37.994Z"
-      phase: V
-      action: completed
-  last_activity: "2026-02-01T21:52:37.994Z"
-  resume_context: "Fase V (Validação) concluída"
+    - timestamp: "2026-02-11T12:33:18.629Z"
+      phase: R
+      action: started
+  last_activity: "2026-02-11T12:33:18.629Z"
+  resume_context: "Fase R (Revisão) em progresso"
 
 approval:
   plan_created: true
-  plan_approved: true
-  approved_by: "reviewer"
-  approved_at: "2026-02-01T21:44:07.546Z"
+  plan_approved: false
 

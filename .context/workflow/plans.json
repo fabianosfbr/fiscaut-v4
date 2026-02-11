@@ -1,14 +1,14 @@
 {
   "active": [
     {
-      "slug": "sefaz-nfse-download-service",
-      "path": "plans/sefaz-nfse-download-service.md",
-      "title": "SefazNfseDownloadService Implementation",
-      "summary": "Implementation of SefazNfseDownloadService following existing patterns from SefazCteDownloadService and SefazNfeDownloadService, using legacy connection from NfseOldService",
-      "linkedAt": "2026-02-01T21:43:46.450Z",
+      "slug": "gerar-txt-das-nfe-integracao-dominio",
+      "path": "plans/gerar-txt-das-nfe-integracao-dominio.md",
+      "title": "Gerar TXT das NFe para Integração com Domínio",
+      "summary": "Desenvolver funcionalidade para geração de arquivos TXT contendo informações das Notas Fiscais Eletrônicas (NFe) para integração com sistema de domínio",
+      "linkedAt": "2026-02-11T12:31:47.895Z",
       "status": "active"
     }
   ],
   "completed": [],
-  "primary": "sefaz-nfse-download-service"
+  "primary": "gerar-txt-das-nfe-integracao-dominio"
 }
