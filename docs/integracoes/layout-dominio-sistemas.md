@@ -288,6 +288,40 @@ Produtos - Período de validade. Este é um registro filho do registro 0100 (Cad
 | 69 | IBS - Utiliza a tabela de cClass Trib vinculada ao NCM/NBS | Caractere | | | | Informar "S = Sim" ou "N = Não" |
 | 70 | IBS - Utiliza a tabela de cClass Trib vinculada ao NCM/NBS | Caractere | | | | Informar "S = Sim" ou "N = Não" |
 
+---
+
+### Registro 0120 - Produtos - Unidades comercializadas
+Produtos - Unidades comercializadas. Este é um registro filho do registro 0100.
+
+| Campo | Nº Campo | Tipo | Casas Decimais | Formato | Valor | Comentário |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | Identificação do registro | Caractere | | | `0120` | Fixo 0120 – Identificação do Registro. Registro filho do registro 0100. |
+| 2 | Sigla da unidade comercializada | Caractere | | | | |
+| 3 | Fator de conversão | Decimal | 3 | | | |
+| 4 | Código de Barras | Caractere | | | | |
+
+---
+
+### Registro 0135 - Produtos - Valor Unitário
+Produtos - Valor Unitário. Este é um registro filho do registro 0100.
+
+| Campo | Nº Campo | Tipo | Casas Decimais | Formato | Valor | Comentário |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | Identificação do registro | Caractere | | | `0135` | Fixo 0135 – Identificação do Registro. Registro filho do registro 0100. |
+| 2 | Data | Data | | | | |
+| 3 | Valor Unitário | Decimal | 6 | | | Permitir informar no máximo 15 caracteres numéricos, sendo deles 6 casas decimais, como exemplo: 111.111.111,111111. |
+
+---
+
+### Registro 0150 - Produtos - Unidade de medida
+Produtos - Unidade de medida.
+
+| Campo | Nº Campo | Tipo | Casas Decimais | Formato | Valor | Comentário |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | Identificação do registro | Caractere | - | - | `0150` | Fixo 0150 – Identificação do Registro. |
+| 2 | Sigla | Caractere | - | - | - | - |
+| 3 | Descrição | Caractere | - | - | - | - |
+
 ## 🛠️ Notas de Implementação
 
 1. **Geração do Arquivo:** Recomenda-se o uso de `mb_convert_encoding($content, 'Windows-1252', 'UTF-8')` no Laravel para garantir a compatibilidade com o sistema Domínio.
