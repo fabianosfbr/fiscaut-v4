@@ -322,6 +322,256 @@ Produtos - Unidade de medida.
 | 2 | Sigla | Caractere | - | - | - | - |
 | 3 | Descrição | Caractere | - | - | - | - |
 
+---
+
+### Registro 1000 - Notas Fiscais de Entrada
+Notas Fiscais de Entrada.
+
+| Campo | Nº Campo | Tipo | Casas Decimais | Formato | Valor | Comentário |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | Identificação do registro | Caractere | | | `1000` | Fixo 1000 – Identificação do Registro |
+| 2 | Código da espécie | Numérico | | | | |
+| 3 | Inscrição fornecedor | Caractere | | | | CNPJ, CPF, CEI, Outros ou CAEPF |
+| 4 | Código de Exclusão da DIEF | Numérico | | | | |
+| 5 | Código do acumulador | Numérico | | | | |
+| 6 | CFOP | Numérico | | | | |
+| 7 | Segmento | Numérico | | | | |
+| 8 | Número do documento | Numérico | | | | |
+| 9 | Série | Caractere | | | | |
+| 10 | Numero do documento final | Numérico | | | | |
+| 11 | Data da entrada | Data | | dd/mm/aaaa | | |
+| 12 | Data emissão | Data | | dd/mm/aaaa | | |
+| 13 | Valor contábil | Decimal | 2 | | | |
+| 14 | Valor da exclusão da DIEF | Decimal | 2 | | | |
+| 15 | Observação | Caractere | | | | Quando a Nota Fiscal importada possuir observação, a mesma deverá ser gerada na guia na Complementar subguia Observações no grupo Observação de interese do fisco |
+| 16 | Modalidade do frete | Caractere | | | | Informar : C = CIF, F = FOB, S = Sem frete, T = Terceiros, R = Trans. Próp. por conta Rem., D = Trans. Próp. por conta Dest |
+| 17 | Emitente da nota fiscal | Caractere | | | | Informar: P=Próprio ou T=Terceiros |
+| 18 | CFOP estendido/detalhamento | Numérico | | | | Apenas para estado de SE |
+| 19 | Código da transferência de crédito | Numérico | | | | Apenas para estado de RS |
+| 20 | Código do Recolhimento do ISS Retido | Caractere | | | | |
+| 21 | Código do Recolhimento do IRRF | Caractere | | | | |
+| 22 | Código da observação | Numérico | | | | |
+| 23 | Data do visto notas de transf. Crédito ICMS | Data | | dd/mm/aaaa | | Apenas para estado de MG |
+| 24 | Fato gerador da CRF | Caractere | | | | Informar: E = Emissão ou P = Pagamento |
+| 25 | Fato gerador do IRRF | Caractere | | | | Informar: E = Emissão ou P = Pagamento |
+| 26 | Valor do frete | Decimal | 2 | | | |
+| 27 | Valor do seguro | Decimal | 2 | | | |
+| 28 | Valor da despesas | Decimal | 2 | | | |
+| 29 | Valor do PIS | Decimal | 2 | | | |
+| 30 | Código que Identifica o tipo de Antecipação Tributária | Numérico | | | | |
+| 31 | Valor do COFINS | Decimal | 2 | | | |
+| 32 | Valor calculado referente a DARE da nota | Decimal | 2 | | | Apenas para o estado SE |
+| 33 | Alíquota do valor calculado referente a DARE da nota | Decimal | 2 | | | Apenas para o estado SE |
+| 34 | Valor da base de cálculo do ICMS ST | Numérico | | | | Informar: 0=informações Complementares / 1=Quadro calculado do imposto / 2=Apurado pelo informante |
+| 35 | Entradas cuja saídas é isenta | Decimal | 2 | | | Apenas para o estado MG |
+| 36 | Outras entradas isentas | Decimal | 2 | | | Apenas para o estado MG |
+| 37 | Valor transporte incluído na base | Decimal | 2 | | | Apenas para o estado MG |
+| 38 | Código de ressarcimento | Numérico | | | | |
+| 39 | Valor produtos | Decimal | 2 | | | |
+| 40 | Município Origem | Numérico | | cMunIni ide | | |
+| 41 | Situação da Nota | Numérico | | | | 0 - Documento Regular, 1 - Documento Regular Extemporâneo, 2 - Documento Cancelado, 6 - Documento Fiscal Complementar/Referenciado, 7 - NFe, NFCe ou CTe Denegado, 8 - NFe, NFCe ou CTe Numeração Inutilizada, 9 - Documento Fiscal Emitido com Base Regime Especial ou Norma Específica, 10- Documento Fiscal Complementar Extemporâneo |
+| 42 | Código da situação tributária | Numérico | | | | |
+| 43 | Sub serie | Numérico | | | | |
+| 44 | Inscrição estadual do fornecedor | Caractere | | | | |
+| 45 | Inscrição municipal do fornecedor | Caractere | | | | |
+| 46 | Código da operação e prestação | Caractere | | | | |
+| 47 | Valor a ser deduzido da receita tributável | Decimal | 2 | | | |
+| 48 | Competência | Data | | dd/mm/aaaa | | |
+| 49 | Operação | Numérico | | | | Apenas para o estado PA |
+| 50 | Número do parecer fiscal | Caractere | | | | |
+| 51 | Data do parecer fiscal | Data | | dd/mm/aaaa | | |
+| 52 | Número da declaração de Importação | Caractere | | | | |
+| 53 | Possui benefício fiscal | Caractere | | | | Informar: S ou N |
+| 54 | Chave da nota fiscal eletrônica | Caractere | | | | |
+| 55 | Código de recolhimento do FETHAB | Caractere | | | | |
+| 56 | Responsável pelo recolhimento do FETHAB | Caractere | | | | Informar: E=Empresa / C=Cliente |
+| 57 | CFOP documento fiscal | Numérico | | | | |
+| 58 | Tipo de CT-e | Numérico | | | | Informar: 0=CT-e Normal / 1=CT-e de Complemento de valores / 2=CT-e Emitido em hipótese de anulação de débito |
+| 59 | CT-e referência | Caractere | | | | |
+| 60 | Modalidade da importação | Numérico | | | | Informar: 1=Com direito a crédito / 2=Compensação / 3=Regime especial / 4=Sem direito a crédito / 5= Outras situações – sem crédito |
+| 61 | Código da informação complementar | Numérico | | | | |
+| 62 | Informação complementar | Caractere | | | | |
+| 63 | Classe de consumo | Numérico | | | | |
+| 64 | Tipo de ligação | Numérico | | | | |
+| 65 | Grupo de tensão | Numérico | | | | |
+| 66 | Tipo de assinante | Numérico | | | | |
+| 67 | KWH consumido | Numérico | | | | |
+| 68 | Valor fornecido / consumido de gás ou energia elétrica | Decimal | 2 | | | |
+| 69 | Valor cobrado de terceiros | Decimal | 2 | | | |
+| 70 | Tipo do documento de importação | Numérico | | | | Informar: 10=Declaração de Importação / 1=Declaração Simplificada de Importação |
+| 71 | Número do Ato Concessório do regime Drawback | Caractere | | | | |
+| 72 | Natureza do frete PIS/COFINS | Numérico | | | | Apenas p/ modelos de espécies 08, 08B, 09, 10, 11, 26, 27 e 57. Informar: 0=Op. de venda, com ônus suportado pelo estab. Vendedor / 1=Op. de venda, com ônus suportado pelo adquirente / 2=Op. de compra (bens para revenda, matérias - prima e outros produtos geradores de crédito) / 3=Op. de compra (bens para revenda, matérias - prima e outros produtos não geradores de crédito) / 4=Transf. de prod. acabados entre estabelecimento pessoa jurídica / 5=Transf. De prod. em elaboração entre estabelecimento pessoa jurídica / 9=Outras |
+| 73 | CST – PIS/COFINS | Numérico | | | | Informar somente CSTs de código 50 à 99 quando utilizado um dos seguintes modelos de espécie: 08, 08B, 09, 10, 11, 26, 27 e 57 |
+| 74 | Base do crédito PIS/COFINS | Numérico | | | | Apenas para os modelos de espécie 08, 08B, 09, 10, 11, 26, 27 e 57. Informar: 03=Aquisição de serviços utilizados como insumo / 07=Armazenagem de mercadoria e frete na operação de venda / 13=Outras operações com direito a crédito / 14=Atividades de transporte de cargas – Subcontratação |
+| 75 | Valor serviços / itens PIS/COFINS | Decimal | 2 | | | Apenas para os modelos de espécie 08, 08B, 09, 10, 11, 26, 27 e 57 |
+| 76 | Base de cálculo PIS/COFINS | Decimal | 2 | | | Apenas para os modelos de espécie 08, 08B, 09, 10, 11, 26, 27 e 57 |
+| 77 | Alíquota de PIS | Decimal | 2 | | | |
+| 78 | Alíquota de COFINS | Decimal | 2 | | | |
+| 79 | Chave de NFSe | Caractere | | | | |
+| 80 | Número do processo ou ato concessório | Caractere | | | | Apenas quando informado para a Natureza do frete os códigos 1, 3, 4 ou 5 |
+| 81 | Origem do processo | Caractere | | | | Apenas para os modelos de espécie 08, 08B, 09, 10, 11, 26, 27 e 57 e quando informado para a Natureza do frete os códigos 1, 3, 4 e 5. Informar: 1=Justiça Federal/3=Secretaria da Receita Federal do Brasil / 9=Outros |
+| 82 | Data da escrituração | Data | | dd/mm/aaaa | | Data da escrituração quando a situação for Documento Extemporâneo |
+| 83 | CFPS | Numérico | | | | Apenas para o estado de DF |
+| 84 | Natureza da receita – PIS/COFINS | Numérico | | | | Apenas para os modelos de espécie 07, 08, 08B, 09, 10, 11 e 57 |
+| 85 | CST IPI – Código da Situação Tributária do IPI | Caractere | | | | Somente informar para notas de modelo/espécie "Nota Fiscal Eletrônica, código 55", ou "Nota Fiscal, modelo 01, código 01", "Nota Fiscal Avulsa, código 1B", "Nota Fiscal de Produtor, modelo 04, código 04" com situação do documento igual a "Documento fiscal emitido com base em regime especial" e que possuam os impostos 2-IPI ou 30-IPIM. Valores válidos: 00 - Entrada com recuperação de crédito, 01 - Entrada tributada com alíquota zero, 02 - Entrada isenta, 03 - Entrada não-tributada, 04 - Entrada imune, 05 - Entrada com suspensão, 49 - Outras entradas |
+| 86 | Lançamentos de SCP | Numérico | | | | Informar correspondente ao código SCP |
+| 87 | Tipo de serviço | Numérico | | | | Informar 1 = "Transporte de cargas" ou 2 = "Transporte de passageiros" |
+| 88 | Município destino | Numérico | | | | Somente importar quando a espécie da nota estiver vinculada a "CT-e modelo 57", no acumulador estiver selecionada a opção "Devolução", na guia "Impostos" do acumulador estiver informado o imposto "145-DIFAL" e o CFOP inicie em 2-XXX |
+| 89 | Pedágio | Decimal | 2 | | | |
+| 90 | IPI | Decimal | 2 | | | |
+| 91 | ICMS ST | Decimal | 2 | | | |
+| 92 | Classificação de Serviços Prestados mediante cessão de mão de obra/Empreitada - Tipo de serviço - EFD-Reinf | Numérico | | | | |
+
+---
+
+### Registro 1010 - Notas Fiscais de Entrada - Informações Complementares
+Notas Fiscais de Entrada - Informações Complementares. Este é um registro filho do registro 1000.
+
+| Campo | Nº Campo | Tipo | Casas Decimais | Formato | Valor | Comentário |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | Identificação do registro | Caractere | | | `1010` | Fixo 1010 – Identificação do Registro. Registro filho do registro 1000 |
+| 2 | Informações complementares | Caractere | | | | Informações complementares da nota fiscal |
+
+---
+
+### Registro 1015 - Notas Fiscais de Entrada - Observações de interesse do Fisco ou Contribuinte
+Notas Fiscais de Entrada - Observações de interesse do Fisco ou Contribuinte. Este é um registro filho do registro 1000.
+
+| Campo | Nº Campo | Tipo | Casas Decimais | Formato | Valor | Comentário |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | Identificação do registro | Caractere | | | `1015` | Fixo 1015 – Identificação do Registro. Registro filho do registro 1000 |
+| 2 | Observações de interesse do Fisco ou Contribuinte | Caractere | | | | Observações de interesse do Fisco ou Contribuinte |
+
+---
+
+### Registro 1020 - Notas Fiscais de Entrada - Impostos
+Notas Fiscais de Entrada - Impostos. Este é um registro filho do registro 1000.
+
+| Campo | Nº Campo | Tipo | Casas Decimais | Formato | Valor | Comentário |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | Identificação do registro | Caractere | | | `1020` | Fixo 1020 – Identificação do Registro. Registro filho do registro 1000 |
+| 2 | Código do imposto | Numérico | | | | |
+| 3 | Valor do imposto | Decimal | 2 | | | |
+| 4 | Base de cálculo | Decimal | 2 | | | |
+| 5 | Alíquota | Decimal | 2 | | | |
+| 6 | Valor do crédito | Decimal | 2 | | | |
+| 7 | CST | Numérico | | | | |
+| 8 | CFOP | Numérico | | | | |
+| 9 | Natureza da operação | Caractere | | | | |
+| 10 | Código de situação tributária | Numérico | | | | |
+| 11 | Código de enquadramento legal | Caractere | | | | |
+| 12 | Valor da base de cálculo do ICMS | Decimal | 2 | | | |
+| 13 | Valor do ICMS | Decimal | 2 | | | |
+| 14 | Valor da base de cálculo do ICMS ST | Decimal | 2 | | | |
+| 15 | Valor do ICMS ST | Decimal | 2 | | | |
+| 16 | Valor do IPI | Decimal | 2 | | | |
+| 17 | Valor do PIS | Decimal | 2 | | | |
+| 18 | Valor da COFINS | Decimal | 2 | | | |
+| 19 | Valor do ISSQN | Decimal | 2 | | | |
+| 20 | Valor do INSS | Decimal | 2 | | | |
+| 21 | Valor do IRRF | Decimal | 2 | | | |
+| 22 | Valor do IOF | Decimal | 2 | | | |
+| 23 | Outros valores | Decimal | 2 | | | |
+
+---
+
+### Registro 1030 - Notas Fiscais de Entrada - Estoque
+Notas Fiscais de Entrada - Estoque. Este é um registro filho do registro 1000.
+
+| Campo | Nº Campo | Tipo | Casas Decimais | Formato | Valor | Comentário |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | Identificação do registro | Caractere | | | `1030` | Fixo 1030 – Identificação do Registro. Registro filho do registro 1000 |
+| 2 | Código do produto | Caractere | | | | |
+| 3 | Quantidade | Decimal | 3 | | | |
+| 4 | Valor unitário | Decimal | 3 | | | |
+| 5 | Valor total | Decimal | 2 | | | |
+| 6 | Unidade de medida | Caractere | | | | |
+| 7 | Centro de custo | Numérico | | | | |
+| 8 | Conta contábil | Numérico | | | | |
+| 9 | Data de validade | Data | | dd/mm/aaaa | | |
+| 10 | Lote | Caractere | | | | |
+| 11 | Número de série | Caractere | | | | |
+| 12 | Localização física | Caractere | | | | |
+| 13 | Código do fornecedor | Caractere | | | | |
+| 14 | Número do documento fiscal | Numérico | | | | |
+| 15 | Série do documento fiscal | Caractere | | | | |
+| 16 | Data do documento fiscal | Data | | dd/mm/aaaa | | |
+| 17 | CFOP | Numérico | | | | |
+| 18 | Código da situação tributária | Numérico | | | | |
+| 19 | Base de cálculo do ICMS | Decimal | 2 | | | |
+| 20 | Valor do ICMS | Decimal | 2 | | | |
+| 21 | Base de cálculo do ICMS ST | Decimal | 2 | | | |
+| 22 | Valor do ICMS ST | Decimal | 2 | | | |
+| 23 | Valor do IPI | Decimal | 2 | | | |
+| 24 | Valor do PIS | Decimal | 2 | | | |
+| 25 | Valor da COFINS | Decimal | 2 | | | |
+
+---
+
+### Registro 1200 - Notas Fiscais de Entrada - ICMS Aquisição de Empresa do Simples Nacional - SP
+Notas Fiscais de Entrada - ICMS Aquisição de Empresa do Simples Nacional - SP. Este é um registro filho do registro 1000.
+
+| Campo | Nº Campo | Tipo | Casas Decimais | Formato | Valor | Comentário |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | Identificação do registro | Caractere | | | `1200` | Fixo 1200 – Identificação do Registro. Registro filho do registro 1000 |
+| 2 | Código do produto | Caractere | | | | |
+| 3 | CFOP | Numérico | | | | |
+| 4 | Código da situação tributária | Numérico | | | | |
+| 5 | Base de cálculo do ICMS | Decimal | 2 | | | |
+| 6 | Alíquota do ICMS | Decimal | 2 | | | |
+| 7 | Valor do ICMS | Decimal | 2 | | | |
+| 8 | Valor do crédito | Decimal | 2 | | | |
+| 9 | Percentual do diferimento | Decimal | 2 | | | |
+| 10 | Valor do ICMS diferido | Decimal | 2 | | | |
+| 11 | Valor do ICMS próprio | Decimal | 2 | | | |
+| 12 | Código fiscal de operação e prestação | Numérico | | | | |
+| 13 | Natureza da operação | Caractere | | | | |
+| 14 | Código de enquadramento legal | Caractere | | | | |
+| 15 | Código do modelo do documento fiscal | Numérico | | | | |
+| 16 | Série do documento fiscal | Caractere | | | | |
+| 17 | Número do documento fiscal | Numérico | | | | |
+| 18 | Data do documento fiscal | Data | | dd/mm/aaaa | | |
+| 19 | Inscrição estadual do contribuinte | Caractere | | | | |
+| 20 | Valor da operação | Decimal | 2 | | | |
+
+---
+
+### Registro 1500 - Notas Fiscais de Entrada – Parcelas
+Notas Fiscais de Entrada – Parcelas. Este é um registro filho do registro 1000.
+
+| Campo | Nº Campo | Tipo | Casas Decimais | Formato | Valor | Comentário |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | Identificação do registro | Caractere | | | `1500` | Fixo 1500 – Identificação do Registro. Registro filho do registro 1000 |
+| 2 | Número da parcela | Numérico | | | | |
+| 3 | Data de vencimento | Data | | dd/mm/aaaa | | |
+| 4 | Valor da parcela | Decimal | 2 | | | |
+| 5 | Código de condição de pagamento | Numérico | | | | |
+| 6 | Data de pagamento | Data | | dd/mm/aaaa | | |
+| 7 | Valor pago | Decimal | 2 | | | |
+| 8 | Valor de desconto | Decimal | 2 | | | |
+| 9 | Valor de acréscimo | Decimal | 2 | | | |
+| 10 | Valor de juros | Decimal | 2 | | | |
+| 11 | Valor de multa | Decimal | 2 | | | |
+| 12 | Forma de pagamento | Caractere | | | | |
+| 13 | Número do documento de pagamento | Caractere | | | | |
+| 14 | Banco | Numérico | | | | |
+| 15 | Agência | Numérico | | | | |
+| 16 | Conta corrente | Caractere | | | | |
+| 17 | Status da parcela | Caractere | | | | |
+| 18 | Observações | Caractere | | | | |
+| 19 | Código de liquidação | Numérico | | | | |
+| 20 | Data de liquidação | Data | | dd/mm/aaaa | | |
+| 21 | Hora de liquidação | Caractere | | | hh:mm:ss | |
+| 22 | Meio de pagamento | Caractere | | | | |
+| 23 | Código de barras | Caractere | | | | |
+| 24 | Linha digitável | Caractere | | | | |
+| 25 | Nosso número | Caractere | | | | |
+| 26 | Código do cliente | Caractere | | | | |
+| 27 | Código do fornecedor | Caractere | | | | |
+| 28 | Número do documento fiscal | Numérico | | | | |
+| 29 | Série do documento fiscal | Caractere | | | | |
+| 30 | Data do documento fiscal | Data | | dd/mm/aaaa | | |
+
 ## 🛠️ Notas de Implementação
 
 1. **Geração do Arquivo:** Recomenda-se o uso de `mb_convert_encoding($content, 'Windows-1252', 'UTF-8')` no Laravel para garantir a compatibilidade com o sistema Domínio.
