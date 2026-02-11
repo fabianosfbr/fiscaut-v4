@@ -20,13 +20,17 @@
     </div>
     <hr class="fi-log-manager-divider">
     <div x-data="{ isCardOpen: null }" class="fi-log-manager-log-list">
-        @forelse($this->getLogs() as $key => $log)
+        @php
+            $logs = $this->getLogs();
+        @endphp
+
+        @forelse($logs as $key => $log)
             <div class="fi-log-manager-log-card bg-{{ $log['level_class'] }}"
                 :class="{ 'no-bottom-radius mb-0': isCardOpen == {{ $key }} }">
                 <a @click="isCardOpen = isCardOpen == {{ $key }} ? null : {{ $key }} "
                     style="cursor: pointer;" class="fi-log-manager-log-summary">
                     <span>[{{ $log['date'] }}]</span>
-                    {{ Str::limit($log['text'], 120) }}
+                    {{ Str::limit($log['text'], 100) }}
                 </a>
             </div>
             <div x-show="isCardOpen=={{ $key }}" class="fi-log-manager-log-details no-top-radius">
@@ -42,6 +46,13 @@
         @empty
             <h3 class="fi-log-manager-empty-state">Nenhum log encontrado.</h3>
         @endforelse
+
+        <div class="mt-4">
+            <x-filament::pagination
+                :paginator="$logs"
+                :page-options="[15]"
+            />
+        </div>
     </div>
     <x-filament::modal id="filament-log-manager-delete-log-file-modal">
         <x-slot name="heading">

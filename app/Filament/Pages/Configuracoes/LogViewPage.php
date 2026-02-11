@@ -11,16 +11,18 @@ use Symfony\Component\Finder\Finder;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\TextInput;
-
 use Filament\Schemas\Components\Section;
 use Symfony\Component\Finder\SplFileInfo;
 use Filament\Forms\Components\CheckboxList;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use UnitEnum;
+use Livewire\WithPagination;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class LogViewPage extends Page
 {
-    
+    use WithPagination;
+
     protected static ?string $navigationLabel = 'Visualizar Logs';
 
     protected static ?string $title = 'Visualizar Logs';
@@ -34,6 +36,21 @@ class LogViewPage extends Page
     public ?string $searchTerm = null;
 
     public array $selectedLevels = ['info', 'warning', 'danger'];
+
+    public function updatedLogFile(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSearchTerm(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSelectedLevels(): void
+    {
+        $this->resetPage();
+    }
 
     public function form(Schema $schema): Schema
     {
@@ -70,10 +87,10 @@ class LogViewPage extends Page
             ]);
     }
 
-    public function getLogs(): Collection
+    public function getLogs(): LengthAwarePaginator
     {
         if (!$this->logFile) {
-            return collect([]);
+            return new LengthAwarePaginator([], 0, 15);
         }
 
         $logs = collect(LogViewService::getAllForFile($this->logFile));
@@ -82,7 +99,7 @@ class LogViewPage extends Page
         if (!empty($this->selectedLevels)) {
             $logs = $logs->filter(fn($log) => in_array($log['level_class'], $this->selectedLevels));
         } else {
-            return collect([]); // Se nada selecionado, nada exibido
+            return new LengthAwarePaginator([], 0, 15);
         }
 
         if ($this->searchTerm) {
@@ -96,7 +113,16 @@ class LogViewPage extends Page
             });
         }
 
-        return $logs;
+        $perPage = 15;
+        $page = $this->getPage();
+
+        return new LengthAwarePaginator(
+            $logs->forPage($page, $perPage),
+            $logs->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
     }
 
     /**
