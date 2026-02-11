@@ -94,6 +94,38 @@ Interactive UI elements are broken down into specialized scripts:
 
 ---
 
+## XML Processing Architecture
+
+The application includes a sophisticated XML processing engine designed to handle various types of fiscal documents (NF-e, CT-e, and related events) from multiple sources.
+
+### XML Processing Services
+
+The system uses specialized services for handling different types of XML documents:
+
+- **`XmlNfeReaderService`**: Handles Nota Fiscal Eletrônica (NF-e) documents, including complete invoices, summaries, and events (such as cancellations and correction letters).
+- **`XmlCteReaderService`**: Handles Conhecimento de Transporte Eletrônico (CT-e) documents, including complete transport receipts and events.
+- **`XmlReaderService`**: Core parsing service that converts XML content to structured arrays.
+- **`XmlIdentifierService`**: Identifies the type of XML document (NF-e, CT-e, event, etc.) to route it to the appropriate processor.
+
+### XML Processing Pipelines
+
+The system supports multiple XML import methods:
+
+1. **Manual Upload**: Users can upload XML files directly through the admin interface, triggering the `ProcessXmlFile` job.
+2. **SEFAZ Integration**: Automated retrieval of documents from the national SEFAZ environment using the coordinated job pipeline (`SefazNfeDownloadAndProcessBatchJob`, `SefazNfeDownloadBatchJob`, `SefazNfeProcessDocumentJob`).
+3. **SIEG Integration**: Bulk import from the SIEG API using the `SiegConnect` job pipeline.
+4. **Bulk Import**: Batch processing of multiple XML files using the `ProcessXmlFileBatch` job.
+
+### Data Persistence
+
+Processed XML data is persisted to specific models:
+- `NotaFiscalEletronica` for NF-e documents
+- `ConhecimentoTransporteEletronico` for CT-e documents
+- `LogSefazNfeContent` and `LogSefazCteContent` for raw XML storage
+- `LogSefazNfeEvent` and `LogSefazCteEvent` for event tracking
+
+---
+
 ## Related Documentation
 - [Project Overview](./project-overview.md)
 - [Data Flow](./data-flow.md)

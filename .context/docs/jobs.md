@@ -9,12 +9,22 @@ The application processes certain tasks in the background using Laravel's Queue 
 -   **Purpose:** Handles the processing of a single imported XML file (NFe, CTe, or Event) from the file system.
 -   **Workflow:**
     1.  Validates file existence.
-    2.  Extracts XML content.
-    3.  Identifies the XML type (NFe, Resumo, Event, CTe).
+    2.  Extracts XML content using `XmlExtractorService`.
+    3.  Identifies the XML type (NFe, Resumo, Event, CTe) using `XmlIdentifierService`.
     4.  Delegates parsing to `XmlNfeReaderService` or `XmlCteReaderService`.
     5.  Persists the document to the database.
     6.  Updates the `XmlImportJob` progress (processed counts).
 -   **Usage:** Triggered when users manually upload XML files via the interface.
+-   **Retry Logic:** Configured with 3 attempts and 60-second backoff interval to handle temporary file system issues.
+
+### 2. ProcessXmlFileBatch
+**Location:** `App\Jobs\ProcessXmlFileBatch`
+-   **Purpose:** Orchestrates the processing of multiple XML files as part of a batch operation.
+-   **Workflow:**
+    1.  Accepts a collection of XML file paths and associated import job/issuer.
+    2.  Dispatches individual `ProcessXmlFile` jobs for each file into a Laravel Bus batch.
+    3.  Monitors the batch completion to update the overall import job status.
+-   **Usage:** Used for bulk imports of XML files through the admin interface.
 
 ## Bulk Actions
 
