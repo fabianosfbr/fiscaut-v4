@@ -14,6 +14,8 @@
         "filament/filament": "^5.0",
         "laradumps/laradumps": "^5.0",
         "laravel/framework": "^12.0",
+        "laravel/horizon": "^5.44",
+        "laravel/reverb": "^1.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "nfephp-org/sped-cte": "dev-master",
@@ -21,6 +23,7 @@
         "nfephp-org/sped-nfe": "^5.2",
         "nfse-br/danfse": "^1.0",
         "octopyid/filament-palette": "^1.0",
+        "pusher/pusher-php-server": "^7.2",
         "rap2hpoutre/fast-excel": "^5.6"
     },
     "require-dev": {
