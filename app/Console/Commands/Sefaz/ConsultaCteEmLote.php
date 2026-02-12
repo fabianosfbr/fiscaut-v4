@@ -8,7 +8,8 @@ use Illuminate\Console\Command;
 
 class ConsultaCteEmLote extends Command
 {
-    protected $signature = 'app:sync-cte-sefaz';
+    protected $signature = 'app:sync-cte-sefaz
+                                {--issuer= : ID do emitente para download específico}';
 
     protected $description = 'Sincroniza CTes com a SEFAZ';
 
@@ -17,8 +18,19 @@ class ConsultaCteEmLote extends Command
      */
     public function handle()
     {
-        $issuer = Issuer::find(11);
+        $issuerId = $this->option('issuer');
 
-        SefazCteDownloadAndProcessBatchJob::dispatch($issuer);
+        $issuers = Issuer::where('validade_certificado', '>', now())
+            ->where('is_enabled', true)
+            ->where('cte_servico', true)
+            ->when($issuerId !== null, fn($q) => $q->where('id', $issuerId))
+            ->get();
+
+        foreach ($issuers as $issuer) {
+            // Dispatch the batch job
+            SefazCteDownloadAndProcessBatchJob::dispatch($issuer);
+        }
+
+        return self::SUCCESS;
     }
 }

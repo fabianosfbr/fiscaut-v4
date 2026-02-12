@@ -8,7 +8,8 @@ use Illuminate\Console\Command;
 
 class ConsultaNfeEmLote extends Command
 {
-    protected $signature = 'app:sync-nfe-sefaz';
+    protected $signature = 'app:sync-nfe-sefaz 
+                                {--issuer= : ID do emitente para download específico}';
 
     protected $description = 'Sincroniza NFes com a SEFAZ';
 
@@ -16,25 +17,19 @@ class ConsultaNfeEmLote extends Command
     {
         $this->info('Iniciando sincronização de NFes com a SEFAZ');
 
-        $issuer = Issuer::find(11);
+        $issuerId = $this->option('issuer');
 
-        if (! $issuer) {
-            $this->error('Issuer 11 não encontrado. Nenhum job foi disparado.');
+        $issuers = Issuer::where('validade_certificado', '>', now())
+            ->where('is_enabled', true)
+            ->where('nfe_servico', true)
+            ->when($issuerId !== null, fn($q) => $q->where('id', $issuerId))
+            ->get();
 
-            return self::FAILURE;
+
+        foreach ($issuers as $issuer) {
+            // Dispatch the batch job
+            SefazNfeDownloadAndProcessBatchJob::dispatch($issuer);
         }
-
-        SefazNfeDownloadAndProcessBatchJob::dispatch($issuer);
-
-        // $issuers = Issuer::where('validade_certificado', '>', now())
-        //     ->where('is_enabled', true)
-        //     ->where('nfe_servico', true)
-        //     ->get();
-
-        // foreach ($issuers as $issuer) {
-        //     // Dispatch the batch job
-        //     SefazNfeDownloadAndProcessBatchJob::dispatch($issuer);
-        // }
 
         $this->info('Sincronização de NFes com a SEFAZ concluída');
 

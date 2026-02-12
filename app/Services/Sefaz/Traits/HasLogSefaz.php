@@ -47,7 +47,6 @@ trait HasLogSefaz
             ]
         );
 
-        Log::notice('NFe NSU consulta SEFAZ: '.$numnsu.' maxnsu: '.$maxNSU.' Empresa: '.$this->issuer->razao_social);
 
         return $logContent;
     }

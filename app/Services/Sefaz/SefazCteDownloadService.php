@@ -94,7 +94,7 @@ class SefazCteDownloadService
 
     private function getMockDistDFeResponse(): string
     {
-        $path = (string) config('sefaz.distdfe.mock.path', '');
+        $path = (string) config('sefaz.distdfe.mock.cte_path', '');
         if ($path === '' || ! is_file($path)) {
             throw new Exception('Mock SEFAZ distDFe habilitado, mas o arquivo não foi encontrado.');
         }
@@ -125,14 +125,17 @@ class SefazCteDownloadService
         return $this->tools;
     }
 
-    public function downloadCteInBatch(?string $ultNsu = null): array
+    /**
+     * Download CTe documents in batch or specific NSU.
+     */
+    public function downloadCteInBatch(?string $ultNsu = null, ?string $nsu = null): array
     {
         $allDocuments = [];
         $currentNsu = $ultNsu ? (int) $ultNsu : $this->getLastSavedNsu();
         $initialNsu = $currentNsu;
         $iterations = 0;
         $shouldStop = false;
-        $loopLimit = 50;
+        $loopLimit = $nsu ? 1 : 50; // Se for NSU específico, faz apenas uma iteração
         $sleepSeconds = $this->getDistDFeSleepSeconds();
 
         try {
@@ -144,7 +147,7 @@ class SefazCteDownloadService
                     break;
                 }
 
-                $result = $this->downloadCteByUltNsu($currentNsu);
+                $result = $this->downloadCteByUltNsu(nsu: $nsu, ultNsu: $currentNsu);
 
                 // Verifica se a SEFAZ solicitou parada (códigos 137 ou 656)
                 if ($result['deve_parar']) {
@@ -159,6 +162,11 @@ class SefazCteDownloadService
 
                 if (! empty($result['documentos'])) {
                     $allDocuments = array_merge($allDocuments, $result['documentos']);
+                }
+
+                // Se for consulta por NSU específico, não continua o loop
+                if ($nsu) {
+                    break;
                 }
 
                 // Verifica se atingiu o NSU máximo
@@ -186,6 +194,14 @@ class SefazCteDownloadService
                 }
             } while (true);
 
+            Log::info($nsu ? 'Consulta de NSU específico CTe concluída' : 'Download em lote de CTe concluído', [
+                'issuer_id' => $this->issuer->id,
+                'nsu_inicial' => $nsu ?: $initialNsu,
+                'nsu_final' => $currentNsu,
+                'total_documentos' => count($allDocuments),
+                'iterations' => $iterations,
+            ]);
+
             return [
                 'documentos' => $allDocuments,
                 'total_documentos' => count($allDocuments),
@@ -193,25 +209,45 @@ class SefazCteDownloadService
                 'ultimo_nsu' => $currentNsu,
             ];
         } catch (Exception $e) {
-            Log::error('Erro no download em lote de CTe', [
+            Log::error('Erro no download de CTe', [
                 'issuer_id' => $this->issuer->id,
+                'nsu_especifico' => $nsu,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha no download em lote: '.$e->getMessage());
+            throw new Exception('Falha no download: '.$e->getMessage());
         }
     }
 
-    private function downloadCteByUltNsu(?string $ultNsu = null): array
+    /**
+     * Realiza o download de CTe usando o último NSU (lote) ou um NSU específico.
+     *
+     * @param  string|null  $nsu  NSU específico para consulta (se informado, faz consulta específica)
+     * @param  string|null  $ultNsu  NSU inicial para consulta em lote (opcional, usa o NSU do issuer se não informado)
+     *
+     * @throws Exception
+     */
+    private function downloadCteByUltNsu(?string $nsu = null, ?string $ultNsu = null): array
     {
         try {
-            // Para consultas em lote, sempre usa o NSU da empresa se não informado
-            $currentNsu = $ultNsu ?: $this->getLastSavedNsu();
+            if ($nsu) {
+                // Consulta específica por NSU
+                $currentNsu = $nsu;
+                $response = $this->shouldMockDistDFe()
+                    ? $this->getMockDistDFeResponse()
+                    : $this->getTools()->sefazDistDFe(0, $currentNsu);
+            } else {
+                // Consulta por último NSU (lote)
+                $currentNsu = $ultNsu ?: $this->getLastSavedNsu();
+                $response = $this->shouldMockDistDFe()
+                    ? $this->getMockDistDFeResponse()
+                    : $this->getTools()->sefazDistDFe($currentNsu);
+            }
 
-            $response = $this->shouldMockDistDFe()
-                ? $this->getMockDistDFeResponse()
-                : $this->getTools()->sefazDistDFe($currentNsu);
-
-            Log::channel('sefaz_log')->info('Log de consulta CTE - SEFAZ - registro - '.explode(':', $this->issuer->razao_social)[0].' : '.$response);
+            Log::channel('sefaz_log')->info(
+                $nsu ?
+                    "Log de consulta CTE - SEFAZ - registro específico - " . explode(':', $this->issuer->razao_social)[0] . " : \n" . $response :
+                    "Log de consulta CTE - SEFAZ - registro em lote - " . explode(':', $this->issuer->razao_social)[0] . " : \n" . $response
+            );
 
             $result = $this->processDistDFeResponse($response);
 

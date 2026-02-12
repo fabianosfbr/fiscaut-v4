@@ -34,12 +34,15 @@ class SefazCteDownloadAndProcessBatchJob implements ShouldQueue
 
     /**
      * Create a new job instance.
+     * @param  Issuer  $issuer  The issuer to download documents for
+     * @param  string|null  $ultNsu  Last NSU for batch download (optional, uses issuer's last NSU if not provided)
+     * @param  string|null  $nsu  Specific NSU for single document download (if provided, performs specific query)
      */
     public function __construct(
         protected Issuer $issuer,
-        protected ?string $ultNsu = null
+        protected ?string $ultNsu = null,
+        protected ?string $nsu = null
     ) {}
-
     /**
      * Execute the job.
      */
@@ -50,7 +53,7 @@ class SefazCteDownloadAndProcessBatchJob implements ShouldQueue
             $service = new SefazCteDownloadService($this->issuer);
 
             // Download documents in batch
-            $result = $service->downloadCteInBatch($this->ultNsu);
+            $result = $service->downloadCteInBatch(ultNsu: $this->ultNsu, nsu: $this->nsu);
 
             $importJob = $this->createXmlImportJob($result['total_documentos']);
 

@@ -33,15 +33,11 @@ class DynamicTaskCommandExecutor
 
             $this->logger->info('Schedules dinâmicos carregados do banco', [
                 'count' => $schedules->count(),
-                'cache_enabled' => (bool) $this->config->get('schedule.cache.enabled'),
-                'cache_store' => (string) $this->config->get('schedule.cache.store'),
-                'cache_key' => (string) $this->config->get('schedule.cache.key'),
-                'cache_ttl' => (int) $this->config->get('schedule.cache.ttl'),
             ]);
 
             foreach ($schedules as $dbSchedule) {
                 try {
-                    $this->executeTask($dbSchedule);
+                    $this->registerEvent($dbSchedule);
                 } catch (Throwable $e) {
                     $this->logger->error('Erro ao registrar schedule dinâmico', [
                         'schedule_id' => $dbSchedule->id ?? null,
@@ -56,7 +52,72 @@ class DynamicTaskCommandExecutor
         }
     }
 
-    public function executeTask(DbSchedule $dbSchedule): void
+    public function runAllNow(): void
+    {
+        try {
+            $schedules = $this->scheduleService->getActives();
+
+            foreach ($schedules as $dbSchedule) {
+                $commandName = $this->resolveCommandName($dbSchedule);
+                if ($commandName === '') {
+                    continue;
+                }
+
+                $parameters = $this->buildArtisanCallParameters($dbSchedule);
+
+                $this->logger->info('Executando schedule dinâmico imediatamente (force)', [
+                    'schedule_id' => $dbSchedule->id,
+                    'command' => $commandName,
+                    'parameters' => $parameters,
+                ]);
+
+                \Illuminate\Support\Facades\Artisan::call($commandName, $parameters);
+            }
+        } catch (Throwable $e) {
+            $this->logger->error('Erro ao executar todos os schedules dinâmicos', [
+                'exception' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    private function buildArtisanCallParameters(DbSchedule $dbSchedule): array
+    {
+        $parameters = [];
+
+        // Adiciona argumentos posicionais
+        foreach ($this->buildArgumentTokens($dbSchedule) as $value) {
+            $parameters[] = $value;
+        }
+
+        // Adiciona opções
+        $options = $dbSchedule->options ?? [];
+        foreach ($options as $key => $value) {
+            if (is_numeric($key)) {
+                // Opções simples como ['verbose'] ou ['-v']
+                $optionName = str_starts_with($value, '-') ? $value : "--{$value}";
+                $parameters[$optionName] = true;
+            } else {
+                // Opções com valor como ['name' => 'value']
+                $optionName = str_starts_with($key, '-') ? $key : "--{$key}";
+                $parameters[$optionName] = $value;
+            }
+        }
+
+        // Adiciona opções com valor do campo específico
+        $optionsWithValue = $dbSchedule->options_with_value ?? [];
+        foreach ($optionsWithValue as $key => $config) {
+            $name = $config['name'] ?? $key;
+            $val = $config['value'] ?? null;
+            if ($val !== null) {
+                $optionName = str_starts_with($name, '-') ? $name : "--{$name}";
+                $parameters[$optionName] = $val;
+            }
+        }
+
+        return $parameters;
+    }
+
+    public function registerEvent(DbSchedule $dbSchedule): void
     {
         $commandName = $this->resolveCommandName($dbSchedule);
 
@@ -157,7 +218,17 @@ class DynamicTaskCommandExecutor
 
     private function shouldRegister(?string $artisanCommand): bool
     {
-        return is_string($artisanCommand) && str_starts_with($artisanCommand, 'schedule:');
+        if (! is_string($artisanCommand)) {
+            return false;
+        }
+
+        // Se for o comando de execução dinâmica, registramos
+        if ($artisanCommand === 'schedule:run-dynamic') {
+            return true;
+        }
+
+        // Se for qualquer comando do scheduler nativo do Laravel
+        return str_starts_with($artisanCommand, 'schedule:');
     }
 
     private function resolveCommandName(DbSchedule $dbSchedule): string

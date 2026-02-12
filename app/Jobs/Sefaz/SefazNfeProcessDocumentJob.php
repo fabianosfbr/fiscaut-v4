@@ -152,8 +152,6 @@ class SefazNfeProcessDocumentJob implements ShouldQueue
             ]
         );
 
-        Log::notice('NFe NSU consulta SEFAZ: '.$numnsu.' maxnsu: '.$maxNSU.' Empresa: '.$issuer->razao_social);
-
         return $logContent;
     }
 }

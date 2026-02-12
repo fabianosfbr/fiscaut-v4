@@ -30,7 +30,7 @@ class SefazNfseDownloadAndProcessBatchJob implements ShouldQueue
     {
         try {
             $service = new SefazNfseDownloadService($this->issuer);
-            $result = $service->downloadNfseInBatch($this->ultNsu);
+            $result = $service->downloadNfseInBatch();
 
             $importJob = $this->createXmlImportJob($result['total_documentos']);
 

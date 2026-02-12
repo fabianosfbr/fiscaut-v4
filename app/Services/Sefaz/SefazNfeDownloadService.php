@@ -52,7 +52,7 @@ class SefazNfeDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha na inicialização do serviço: '.$e->getMessage());
+            throw new Exception('Falha na inicialização do serviço: ' . $e->getMessage());
         }
     }
 
@@ -95,29 +95,39 @@ class SefazNfeDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha ao carregar certificado digital: '.$e->getMessage());
+            throw new Exception('Falha ao carregar certificado digital: ' . $e->getMessage());
         }
     }
 
     /**
-     * Download NFe documents in batch.
+     * Download NFe documents in batch or specific NSU.
+     *
+     * @param  string|null  $ultNsu  Last NSU for batch download (optional, uses issuer's last NSU if not provided)
+     * @param  string|null  $nsu  Specific NSU for single document download (if provided, performs specific query)
+     * @return array  Returns array with downloaded documents and metadata:
+     *               - 'documentos' => array of downloaded documents
+     *               - 'total_documentos' => total count of documents
+     *               - 'iterations' => number of iterations performed
+     *               - 'ultimo_nsu' => last NSU processed
+     *               - 'nsu_inicial' => initial NSU
+     *               - 'deve_aguardar' => boolean indicating if should wait before next query
+     *
+     * @throws Exception  If download fails
      */
-    public function downloadNfeInBatch(?string $ultNsu = null): array
+    public function downloadNfeInBatch(?string $ultNsu = null, ?string $nsu = null): array
     {
         $allDocuments = [];
+
+
         $currentNsu = $ultNsu ? (int) $ultNsu : $this->getLastSavedNsu();
         $initialNsu = $currentNsu;
         $iterations = 0;
         $shouldStop = false;
-        $loopLimit = 50;
+        $loopLimit = $nsu ? 1 : 50; // Se for NSU específico, faz apenas uma iteração
         $sleepSeconds = $this->getDistDFeSleepSeconds();
 
+
         try {
-            Log::info('Iniciando download em lote de NFe', [
-                'issuer_id' => $this->issuer->id,
-                'nsu_inicial' => $currentNsu,
-                'nsu_issuer_atual' => $this->issuer->ult_nsu_nfe,
-            ]);
 
             do {
                 $iterations++;
@@ -126,7 +136,7 @@ class SefazNfeDownloadService
                     break;
                 }
 
-                $result = $this->downloadNfeByUltNsu($currentNsu);
+                $result = $this->downloadNfeByUltNsu(nsu: $nsu, ultNsu: $currentNsu);
 
                 // Verifica se a SEFAZ solicitou parada (códigos 137 ou 656)
                 if ($result['deve_parar']) {
@@ -141,6 +151,11 @@ class SefazNfeDownloadService
 
                 if (! empty($result['documentos'])) {
                     $allDocuments = array_merge($allDocuments, $result['documentos']);
+                }
+
+                // Se for consulta por NSU específico, não continua o loop
+                if ($nsu) {
+                    break;
                 }
 
                 // Verifica se atingiu o NSU máximo
@@ -168,14 +183,6 @@ class SefazNfeDownloadService
                 }
             } while (true);
 
-            Log::info('Download em lote concluído', [
-                'issuer_id' => $this->issuer->id,
-                'nsu_inicial' => $initialNsu,
-                'nsu_final' => $currentNsu,
-                'nsu_issuer_atualizado' => $this->issuer->fresh()->ult_nsu_nfe,
-                'total_documentos' => count($allDocuments),
-                'iterations' => $iterations,
-            ]);
 
             return [
                 'documentos' => $allDocuments,
@@ -186,36 +193,48 @@ class SefazNfeDownloadService
                 'deve_aguardar' => $shouldStop,
             ];
         } catch (Exception $e) {
-            Log::error('Erro no download em lote de NFe', [
+            Log::error('Erro no download de NFe', [
                 'issuer_id' => $this->issuer->id,
+                'nsu_especifico' => $nsu,
                 'nsu_inicial' => $initialNsu ?? 'N/A',
                 'nsu_atual' => $currentNsu ?? 'N/A',
                 'iterations' => $iterations,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha no download em lote: '.$e->getMessage());
+            throw new Exception('Falha no download: ' . $e->getMessage());
         }
     }
 
     /**
-     * Realiza o download de NFe usando o último NSU (para consultas em lote)
-     * Este método sempre atualiza o NSU do issuer com o último NSU retornado
+     * Realiza o download de NFe usando o último NSU (lote) ou um NSU específico.
      *
-     * @param  string|null  $ultNsu  NSU inicial (opcional, usa o NSU do issuer se não informado)
+     * @param  string|null  $nsu  NSU específico para consulta (se informado, faz consulta específica)
+     * @param  string|null  $ultNsu  NSU inicial para consulta em lote (opcional, usa o NSU do issuer se não informado)
      *
      * @throws Exception
      */
-    private function downloadNfeByUltNsu(?string $ultNsu = null): array
+    private function downloadNfeByUltNsu(?string $nsu = null, ?string $ultNsu = null): array
     {
         try {
-            // Para consultas em lote, sempre usa o NSU da empresa se não informado
-            $currentNsu = $ultNsu ?: $this->getLastSavedNsu();
+            if ($nsu) {
+                // Consulta específica por NSU
+                $currentNsu = $nsu;
+                $response = $this->shouldMockDistDFe()
+                    ? $this->getMockDistDFeResponse()
+                    : $this->getTools()->sefazDistDFe(0, $currentNsu);
+            } else {
+                // Consulta por último NSU (lote)
+                $currentNsu = $ultNsu ?: $this->getLastSavedNsu();
+                $response = $this->shouldMockDistDFe()
+                    ? $this->getMockDistDFeResponse()
+                    : $this->getTools()->sefazDistDFe($currentNsu);
+            }
 
-            $response = $this->shouldMockDistDFe()
-                ? $this->getMockDistDFeResponse()
-                : $this->getTools()->sefazDistDFe($currentNsu);
-
-            Log::channel('sefaz_log')->info('Log de consulta NFe - SEFAZ - registro - '.explode(':', $this->issuer->razao_social)[0].' : '.$response);
+            Log::channel('sefaz_log')->info(
+                $nsu ?
+                    "Log de consulta NFe - SEFAZ - registro específico - " . explode(':', $this->issuer->razao_social)[0] . " : \n" . $response :
+                    "Log de consulta NFe - SEFAZ - registro em lote - " . explode(':', $this->issuer->razao_social)[0] . " : \n" . $response
+            );
             // Processa a resposta
             $result = $this->processDistDFeResponse($response);
 
@@ -232,7 +251,7 @@ class SefazNfeDownloadService
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            throw new Exception('Falha no download de NFe: '.$e->getMessage());
+            throw new Exception('Falha no download de NFe: ' . $e->getMessage());
         }
     }
 
@@ -349,7 +368,7 @@ class SefazNfeDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha ao processar resposta: '.$e->getMessage());
+            throw new Exception('Falha ao processar resposta: ' . $e->getMessage());
         }
     }
 
@@ -424,14 +443,14 @@ class SefazNfeDownloadService
 
     private function getMockDistDFeResponse(): string
     {
-        $path = (string) config('sefaz.distdfe.mock.path', '');
+        $path = (string) config('sefaz.distdfe.mock.nfe_path', '');
         if ($path === '' || ! is_file($path)) {
-            throw new Exception('Mock SEFAZ distDFe habilitado, mas o arquivo não foi encontrado.');
+            throw new Exception('Mock SEFAZ NFe distDFe habilitado, mas o arquivo não foi encontrado.');
         }
 
         $contents = file_get_contents($path);
         if ($contents === false) {
-            throw new Exception('Falha ao ler o arquivo de mock SEFAZ distDFe.');
+            throw new Exception('Falha ao ler o arquivo de mock SEFAZ NFe distDFe.');
         }
 
         return $contents;
@@ -477,7 +496,7 @@ class SefazNfeDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha ao verificar status SEFAZ: '.$e->getMessage());
+            throw new Exception('Falha ao verificar status SEFAZ: ' . $e->getMessage());
         }
     }
 
