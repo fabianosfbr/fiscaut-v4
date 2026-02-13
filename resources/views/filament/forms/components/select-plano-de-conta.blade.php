@@ -3,6 +3,7 @@
 
     <div x-data="{
         selectedOption: $wire.$entangle('{{ $getStatePath() }}'),
+        tomSelectInstance: null,
 
         fetchItemData(query, callback) {
 
@@ -15,14 +16,18 @@
                 .catch(() => callback([])); // Em caso de erro, retorna uma lista vazia
         },
         initTomSelect() {
-            tomSelectInstance = new TomSelect($refs.tomSelect, {
+            if (this.tomSelectInstance) {
+                this.tomSelectInstance.destroy();
+            }
+
+            this.tomSelectInstance = new TomSelect($refs.tomSelect, {
                 hideSelected: false,
                 plugins: ['remove_button'],
                 valueField: 'codigo', // Campo da resposta da API que representa o valor
                 labelField: 'nome', // Campo da resposta da API que representa o rótulo
                 searchField: ['codigo', 'nome'],
                 onChange: (value) => {
-                    @this.set('{{ $getStatePath() }}', value);
+                    this.selectedOption = value;
                 },
                 load: (query, callback) => {
                     if (!query.length) return callback();
@@ -44,22 +49,31 @@
                     if (this.selectedOption) {
                         this.fetchItemData(this.selectedOption, (data) => {
                             if (data.length > 0) {
-                                tomSelectInstance.addOption(data[0]);
-                                tomSelectInstance.setValue(this.selectedOption);
-
+                                this.tomSelectInstance.addOption(data[0]);
+                                this.tomSelectInstance.setValue(this.selectedOption);
                             }
                         });
-
+                    } else {
+                        this.tomSelectInstance.clear();
                     }
                 }
             });
 
             $watch('selectedOption', value => {
+                if (!value || value === '' || (Array.isArray(value) && value.length === 0)) {
+                    this.tomSelectInstance.clear();
+                    return;
+                }
+
+                // Evitar loop infinito se o valor já for o mesmo
+                if (value === this.tomSelectInstance.getValue()) {
+                    return;
+                }
+
                 this.fetchItemData(value, (data) => {
                     if (data.length > 0) {
-                        tomSelectInstance.addOption(data[0]);
-                        tomSelectInstance.setValue(value);
-
+                        this.tomSelectInstance.addOption(data[0]);
+                        this.tomSelectInstance.setValue(value);
                     }
                 });
             });
