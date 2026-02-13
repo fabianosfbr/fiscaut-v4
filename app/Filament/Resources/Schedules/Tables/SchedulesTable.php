@@ -2,16 +2,18 @@
 
 namespace App\Filament\Resources\Schedules\Tables;
 
-use App\Enums\ScheduleStatusEnum;
 use Carbon\Carbon;
+use Filament\Tables\Table;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use App\Enums\ScheduleStatusEnum;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
 
 class SchedulesTable
 {
@@ -107,6 +109,25 @@ class SchedulesTable
                         ->hiddenLabel(),
                 ]),
             ])
-            ->toolbarActions([]);
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    BulkAction::make('toggle_status')
+                        ->label('Alternar Status')
+                        ->icon('heroicon-o-document-check')
+                        ->requiresConfirmation()
+                        ->modalHeading('Alternar Status')
+                        ->modalWidth('lg')
+                        ->modalDescription('Confirme a alternância de status para os agendamentos selecionados.')
+                        ->closeModalByClickingAway(false)
+                        ->closeModalByEscaping(false)
+                        ->modalSubmitActionLabel('Sim, alternar')
+                        ->action(function ($records) {
+                            $records->each(function ($record) {
+                                $record->status = $record->status == ScheduleStatusEnum::Active ? ScheduleStatusEnum::Inactive : ScheduleStatusEnum::Active;
+                                $record->save();
+                            });
+                        }),
+                ]),
+            ]);
     }
 }
