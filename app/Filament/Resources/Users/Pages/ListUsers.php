@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources\Users\Pages;
 
-use App\Filament\Resources\Users\UserResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\Users\UserResource;
+use App\Filament\Resources\Users\Widgets\UserStatsOverview;
 
 class ListUsers extends ListRecords
 {
@@ -15,6 +16,13 @@ class ListUsers extends ListRecords
         return [
             CreateAction::make()
                 ->label('Adicionar Novo'),
+        ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            UserStatsOverview::class,
         ];
     }
 }
