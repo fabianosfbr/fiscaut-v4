@@ -113,8 +113,8 @@ class ProcessXmlSiegBatch implements ShouldQueue
                     }
                 })
                 ->catch(function (Batch $batch, Throwable $e) use ($importJobId) {
-                    $mensagemErro = 'Erro no processamento em lote: '.$e->getMessage();
-                    Log::error('Erro na importação em lote de XML: '.$mensagemErro);
+                    $mensagemErro = 'Erro no processamento em lote: ' . $e->getMessage();
+                    Log::error('Erro na importação em lote de XML: ' . $mensagemErro);
 
                     $importJob = XmlImportJob::find($importJobId);
                     if ($importJob) {
@@ -132,7 +132,7 @@ class ProcessXmlSiegBatch implements ShouldQueue
                                 Notification::make()
                                     ->danger()
                                     ->title('Erro')
-                                    ->body('Ocorreu um erro ao processar a requisição: '.$e->getMessage())
+                                    ->body('Ocorreu um erro ao processar a requisição: ' . $e->getMessage())
                                     ->actions([
                                         Action::make('view')
                                             ->label('Ver detalhes')
@@ -158,11 +158,11 @@ class ProcessXmlSiegBatch implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        $mensagemErro = 'Falha no processamento em lote: '.$exception->getMessage();
+        $mensagemErro = 'Falha no processamento em lote: ' . $exception->getMessage();
         $this->importJob->addError($mensagemErro);
         $this->importJob->updateQuietly([
             'status' => XmlImportJob::STATUS_FAILED,
         ]);
-        Log::error('Falha na importação em lote de XML: '.$mensagemErro);
+        Log::error('Falha na importação em lote de XML: ' . $mensagemErro);
     }
 }

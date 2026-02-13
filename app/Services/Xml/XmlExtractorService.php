@@ -5,6 +5,7 @@ namespace App\Services\Xml;
 use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
 
@@ -80,7 +81,8 @@ class XmlExtractorService
             // Move o arquivo para um local temporário
             file_put_contents($tempPath, $zipFile->get());
 
-            if ($zip->open($tempPath) === true) {
+            $result = $zip->open($tempPath);
+            if ($result === true) {
                 for ($i = 0; $i < $zip->numFiles; $i++) {
                     $filename = $zip->getNameIndex($i);
 
@@ -92,9 +94,25 @@ class XmlExtractorService
                         ]);
                     }
                 }
-                $zip->close();
+                
+                // Properly close the zip archive with error checking
+                $closeResult = $zip->close();
+                if (!$closeResult) {
+                    Log::error('Failed to close zip archive in extractFromZip', [
+                        'temp_path' => $tempPath,
+                        'service_class' => self::class
+                    ]);
+                    
+                    throw new Exception('Could not close zip file properly');
+                }
             } else {
-                throw new Exception('Não foi possível abrir o arquivo ZIP.');
+                Log::error('Failed to open zip archive in extractFromZip', [
+                    'result_code' => $result,
+                    'temp_path' => $tempPath,
+                    'service_class' => self::class
+                ]);
+                
+                throw new Exception("Não foi possível abrir o arquivo ZIP. Código de erro: {$result}");
             }
 
             // Remove o arquivo temporário
@@ -107,6 +125,12 @@ class XmlExtractorService
             return $xmlContents;
 
         } catch (Exception $e) {
+            Log::error('Error in extractFromZip method', [
+                'error' => $e->getMessage(),
+                'temp_path' => $tempPath,
+                'service_class' => self::class
+            ]);
+            
             // Garante que o arquivo temporário seja removido em caso de erro
             if (file_exists($tempPath)) {
                 unlink($tempPath);
@@ -127,7 +151,8 @@ class XmlExtractorService
         $zip = new ZipArchive;
 
         try {
-            if ($zip->open($zipFilePath) === true) {
+            $result = $zip->open($zipFilePath);
+            if ($result === true) {
                 for ($i = 0; $i < $zip->numFiles; $i++) {
                     $filename = $zip->getNameIndex($i);
 
@@ -139,9 +164,25 @@ class XmlExtractorService
                         ]);
                     }
                 }
-                $zip->close();
+                
+                // Properly close the zip archive with error checking
+                $closeResult = $zip->close();
+                if (!$closeResult) {
+                    Log::error('Failed to close zip archive in extractFromZipPath', [
+                        'zip_file_path' => $zipFilePath,
+                        'service_class' => self::class
+                    ]);
+                    
+                    throw new Exception('Could not close zip file properly');
+                }
             } else {
-                throw new Exception('Não foi possível abrir o arquivo ZIP.');
+                Log::error('Failed to open zip archive in extractFromZipPath', [
+                    'result_code' => $result,
+                    'zip_file_path' => $zipFilePath,
+                    'service_class' => self::class
+                ]);
+                
+                throw new Exception("Não foi possível abrir o arquivo ZIP. Código de erro: {$result}");
             }
 
             if ($xmlContents->isEmpty()) {
@@ -151,6 +192,13 @@ class XmlExtractorService
             return $xmlContents;
 
         } catch (Exception $e) {
+            Log::error('Error in extractFromZipPath method', [
+                'error' => $e->getMessage(),
+                'zip_file_path' => $zipFilePath,
+                'service_class' => self::class,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             throw $e;
         }
     }
