@@ -11,7 +11,7 @@ Fiscaut v4.1 is a commercial-grade tax and fiscal management application built o
 | **Frontend Reactivity** | Livewire v4 & Alpine.js |
 | **Styling** | Tailwind CSS |
 | **Database** | MySQL |
-| **Caching/Queues** | Redis (Configurable) |
+| **Caching/Queues** | Redis (via Laravel Horizon) |
 | **Runtime** | PHP-FPM / Nginx (Docker/Sail) |
 
 ---

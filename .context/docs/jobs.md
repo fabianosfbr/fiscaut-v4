@@ -2,6 +2,23 @@
 
 The application processes certain tasks in the background using Laravel's Queue system to prevent blocking the UI and to handle resource-intensive operations efficiently.
 
+## Queue Management (Laravel Horizon)
+
+The application uses **Laravel Horizon** to monitor and manage Redis-backed queues. Horizon provides a beautiful dashboard and code-driven configuration for the application's queue workers.
+
+### Queue Configuration
+The system is configured with several specialized queues to ensure optimal performance and isolation:
+
+- `sefaz`: Dedicated to SEFAZ document downloads and processing.
+- `sieg`: Dedicated to SIEG API integrations.
+- `default`: General application tasks.
+- `low`: Long-running tasks like ETL, bulk imports, and massive action jobs.
+
+### Supervisors and Balancing
+Horizon is configured with different supervisor settings for `production` and `local` environments. It uses the `auto` balance strategy to dynamically allocate worker processes based on queue load.
+
+For more details on production operations, see [Horizon em Produção](../../docs/horizon-producao.md).
+
 ## Core Jobs
 
 ### 1. ProcessXmlFile

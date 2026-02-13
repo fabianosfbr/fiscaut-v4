@@ -9,6 +9,7 @@ Fiscaut is designed to bridge the gap between complex Brazilian fiscal legislati
 - **Backend:** Laravel 12 / PHP 8.2+
 - **Frontend:** Livewire 4 / Alpine.js / Tailwind CSS
 - **Admin Panel:** FilamentPHP v5
+- **Queue Monitor:** Laravel Horizon
 - **Database:** MySQL 8.0
 
 ---
@@ -42,6 +43,7 @@ Fiscaut implements a multi-tenant architecture where data is scoped per **Tenant
 | 🛡️ [Security & Compliance](./security.md) | Authentication, secrets, and LGPD compliance. |
 | 🛠️ [Application Services](./services.md) | Documentation for core business logic and external integrations. |
 | ⚡ [Background Jobs](./jobs.md) | Guide to asynchronous queues, bulk actions, and SEFAZ pipelines. |
+| 🌅 [Horizon Ops](../../docs/horizon-producao.md) | Guia de operação e configuração do Laravel Horizon em produção. |
 | 🧾 [XmlReaderService](./xml-reader-service.md) | XML parsing conventions and migration to array-based access. |
 
 ---
