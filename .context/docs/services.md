@@ -52,13 +52,23 @@ These services manage direct communication with SEFAZ (Secretaria da Fazenda) we
 
 ### SefazNfeDownloadService
 Handles the "DistribuicaoDFe" (Distribution) and "Manifestacao" (Manifestation) API for NFe (Nota Fiscal Eletrônica).
-*   **Batch Download**: Automates the loop of fetching documents (NSU crawling), handling SEFAZ limits (maxNSU, timeouts).
-*   **Manifestation**: Performs events like "Ciência da Operação" or "Confirmação" directly with SEFAZ.
-*   **Resiliency**: Handles SEFAZ hiccups (HTTP 656, 137) and manages sleep intervals.
+*   **Batch Download**: Automates the loop of fetching documents (NSU crawling) using NFePHP, handling SEFAZ limits (maxNSU, timeouts).
+*   **Resiliency**: Handles SEFAZ hiccups (cStat 656/137), manages sleep intervals, and implements a Mock system for testing.
+*   **State Management**: Automatically updates `ult_nsu_nfe` on the Issuer model to track progress.
 
-### Other Sefaz Services
-*   **SefazCteDownloadService**: Equivalent functionality to NFe service but for CTe (Conhecimento de Transporte).
-*   **CfeSatService**: Specialized service for querying SAT batches (`CfeConsultarLotes`) via direct SOAP/CURL implementation. It also handles the parsing and persistence of CFe (Cupom Fiscal Eletrônico) into the `CupomFiscalEletronico` model.
+### SefazCteDownloadService
+Equivalent functionality to NFe service but for CTe (Conhecimento de Transporte Eletrônico).
+*   **Implementation**: Uses `NFePHP\CTe\Tools` for direct communication.
+*   **Tracking**: Manages `ult_nsu_cte` and `ultima_consulta_cte` state.
+
+### SefazNfseDownloadService
+Manages NFSe (Nota Fiscal de Serviço Eletrônica) downloads via the National ADN (Ambiente de Dados Nacional).
+*   **Protocol**: Uses direct CURL/SSL calls with certificates to `adn.nfse.gov.br`.
+*   **Processing**: Handles JSON responses from ADN, decodes base64/zipped XMLs, and identifies document types.
+*   **DANFSE**: Provides functionality to retrieve the DANFSE PDF for specific access keys.
+
+### CfeSatService
+Specialized service for querying SAT batches (`CfeConsultarLotes`) via direct SOAP/CURL implementation. It also handles the parsing and persistence of CFe (Cupom Fiscal Eletrônico) into the `CupomFiscalEletronico` model.
 
 
 ## XML Services
