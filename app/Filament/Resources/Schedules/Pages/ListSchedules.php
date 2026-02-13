@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources\Schedules\Pages;
 
-use App\Filament\Resources\Schedules\ScheduleResource;
+use Filament\Support\Enums\Width;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\Schedules\ScheduleResource;
 
 class ListSchedules extends ListRecords
 {
@@ -13,7 +14,13 @@ class ListSchedules extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->label('Adicionar Novo'),
         ];
+    }
+
+    public function getMaxContentWidth(): Width
+    {
+        return Width::Full;
     }
 }
