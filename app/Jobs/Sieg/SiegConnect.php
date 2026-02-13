@@ -255,7 +255,7 @@ class SiegConnect implements ShouldQueue
 
                 $notification->actions([$action]);
 
-                $notification->sendToDatabase($user);
+                $notification->sendToDatabase($user, isEventDispatched: true);
                 $notification->send();
             });
         } else {

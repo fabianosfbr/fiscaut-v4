@@ -107,7 +107,7 @@ class ProcessXmlSiegBatch implements ShouldQueue
                                             ->button()
                                             ->url(route('filament.admin.resources.xml-import-history.index', ['record' => $jobId])),
                                     ])
-                                    ->sendToDatabase($user);
+                                    ->sendToDatabase($user, isEventDispatched: true);
                             }
                         });
                     }
@@ -139,7 +139,7 @@ class ProcessXmlSiegBatch implements ShouldQueue
                                             ->button()
                                             ->url(route('filament.admin.resources.xml-import-history.index', ['record' => $jobId])),
                                     ])
-                                    ->sendToDatabase($user);
+                                    ->sendToDatabase($user, isEventDispatched: true);
                             }
                         });
                     }

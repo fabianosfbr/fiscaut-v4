@@ -67,7 +67,7 @@ class ExpiredCertificateNotificationJob implements ShouldQueue
                                 ),
                         ])
                         ->icon('heroicon-o-exclamation-circle')
-                        ->sendToDatabase($user);
+                        ->sendToDatabase($user, isEventDispatched: true);
                 }
             }
         }
