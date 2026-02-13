@@ -30,7 +30,9 @@ class ImportarLancamentoContabilJob implements ShouldQueue
         protected string $relativePath,
         protected int $userId,
         protected ?string $jobProgressId = null
-    ) {}
+    ) {
+        $this->onQueue('low');
+    }
 
     /**
      * Execute the job.

@@ -45,7 +45,9 @@ class ProcessXmlFile implements ShouldQueue
         protected string $fileKey,
         protected XmlImportJob $importJob,
         protected Issuer $issuer
-    ) {}
+    ) {
+        $this->onQueue('low');
+    }
 
     /**
      * Execute the job.

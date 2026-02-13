@@ -20,7 +20,7 @@ class ProcessResponseCteSefazJob implements ShouldQueue
 
     public function __construct($issuer, $response, $origem)
     {
-
+        $this->onQueue('sefaz');
         $this->response = $response;
         $this->issuer = $issuer;
         $this->origem = $origem;
@@ -41,7 +41,7 @@ class ProcessResponseCteSefazJob implements ShouldQueue
 
             // Cada doc vira um job de processamento
             ProcessXmlResponseCteSefazJob::dispatch($this->issuer, $this->response, $key, $this->origem, $maxNSU)
-                ->onQueue('low');
+                ->onQueue('sefaz');
         }
     }
 }

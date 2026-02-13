@@ -40,7 +40,9 @@ class SefazNfeProcessDocumentJob implements ShouldQueue
         protected array $documento,
         protected Issuer $issuer,
         protected XmlImportJob $importJob
-    ) {}
+    ) {
+        $this->onQueue('sefaz');
+    }
 
     /**
      * Execute the job.

@@ -26,6 +26,7 @@ class ProcessXmlResponseCteSefazJob implements ShouldQueue
 
     public function __construct($issuer, $response, $key, $origem, $maxNSU)
     {
+        $this->onQueue('sefaz');
         $this->response = $response;
         $this->key = $key;
         $this->issuer = $issuer;

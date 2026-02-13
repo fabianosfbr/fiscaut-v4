@@ -14,7 +14,7 @@ class CheckNfeData implements ShouldQueue
 
     public $failOnTimeout = false;
 
-    public $timeout = 120000;
+    public $timeout = 900;
 
     /**
      * Create a new job instance.
@@ -22,7 +22,7 @@ class CheckNfeData implements ShouldQueue
     public function __construct(
         private ConhecimentoTransporteEletronico $cte
     ) {
-        //
+        $this->onQueue('sefaz');
     }
 
     /**

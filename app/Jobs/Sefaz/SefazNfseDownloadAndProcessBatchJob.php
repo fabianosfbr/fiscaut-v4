@@ -24,7 +24,9 @@ class SefazNfseDownloadAndProcessBatchJob implements ShouldQueue
     public function __construct(
         protected Issuer $issuer,
         protected ?string $ultNsu = null
-    ) {}
+    ) {
+        $this->onQueue('sefaz');
+    }
 
     public function handle(): void
     {

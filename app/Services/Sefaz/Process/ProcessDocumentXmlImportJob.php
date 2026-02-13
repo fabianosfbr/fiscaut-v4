@@ -16,7 +16,7 @@ class ProcessDocumentXmlImportJob implements ShouldQueue
 
     public $failOnTimeout = false;
 
-    public $timeout = 120000;
+    public $timeout = 900;
 
     public $content;
 
@@ -24,6 +24,7 @@ class ProcessDocumentXmlImportJob implements ShouldQueue
 
     public function __construct($content, $issuer)
     {
+        $this->onQueue('low');
         $this->content = $content;
         $this->issuer = $issuer;
     }

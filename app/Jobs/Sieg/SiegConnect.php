@@ -56,7 +56,9 @@ class SiegConnect implements ShouldQueue
         protected string $dataFinal,
         protected int $issuerId,
         protected int $importJobId,
-    ) {}
+    ) {
+        $this->onQueue('sieg');
+    }
 
     /**
      * Execute the job.

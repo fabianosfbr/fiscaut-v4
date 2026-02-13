@@ -25,7 +25,9 @@ class SefazNfseDownloadBatchJob implements ShouldQueue
         protected array $documentos,
         protected Issuer $issuer,
         protected ?string $ultNsu = null
-    ) {}
+    ) {
+        $this->onQueue('sefaz');
+    }
 
     public function handle(): void
     {

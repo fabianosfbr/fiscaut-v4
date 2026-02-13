@@ -40,7 +40,9 @@ class ProcessXmlSieg implements ShouldQueue
         protected string $xmlContent,
         protected XmlImportJob $importJob,
         protected Issuer $issuer
-    ) {}
+    ) {
+        $this->onQueue('sieg');
+    }
 
     /**
      * Execute the job.

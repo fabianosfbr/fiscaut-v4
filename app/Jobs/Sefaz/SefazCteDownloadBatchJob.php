@@ -45,7 +45,9 @@ class SefazCteDownloadBatchJob implements ShouldQueue
         protected array $documentos,
         protected Issuer $issuer,
         protected ?string $ultNsu = null
-    ) {}
+    ) {
+        $this->onQueue('sefaz');
+    }
 
     /**
      * Execute the job.

@@ -26,7 +26,9 @@ class AggregateMonthlyFiscalFinancialStatsJob implements ShouldQueue
         protected string $docTipo,
         protected string $tipo,
         protected ?string $issuerCnpj = null,
-    ) {}
+    ) {
+        $this->onQueue('low');
+    }
 
     public function handle(): void
     {

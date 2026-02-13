@@ -28,6 +28,7 @@ class DownloadNfseJob implements ShouldQueue
      */
     public function __construct(Issuer $issuer, ?string $nsu = null)
     {
+        $this->onQueue('sefaz');
         $this->issuer = $issuer;
         $this->nsu = $nsu;
     }

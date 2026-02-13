@@ -29,7 +29,7 @@ class DownloadXmlPdfCteEmLoteActionJob implements ShouldQueue
         public array $data,
         public int $userId
     ) {
-        //
+        $this->onQueue('low');
     }
 
     public function handle(): void

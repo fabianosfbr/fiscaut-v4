@@ -50,7 +50,9 @@ class ProcessXmlSiegBatch implements ShouldQueue
         protected array $xmlContents,
         protected XmlImportJob $importJob,
         protected Issuer $issuer
-    ) {}
+    ) {
+        $this->onQueue('sieg');
+    }
 
     /**
      * Execute the job.
