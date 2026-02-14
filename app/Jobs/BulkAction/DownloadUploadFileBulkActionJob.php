@@ -2,6 +2,7 @@
 
 namespace App\Jobs\BulkAction;
 
+use App\Models\SecureDownload;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -43,14 +44,15 @@ class DownloadUploadFileBulkActionJob implements ShouldQueue
         try {
             // Ensure the downloads directory exists with proper permissions
             $directory = 'downloads/' . now()->format('m-Y');
-            $directoryPath = storage_path('app/public/' . $directory);
+            $directoryPath = storage_path('app/private/' . $directory);
 
             if (!is_dir($directoryPath)) {
                 mkdir($directoryPath, 0755, true);
             }
 
-            $filename = $directory . '/' . Str::random(8) . '.zip';
-            $pathFile = storage_path('app/public/' . $filename);
+            $randomName = Str::random(8) . '.zip';
+            $filename = $directory . '/' . $randomName;
+            $pathFile = storage_path('app/private/' . $filename);
 
             $zip = new ZipArchive;
             $result = $zip->open($pathFile, ZipArchive::CREATE | ZipArchive::OVERWRITE);
@@ -71,11 +73,11 @@ class DownloadUploadFileBulkActionJob implements ShouldQueue
                     $tipoDocumentos = config('admin.doc_types');
                     if (count($file->tagged) > 1) {
                         $name = $tipoDocumentos[$file->doc_type->value] . '/' . '#Multiplas Etiquetas/' . basename($file->path);
-                        $file_content = Storage::disk('public')->get($file->path);
+                        $file_content = Storage::disk('local')->get($file->path);
                         $zip->addFromString($name, $file_content);
                     } else {
                         foreach ($file->tagNamesWithCode() as $path) {
-                            $file_content = Storage::disk('public')->get($file->path);
+                            $file_content = Storage::disk('local')->get($file->path);
                             $name = $tipoDocumentos[$file->doc_type->value] . '/' . $path . '/' . basename($file->path);
                             $zip->addFromString($name, $file_content);
                         }
@@ -86,11 +88,11 @@ class DownloadUploadFileBulkActionJob implements ShouldQueue
 
                     if (count($file->tagged) > 1) {
                         $name = '#Multiplas Etiquetas/' . basename($file->path);
-                        $file_content = Storage::disk('public')->get($file->path);
+                        $file_content = Storage::disk('local')->get($file->path);
                         $zip->addFromString($name, $file_content);
                     } else {
                         foreach ($file->tagNamesWithCode() as $path) {
-                            $file_content = Storage::disk('public')->get($file->path);
+                            $file_content = Storage::disk('local')->get($file->path);
                             $name = $path . '/' . basename($file->path);
                             $zip->addFromString($name, $file_content);
                         }
@@ -110,6 +112,17 @@ class DownloadUploadFileBulkActionJob implements ShouldQueue
                 throw new \Exception('Could not close zip file properly');
             }
 
+            // Create secure download record
+            $secureDownload = SecureDownload::create([
+                'user_id' => $this->userId,
+                'file_path' => $filename,
+                'file_name' => 'arquivos_' . now()->format('Ymd_His') . '.zip',
+                'mime_type' => 'application/zip',
+                'size' => filesize($pathFile),
+                'job_class' => self::class,
+                'expires_at' => now()->addDays(7),
+            ]);
+
             // Send notification to user
             $notification = Notification::make()
                 ->title('Arquivo disponível para download')
@@ -121,7 +134,7 @@ class DownloadUploadFileBulkActionJob implements ShouldQueue
                         ->label('Baixar arquivo')
                         ->button()
                         ->openUrlInNewTab()
-                        ->url(asset('storage/' . $filename)),
+                        ->url(route('download', ['uuid' => $secureDownload->id])),
                 ]);
 
             $notification->sendToDatabase(User::find($this->userId), isEventDispatched: true);

@@ -2,6 +2,7 @@
 
 namespace App\Jobs\BulkAction;
 
+use App\Models\SecureDownload;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -41,14 +42,15 @@ class DownloadXmlPdfNfeEmLoteActionJob implements ShouldQueue
         try {
             // Ensure the downloads directory exists with proper permissions
             $directory = 'downloads/' . now()->format('m-Y');
-            $directoryPath = storage_path('app/public/' . $directory);
-            
+            $directoryPath = storage_path('app/private/' . $directory);
+
             if (!is_dir($directoryPath)) {
                 mkdir($directoryPath, 0755, true);
             }
-            
-            $filename = $directory . '/' . Str::random(8) . '.zip';
-            $pathFile = storage_path('app/public/' . $filename);
+
+            $randomName = Str::random(8) . '.zip';
+            $filename = $directory . '/' . $randomName;
+            $pathFile = storage_path('app/private/' . $filename);
 
             $zip = new ZipArchive;
             $result = $zip->open($pathFile, ZipArchive::CREATE | ZipArchive::OVERWRITE);
@@ -106,6 +108,17 @@ class DownloadXmlPdfNfeEmLoteActionJob implements ShouldQueue
                 throw new \Exception('Could not close zip file properly');
             }
 
+            // Create secure download record
+            $secureDownload = SecureDownload::create([
+                'user_id' => $this->userId,
+                'file_path' => $filename,
+                'file_name' => 'nfe_' . now()->format('Ymd_His') . '.zip',
+                'mime_type' => 'application/zip',
+                'size' => filesize($pathFile),
+                'job_class' => self::class,
+                'expires_at' => now()->addDays(7),
+            ]);
+
             // Send notification to user
             $notification = Notification::make()
                 ->title('Arquivo disponível para download')
@@ -117,7 +130,7 @@ class DownloadXmlPdfNfeEmLoteActionJob implements ShouldQueue
                         ->label('Baixar arquivo')
                         ->button()
                         ->openUrlInNewTab()
-                        ->url(asset('storage/' . $filename)),
+                        ->url(route('download', ['uuid' => $secureDownload->id])),
                 ]);
 
             if (!empty($erros)) {
