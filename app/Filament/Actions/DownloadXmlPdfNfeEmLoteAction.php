@@ -28,12 +28,17 @@ class DownloadXmlPdfNfeEmLoteAction
             ->schema([
                 Grid::make(2)
                     ->schema([
+                        Checkbox::make('organizar_por_etiquetas')
+                            ->label('Organizar em pastas conforme as etiquetas')
+                            ->default(false)
+                            ->columnSpan(2),
                         Checkbox::make('download_xml')
                             ->label('Baixar XML')
                             ->default(true),
                         Checkbox::make('download_pdf')
                             ->label('Baixar PDF')
                             ->default(true),
+
                     ]),
             ])
             ->closeModalByClickingAway(false)
@@ -52,7 +57,7 @@ class DownloadXmlPdfNfeEmLoteAction
                     throw new Halt;
                 }
                 // Filtra apenas os registros que têm conteúdo XML
-                $recordsWithXml = $records->filter(fn ($record) => ! empty($record->xml));
+                $recordsWithXml = $records->filter(fn($record) => ! empty($record->xml));
 
                 if ($recordsWithXml->isEmpty()) {
 
@@ -76,7 +81,6 @@ class DownloadXmlPdfNfeEmLoteAction
                     ->success()
                     ->duration(2000)
                     ->send();
-
             });
     }
 }

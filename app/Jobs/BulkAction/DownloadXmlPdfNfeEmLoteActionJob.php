@@ -40,6 +40,8 @@ class DownloadXmlPdfNfeEmLoteActionJob implements ShouldQueue
     public function handle(): void
     {
         try {
+            $this->records->loadMissing('tagged.tag');
+
             // Ensure the downloads directory exists with proper permissions
             $directory = 'downloads/' . now()->format('m-Y');
             $directoryPath = storage_path('app/private/' . $directory);
@@ -68,22 +70,37 @@ class DownloadXmlPdfNfeEmLoteActionJob implements ShouldQueue
 
             $baixarXml = (bool) ($this->data['download_xml'] ?? false);
             $baixarPdf = (bool) ($this->data['download_pdf'] ?? false);
+            $organizarPorEtiquetas = (bool) ($this->data['organizar_por_etiquetas'] ?? false);
             $erros = [];
 
             foreach ($this->records as $record) {
                 try {
+                    $subPath = '';
+                    if ($organizarPorEtiquetas) {
+                        $tagCount = count($record->tagged);
+                        if ($tagCount > 1) {
+                            $subPath = '#Multiplas Etiquetas/';
+                        } elseif ($tagCount === 1) {
+                            $tags = $record->tagNamesWithCode();
+                            $subPath = ($tags[0] ?? 'Sem Etiqueta') . '/';
+                        } else {
+                            $subPath = 'Sem Etiqueta/';
+                        }
+                    }
+
+                    $xml_content = gzuncompress($record->xml);
+
                     if ($baixarPdf) {
-                        $danfe = new Danfe(gzuncompress($record->xml));
+                        $danfe = new Danfe($xml_content);
                         $danfe->creditsIntegratorFooter(config('admin.footer_credits_danfe'), false);
                         $pdf = $danfe->render();
                         $pdfFileName = "{$record->chave}.pdf";
-                        $zip->addFromString($pdfFileName, $pdf);
+                        $zip->addFromString($subPath . $pdfFileName, $pdf);
                     }
 
                     if ($baixarXml) {
                         $xmlFileName = "{$record->chave}.xml";
-                        $xml_content = gzuncompress($record->xml);
-                        $zip->addFromString($xmlFileName, $xml_content);
+                        $zip->addFromString($subPath . $xmlFileName, $xml_content);
                     }
                 } catch (\Exception $e) {
                     $erros[] = "Erro ao gerar DANFE para a nota {$record->numero}: {$e->getMessage()}";
