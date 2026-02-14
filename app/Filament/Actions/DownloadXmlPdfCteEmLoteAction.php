@@ -33,7 +33,17 @@ class DownloadXmlPdfCteEmLoteAction
                             ->default(true),
                         Checkbox::make('download_pdf')
                             ->label('Baixar PDF')
-                            ->default(true),
+                            ->default(true)
+                            ->live(),
+                        Checkbox::make('organizar_por_etiquetas')
+                            ->label('Organizar em pastas conforme as etiquetas')
+                            ->default(false)
+                            ->columnSpan(2),
+                        Checkbox::make('adicionar_etiquetas_pdf')
+                            ->label('Adicionar etiquetas no final do PDF')
+                            ->default(false)
+                            ->columnSpan(2)
+                            ->visible(fn (callable $get) => (bool) $get('download_pdf')),
                     ]),
             ])
             ->closeModalByClickingAway(false)

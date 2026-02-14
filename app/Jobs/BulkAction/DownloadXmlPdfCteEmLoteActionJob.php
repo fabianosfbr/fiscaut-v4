@@ -4,6 +4,7 @@ namespace App\Jobs\BulkAction;
 
 use App\Models\SecureDownload;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Bus\Queueable;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use NFePHP\DA\CTe\Dacte;
+use setasign\Fpdi\Fpdi;
 use ZipArchive;
 
 class DownloadXmlPdfCteEmLoteActionJob implements ShouldQueue
@@ -37,6 +39,8 @@ class DownloadXmlPdfCteEmLoteActionJob implements ShouldQueue
     public function handle(): void
     {
         try {
+            $this->records->loadMissing('tagged.tag');
+
             // Ensure the downloads directory exists with proper permissions
             $directory = 'downloads/' . now()->format('m-Y');
             $directoryPath = storage_path('app/private/' . $directory);
@@ -65,22 +69,43 @@ class DownloadXmlPdfCteEmLoteActionJob implements ShouldQueue
 
             $baixarXml = (bool) ($this->data['download_xml'] ?? false);
             $baixarPdf = (bool) ($this->data['download_pdf'] ?? false);
+            $organizarPorEtiquetas = (bool) ($this->data['organizar_por_etiquetas'] ?? false);
+            $adicionarEtiquetasPdf = (bool) ($this->data['adicionar_etiquetas_pdf'] ?? false);
             $erros = [];
 
             foreach ($this->records as $record) {
                 try {
+                    $subPath = '';
+                    if ($organizarPorEtiquetas) {
+                        $tagCount = count($record->tagged);
+                        if ($tagCount > 1) {
+                            $subPath = '#Multiplas Etiquetas/';
+                        } elseif ($tagCount === 1) {
+                            $tags = $record->tagNamesWithCode();
+                            $subPath = ($tags[0] ?? 'Sem Etiqueta') . '/';
+                        } else {
+                            $subPath = 'Sem Etiqueta/';
+                        }
+                    }
+
+                    $xml_content = gzuncompress($record->xml);
+
                     if ($baixarPdf) {
-                        $dacte = new Dacte(gzuncompress($record->xml));
+                        $dacte = new Dacte($xml_content);
                         $dacte->creditsIntegratorFooter(config('admin.footer_credits_danfe'), false);
-                        $pdf = $dacte->render();
+                        $pdfContent = $dacte->render();
+
+                        if ($adicionarEtiquetasPdf && $record->tagged->isNotEmpty()) {
+                            $pdfContent = $this->appendTagsPage($pdfContent, $record);
+                        }
+
                         $pdfFileName = "{$record->chave}.pdf";
-                        $zip->addFromString($pdfFileName, $pdf);
+                        $zip->addFromString($subPath . $pdfFileName, $pdfContent);
                     }
 
                     if ($baixarXml) {
                         $xmlFileName = "{$record->chave}.xml";
-                        $xml_content = gzuncompress($record->xml);
-                        $zip->addFromString($xmlFileName, $xml_content);
+                        $zip->addFromString($subPath . $xmlFileName, $xml_content);
                     }
                 } catch (\Exception $e) {
                     $erros[] = "Erro ao gerar DACTE para o CT-e {$record->nCTe}: {$e->getMessage()}";
@@ -148,6 +173,59 @@ class DownloadXmlPdfCteEmLoteActionJob implements ShouldQueue
 
             // Re-throw the exception to fail the job appropriately
             throw $e;
+        }
+    }
+
+    /**
+     * Appends a page with tags to the existing PDF content.
+     */
+    protected function appendTagsPage(string $pdfContent, $record): string
+    {
+        try {
+            // 1. Generate the tags page using DomPDF
+            $tagsHtml = view('pdf.nfe-etiquetas', ['tagged' => $record->tagged])->render();
+            $tagsPdfContent = Pdf::loadHTML($tagsHtml)->output();
+
+            // 2. Use FPDI to merge the PDFs
+            $tmpDanfe = tempnam(sys_get_temp_dir(), 'danfe_');
+            $tmpTags = tempnam(sys_get_temp_dir(), 'tags_');
+            
+            file_put_contents($tmpDanfe, $pdfContent);
+            file_put_contents($tmpTags, $tagsPdfContent);
+
+            $pdf = new Fpdi();
+            
+            // Add original DANFE pages
+            $pageCount = $pdf->setSourceFile($tmpDanfe);
+            for ($i = 1; $i <= $pageCount; $i++) {
+                $templateId = $pdf->importPage($i);
+                $size = $pdf->getTemplateSize($templateId);
+                $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+                $pdf->useTemplate($templateId);
+            }
+
+            // Add tags page
+            $pageCountTags = $pdf->setSourceFile($tmpTags);
+            for ($i = 1; $i <= $pageCountTags; $i++) {
+                $templateId = $pdf->importPage($i);
+                $size = $pdf->getTemplateSize($templateId);
+                $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+                $pdf->useTemplate($templateId);
+            }
+
+            $mergedContent = $pdf->Output('S');
+
+            // Cleanup
+            unlink($tmpDanfe);
+            unlink($tmpTags);
+
+            return $mergedContent;
+        } catch (\Exception $e) {
+            Log::error('Error appending tags page to PDF', [
+                'chave' => $record->chave,
+                'error' => $e->getMessage()
+            ]);
+            return $pdfContent; // Return original if fails
         }
     }
 }
