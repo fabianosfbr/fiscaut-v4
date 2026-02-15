@@ -1,6 +1,7 @@
 ---
-status: draft
+status: updated
 generated: 2026-02-11
+updated: 2026-02-15
 agents:
   - type: "code-reviewer"
     role: "Review code changes for quality, style, and best practices"
@@ -58,6 +59,8 @@ phases:
   - [Documentation Index](../docs/README.md)
   - [Agent Handbook](../agents/README.md)
   - [Layout Domínio Sistemas](../docs/integracoes/layout-dominio-sistemas.md)
+  - [Sample NFe XML](../docs/integracoes/samples/35260255462958000196550010000006061021790417.xml)
+  - [Sample TXT Output](../docs/integracoes/samples/rCbddAZt.txt)
   - [Plans Index](./README.md)
 
 ## Codebase Context
@@ -92,6 +95,8 @@ phases:
 | Glossary & Domain Concepts | [glossary.md](../docs/glossary.md) | Terminologia de negócio, personas de usuário, regras de domínio |
 | Data Flow & Integrations | [data-flow.md](../docs/data-flow.md) | Diagramas de sistema, especificações de integração, tópicos de fila |
 | Layout Domínio Sistemas | [layout-dominio-sistemas.md](../docs/integracoes/layout-dominio-sistemas.md) | Leiaute de registros TXT, campos obrigatórios, formatação específica |
+| Sample NFe XML | [35260255462958000196550010000006061021790417.xml](../docs/integracoes/samples/35260255462958000196550010000006061021790417.xml) | Estrutura de dados da NFe, campos obrigatórios, exemplos reais |
+| Sample TXT Output | [rCbddAZt.txt](../docs/integracoes/samples/rCbddAZt.txt) | Formato esperado de saída, mapeamento de campos XML para TXT |
 | Security & Compliance Notes | [security.md](../docs/security.md) | Modelo de autenticação, gerenciamento de segredos, requisitos de conformidade |
 | Tooling & Productivity Guide | [tooling.md](../docs/tooling.md) | Scripts de CLI, configurações de IDE, fluxos de automação |
 
@@ -113,8 +118,94 @@ Identificar potenciais bloqueadores, dependências e estratégias de mitigação
 - Os modelos de dados das NFe já estão implementados no sistema
 - Os arquivos XML das NFe estão disponíveis e acessíveis
 - O leiaute específico da Domínio Sistemas está documentado em @docs/integracoes/layout-dominio-sistemas.md
+- Exemplos reais de NFe XML e seus respectivos arquivos TXT de saída estão disponíveis em @docs/integracoes/samples/
 - As configurações de etiquetas aplicadas à NFe, Acumuladores, Cfops equivalentes, etiquetas equivalentes e produtos genéricos cadastrados do current issuer estão disponíveis no sistema
 - O sistema tem capacidade de processar lotes de NFe para geração de arquivos TXT
+- Será necessário implementar uma estrutura de classes bem definida para representar os diferentes tipos de registros (0000, 0010, 0020, 0030, 0100, 1000, 1010, 1020, 1030, 1500, etc.) conforme especificação
+
+## Architecture of Class Structure
+
+### Proposed Class Hierarchy
+Para atender aos requisitos de coesão, reutilização e aderência ao princípio DRY (Don't Repeat Yourself), propõe-se a seguinte estrutura de classes:
+
+1. **RegistroBase** - Classe abstrata base que define a estrutura comum a todos os registros
+   - Campos: tipo_registro, separador_padrao, codificacao_arquivo
+   - Métodos: formatarCampo(), converterParaLinhaTxt()
+
+2. **Registro0000** - Representa o registro de identificação da empresa
+   - Herda de: RegistroBase
+   - Campos específicos: inscricao_empresa
+
+3. **Registro0010** - Representa o cadastro de clientes
+   - Herda de: RegistroBase
+   - Campos específicos: inscricao, razao_social, apelido, endereco, numero, complemento, bairro, cod_municipio, uf, cep, etc.
+
+4. **Registro0020** - Representa o cadastro de fornecedores
+   - Herda de: RegistroBase
+   - Campos específicos: inscricao, razao_social, apelido, endereco, numero, complemento, bairro, cod_municipio, uf, cep, etc.
+
+5. **Registro0030** - Representa o cadastro de remetente e destinatário
+   - Herda de: RegistroBase
+   - Campos específicos: inscricao_cnpj, razao_social, endereco, codigo_municipio, uf, inscricao_estadual, tipo_inscricao
+
+6. **Registro0100** - Representa o cadastro de produtos
+   - Herda de: RegistroBase
+   - Campos específicos: codigo_produto, descricao_produto, codigo_ncm, codigo_de_barras, unidade_medida, valor_unitario, etc.
+
+7. **Registro0110** - Representa produtos - vigência (registro filho de 0100)
+   - Herda de: RegistroBase
+   - Campos específicos: descricao, cst_entrada, base_credito, aliquota_pis_entradas, aliquota_cofins_entradas, etc.
+
+8. **Registro0120** - Representa produtos - unidades comercializadas (registro filho de 0100)
+   - Herda de: RegistroBase
+   - Campos específicos: sigla_unidade_comercializada, fator_conversao, codigo_barras
+
+9. **Registro0135** - Representa produtos - valor unitário (registro filho de 0100)
+   - Herda de: RegistroBase
+   - Campos específicos: data, valor_unitario
+
+10. **Registro0150** - Representa produtos - unidade de medida
+    - Herda de: RegistroBase
+    - Campos específicos: sigla, descricao
+
+11. **Registro1000** - Representa notas fiscais de entrada
+    - Herda de: RegistroBase
+    - Campos específicos: codigo_especie, inscricao_fornecedor, cfop, numero_documento, serie, data_emissao, valor_contabil, etc.
+
+12. **Registro1010** - Representa informações complementares de notas fiscais (registro filho de 1000)
+    - Herda de: RegistroBase
+    - Campos específicos: informacoes_complementares
+
+13. **Registro1015** - Representa observações de interesse do fisco (registro filho de 1000)
+    - Herda de: RegistroBase
+    - Campos específicos: observacoes_interesse_fisco
+
+14. **Registro1020** - Representa impostos de notas fiscais (registro filho de 1000)
+    - Herda de: RegistroBase
+    - Campos específicos: codigo_imposto, valor_imposto, base_calculo, aliquota, cst, cfop, etc.
+
+15. **Registro1030** - Representa estoque de notas fiscais (registro filho de 1000)
+    - Herda de: RegistroBase
+    - Campos específicos: codigo_produto, quantidade, valor_unitario, valor_total, unidade_medida, cfop, etc.
+
+16. **Registro1200** - Representa ICMS de empresa do Simples Nacional SP (registro filho de 1000)
+    - Herda de: RegistroBase
+    - Campos específicos: codigo_produto, cfop, codigo_situacao_tributaria, base_calculo_icms, aliquota_icms, etc.
+
+17. **Registro1500** - Representa parcelas de notas fiscais (registro filho de 1000)
+    - Herda de: RegistroBase
+    - Campos específicos: numero_parcela, data_vencimento, valor_parcela, codigo_condicao_pagamento, etc.
+
+### Design Patterns a Serem Utilizados
+- **Factory Pattern** - Para criação de instâncias de registros específicos
+- **Builder Pattern** - Para construção de registros complexos com muitos campos opcionais
+- **Strategy Pattern** - Para diferentes estratégias de formatação de campos
+- **Template Method Pattern** - Para definir o esqueleto de conversão para formato TXT
+
+### Interfaces e Contratos
+- **IRegistro** - Interface que define o contrato mínimo para qualquer tipo de registro
+- **IFormatador** - Interface para diferentes formatadores de campos
+- **IValidador** - Interface para validação de campos específicos de cada tipo de registro
 
 ## Resource Estimation
 
@@ -122,9 +213,9 @@ Identificar potenciais bloqueadores, dependências e estratégias de mitigação
 | Phase | Estimated Effort | Calendar Time | Team Size |
 | --- | --- | --- | --- |
 | Phase 1 - Discovery | 3 person-days | 4-5 dias | 1-2 pessoas |
-| Phase 2 - Implementation | 8 person-days | 2 semanas | 2-3 pessoas |
+| Phase 2 - Implementation | 10 person-days | 2.5 semanas | 2-3 pessoas |
 | Phase 3 - Validation | 3 person-days | 4-5 dias | 1-2 pessoas |
-| **Total** | **14 person-days** | **3 semanas** | **-** |
+| **Total** | **16 person-days** | **3.5 semanas** | **-** |
 
 ### Required Skills
 - Experiência com Laravel PHP
@@ -132,6 +223,8 @@ Identificar potenciais bloqueadores, dependências e estratégias de mitigação
 - Experiência com testes automatizados
 - Conhecimento em padrões fiscais e tributários (desejável)
 - Familiaridade com o leiaute da Domínio Sistemas
+- Forte conhecimento em programação orientada a objetos e design patterns
+- Experiência com princípios SOLID e DRY
 
 ### Resource Availability
 - **Available:** Equipe de desenvolvimento backend com experiência em Laravel
@@ -142,33 +235,39 @@ Identificar potenciais bloqueadores, dependências e estratégias de mitigação
 ### Phase 1 — Discovery & Alignment
 **Steps**
 1. Analisar os modelos de dados existentes relacionados às NFe e os arquivos XML correspondentes (Feature Developer, Backend Specialist)
-2. Estudar o leiaute da Domínio Sistemas conforme documentado em @docs/integracoes/layout-dominio-sistemas.md (Architect Specialist, Backend Specialist)
-3. Identificar os campos necessários nos registros TXT (0000, 0010, 0020, 0030, 0100, etc.) e mapear com os dados do XML da NFe (Documentation Writer, Backend Specialist)
-4. Definir estratégia de extração de dados do XML e transformação para o formato TXT (Architect Specialist, Backend Specialist)
-5. Investigar as configurações cadastradas de etiquetas aplicadas à NFe, Acumuladores, Cfops equivalentes, etiquetas equivalentes e produtos genéricos cadastrados do current issuer (Backend Specialist, Database Specialist)
-6. Determinar como integrar as informações das configurações com os dados extraídos do XML da NFe (Architect Specialist, Backend Specialist)
+2. Estudar o leiaute da Domínio Sistemas conforme documentado em @docs/integracoes/layout-dominio-sistemas.md, identificando todos os tipos de registros (0000, 0010, 0020, 0030, 0100, 0110, 0120, 0135, 0150, 1000, 1010, 1015, 1020, 1030, 1200, 1500, etc.) (Architect Specialist, Backend Specialist)
+3. Analisar exemplos reais de NFe XML e seus respectivos arquivos TXT de saída em @docs/integracoes/samples/ para entender o mapeamento de campos (Architect Specialist, Backend Specialist, Documentation Writer)
+4. Identificar os campos necessários nos registros TXT e mapear com os dados do XML da NFe (Documentation Writer, Backend Specialist)
+5. Projetar a estrutura de classes coesa e reaproveitável para representar os diferentes tipos de registros, seguindo os princípios de DRY (Don't Repeat Yourself) e boas práticas de orientação a objetos (Architect Specialist, Backend Specialist)
+6. Definir estratégia de extração de dados do XML e transformação para o formato TXT (Architect Specialist, Backend Specialist)
+7. Investigar as configurações cadastradas de etiquetas aplicadas à NFe, Acumuladores, Cfops equivalentes, etiquetas equivalentes e produtos genéricos cadastrados do current issuer (Backend Specialist, Database Specialist)
+8. Determinar como integrar as informações das configurações com os dados extraídos do XML da NFe (Architect Specialist, Backend Specialist)
 
 **Commit Checkpoint**
 - Após concluir esta fase, capturar o contexto acordado e criar um commit (por exemplo, `git commit -m "chore(plan): complete phase 1 discovery"`).
 
 ### Phase 2 — Implementation & Iteration
 **Steps**
-1. Implementar o parser de XML para extrair dados das NFe (Feature Developer, Backend Specialist)
-2. Implementar a lógica de mapeamento entre os dados do XML e os registros TXT conforme o leiaute da Domínio Sistemas (Feature Developer, Backend Specialist)
-3. Implementar a geração dos registros TXT (0000, 0010, 0020, 0030, 0100, etc.) com base nos dados extraídos do XML (Feature Developer, Backend Specialist)
-4. Implementar a lógica para considerar as configurações cadastradas de etiquetas aplicadas à NFe, Acumuladores, Cfops equivalentes, etiquetas equivalentes e produtos genéricos cadastrados do current issuer (Feature Developer, Backend Specialist)
-5. Integrar as informações das configurações com os dados extraídos do XML da NFe para gerar os registros TXT conforme o leiaute da Domínio Sistemas (Feature Developer, Backend Specialist)
-6. Criar testes unitários e de integração para garantir a correta extração e formatação dos dados (Test Writer)
-7. Implementar interfaces de usuário para acionar a geração dos arquivos TXT a partir das NFe (Feature Developer)
-8. Realizar revisões de código e refatorações conforme necessário (Code Reviewer, Refactoring Specialist)
+1. Implementar a classe abstrata RegistroBase com os métodos comuns de formatação e conversão para TXT (Backend Specialist, Architect Specialist)
+2. Implementar as classes concretas para cada tipo de registro (0000, 0010, 0020, 0030, 0100, 0110, 0120, 0135, 0150, 1000, 1010, 1015, 1020, 1030, 1200, 1500, etc.) seguindo os princípios de DRY e boas práticas de orientação a objetos (Backend Specialist, Architect Specialist)
+3. Implementar interfaces contratuais (IRegistro, IFormatador, IValidador) para garantir consistência na implementação (Backend Specialist, Architect Specialist)
+4. Implementar padrões de projeto (Factory, Builder, Strategy) para facilitar a criação e manipulação dos registros (Backend Specialist, Architect Specialist)
+5. Implementar o parser de XML para extrair dados das NFe, baseando-se nos exemplos reais de @docs/integracoes/samples/ (Feature Developer, Backend Specialist)
+6. Implementar a lógica de mapeamento entre os dados do XML e os registros TXT conforme o leiaute da Domínio Sistemas, validando com os exemplos de saída (Feature Developer, Backend Specialist)
+7. Implementar a geração dos registros TXT com base nos dados extraídos do XML, utilizando a estrutura de classes projetada (Feature Developer, Backend Specialist)
+8. Implementar a lógica para considerar as configurações cadastradas de etiquetas aplicadas à NFe, Acumuladores, Cfops equivalentes, etiquetas equivalentes e produtos genéricos cadastrados do current issuer (Feature Developer, Backend Specialist)
+9. Integrar as informações das configurações com os dados extraídos do XML da NFe para gerar os registros TXT conforme o leiaute da Domínio Sistemas (Feature Developer, Backend Specialist)
+10. Criar testes unitários e de integração para garantir a correta extração e formatação dos dados, usando os exemplos reais como base de validação (Test Writer)
+11. Implementar interfaces de usuário para acionar a geração dos arquivos TXT a partir das NFe (Feature Developer)
+12. Realizar revisões de código e refatorações conforme necessário (Code Reviewer, Refactoring Specialist)
 
 **Commit Checkpoint**
 - Resumir o progresso, atualizar links cruzados e criar um commit documentando os resultados desta fase (por exemplo, `git commit -m "feat: implement NFe TXT export functionality"`).
 
 ### Phase 3 — Validation & Handoff
 **Steps**
-1. Realizar testes de ponta a ponta para validar a transformação XML para TXT conforme o leiaute da Domínio Sistemas (Test Writer, Bug Fixer)
-2. Validar que os registros TXT gerados estão em conformidade com o formato especificado (Test Writer, Quality Assurance)
+1. Realizar testes de ponta a ponta para validar a transformação XML para TXT conforme o leiaute da Domínio Sistemas, comparando com os exemplos reais de @docs/integracoes/samples/ (Test Writer, Bug Fixer)
+2. Validar que os registros TXT gerados estão em conformidade com o formato especificado, usando os arquivos de amostra como referência (Test Writer, Quality Assurance)
 3. Validar que as configurações de etiquetas aplicadas à NFe, Acumuladores, Cfops equivalentes, etiquetas equivalentes e produtos genéricos cadastrados do current issuer foram corretamente consideradas na geração dos registros TXT (Test Writer, Quality Assurance)
 4. Atualizar documentação técnica e guias de uso para desenvolvedores (Documentation Writer)
 5. Preparar documentação para usuários finais sobre como utilizar a funcionalidade (Documentation Writer)
@@ -212,5 +311,5 @@ Quando iniciar rollback:
 
 ## Evidence & Follow-up
 
-Artefatos a coletar: links de PRs, resultados de testes, notas de design, logs de execução da geração de arquivos TXT.
-Ações de acompanhamento: monitoramento de uso da nova funcionalidade, revisão de desempenho após implantação em produção.
+Artefatos a coletar: links de PRs, resultados de testes, notas de design, logs de execução da geração de arquivos TXT, comparação com os arquivos de amostra em @docs/integracoes/samples/.
+Ações de acompanhamento: monitoramento de uso da nova funcionalidade, revisão de desempenho após implantação em produção, validação contínua contra os exemplos reais de NFe XML e TXT.
