@@ -239,7 +239,7 @@ Para atender aos requisitos de coesão, reutilização e aderência ao princípi
 3. Analisar exemplos reais de NFe XML e seus respectivos arquivos TXT de saída em @docs/integracoes/samples/ para entender o mapeamento de campos (Architect Specialist, Backend Specialist, Documentation Writer)
 4. Identificar os campos necessários nos registros TXT e mapear com os dados do XML da NFe (Documentation Writer, Backend Specialist)
 5. Projetar a estrutura de classes coesa e reaproveitável para representar os diferentes tipos de registros, seguindo os princípios de DRY (Don't Repeat Yourself) e boas práticas de orientação a objetos (Architect Specialist, Backend Specialist)
-6. Definir estratégia de extração de dados do XML e transformação para o formato TXT (Architect Specialist, Backend Specialist)
+6. Avaliar o serviço existente @app/Services/Xml/XmlReaderService.php para determinar como adaptá-lo à extração específica de dados das NFe (Backend Specialist, Architect Specialist)
 7. Investigar as configurações cadastradas de etiquetas aplicadas à NFe, Acumuladores, Cfops equivalentes, etiquetas equivalentes e produtos genéricos cadastrados do current issuer (Backend Specialist, Database Specialist)
 8. Determinar como integrar as informações das configurações com os dados extraídos do XML da NFe (Architect Specialist, Backend Specialist)
 
@@ -252,7 +252,7 @@ Para atender aos requisitos de coesão, reutilização e aderência ao princípi
 2. Implementar as classes concretas para cada tipo de registro (0000, 0010, 0020, 0030, 0100, 0110, 0120, 0135, 0150, 1000, 1010, 1015, 1020, 1030, 1200, 1500, etc.) seguindo os princípios de DRY e boas práticas de orientação a objetos (Backend Specialist, Architect Specialist)
 3. Implementar interfaces contratuais (IRegistro, IFormatador, IValidador) para garantir consistência na implementação (Backend Specialist, Architect Specialist)
 4. Implementar padrões de projeto (Factory, Builder, Strategy) para facilitar a criação e manipulação dos registros (Backend Specialist, Architect Specialist)
-5. Implementar o parser de XML para extrair dados das NFe, baseando-se nos exemplos reais de @docs/integracoes/samples/ (Feature Developer, Backend Specialist)
+5. Adaptar o serviço existente @app/Services/Xml/XmlReaderService.php para extrair dados específicos das NFe, baseando-se nos exemplos reais de @docs/integracoes/samples/ (Feature Developer, Backend Specialist)
 6. Implementar a lógica de mapeamento entre os dados do XML e os registros TXT conforme o leiaute da Domínio Sistemas, validando com os exemplos de saída (Feature Developer, Backend Specialist)
 7. Implementar a geração dos registros TXT com base nos dados extraídos do XML, utilizando a estrutura de classes projetada (Feature Developer, Backend Specialist)
 8. Implementar a lógica para considerar as configurações cadastradas de etiquetas aplicadas à NFe, Acumuladores, Cfops equivalentes, etiquetas equivalentes e produtos genéricos cadastrados do current issuer (Feature Developer, Backend Specialist)

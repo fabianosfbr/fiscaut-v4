@@ -4,8 +4,8 @@
       "slug": "gerar-txt-das-nfe-integracao-dominio",
       "path": "plans/gerar-txt-das-nfe-integracao-dominio.md",
       "title": "Gerar TXT das NFe para Integração com Domínio",
-      "summary": "Desenvolver funcionalidade para geração de arquivos TXT contendo informações das Notas Fiscais Eletrônicas (NFe) para integração com sistema de domínio",
-      "linkedAt": "2026-02-11T12:31:47.895Z",
+      "summary": "Desenvolver funcionalidade para geração de arquivos TXT contendo informações das Notas Fiscais Eletrônicas (NFe) extraídas do XML da NFe e considerando configurações cadastradas das etiquetas aplicadas à NFe, Acumuladores, Cfops equivalentes, etiquetas equivalentes e produtos genéricos cadastrados do current issuer, organizadas conforme o leiaute da Domínio Sistemas",
+      "linkedAt": "2026-02-15T13:08:11.854Z",
       "status": "active"
     }
   ],

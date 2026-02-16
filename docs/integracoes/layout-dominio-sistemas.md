@@ -308,7 +308,7 @@ Produtos - Valor Unitário. Este é um registro filho do registro 0100.
 | Campo | Nº Campo | Tipo | Casas Decimais | Formato | Valor | Comentário |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | 1 | Identificação do registro | Caractere | | | `0135` | Fixo 0135 – Identificação do Registro. Registro filho do registro 0100. |
-| 2 | Data | Data | | | | |
+| 2 | Data | Data | | | | | Data de emissão da nota fiscal. |
 | 3 | Valor Unitário | Decimal | 6 | | | Permitir informar no máximo 15 caracteres numéricos, sendo deles 6 casas decimais, como exemplo: 111.111.111,111111. |
 
 ---

@@ -4,6 +4,7 @@ use App\Models\Issuer;
 use App\Models\UploadFile;
 use App\Events\NfeCancelada;
 use App\Models\LogSefazNfeEvent;
+use App\Models\NotaFiscalEletronica;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use App\Services\Sefaz\SefazNfeDownloadService;
@@ -11,9 +12,8 @@ use App\Console\Scheduling\DynamicTaskCommandExecutor;
 
 Artisan::command('play', function () {
 
-    $file = UploadFile::where('id', 5501)->first();
-    $file_content = Storage::disk('local')->get($file->path);
-    dd($file_content);
+    $nfe = NotaFiscalEletronica::where('id', 522935, 522935 )->get();
+    dd($nfe->toJson());
 });
 
 Artisan::command('schedule:run-dynamic {--force}', function (DynamicTaskCommandExecutor $executor) {
