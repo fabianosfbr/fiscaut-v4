@@ -56,7 +56,7 @@ class ConfiguracaoGeralPage extends Page implements HasSchemas
                                                                             ]),
                                                                         Tabs\Tab::make('Notas Próprias')
                                                                             ->schema([
-                                                                                // Livewire::make('configuracao.cfop-nfe-entrada-propria'),
+                                                                                Livewire::make('configuracao.cfop-nfe-entrada-propria'),
                                                                             ]),
                                                                     ]),
                                                             ]),
@@ -66,7 +66,7 @@ class ConfiguracaoGeralPage extends Page implements HasSchemas
                                                                     ->tabs([
                                                                         Tabs\Tab::make('Notas de Entrada')
                                                                             ->schema([
-                                                                                // Livewire::make('configuracao.cfop-cte-nota-entrada'),
+                                                                                Livewire::make('configuracao.cfop-cte-nota-entrada'),
                                                                             ]),
 
                                                                         Tabs\Tab::make('Notas de Saida')
