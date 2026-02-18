@@ -12,6 +12,8 @@ use App\Integrations\DominioSistemas\Records\Registro0000;
 use App\Integrations\DominioSistemas\Records\Registro0020;
 use App\Integrations\DominioSistemas\Records\Registro0030;
 use App\Integrations\DominioSistemas\Records\Registro0100;
+use App\Integrations\DominioSistemas\Records\Registro1010;
+use App\Integrations\DominioSistemas\Records\Registro1015;
 
 class GerarTxtDominioSistemasCommand extends Command
 {
@@ -151,6 +153,15 @@ class GerarTxtDominioSistemasCommand extends Command
 
                     $numSegmento++;
                     $registro1000s[] = $registro1000;
+
+                    
+                    // Cria registro 1010 (Informação Complementar) se houver
+                    $registro1010 = new Registro1010($notaFiscal);
+                    $registro1000s[] = $registro1010;
+
+                    // Cria registro 1015 (Observação) se houver
+                    $registro1015 = new Registro1015($notaFiscal);
+                    $registro1000s[] = $registro1015;
                 }
             }
         }

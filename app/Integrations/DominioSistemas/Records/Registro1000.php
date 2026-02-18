@@ -225,7 +225,8 @@ class Registro1000 extends RegistroBase
         $this->valorExclusaoDief = '';
 
         // Campo 15 - Observação: Informações de interesse do fisco (infAdFisco do XML)
-        $this->observacao = $xmlData['infAdic']['infAdFisco'] ?? str_replace('|', '-', $xmlData['infAdic']['infAdFisco'] ?? '');
+
+        $this->observacao = '';
 
         // Campo 16 - Modalidade do frete: C=CIF, F=FOB, T=Terceiros, R=Remetente, D=Destinatário, S=Sem frete
         $this->modalidadeFrete = $this->checkTipoFrete($notaFiscal->modFrete) ?? null;
@@ -463,6 +464,16 @@ class Registro1000 extends RegistroBase
         // $this->icmsDesonerado = null;
 
         // Campo 98 - IPI Devolução: Definido no método aplicarProporcionalidadeValores()
+    }
+
+    public function getObservacao(): ?string
+    {
+        return $this->observacao;
+    }
+
+    public function getInformacaoComplementar(): ?string
+    {
+        return $this->informacaoComplementar;
     }
 
     /**
@@ -898,7 +909,6 @@ class Registro1000 extends RegistroBase
         // Valor do IPI para cálculo dos campos 90 e 98
         $valorIpi = (float)($this->valoresSegmento['valor_ipi'] ?? 0);
 
-        dd($valorIpi);
         // Campo 90 - IPI: Valor do IPI - só aplica o valor se a categoria da tag estiver marcada como is_devolucao = true
         $this->ipi = $this->calcularIpi($valorIpi);
 
