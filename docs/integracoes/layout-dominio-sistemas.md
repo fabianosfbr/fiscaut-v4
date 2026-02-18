@@ -455,29 +455,25 @@ Notas Fiscais de Entrada - Impostos. Este é um registro filho do registro 1000.
 
 | Campo | Nº Campo | Tipo | Casas Decimais | Formato | Valor | Comentário |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 1 | Identificação do registro | Caractere | | | `1020` | Fixo 1020 – Identificação do Registro. Registro filho do registro 1000 |
+| 1 | Identificação do registro | Caractere | | | `1020` | Fixo 1020 – Identificação do Registro. |
 | 2 | Código do imposto | Numérico | | | | |
-| 3 | Valor do imposto | Decimal | 2 | | | |
+| 3 | Percentual de redução da base de cálculo | Decimal | 2 | | | |
 | 4 | Base de cálculo | Decimal | 2 | | | |
-| 5 | Alíquota | Decimal | 2 | | | |
-| 6 | Valor do crédito | Decimal | 2 | | | |
-| 7 | CST | Numérico | | | | |
-| 8 | CFOP | Numérico | | | | |
-| 9 | Natureza da operação | Caractere | | | | |
-| 10 | Código de situação tributária | Numérico | | | | |
-| 11 | Código de enquadramento legal | Caractere | | | | |
-| 12 | Valor da base de cálculo do ICMS | Decimal | 2 | | | |
-| 13 | Valor do ICMS | Decimal | 2 | | | |
-| 14 | Valor da base de cálculo do ICMS ST | Decimal | 2 | | | |
-| 15 | Valor do ICMS ST | Decimal | 2 | | | |
-| 16 | Valor do IPI | Decimal | 2 | | | |
-| 17 | Valor do PIS | Decimal | 2 | | | |
-| 18 | Valor da COFINS | Decimal | 2 | | | |
-| 19 | Valor do ISSQN | Decimal | 2 | | | |
-| 20 | Valor do INSS | Decimal | 2 | | | |
-| 21 | Valor do IRRF | Decimal | 2 | | | |
-| 22 | Valor do IOF | Decimal | 2 | | | |
-| 23 | Outros valores | Decimal | 2 | | | |
+| 5 | Alíquota | Decimal | 2 ou 3 | | | Imposto "39-IRRFP" - 3 casas decimais; Demais impostos - 2 casas decimais. |
+| 6 | Valor do Imposto | Decimal | 2 | | | |
+| 7 | Valor de Isentas | Decimal | 2 | | | |
+| 8 | Valor de Outras | Decimal | 2 | | | |
+| 9 | Valor do IPI | Decimal | 2 | | | |
+| 10 | Valor da substituição Tributária | Decimal | 2 | | | |
+| 11 | Valor Contábil | Decimal | 2 | | | |
+| 12 | Código do recolhimento do imposto | Caractere | | | | |
+| 13 | Valor não tributadas | Decimal | 2 | | | Apenas para o Estado de GO. |
+| 14 | Valor parcela reduzida | Decimal | 2 | | | Apenas para o Estado de GO. |
+| 15 | Alíq. Interest. | Numérico/Decimal | | | | Para RS (Numérico): 1-4,00; 2-12,00; 3-4,00. Para SP (Decimal): apenas 08-DIFALI e 27-ICMSA. |
+| 16 | Nat. rend. | Numérico | | | | Limite 5 char. Apenas para: 16-IRRF, 22-PIS-RET, 23-COFINS-R, 24-CSOC-R, 25-CRF, 38-COSIRF, 39-IRRFP e 63-IRRF-APF. |
+| 17 | Tipo de Dedução | Numérico | | | | Limite 1 char. Apenas para 63-IRRF-APF. 7=Por dependente, 8=Simplificada mensal. |
+| 18 | Tipo de Isenção | Numérico | | | | Limite 2 char. Apenas para 63-IRRF-APF. |
+| 19 | Descrição | Caractere | | | | Limite 100 caracteres. |
 
 ---
 
