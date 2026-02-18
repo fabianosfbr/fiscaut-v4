@@ -40,7 +40,6 @@ class ConfiguracaoGeralPage extends Page implements HasSchemas
                             ]),
                         Tab::make('Entrada')
                             ->schema([
-                                // Livewire::make('issuer-switcher')
                                 Tabs::make('TiposEntrada')
                                     ->tabs([
                                         Tab::make('CFOPs')
@@ -57,7 +56,7 @@ class ConfiguracaoGeralPage extends Page implements HasSchemas
                                                                             ]),
                                                                         Tabs\Tab::make('Notas Próprias')
                                                                             ->schema([
-                                                                                Livewire::make('configuracao.cfop-nfe-entrada-propria'),
+                                                                                // Livewire::make('configuracao.cfop-nfe-entrada-propria'),
                                                                             ]),
                                                                     ]),
                                                             ]),
@@ -67,7 +66,7 @@ class ConfiguracaoGeralPage extends Page implements HasSchemas
                                                                     ->tabs([
                                                                         Tabs\Tab::make('Notas de Entrada')
                                                                             ->schema([
-                                                                                Livewire::make('configuracao.cfop-cte-nota-entrada'),
+                                                                                // Livewire::make('configuracao.cfop-cte-nota-entrada'),
                                                                             ]),
 
                                                                         Tabs\Tab::make('Notas de Saida')
@@ -92,7 +91,7 @@ class ConfiguracaoGeralPage extends Page implements HasSchemas
                                                                             ]),
                                                                         Tabs\Tab::make('Notas Próprias')
                                                                             ->schema([
-                                                                                Livewire::make('configuracao.acumulador-nfe-nota-propria'),
+                                                                                // Livewire::make('configuracao.acumulador-nfe-nota-propria'),
                                                                             ]),
                                                                     ]),
                                                             ]),
@@ -102,12 +101,12 @@ class ConfiguracaoGeralPage extends Page implements HasSchemas
                                                                     ->tabs([
                                                                         Tabs\Tab::make('Notas de Entrada')
                                                                             ->schema([
-                                                                                Livewire::make('configuracao.acumulador-cte-nota-entrada'),
+                                                                                //  Livewire::make('configuracao.acumulador-cte-nota-entrada'),
                                                                             ]),
 
                                                                         Tabs\Tab::make('Notas de Saida')
                                                                             ->schema([
-                                                                                Livewire::make('configuracao.acumulador-cte-nota-saida'),
+                                                                                //  Livewire::make('configuracao.acumulador-cte-nota-saida'),
                                                                             ]),
                                                                     ]),
                                                             ]),
@@ -115,11 +114,11 @@ class ConfiguracaoGeralPage extends Page implements HasSchemas
                                             ]),
                                         Tab::make('Impostos')
                                             ->schema([
-                                                Livewire::make('configuracao.imposto-equivalente')
+                                                //  Livewire::make('configuracao.imposto-equivalente')
                                             ]),
                                         Tab::make('Produtos Genéricos')
                                             ->schema([
-                                                Livewire::make('configuracao.produto-generico')
+                                                //  Livewire::make('configuracao.produto-generico')
                                             ]),
 
                                     ]),

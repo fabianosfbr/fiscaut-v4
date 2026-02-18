@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Issuer extends Model
 {
+    protected $with = ['municipio'];
+    
     protected $guarded = ['id'];
 
     protected $casts = [
@@ -53,6 +55,6 @@ class Issuer extends Model
 
     public function municipio()
     {
-        return $this->belongsTo(Municipio::class, 'cod_municipio', 'id');
+        return $this->hasOne(Municipio::class, 'id', 'cod_municipio_ibge');
     }
 }

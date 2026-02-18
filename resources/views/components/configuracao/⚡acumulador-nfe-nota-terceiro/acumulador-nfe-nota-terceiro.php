@@ -31,6 +31,7 @@ new class extends Component implements HasSchemas, HasActions
 
     public function mount(): void
     {
+     
         $this->loadCurrentSettings();
     }
 
@@ -46,7 +47,10 @@ new class extends Component implements HasSchemas, HasActions
 
         $entradas = EntradaAcumuladorEquivalente::getAllCached($currentIssuer->id, $currentIssuer->tenant_id, self::TIPO);
 
+
         $formData = $this->transformDatabaseToFormData($entradas);
+
+
 
         $this->form->fill([
             'itens' => $formData,

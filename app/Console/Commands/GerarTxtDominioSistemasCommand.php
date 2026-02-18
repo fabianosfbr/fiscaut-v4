@@ -70,6 +70,10 @@ class GerarTxtDominioSistemasCommand extends Command
         $registro0020s = [];
         $registro0030s = [];
         $registro0100s = [];
+        $registro1000s = [];
+
+        // Obtém o issuer
+        $issuer = \App\Models\Issuer::where('cnpj', $inscricaoEmpresa)->first();
 
         // Processa cada nota fiscal para coletar registros por tipo
         foreach ($collection as $notaFiscal) {
@@ -100,17 +104,17 @@ class GerarTxtDominioSistemasCommand extends Command
                     );
 
                     $registro0100s[] = $registro0100;
-                    
+
                     // Cria registro 0135 (Valor Unitário) para o produto
                     if (isset($produto['vUnCom'])) {
-                    
+
                         $registro0135 = new \App\Integrations\DominioSistemas\Records\Registro0135(
                             $notaFiscal->data_emissao,
                             (float)$produto['vUnCom']
                         );
                         $registro0100s[] = $registro0135;
                     }
-                    
+
                     // Cria registro 0150 (Unidade de Medida) para o produto
                     if (isset($produto['uCom'])) {
                         $registro0150 = new \App\Integrations\DominioSistemas\Records\Registro0150(
@@ -121,12 +125,51 @@ class GerarTxtDominioSistemasCommand extends Command
                     }
                 }
             }
+
+            // Cria registros 1000 para cada etiqueta aplicada à nota fiscal
+            // com valores proporcionais ao valor aplicado a cada etiqueta
+            $taggeds = $notaFiscal->tagged ?? collect();
+            
+            if ($taggeds->isNotEmpty() && $issuer) {
+                // Calcula o valor total aplicado às etiquetas
+                $valorTotalEtiquetas = $taggeds->sum('value');
+                
+                // Cria um registro 1000 para cada etiqueta com valores proporcionais
+                foreach ($taggeds as $tagged) {                    
+                    if ($tagged->tag && $tagged->value > 0) {                       
+                        $registro1000 = new \App\Integrations\DominioSistemas\Records\Registro1000(
+                            $notaFiscal,
+                            $issuer,
+                            $tagged->tag->id // Campo 5 - ID da Tag
+                        );
+                        
+                        // Calcula o fator de proporcionalidade
+                        $fatorProporcionalidade = $valorTotalEtiquetas > 0 
+                            ? ($tagged->value / $valorTotalEtiquetas) 
+                            : 1.0;
+                        
+                        // Aplica o fator de proporcionalidade aos valores
+                        $registro1000->setFatorProporcionalidade($fatorProporcionalidade);
+                        
+                        $registro1000s[] = $registro1000;
+                    }
+                }
+            } elseif ($issuer) {
+                // Se não houver etiquetas, cria um único registro 1000 com todos os valores
+                $registro1000 = new \App\Integrations\DominioSistemas\Records\Registro1000(
+                    $notaFiscal,
+                    $issuer,
+                    null
+                );
+                $registro1000s[] = $registro1000;
+            }
         }
 
-        // Adiciona os registros na ordem correta: 0000, 0020, 0030, 0100
+        // Adiciona os registros na ordem correta: 0000, 0020, 0030, 0100, 1000
         $registros = array_merge($registros, array_values($registro0020s));
         $registros = array_merge($registros, array_values($registro0030s));
         $registros = array_merge($registros, $registro0100s);
+        $registros = array_merge($registros, $registro1000s);
 
         if (empty($registros)) {
             $this->error('Nenhum registro válido foi criado a partir da Collection.');

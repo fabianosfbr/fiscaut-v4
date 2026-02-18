@@ -12,7 +12,7 @@ class EntradaCfopEquivalente extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
-        'valores' => 'json',
+        'valores' => 'array',
     ];
 
     public function grupo(): BelongsTo

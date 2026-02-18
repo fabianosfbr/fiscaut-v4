@@ -2,111 +2,26 @@
 
 namespace App\Integrations\DominioSistemas\Records;
 
+use App\Models\Issuer;
+use App\Models\GeneralSetting;
+use App\Models\NotaFiscalEletronica;
+use Illuminate\Support\Facades\Cache;
+use App\Models\EntradasAcumuladoresEquivalente;
+
 /**
  * Registro 1000 - Notas Fiscais de Entrada
  * Notas Fiscais de Entrada.
  * 
- * Campos:
- * 1 - Identificação do registro (fixo: 1000)
- * 2 - Código da espécie
- * 3 - Inscrição fornecedor
- * 4 - Código de Exclusão da DIEF
- * 5 - Código do acumulador
- * 6 - CFOP
- * 7 - Segmento
- * 8 - Número do documento
- * 9 - Série
- * 10 - Numero do documento final
- * 11 - Data da entrada
- * 12 - Data emissão
- * 13 - Valor contábil
- * 14 - Valor da exclusão da DIEF
- * 15 - Observação
- * 16 - Modalidade do frete (C, F, S, T, R, D)
- * 17 - Emitente da nota fiscal (P, T)
- * 18 - CFOP estendido/detalhamento
- * 19 - Código da transferência de crédito
- * 20 - Código do Recolhimento do ISS Retido
- * 21 - Código do Recolhimento do IRRF
- * 22 - Código da observação
- * 23 - Data do visto notas de transf. Crédito ICMS
- * 24 - Fato gerador da CRF (E, P)
- * 25 - Fato gerador do IRRF (E, P)
- * 26 - Valor do frete
- * 27 - Valor do seguro
- * 28 - Valor da despesas
- * 29 - Valor do PIS
- * 30 - Código que Identifica o tipo de Antecipação Tributária
- * 31 - Valor do COFINS
- * 32 - Valor calculado referente a DARE da nota
- * 33 - Alíquota do valor calculado referente a DARE da nota
- * 34 - Valor da base de cálculo do ICMS ST
- * 35 - Entradas cuja saídas é isenta
- * 36 - Outras entradas isentas
- * 37 - Valor transporte incluído na base
- * 38 - Código de ressarcimento
- * 39 - Valor produtos
- * 40 - Município Origem
- * 41 - Situação da Nota
- * 42 - Código da situação tributária
- * 43 - Sub serie
- * 44 - Inscrição estadual do fornecedor
- * 45 - Inscrição municipal do fornecedor
- * 46 - Código da operação e prestação
- * 47 - Valor a ser deduzido da receita tributável
- * 48 - Competência
- * 49 - Operação
- * 50 - Número do parecer fiscal
- * 51 - Data do parecer fiscal
- * 52 - Número da declaração de Importação
- * 53 - Possui benefício fiscal (S, N)
- * 54 - Chave da nota fiscal eletrônica
- * 55 - Código de recolhimento do FETHAB
- * 56 - Responsável pelo recolhimento do FETHAB (E, C)
- * 57 - CFOP documento fiscal
- * 58 - Tipo de CT-e
- * 59 - CT-e referência
- * 60 - Modalidade da importação
- * 61 - Código da informação complementar
- * 62 - Informação complementar
- * 63 - Classe de consumo
- * 64 - Tipo de ligação
- * 65 - Grupo de tensão
- * 66 - Tipo de assinante
- * 67 - KWH consumido
- * 68 - Valor fornecido / consumido de gás ou energia elétrica
- * 69 - Valor cobrado de terceiros
- * 70 - Tipo do documento de importação
- * 71 - Número do Ato Concessório do regime Drawback
- * 72 - Natureza do frete PIS/COFINS
- * 73 - CST – PIS/COFINS
- * 74 - Base do crédito PIS/COFINS
- * 75 - Valor serviços / itens PIS/COFINS
- * 76 - Base de cálculo PIS/COFINS
- * 77 - Alíquota de PIS
- * 78 - Alíquota de COFINS
- * 79 - Chave de NFSe
- * 80 - Número do processo ou ato concessório
- * 81 - Origem do processo
- * 82 - Data da escrituração
- * 83 - CFPS
- * 84 - Natureza da receita – PIS/COFINS
- * 85 - CST IPI – Código da Situação Tributária do IPI
- * 86 - Lançamentos de SCP
- * 87 - Tipo de serviço
- * 88 - Município destino
- * 89 - Pedágio
- * 90 - IPI
- * 91 - ICMS ST
- * 92 - Classificação de Serviços Prestados mediante cessão de mão de obra/Empreitada - Tipo de serviço - EFD-Reinf
+ * Este registro é gerado para cada etiqueta aplicada à nota fiscal,
+ * com os valores proporcionais ao valor aplicado a cada etiqueta.
  */
 class Registro1000 extends RegistroBase
 {
     private string $codigoEspecie;
     private string $inscricaoFornecedor;
     private ?string $codigoExclusaoDief = null;
-    private ?string $codigoAcumulador = null;
-    private string $cfop;
+    private ?string $codigoAcumulador = null; // Campo 5 - ID da CategoryTag
+    private string $cfop; // Campo 6 - CFOP (pode ser equivalente)
     private ?string $segmento = null;
     private int $numeroDocumento;
     private ?string $serie = null;
@@ -116,16 +31,16 @@ class Registro1000 extends RegistroBase
     private float $valorContabil;
     private ?float $valorExclusaoDief = null;
     private ?string $observacao = null;
-    private ?string $modalidadeFrete = null; // C, F, S, T, R, D
-    private ?string $emitenteNotaFiscal = null; // P, T
+    private ?string $modalidadeFrete = null;
+    private ?string $emitenteNotaFiscal = null;
     private ?string $cfopExtendidoDetalhamento = null;
     private ?string $codigoTransferenciaCredito = null;
     private ?string $codigoRecolhimentoIssRetido = null;
     private ?string $codigoRecolhimentoIrrf = null;
     private ?string $codigoObservacao = null;
     private ?\DateTime $dataVistoTransfCreditoIcms = null;
-    private ?string $fatoGeradorCrf = null; // E, P
-    private ?string $fatoGeradorIrrf = null; // E, P
+    private ?string $fatoGeradorCrf = null;
+    private ?string $fatoGeradorIrrf = null;
     private ?float $valorFrete = null;
     private ?float $valorSeguro = null;
     private ?float $valorDespesas = null;
@@ -153,10 +68,10 @@ class Registro1000 extends RegistroBase
     private ?string $numeroParecerFiscal = null;
     private ?\DateTime $dataParecerFiscal = null;
     private ?string $numeroDeclaracaoImportacao = null;
-    private ?string $possuiBeneficioFiscal = null; // S, N
+    private ?string $possuiBeneficioFiscal = null;
     private ?string $chaveNotaFiscalEletronica = null;
     private ?string $codigoRecolhimentoFethab = null;
-    private ?string $responsavelRecolhimentoFethab = null; // E, C
+    private ?string $responsavelRecolhimentoFethab = null;
     private ?string $cfopDocumentoFiscal = null;
     private ?int $tipoCte = null;
     private ?string $cteReferencia = null;
@@ -194,28 +109,510 @@ class Registro1000 extends RegistroBase
     private ?float $icmsSt = null;
     private ?int $classificacaoServicos = null;
 
+    /**
+     * @var float Fator de proporcionalidade baseado no valor da etiqueta
+     */
+    private float $fatorProporcionalidade = 1.0;
+
+    /**
+     * Cache estático para armazenar os CFOPs equivalentes já consultados
+     * Key: issuer_id_tag_id_cfop
+     * Value: cfop_entrada equivalente ou null
+     *
+     * @var array
+     */
+    private static array $cfopEquivalenteCache = [];
+
+    /**
+     * Cache estático para armazenar os CFOPs acumuladores já consultados
+     * Key: issuer_id_tag_id_cfop
+     * Value: cfop_entrada equivalente ou null
+     *
+     * @var array
+     */
+    private static array $acumuladorEquivalenteCache = [];
+
     public function __construct(
-        string $codigoEspecie,
-        string $inscricaoFornecedor,
-        string $cfop,
-        int $numeroDocumento,
-        \DateTime $dataEntrada,
-        \DateTime $dataEmissao,
-        float $valorContabil,
-        float $valorProdutos,
-        string $municipioOrigem,
-        int $situacaoNota
+        NotaFiscalEletronica $notaFiscal,
+        Issuer $issuer,
+        ?int $tagId = null
     ) {
-        $this->codigoEspecie = $codigoEspecie;
-        $this->inscricaoFornecedor = $inscricaoFornecedor;
-        $this->cfop = $cfop;
-        $this->numeroDocumento = $numeroDocumento;
-        $this->dataEntrada = $dataEntrada;
-        $this->dataEmissao = $dataEmissao;
-        $this->valorContabil = $valorContabil;
-        $this->valorProdutos = $valorProdutos;
-        $this->municipioOrigem = $municipioOrigem;
-        $this->situacaoNota = $situacaoNota;
+        // Extrai os dados do XML da nota fiscal usando o método da classe base
+        $xmlData = $this->extrairDadosDoXml($notaFiscal, [
+            'emit' => ['emit', 'emitente', 'Emitente'],
+            'enderEmit' => ['enderEmit', 'ender_emit', 'EnderecoEmitente'],
+            'dest' => ['dest', 'destinatario', 'Destinatario'],
+            'enderDest' => ['enderDest', 'ender_dest', 'EnderecoDestinatario'],
+            'transp' => ['transp', 'transporte', 'Transporte'],
+            'cobr' => ['cobr', 'cobranca', 'Cobranca'],
+            'infAdic' => ['infAdic'],
+            'total' => ['total', 'totais', 'Totais'],
+        ]);
+        // Dados básicos da nota fiscal
+        $this->codigoEspecie = '36'; // NF-e
+        // Campo 4
+        $this->codigoExclusaoDief = 0; // Não exclui
+
+        $this->inscricaoFornecedor = $this->definirCnpjFornecedor($xmlData, $notaFiscal);
+        $this->cfop = $this->obterCfopEquivalente($notaFiscal, $issuer, $tagId, $xmlData['emit']['enderEmit']['UF']); // Campo 6
+        $this->numeroDocumento = (int)($notaFiscal->nNF ?? 0);
+        $this->serie = $notaFiscal->serie ?? null;
+        $this->dataEntrada = $this->converterParaDateTime($notaFiscal->data_entrada ?? now());
+        $this->dataEmissao = $this->converterParaDateTime($notaFiscal->data_emissao ?? now());
+
+        // Valores totais da nota
+        $valorTotal = (float)($notaFiscal->vNfe ?? 0);
+        $this->valorContabil = $valorTotal;
+        $this->valorProdutos = (float)($xmlData['total']['vProd'] ?? 0);
+
+        // Campo 5 - Código do acumulador (ID da CategoryTag)
+        $this->codigoAcumulador = $this->obterAcumuladorEquivalente($notaFiscal, $issuer, $tagId, $this->cfop);
+
+        // Campo 10
+        $this->numeroDocumentoFinal = 0;
+
+
+        // Campo 18
+        $this->cfopExtendidoDetalhamento = 0;
+
+        // Campo 19
+        $this->codigoTransferenciaCredito = 0;
+
+        // Campo 23
+        $this->dataVistoTransfCreditoIcms = $this->converterParaDateTime($notaFiscal->data_emissao);
+
+        // Campo 24
+        $this->fatoGeradorCrf = 'E';
+
+        // Campo 25
+        $this->fatoGeradorIrrf = 'E';
+
+
+        // Campo 82
+        $this->dataEscrituracao = isset($notaFiscal->data_entrada) ? $this->converterParaDateTime($notaFiscal->data_entrada) : '';
+
+        // Outros campos
+        $this->municipioOrigem = $xmlData['enderEmit']['cMun'] ?? '';
+        // Converte o enum para int ou usa o valor padrão
+        $this->situacaoNota = $notaFiscal->status_nota instanceof \App\Enums\StatusNfeEnum
+            ? (int)$notaFiscal->status_nota->value
+            : ($notaFiscal->status_nota ?? 100);
+
+        // Modalidade do frete
+        $this->modalidadeFrete = $this->checkTipoFrete($notaFiscal->modFrete) ?? null;
+
+        // Emitente da nota (P=Próprio, T=Terceiros)
+        $this->emitenteNotaFiscal = 'P';
+
+        // Valores proporcionais (campos 26, 27, 28, 29, 31, 39)
+        $this->aplicarProporcionalidadeValores($xmlData, $notaFiscal);
+
+        // Inscrições do fornecedor
+        $this->inscricaoEstadualFornecedor = $xmlData['emit']['IE'] ?? null;
+        $this->inscricaoMunicipalFornecedor = $xmlData['emit']['IM'] ?? null;
+
+        // Chave da NF-e
+        $this->chaveNotaFiscalEletronica = $notaFiscal->chave ?? null;
+
+        // Informações complementares        
+        $this->observacao = $xmlData['infAdic']['infAdFisco'] ?? str_replace('|', '-', $xmlData['infAdic']['infAdFisco'] ?? '');
+        $this->informacaoComplementar = $xmlData['infAdic']['infCpl'] ?? str_replace('|', '-', $xmlData['infAdic']['infCpl'] ?? '');
+    }
+
+    /**
+     * Obtém o CFOP equivalente baseado nas etiquetas e configurações
+     * Utiliza cache estático para otimizar consultas repetidas
+     *
+     * @param NotaFiscalEletronica $notaFiscal
+     * @param Issuer $issuer
+     * @param int|null $tagId
+     * @param string|null $ufEmitente
+     * @return string CFOP original ou equivalente
+     */
+    private function obterCfopEquivalente(NotaFiscalEletronica $notaFiscal, Issuer $issuer, ?int $tagId, ?string $ufEmitente): string
+    {
+        // Early return: sem tag, retorna CFOP original
+        $cfopOriginal = $this->extrairPrimeiroCFOP($notaFiscal);
+
+        if (!$tagId) {
+            return $cfopOriginal;
+        }
+
+        // Determina configurações e tipo de documento
+        $verificarUf = GeneralSetting::getValue(
+            name: 'configuracoes_gerais',
+            key: 'verificar_uf_emitente_destinatario',
+            default: false,
+            issuerId: $issuer->id
+        );
+
+        $tipoDocumento = $this->determinarTipoDocumento($notaFiscal, $issuer);
+        $ufIssuer = $issuer?->municipio?->sigla;
+
+        // Gera chave de cache (inclui UF quando verificação está ativa)
+        $cacheKey = $this->gerarChaveCacheCfop(
+            $issuer->id,
+            $tagId,
+            $cfopOriginal,
+            $tipoDocumento,
+            $verificarUf ? $ufIssuer : null,
+            $verificarUf ? $ufEmitente : null
+        );
+
+        // Verifica cache estático
+        if (isset(self::$cfopEquivalenteCache[$cacheKey])) {
+            return self::$cfopEquivalenteCache[$cacheKey] ?? $cfopOriginal;
+        }
+
+        // Busca grupo com a tag específica
+        $grupoEncontrado = $this->buscarGrupoPorTag($issuer, $tagId, $tipoDocumento);
+
+        if (!$grupoEncontrado) {
+            self::$cfopEquivalenteCache[$cacheKey] = null;
+            return $cfopOriginal;
+        }
+
+        // Busca CFOP equivalente no grupo
+        $cfopResultado = $this->buscarCfopEquivalenteNoGrupo(
+            $grupoEncontrado,
+            $cfopOriginal,
+            $verificarUf,
+            $ufIssuer,
+            $ufEmitente
+        );
+
+        // Armazena em cache e retorna
+        self::$cfopEquivalenteCache[$cacheKey] = $cfopResultado;
+
+        return $cfopResultado ?? $cfopOriginal;
+    }
+
+    /**
+     * Gera a chave de cache para CFOP equivalente
+     *
+     * @param int $issuerId
+     * @param int $tagId
+     * @param string $cfop
+     * @param string $tipoDocumento
+     * @param string|null $ufIssuer
+     * @param string|null $ufEmitente
+     * @return string
+     */
+    private function gerarChaveCacheCfop(
+        int $issuerId,
+        int $tagId,
+        string $cfop,
+        string $tipoDocumento,
+        ?string $ufIssuer = null,
+        ?string $ufEmitente = null
+    ): string {
+        $key = "{$issuerId}_{$tagId}_{$cfop}_{$tipoDocumento}";
+
+        if ($ufIssuer !== null || $ufEmitente !== null) {
+            $key .= "_{$ufIssuer}_{$ufEmitente}";
+        }
+
+        return $key;
+    }
+
+    /**
+     * Busca o grupo de CFOP equivalente que contém a tag especificada
+     *
+     * @param Issuer $issuer
+     * @param int $tagId
+     * @param string $tipoDocumento
+     * @return \App\Models\GrupoEntradaCfopEquivalente|null
+     */
+    private function buscarGrupoPorTag(Issuer $issuer, int $tagId, string $tipoDocumento): ?\App\Models\GrupoEntradaCfopEquivalente
+    {
+        $grupos = \App\Models\GrupoEntradaCfopEquivalente::getAllCached(
+            $issuer->id,
+            $issuer->tenant_id,
+            $tipoDocumento
+        );
+
+        foreach ($grupos as $grupo) {
+            $tags = $grupo->tags ?? [];
+            if (is_array($tags) && in_array($tagId, $tags)) {
+                return $grupo;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Busca o CFOP equivalente dentro de um grupo
+     *
+     * @param \App\Models\GrupoEntradaCfopEquivalente $grupo
+     * @param string $cfopOriginal
+     * @param bool $verificarUf
+     * @param string|null $ufIssuer
+     * @param string|null $ufEmitente
+     * @return string|null
+     */
+    private function buscarCfopEquivalenteNoGrupo(
+        \App\Models\GrupoEntradaCfopEquivalente $grupo,
+        string $cfopOriginal,
+        bool $verificarUf,
+        ?string $ufIssuer,
+        ?string $ufEmitente
+    ): ?string {
+        foreach ($grupo->cfopsEquivalentes as $cfopEquivalente) {
+            $valores = $this->normalizarValoresCfop($cfopEquivalente->valores);
+
+            if (!in_array($cfopOriginal, $valores)) {
+                continue;
+            }
+
+            // Se não precisa verificar UF, retorna o CFOP de entrada
+            if (!$verificarUf) {
+                return $cfopEquivalente->cfop_entrada ?? $cfopOriginal;
+            }
+
+            // Verifica se a regra de UF se aplica
+            if ($this->verificarRegraUf($cfopEquivalente->uf_diferente, $ufIssuer, $ufEmitente)) {
+                return $cfopEquivalente->cfop_entrada;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Normaliza os valores de CFOP para array
+     *
+     * @param mixed $valores
+     * @return array
+     */
+    private function normalizarValoresCfop($valores): array
+    {
+        if (is_string($valores)) {
+            return explode(',', $valores);
+        }
+
+        return (array) ($valores ?? []);
+    }
+
+    /**
+     * Verifica se a regra de UF é atendida
+     *
+     * @param bool $ufDiferente
+     * @param string|null $ufIssuer
+     * @param string|null $ufEmitente
+     * @return bool
+     */
+    private function verificarRegraUf(bool $ufDiferente, ?string $ufIssuer, ?string $ufEmitente): bool
+    {
+        // uf_diferente = true: aplica quando issuer e emitente têm UFs diferentes
+        // uf_diferente = false: aplica quando issuer e emitente têm a mesma UF
+        $ufsDiferentes = ($ufIssuer !== $ufEmitente);
+
+        return $ufDiferente === $ufsDiferentes;
+    }
+
+    /**
+     * Obtém o CFOP equivalente baseado nas etiquetas e configurações
+     * Utiliza cache estático para otimizar consultas repetidas
+     *
+     * @param NotaFiscalEletronica $notaFiscal
+     * @param Issuer $issuer
+     * @param int|null $tagId
+     * @return string CFOP original ou equivalente
+     */
+    private function obterAcumuladorEquivalente(NotaFiscalEletronica $notaFiscal, Issuer $issuer, ?int $tagId, int $cfopOriginal): string
+    {
+
+        // Determina o tipo de documento para filtrar os CFOPs equivalentes corretos
+        $tipoDocumento = $this->determinarTipoDocumento($notaFiscal, $issuer);
+
+        // Gera a chave do cache incluindo o tipo de documento
+        $cacheKey = "{$issuer->id}_{$tagId}_{$cfopOriginal}_{$tipoDocumento}";
+
+
+        // Verifica se já está em cache
+        if (isset(self::$acumuladorEquivalenteCache[$cacheKey])) {
+            return self::$acumuladorEquivalenteCache[$cacheKey] ?? $cfopOriginal;
+        }
+
+
+        $acumuladores = Cache::remember('acumuladores_issuer_' . $tipoDocumento . '_' . $issuer->id, 1800, function () use ($tagId, $tipoDocumento, $issuer) {
+            return EntradasAcumuladoresEquivalente::where('tipo', $tipoDocumento)
+                ->where('issuer_id', $issuer->id)
+                ->get();
+        });
+
+
+        // Verifica se o CFOP original está em algum dos registros
+        foreach ($acumuladores as $acumulador) {
+
+            if (count($acumulador->cfops) > 0) {
+                if (in_array($tagId, $acumulador->valores) && in_array($cfopOriginal, $acumulador->cfops)) {
+                    self::$acumuladorEquivalenteCache[$cacheKey] = $acumulador->etiqueta_entrada;
+                    return $acumulador->etiqueta_entrada;
+                }
+            }
+
+            if (in_array($tagId, $acumulador->valores)) {
+                self::$acumuladorEquivalenteCache[$cacheKey] = $acumulador->etiqueta_entrada;
+
+                return $acumulador->etiqueta_entrada;
+            }
+        }
+
+        // Se não encontrou o CFOP nos equivalentes, retorna o original
+        self::$acumuladorEquivalenteCache[$cacheKey] = null;
+        return $cfopOriginal;
+    }
+
+    /**
+     * Determina o tipo de documento para filtrar os CFOPs equivalentes
+     *
+     * @param NotaFiscalEletronica $notaFiscal
+     * @param Issuer $issuer
+     * @return string Tipo do documento (nfe-entrada-propria, nfe-entrada-terceiro, etc.)
+     */
+    private function determinarTipoDocumento(NotaFiscalEletronica $notaFiscal, Issuer $issuer): string
+    {
+        // Verifica se é entrada própria (emitente = issuer) ou entrada de terceiros
+        $isEntradaPropria = ($notaFiscal->emitente_cnpj === $issuer->cnpj);
+
+        return $isEntradaPropria ? 'nfe-entrada-propria' : 'nfe-entrada-terceiro';
+    }
+
+    /**
+     * Traduz o código numérico da modalidade do frete para a letra correspondente.
+     *
+     * @param int|string $modFrete Código da modalidade do frete (0-9).
+     * @return string Letra correspondente ao tipo de frete:
+     *                C = Conta do emitente (0)
+     *                F = Conta do destinatário (1)
+     *                T = Conta de terceiros (2)
+     *                R = Remetente (3)
+     *                D = Destinatário (4)
+     *                S = Sem frete (9)
+     */
+    private function checkTipoFrete($modFrete)
+    {
+        $texto = '';
+        switch ($modFrete) {
+            case 0:
+                $texto = 'C';
+                break;
+            case 1:
+                $texto = 'F';
+                break;
+            case 2:
+                $texto = 'T';
+                break;
+            case 3:
+                $texto = 'R';
+                break;
+            case 4:
+                $texto = 'D';
+                break;
+            case 9:
+                $texto = 'S';
+                break;
+        }
+
+        return $texto;
+    }
+
+    /**
+     * Define o CNPJ do fornecedor baseado no tipo de operação (nacional ou importação)
+     *
+     * @param array $xmlData
+     * @param NotaFiscalEletronica $notaFiscal
+     * @return string
+     */
+    private function definirCnpjFornecedor(array $xmlData, NotaFiscalEletronica $notaFiscal): string
+    {
+        // Verifica se é uma nota de importação pelo CFOP
+        // CFOPs de importação começam com 3 (ex: 3101, 3201, 3202, 3205, 3206, 3207, 3208, 3209, 3211, 3251, 3551, 3667)
+        $cfop = $this->extrairPrimeiroCFOP($notaFiscal);
+        $isImportacao = strpos($cfop, '3') === 0;
+
+        if ($isImportacao) {
+            // Para importação, usa CNPJ genérico
+            return '00000000000000';
+        }
+
+        // Para operação nacional, usa o CNPJ do emitente
+        return $xmlData['emit']['CNPJ'] ?? $xmlData['emit']['CPF'] ?? $notaFiscal->emitente_cnpj ?? '';
+    }
+
+    /**
+     * Aplica o fator de proporcionalidade aos valores da nota fiscal
+     *
+     * @param array $xmlData
+     * @param NotaFiscalEletronica $notaFiscal
+     * @return void
+     */
+    private function aplicarProporcionalidadeValores(array $xmlData, NotaFiscalEletronica $notaFiscal): void
+    {
+        $this->valorFrete = $this->aplicarProporcionalidade((float)($notaFiscal->vFrete ?? 0));
+        $this->valorSeguro = $this->aplicarProporcionalidade((float)($notaFiscal->vSeg ?? 0));
+        $this->valorDespesas = $this->aplicarProporcionalidade((float)($notaFiscal->vOutro ?? 0));
+        $this->valorPis = $this->aplicarProporcionalidade((float)($notaFiscal->vPIS ?? 0));
+        $this->valorCofins = $this->aplicarProporcionalidade((float)($notaFiscal->vCOFINS ?? 0));
+        $this->valorProdutos = $this->aplicarProporcionalidade((float)($xmlData['total']['vProd'] ?? 0));
+    }
+
+    /**
+     * Aplica o fator de proporcionalidade a um valor
+     *
+     * @param float $valor
+     * @return float
+     */
+    private function aplicarProporcionalidade(float $valor): float
+    {
+        return round($valor * $this->fatorProporcionalidade, 2);
+    }
+
+    /**
+     * Define o fator de proporcionalidade baseado no valor da etiqueta
+     *
+     * @param float $fator
+     * @return void
+     */
+    public function setFatorProporcionalidade(float $fator): void
+    {
+        $this->fatorProporcionalidade = $fator;
+    }
+
+    /**
+     * Extrai o primeiro CFOP dos produtos da nota fiscal
+     *
+     * @param NotaFiscalEletronica $notaFiscal
+     * @return string
+     */
+    private function extrairPrimeiroCFOP(NotaFiscalEletronica $notaFiscal): string
+    {
+        $produtos = $notaFiscal->produtos ?? [];
+        if (!empty($produtos) && isset($produtos[0]['CFOP'])) {
+            return (string)$produtos[0]['CFOP'];
+        }
+        return '5405'; // Valor padrão
+    }
+
+    /**
+     * Converte uma data para DateTime
+     *
+     * @param mixed $data
+     * @return \DateTime
+     */
+    private function converterParaDateTime($data): \DateTime
+    {
+        if ($data instanceof \DateTime) {
+            return $data;
+        }
+
+        if (is_string($data)) {
+            return new \DateTime($data);
+        }
+
+        return new \DateTime();
     }
 
     public function getTipoRegistro(): string
@@ -235,7 +632,7 @@ class Registro1000 extends RegistroBase
             $this->formatarCampo($this->segmento, null, 'N'), // Campo 7: Segmento
             $this->formatarCampo($this->numeroDocumento, null, 'N'), // Campo 8: Número do documento
             $this->formatarCampo($this->serie, null, 'C'), // Campo 9: Série
-            $this->formatarCampo($this->numeroDocumentoFinal, null, 'N'), // Campo 10: Numero do documento final
+            $this->formatarCampo($this->numeroDocumentoFinal, null, 'N'), // Campo 10: Número do documento final
             $this->formatarCampo($this->dataEntrada, null, 'X'), // Campo 11: Data da entrada
             $this->formatarCampo($this->dataEmissao, null, 'X'), // Campo 12: Data emissão
             $this->formatarCampo($this->valorContabil, null, 'D'), // Campo 13: Valor contábil
@@ -255,7 +652,7 @@ class Registro1000 extends RegistroBase
             $this->formatarCampo($this->valorSeguro, null, 'D'), // Campo 27: Valor do seguro
             $this->formatarCampo($this->valorDespesas, null, 'D'), // Campo 28: Valor da despesas
             $this->formatarCampo($this->valorPis, null, 'D'), // Campo 29: Valor do PIS
-            $this->formatarCampo($this->codigoAntecipacaoTributaria, null, 'N'), // Campo 30: Código que Identifica o tipo de Antecipação Tributária
+            $this->formatarCampo($this->codigoAntecipacaoTributaria, null, 'N'), // Campo 30: Código que identifica o tipo de Antecipação Tributária
             $this->formatarCampo($this->valorCofins, null, 'D'), // Campo 31: Valor do COFINS
             $this->formatarCampo($this->valorDareNota, null, 'D'), // Campo 32: Valor calculado referente a DARE da nota
             $this->formatarCampo($this->aliquotaDareNota, null, 'D'), // Campo 33: Alíquota do valor calculado referente a DARE da nota
@@ -317,7 +714,7 @@ class Registro1000 extends RegistroBase
             $this->formatarCampo($this->pedagio, null, 'D'), // Campo 89: Pedágio
             $this->formatarCampo($this->ipi, null, 'D'), // Campo 90: IPI
             $this->formatarCampo($this->icmsSt, null, 'D'), // Campo 91: ICMS ST
-            $this->formatarCampo($this->classificacaoServicos, null, 'N'), // Campo 92: Classificação de Serviços
+            $this->formatarCampo($this->classificacaoServicos, null, 'N'), // Campo 92: Classificação de Serviços Prestados
         ];
 
         return $this->montarLinha($campos);
@@ -325,198 +722,44 @@ class Registro1000 extends RegistroBase
 
     public function isValid(): bool
     {
-        // Validação específica para o Registro 1000
-        return !empty($this->codigoEspecie) && 
-               !empty($this->inscricaoFornecedor) && 
-               !empty($this->cfop) && 
-               $this->numeroDocumento > 0 &&
-               $this->valorContabil >= 0 &&
-               $this->valorProdutos >= 0;
+        return !empty($this->inscricaoFornecedor) &&
+            !empty($this->cfop) &&
+            $this->numeroDocumento > 0;
     }
 
-    // Getters
-    public function getCodigoEspecie(): string { return $this->codigoEspecie; }
-    public function getInscricaoFornecedor(): string { return $this->inscricaoFornecedor; }
-    public function getCodigoExclusaoDief(): ?string { return $this->codigoExclusaoDief; }
-    public function getCodigoAcumulador(): ?string { return $this->codigoAcumulador; }
-    public function getCfop(): string { return $this->cfop; }
-    public function getSegmento(): ?string { return $this->segmento; }
-    public function getNumeroDocumento(): int { return $this->numeroDocumento; }
-    public function getSerie(): ?string { return $this->serie; }
-    public function getNumeroDocumentoFinal(): ?int { return $this->numeroDocumentoFinal; }
-    public function getDataEntrada(): \DateTime { return $this->dataEntrada; }
-    public function getDataEmissao(): \DateTime { return $this->dataEmissao; }
-    public function getValorContabil(): float { return $this->valorContabil; }
-    public function getValorExclusaoDief(): ?float { return $this->valorExclusaoDief; }
-    public function getObservacao(): ?string { return $this->observacao; }
-    public function getModalidadeFrete(): ?string { return $this->modalidadeFrete; }
-    public function getEmitenteNotaFiscal(): ?string { return $this->emitenteNotaFiscal; }
-    public function getCfopExtendidoDetalhamento(): ?string { return $this->cfopExtendidoDetalhamento; }
-    public function getCodigoTransferenciaCredito(): ?string { return $this->codigoTransferenciaCredito; }
-    public function getCodigoRecolhimentoIssRetido(): ?string { return $this->codigoRecolhimentoIssRetido; }
-    public function getCodigoRecolhimentoIrrf(): ?string { return $this->codigoRecolhimentoIrrf; }
-    public function getCodigoObservacao(): ?string { return $this->codigoObservacao; }
-    public function getDataVistoTransfCreditoIcms(): ?\DateTime { return $this->dataVistoTransfCreditoIcms; }
-    public function getFatoGeradorCrf(): ?string { return $this->fatoGeradorCrf; }
-    public function getFatoGeradorIrrf(): ?string { return $this->fatoGeradorIrrf; }
-    public function getValorFrete(): ?float { return $this->valorFrete; }
-    public function getValorSeguro(): ?float { return $this->valorSeguro; }
-    public function getValorDespesas(): ?float { return $this->valorDespesas; }
-    public function getValorPis(): ?float { return $this->valorPis; }
-    public function getCodigoAntecipacaoTributaria(): ?string { return $this->codigoAntecipacaoTributaria; }
-    public function getValorCofins(): ?float { return $this->valorCofins; }
-    public function getValorDareNota(): ?float { return $this->valorDareNota; }
-    public function getAliquotaDareNota(): ?float { return $this->aliquotaDareNota; }
-    public function getValorBaseCalculoIcmsSt(): ?float { return $this->valorBaseCalculoIcmsSt; }
-    public function getEntradasSaidasIsentas(): ?float { return $this->entradasSaidasIsentas; }
-    public function getOutrasEntradasIsentas(): ?float { return $this->outrasEntradasIsentas; }
-    public function getValorTransporteIncluidoBase(): ?float { return $this->valorTransporteIncluidoBase; }
-    public function getCodigoRessarcimento(): ?string { return $this->codigoRessarcimento; }
-    public function getValorProdutos(): float { return $this->valorProdutos; }
-    public function getMunicipioOrigem(): string { return $this->municipioOrigem; }
-    public function getSituacaoNota(): int { return $this->situacaoNota; }
-    public function getCodigoSituacaoTributaria(): ?string { return $this->codigoSituacaoTributaria; }
-    public function getSubSerie(): ?string { return $this->subSerie; }
-    public function getInscricaoEstadualFornecedor(): ?string { return $this->inscricaoEstadualFornecedor; }
-    public function getInscricaoMunicipalFornecedor(): ?string { return $this->inscricaoMunicipalFornecedor; }
-    public function getCodigoOperacaoPrestacao(): ?string { return $this->codigoOperacaoPrestacao; }
-    public function getValorDeduzirReceitaTributavel(): ?float { return $this->valorDeduzirReceitaTributavel; }
-    public function getCompetencia(): ?\DateTime { return $this->competencia; }
-    public function getOperacao(): ?int { return $this->operacao; }
-    public function getNumeroParecerFiscal(): ?string { return $this->numeroParecerFiscal; }
-    public function getDataParecerFiscal(): ?\DateTime { return $this->dataParecerFiscal; }
-    public function getNumeroDeclaracaoImportacao(): ?string { return $this->numeroDeclaracaoImportacao; }
-    public function getPossuiBeneficioFiscal(): ?string { return $this->possuiBeneficioFiscal; }
-    public function getChaveNotaFiscalEletronica(): ?string { return $this->chaveNotaFiscalEletronica; }
-    public function getCodigoRecolhimentoFethab(): ?string { return $this->codigoRecolhimentoFethab; }
-    public function getResponsavelRecolhimentoFethab(): ?string { return $this->responsavelRecolhimentoFethab; }
-    public function getCfopDocumentoFiscal(): ?string { return $this->cfopDocumentoFiscal; }
-    public function getTipoCte(): ?int { return $this->tipoCte; }
-    public function getCteReferencia(): ?string { return $this->cteReferencia; }
-    public function getModalidadeImportacao(): ?int { return $this->modalidadeImportacao; }
-    public function getCodigoInformacaoComplementar(): ?string { return $this->codigoInformacaoComplementar; }
-    public function getInformacaoComplementar(): ?string { return $this->informacaoComplementar; }
-    public function getClasseConsumo(): ?int { return $this->classeConsumo; }
-    public function getTipoLigacao(): ?int { return $this->tipoLigacao; }
-    public function getGrupoTensao(): ?int { return $this->grupoTensao; }
-    public function getTipoAssinante(): ?int { return $this->tipoAssinante; }
-    public function getKwhConsumido(): ?int { return $this->kwhConsumido; }
-    public function getValorFornecidoConsumidoGasEnergia(): ?float { return $this->valorFornecidoConsumidoGasEnergia; }
-    public function getValorCobradoTerceiros(): ?float { return $this->valorCobradoTerceiros; }
-    public function getTipoDocumentoImportacao(): ?int { return $this->tipoDocumentoImportacao; }
-    public function getNumeroAtoConcessorioDrawback(): ?string { return $this->numeroAtoConcessorioDrawback; }
-    public function getNaturezaFretePisCofins(): ?int { return $this->naturezaFretePisCofins; }
-    public function getCstPisCofins(): ?int { return $this->cstPisCofins; }
-    public function getBaseCreditoPisCofins(): ?int { return $this->baseCreditoPisCofins; }
-    public function getValorServicosItensPisCofins(): ?float { return $this->valorServicosItensPisCofins; }
-    public function getBaseCalculoPisCofins(): ?float { return $this->baseCalculoPisCofins; }
-    public function getAliquotaPis(): ?float { return $this->aliquotaPis; }
-    public function getAliquotaCofins(): ?float { return $this->aliquotaCofins; }
-    public function getChaveNfse(): ?string { return $this->chaveNfse; }
-    public function getNumeroProcessoAtoConcessorio(): ?string { return $this->numeroProcessoAtoConcessorio; }
-    public function getOrigemProcesso(): ?string { return $this->origemProcesso; }
-    public function getDataEscrituracao(): ?\DateTime { return $this->dataEscrituracao; }
-    public function getCfps(): ?int { return $this->cfps; }
-    public function getNaturezaReceitaPisCofins(): ?int { return $this->naturezaReceitaPisCofins; }
-    public function getCstIpi(): ?string { return $this->cstIpi; }
-    public function getLancamentosScp(): ?int { return $this->lancamentosScp; }
-    public function getTipoServico(): ?int { return $this->tipoServico; }
-    public function getMunicipioDestino(): ?int { return $this->municipioDestino; }
-    public function getPedagio(): ?float { return $this->pedagio; }
-    public function getIpi(): ?float { return $this->ipi; }
-    public function getIcmsSt(): ?float { return $this->icmsSt; }
-    public function getClassificacaoServicos(): ?int { return $this->classificacaoServicos; }
+    // Getters e Setters básicos (adicionar conforme necessidade)
+    public function getInscricaoFornecedor(): string
+    {
+        return $this->inscricaoFornecedor;
+    }
 
-    // Setters
-    public function setCodigoEspecie(string $codigoEspecie): void { $this->codigoEspecie = $codigoEspecie; }
-    public function setInscricaoFornecedor(string $inscricaoFornecedor): void { $this->inscricaoFornecedor = $inscricaoFornecedor; }
-    public function setCodigoExclusaoDief(?string $codigoExclusaoDief): void { $this->codigoExclusaoDief = $codigoExclusaoDief; }
-    public function setCodigoAcumulador(?string $codigoAcumulador): void { $this->codigoAcumulador = $codigoAcumulador; }
-    public function setCfop(string $cfop): void { $this->cfop = $cfop; }
-    public function setSegmento(?string $segmento): void { $this->segmento = $segmento; }
-    public function setNumeroDocumento(int $numeroDocumento): void { $this->numeroDocumento = $numeroDocumento; }
-    public function setSerie(?string $serie): void { $this->serie = $serie; }
-    public function setNumeroDocumentoFinal(?int $numeroDocumentoFinal): void { $this->numeroDocumentoFinal = $numeroDocumentoFinal; }
-    public function setDataEntrada(\DateTime $dataEntrada): void { $this->dataEntrada = $dataEntrada; }
-    public function setDataEmissao(\DateTime $dataEmissao): void { $this->dataEmissao = $dataEmissao; }
-    public function setValorContabil(float $valorContabil): void { $this->valorContabil = $valorContabil; }
-    public function setValorExclusaoDief(?float $valorExclusaoDief): void { $this->valorExclusaoDief = $valorExclusaoDief; }
-    public function setObservacao(?string $observacao): void { $this->observacao = $observacao; }
-    public function setModalidadeFrete(?string $modalidadeFrete): void { $this->modalidadeFrete = $modalidadeFrete; }
-    public function setEmitenteNotaFiscal(?string $emitenteNotaFiscal): void { $this->emitenteNotaFiscal = $emitenteNotaFiscal; }
-    public function setCfopExtendidoDetalhamento(?string $cfopExtendidoDetalhamento): void { $this->cfopExtendidoDetalhamento = $cfopExtendidoDetalhamento; }
-    public function setCodigoTransferenciaCredito(?string $codigoTransferenciaCredito): void { $this->codigoTransferenciaCredito = $codigoTransferenciaCredito; }
-    public function setCodigoRecolhimentoIssRetido(?string $codigoRecolhimentoIssRetido): void { $this->codigoRecolhimentoIssRetido = $codigoRecolhimentoIssRetido; }
-    public function setCodigoRecolhimentoIrrf(?string $codigoRecolhimentoIrrf): void { $this->codigoRecolhimentoIrrf = $codigoRecolhimentoIrrf; }
-    public function setCodigoObservacao(?string $codigoObservacao): void { $this->codigoObservacao = $codigoObservacao; }
-    public function setDataVistoTransfCreditoIcms(?\DateTime $dataVistoTransfCreditoIcms): void { $this->dataVistoTransfCreditoIcms = $dataVistoTransfCreditoIcms; }
-    public function setFatoGeradorCrf(?string $fatoGeradorCrf): void { $this->fatoGeradorCrf = $fatoGeradorCrf; }
-    public function setFatoGeradorIrrf(?string $fatoGeradorIrrf): void { $this->fatoGeradorIrrf = $fatoGeradorIrrf; }
-    public function setValorFrete(?float $valorFrete): void { $this->valorFrete = $valorFrete; }
-    public function setValorSeguro(?float $valorSeguro): void { $this->valorSeguro = $valorSeguro; }
-    public function setValorDespesas(?float $valorDespesas): void { $this->valorDespesas = $valorDespesas; }
-    public function setValorPis(?float $valorPis): void { $this->valorPis = $valorPis; }
-    public function setCodigoAntecipacaoTributaria(?string $codigoAntecipacaoTributaria): void { $this->codigoAntecipacaoTributaria = $codigoAntecipacaoTributaria; }
-    public function setValorCofins(?float $valorCofins): void { $this->valorCofins = $valorCofins; }
-    public function setValorDareNota(?float $valorDareNota): void { $this->valorDareNota = $valorDareNota; }
-    public function setAliquotaDareNota(?float $aliquotaDareNota): void { $this->aliquotaDareNota = $aliquotaDareNota; }
-    public function setValorBaseCalculoIcmsSt(?float $valorBaseCalculoIcmsSt): void { $this->valorBaseCalculoIcmsSt = $valorBaseCalculoIcmsSt; }
-    public function setEntradasSaidasIsentas(?float $entradasSaidasIsentas): void { $this->entradasSaidasIsentas = $entradasSaidasIsentas; }
-    public function setOutrasEntradasIsentas(?float $outrasEntradasIsentas): void { $this->outrasEntradasIsentas = $outrasEntradasIsentas; }
-    public function setValorTransporteIncluidoBase(?float $valorTransporteIncluidoBase): void { $this->valorTransporteIncluidoBase = $valorTransporteIncluidoBase; }
-    public function setCodigoRessarcimento(?string $codigoRessarcimento): void { $this->codigoRessarcimento = $codigoRessarcimento; }
-    public function setValorProdutos(float $valorProdutos): void { $this->valorProdutos = $valorProdutos; }
-    public function setMunicipioOrigem(string $municipioOrigem): void { $this->municipioOrigem = $municipioOrigem; }
-    public function setSituacaoNota(int $situacaoNota): void { $this->situacaoNota = $situacaoNota; }
-    public function setCodigoSituacaoTributaria(?string $codigoSituacaoTributaria): void { $this->codigoSituacaoTributaria = $codigoSituacaoTributaria; }
-    public function setSubSerie(?string $subSerie): void { $this->subSerie = $subSerie; }
-    public function setInscricaoEstadualFornecedor(?string $inscricaoEstadualFornecedor): void { $this->inscricaoEstadualFornecedor = $inscricaoEstadualFornecedor; }
-    public function setInscricaoMunicipalFornecedor(?string $inscricaoMunicipalFornecedor): void { $this->inscricaoMunicipalFornecedor = $inscricaoMunicipalFornecedor; }
-    public function setCodigoOperacaoPrestacao(?string $codigoOperacaoPrestacao): void { $this->codigoOperacaoPrestacao = $codigoOperacaoPrestacao; }
-    public function setValorDeduzirReceitaTributavel(?float $valorDeduzirReceitaTributavel): void { $this->valorDeduzirReceitaTributavel = $valorDeduzirReceitaTributavel; }
-    public function setCompetencia(?\DateTime $competencia): void { $this->competencia = $competencia; }
-    public function setOperacao(?int $operacao): void { $this->operacao = $operacao; }
-    public function setNumeroParecerFiscal(?string $numeroParecerFiscal): void { $this->numeroParecerFiscal = $numeroParecerFiscal; }
-    public function setDataParecerFiscal(?\DateTime $dataParecerFiscal): void { $this->dataParecerFiscal = $dataParecerFiscal; }
-    public function setNumeroDeclaracaoImportacao(?string $numeroDeclaracaoImportacao): void { $this->numeroDeclaracaoImportacao = $numeroDeclaracaoImportacao; }
-    public function setPossuiBeneficioFiscal(?string $possuiBeneficioFiscal): void { $this->possuiBeneficioFiscal = $possuiBeneficioFiscal; }
-    public function setChaveNotaFiscalEletronica(?string $chaveNotaFiscalEletronica): void { $this->chaveNotaFiscalEletronica = $chaveNotaFiscalEletronica; }
-    public function setCodigoRecolhimentoFethab(?string $codigoRecolhimentoFethab): void { $this->codigoRecolhimentoFethab = $codigoRecolhimentoFethab; }
-    public function setResponsavelRecolhimentoFethab(?string $responsavelRecolhimentoFethab): void { $this->responsavelRecolhimentoFethab = $responsavelRecolhimentoFethab; }
-    public function setCfopDocumentoFiscal(?string $cfopDocumentoFiscal): void { $this->cfopDocumentoFiscal = $cfopDocumentoFiscal; }
-    public function setTipoCte(?int $tipoCte): void { $this->tipoCte = $tipoCte; }
-    public function setCteReferencia(?string $cteReferencia): void { $this->cteReferencia = $cteReferencia; }
-    public function setModalidadeImportacao(?int $modalidadeImportacao): void { $this->modalidadeImportacao = $modalidadeImportacao; }
-    public function setCodigoInformacaoComplementar(?string $codigoInformacaoComplementar): void { $this->codigoInformacaoComplementar = $codigoInformacaoComplementar; }
-    public function setInformacaoComplementar(?string $informacaoComplementar): void { $this->informacaoComplementar = $informacaoComplementar; }
-    public function setClasseConsumo(?int $classeConsumo): void { $this->classeConsumo = $classeConsumo; }
-    public function setTipoLigacao(?int $tipoLigacao): void { $this->tipoLigacao = $tipoLigacao; }
-    public function setGrupoTensao(?int $grupoTensao): void { $this->grupoTensao = $grupoTensao; }
-    public function setTipoAssinante(?int $tipoAssinante): void { $this->tipoAssinante = $tipoAssinante; }
-    public function setKwhConsumido(?int $kwhConsumido): void { $this->kwhConsumido = $kwhConsumido; }
-    public function setValorFornecidoConsumidoGasEnergia(?float $valorFornecidoConsumidoGasEnergia): void { $this->valorFornecidoConsumidoGasEnergia = $valorFornecidoConsumidoGasEnergia; }
-    public function setValorCobradoTerceiros(?float $valorCobradoTerceiros): void { $this->valorCobradoTerceiros = $valorCobradoTerceiros; }
-    public function setTipoDocumentoImportacao(?int $tipoDocumentoImportacao): void { $this->tipoDocumentoImportacao = $tipoDocumentoImportacao; }
-    public function setNumeroAtoConcessorioDrawback(?string $numeroAtoConcessorioDrawback): void { $this->numeroAtoConcessorioDrawback = $numeroAtoConcessorioDrawback; }
-    public function setNaturezaFretePisCofins(?int $naturezaFretePisCofins): void { $this->naturezaFretePisCofins = $naturezaFretePisCofins; }
-    public function setCstPisCofins(?int $cstPisCofins): void { $this->cstPisCofins = $cstPisCofins; }
-    public function setBaseCreditoPisCofins(?int $baseCreditoPisCofins): void { $this->baseCreditoPisCofins = $baseCreditoPisCofins; }
-    public function setValorServicosItensPisCofins(?float $valorServicosItensPisCofins): void { $this->valorServicosItensPisCofins = $valorServicosItensPisCofins; }
-    public function setBaseCalculoPisCofins(?float $baseCalculoPisCofins): void { $this->baseCalculoPisCofins = $baseCalculoPisCofins; }
-    public function setAliquotaPis(?float $aliquotaPis): void { $this->aliquotaPis = $aliquotaPis; }
-    public function setAliquotaCofins(?float $aliquotaCofins): void { $this->aliquotaCofins = $aliquotaCofins; }
-    public function setChaveNfse(?string $chaveNfse): void { $this->chaveNfse = $chaveNfse; }
-    public function setNumeroProcessoAtoConcessorio(?string $numeroProcessoAtoConcessorio): void { $this->numeroProcessoAtoConcessorio = $numeroProcessoAtoConcessorio; }
-    public function setOrigemProcesso(?string $origemProcesso): void { $this->origemProcesso = $origemProcesso; }
-    public function setDataEscrituracao(?\DateTime $dataEscrituracao): void { $this->dataEscrituracao = $dataEscrituracao; }
-    public function setCfps(?int $cfps): void { $this->cfps = $cfps; }
-    public function setNaturezaReceitaPisCofins(?int $naturezaReceitaPisCofins): void { $this->naturezaReceitaPisCofins = $naturezaReceitaPisCofins; }
-    public function setCstIpi(?string $cstIpi): void { $this->cstIpi = $cstIpi; }
-    public function setLancamentosScp(?int $lancamentosScp): void { $this->lancamentosScp = $lancamentosScp; }
-    public function setTipoServico(?int $tipoServico): void { $this->tipoServico = $tipoServico; }
-    public function setMunicipioDestino(?int $municipioDestino): void { $this->municipioDestino = $municipioDestino; }
-    public function setPedagio(?float $pedagio): void { $this->pedagio = $pedagio; }
-    public function setIpi(?float $ipi): void { $this->ipi = $ipi; }
-    public function setIcmsSt(?float $icmsSt): void { $this->icmsSt = $icmsSt; }
-    public function setClassificacaoServicos(?int $classificacaoServicos): void { $this->classificacaoServicos = $classificacaoServicos; }
+    public function getNumeroDocumento(): int
+    {
+        return $this->numeroDocumento;
+    }
+
+    public function getSerie(): ?string
+    {
+        return $this->serie;
+    }
+
+    public function getDataEmissao(): \DateTime
+    {
+        return $this->dataEmissao;
+    }
+
+    public function getValorProdutos(): float
+    {
+        return $this->valorProdutos;
+    }
+
+    public function getCodigoAcumulador(): ?string
+    {
+        return $this->codigoAcumulador;
+    }
+
+    public function getCfop(): string
+    {
+        return $this->cfop;
+    }
 }
