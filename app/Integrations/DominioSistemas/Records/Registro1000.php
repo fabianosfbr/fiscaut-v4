@@ -6,6 +6,7 @@ use App\Models\Issuer;
 use App\Models\GeneralSetting;
 use App\Models\NotaFiscalEletronica;
 use Illuminate\Support\Facades\Cache;
+use App\Models\EntradasImpostosEquivalente;
 use App\Models\EntradasAcumuladoresEquivalente;
 
 /**
@@ -18,6 +19,7 @@ use App\Models\EntradasAcumuladoresEquivalente;
 class Registro1000 extends RegistroBase
 {
     private string $codigoEspecie;
+    private array $valoresSegmento;
     private string $inscricaoFornecedor;
     private ?string $codigoExclusaoDief = null;
     private ?string $codigoAcumulador = null; // Campo 5 - ID da CategoryTag
@@ -29,7 +31,7 @@ class Registro1000 extends RegistroBase
     private \DateTime $dataEntrada;
     private \DateTime $dataEmissao;
     private float $valorContabil;
-    private ?float $valorExclusaoDief = null;
+    private ?string $valorExclusaoDief = null;
     private ?string $observacao = null;
     private ?string $modalidadeFrete = null;
     private ?string $emitenteNotaFiscal = null;
@@ -107,12 +109,33 @@ class Registro1000 extends RegistroBase
     private ?float $pedagio = null;
     private ?float $ipi = null;
     private ?float $icmsSt = null;
-    private ?int $classificacaoServicos = null;
+    private ?int $classificacaoServicosTipoEfdReinf = null; // Campo 92
+    private ?int $classificacaoServicosIndicativoEfdReinf = null; // Campo 93
+    private ?string $numeroDocumentoArrecadacao = null; // Campo 94
+    private ?int $tipoTitulo = null; // Campo 95
+    private ?string $identificacao = null; // Campo 96
+    private ?float $icmsDesonerado = null; // Campo 97
+    private ?float $ipiDevolucao = null; // Campo 98
 
     /**
      * @var float Fator de proporcionalidade baseado no valor da etiqueta
      */
     private float $fatorProporcionalidade = 1.0;
+
+    /**
+     * @var int|null ID da tag aplicada à nota fiscal
+     */
+    private ?int $tagId = null;
+
+    /**
+     * @var string|null CFOP específico para sobrescrever o primeiro CFOP da nota
+     */
+    private ?string $cfopEspecifico = null;
+
+    /**
+     * @var NotaFiscalEletronica Referência à nota fiscal para acesso às tags
+     */
+    private NotaFiscalEletronica $notaFiscal;
 
     /**
      * Cache estático para armazenar os CFOPs equivalentes já consultados
@@ -134,9 +157,16 @@ class Registro1000 extends RegistroBase
 
     public function __construct(
         NotaFiscalEletronica $notaFiscal,
+        array $valoresSegmento,
         Issuer $issuer,
-        ?int $tagId = null
+        ?int $tagId = null,
+        ?int $segmento = null
     ) {
+        // Armazena a referência à nota fiscal e o ID da tag para uso posterior
+        $this->notaFiscal = $notaFiscal;
+        $this->tagId = $tagId;
+        $this->valoresSegmento = $valoresSegmento;
+
         // Extrai os dados do XML da nota fiscal usando o método da classe base
         $xmlData = $this->extrairDadosDoXml($notaFiscal, [
             'emit' => ['emit', 'emitente', 'Emitente'],
@@ -148,75 +178,291 @@ class Registro1000 extends RegistroBase
             'infAdic' => ['infAdic'],
             'total' => ['total', 'totais', 'Totais'],
         ]);
-        // Dados básicos da nota fiscal
-        $this->codigoEspecie = '36'; // NF-e
-        // Campo 4
-        $this->codigoExclusaoDief = 0; // Não exclui
+        // ============================================================
+        // CAMPO 1 - Identificação do registro: Fixo '1000'
+        // Definido no método getTipoRegistro()
+        // ============================================================
 
+        // Campo 2 - Código da espécie: 36 = NF-e (Nota Fiscal Eletrônica)
+        $this->codigoEspecie = '36';
+
+        // Campo 3 - Inscrição fornecedor: CNPJ/CPF/CEI/Outros/CAEPF do fornecedor
         $this->inscricaoFornecedor = $this->definirCnpjFornecedor($xmlData, $notaFiscal);
-        $this->cfop = $this->obterCfopEquivalente($notaFiscal, $issuer, $tagId, $xmlData['emit']['enderEmit']['UF']); // Campo 6
-        $this->numeroDocumento = (int)($notaFiscal->nNF ?? 0);
-        $this->serie = $notaFiscal->serie ?? null;
-        $this->dataEntrada = $this->converterParaDateTime($notaFiscal->data_entrada ?? now());
-        $this->dataEmissao = $this->converterParaDateTime($notaFiscal->data_emissao ?? now());
 
-        // Valores totais da nota
-        $valorTotal = (float)($notaFiscal->vNfe ?? 0);
-        $this->valorContabil = $valorTotal;
-        $this->valorProdutos = (float)($xmlData['total']['vProd'] ?? 0);
+        // Campo 4 - Código de Exclusão da DIEF: 0 = Não exclui
+        $this->codigoExclusaoDief = 0;
 
-        // Campo 5 - Código do acumulador (ID da CategoryTag)
+        // Campo 6 - CFOP: Código Fiscal de Operações e Prestações (pode ser equivalente conforme configuração)
+    
+        $this->cfop = $this->obterCfopEquivalente($notaFiscal, $issuer, $tagId, $xmlData['emit']['enderEmit']['UF']);
+
+
+        // Campo 5 - Código do acumulador: ID da CategoryTag (etiqueta de classificação)
         $this->codigoAcumulador = $this->obterAcumuladorEquivalente($notaFiscal, $issuer, $tagId, $this->cfop);
 
-        // Campo 10
+        // Campo 7 - Segmento
+        $this->segmento = $segmento;
+
+        // Campo 8 - Número do documento: Número da NF-e
+        $this->numeroDocumento = (int)($notaFiscal->nNF ?? 0);
+
+        // Campo 9 - Série: Série da NF-e
+        $this->serie = $notaFiscal->serie ?? null;
+
+        // Campo 10 - Número do documento final: 0 para nota única (usado para notas em série)
         $this->numeroDocumentoFinal = 0;
 
+        // Campo 11 - Data da entrada: Data de entrada da mercadoria no estabelecimento
+        $this->dataEntrada = $this->converterParaDateTime($notaFiscal->data_entrada ?? now());
 
-        // Campo 18
-        $this->cfopExtendidoDetalhamento = 0;
+        // Campo 12 - Data emissão: Data de emissão da NF-e pelo fornecedor
+        $this->dataEmissao = $this->converterParaDateTime($notaFiscal->data_emissao ?? now());
 
-        // Campo 19
-        $this->codigoTransferenciaCredito = 0;
+        // Campo 13 - Valor contábil: Valor total da NF-e (valor da operação)
+        $this->valorContabil = $this->valoresSegmento['valor_produtos'] - $this->valoresSegmento['valor_desconto'];
 
-        // Campo 23
-        $this->dataVistoTransfCreditoIcms = $this->converterParaDateTime($notaFiscal->data_emissao);
+        // Campo 14 - Valor da exclusão da DIEF: Não informado (campo opcional)
+        $this->valorExclusaoDief = '';
 
-        // Campo 24
-        $this->fatoGeradorCrf = 'E';
+        // Campo 15 - Observação: Informações de interesse do fisco (infAdFisco do XML)
+        $this->observacao = $xmlData['infAdic']['infAdFisco'] ?? str_replace('|', '-', $xmlData['infAdic']['infAdFisco'] ?? '');
 
-        // Campo 25
-        $this->fatoGeradorIrrf = 'E';
-
-
-        // Campo 82
-        $this->dataEscrituracao = isset($notaFiscal->data_entrada) ? $this->converterParaDateTime($notaFiscal->data_entrada) : '';
-
-        // Outros campos
-        $this->municipioOrigem = $xmlData['enderEmit']['cMun'] ?? '';
-        // Converte o enum para int ou usa o valor padrão
-        $this->situacaoNota = $notaFiscal->status_nota instanceof \App\Enums\StatusNfeEnum
-            ? (int)$notaFiscal->status_nota->value
-            : ($notaFiscal->status_nota ?? 100);
-
-        // Modalidade do frete
+        // Campo 16 - Modalidade do frete: C=CIF, F=FOB, T=Terceiros, R=Remetente, D=Destinatário, S=Sem frete
         $this->modalidadeFrete = $this->checkTipoFrete($notaFiscal->modFrete) ?? null;
 
-        // Emitente da nota (P=Próprio, T=Terceiros)
-        $this->emitenteNotaFiscal = 'P';
+        // Campo 17 - Emitente da nota fiscal: P=Próprio, T=Terceiros
+        $this->emitenteNotaFiscal = $this->checkNotaEmitida($notaFiscal);
 
-        // Valores proporcionais (campos 26, 27, 28, 29, 31, 39)
+    
+        // Campo 18 - CFOP estendido/detalhamento: Apenas para estado de SE
+        $this->cfopExtendidoDetalhamento = 0;
+
+        // Campo 19 - Código da transferência de crédito: Apenas para estado de RS
+        $this->codigoTransferenciaCredito = 0;
+
+        // Campo 20 - Código do Recolhimento do ISS Retido: Não informado (campo opcional)
+        $this->codigoRecolhimentoIssRetido = '';
+
+        // Campo 21 - Código do Recolhimento do IRRF: Não informado (campo opcional)
+        $this->codigoRecolhimentoIrrf = '';
+
+        // Campo 22 - Código da observação: Não informado (campo opcional)
+        $this->codigoObservacao = '';
+
+        // Campo 23 - Data do visto notas de transf. Crédito ICMS: Apenas para estado de MG
+        $this->dataVistoTransfCreditoIcms = $this->converterParaDateTime($notaFiscal->data_emissao);
+
+        // Campo 24 - Fato gerador da CRF: E=Emissão, P=Pagamento
+        $this->fatoGeradorCrf = 'E';
+
+        // Campo 25 - Fato gerador do IRRF: E=Emissão, P=Pagamento
+        $this->fatoGeradorIrrf = 'E';
+
+        // ============================================================
+        // CAMPOS 26-31, 39, 90, 91, 98 - Valores com proporcionalidade
+        // Definidos no método aplicarProporcionalidadeValores()
+        // ============================================================
         $this->aplicarProporcionalidadeValores($xmlData, $notaFiscal);
 
-        // Inscrições do fornecedor
-        $this->inscricaoEstadualFornecedor = $xmlData['emit']['IE'] ?? null;
-        $this->inscricaoMunicipalFornecedor = $xmlData['emit']['IM'] ?? null;
+        // Campo 32 - Valor calculado referente a DARE da nota: Apenas para estado SE
+        // $this->valorDareNota = null;
 
-        // Chave da NF-e
+        // Campo 33 - Alíquota do valor calculado referente a DARE da nota: Apenas para estado SE
+        // $this->aliquotaDareNota = null;
+
+        // Campo 34 - Valor da base de cálculo do ICMS ST: 0=inf. Complementares, 1=Quadro calculado, 2=Apurado pelo informante
+        // $this->valorBaseCalculoIcmsSt = null;
+
+        // Campo 35 - Entradas cuja saídas é isenta: Apenas para estado MG
+        // $this->entradasSaidasIsentas = null;
+
+        // Campo 36 - Outras entradas isentas: Apenas para estado MG
+        // $this->outrasEntradasIsentas = null;
+
+        // Campo 37 - Valor transporte incluído na base: Apenas para estado MG
+        // $this->valorTransporteIncluidoBase = null;
+
+        // Campo 38 - Código de ressarcimento: Não informado (campo opcional)
+        // $this->codigoRessarcimento = null;
+
+        // Campo 39 - Valor produtos: Definido no método aplicarProporcionalidadeValores()
+
+        // Campo 40 - Município Origem: Código IBGE do município de origem (cMun do emitente)
+        $this->municipioOrigem = '0';
+
+        // Campo 41 - Situação da Nota: 0=Regular, 1=Regular Extemporâneo, 2=Cancelado, 6=Complementar, 7=Denegado, 8=Inutilizada, 9=Regime Especial, 10=Complementar Extemporâneo
+        $this->situacaoNota = '0';
+
+        // Campo 42 - Código da situação tributária: Não informado (campo opcional)
+        $this->codigoSituacaoTributaria = '0';
+
+        // Campo 43 - Sub série: Não informado (campo opcional)
+        $this->subSerie = '0';
+
+
+        // Campo 44 - Inscrição estadual do fornecedor: IE do emitente da NF-e
+        $this->inscricaoEstadualFornecedor = $this->checkIsImportacao($notaFiscal) ? $xmlData['dest']['IE'] ?? '' : $xmlData['emit']['IE'] ?? '';
+
+        // Campo 45 - Inscrição municipal do fornecedor: IM do emitente da NF-e
+        $this->inscricaoMunicipalFornecedor = $this->checkIsImportacao($notaFiscal) ? $xmlData['dest']['IM'] ?? '' : $xmlData['emit']['IM'] ?? '';
+
+        // Campo 46 - Código da operação e prestação: Não informado (campo opcional)
+        $this->codigoOperacaoPrestacao = '';
+
+        // Campo 47 - Valor a ser deduzido da receita tributável: Não informado (campo opcional)
+        $this->valorDeduzirReceitaTributavel = 0;
+
+        // Campo 48 - Competência: Não informado (campo opcional)
+
+        $this->competencia = $notaFiscal->data_emissao;
+
+        // Campo 49 - Operação: Apenas para estado PA
+        $this->operacao = null;
+
+        // Campo 50 - Número do parecer fiscal: Não informado (campo opcional)
+        $this->numeroParecerFiscal = '';
+
+        // Campo 51 - Data do parecer fiscal: Não informado (campo opcional)
+        $this->dataParecerFiscal = $this->converterParaDateTime($notaFiscal->data_entrada ?? now());
+
+        // Campo 52 - Número da declaração de Importação: Não informado (campo opcional)
+        $this->numeroDeclaracaoImportacao = '';
+
+        // Campo 53 - Possui benefício fiscal: S=Sim, N=Não
+        $this->possuiBeneficioFiscal = 'N';
+
+        // Campo 54 - Chave da nota fiscal eletrônica: Chave de acesso da NF-e (44 dígitos)
         $this->chaveNotaFiscalEletronica = $notaFiscal->chave ?? null;
 
-        // Informações complementares        
-        $this->observacao = $xmlData['infAdic']['infAdFisco'] ?? str_replace('|', '-', $xmlData['infAdic']['infAdFisco'] ?? '');
-        $this->informacaoComplementar = $xmlData['infAdic']['infCpl'] ?? str_replace('|', '-', $xmlData['infAdic']['infCpl'] ?? '');
+        // Campo 55 - Código de recolhimento do FETHAB: Não informado (campo opcional)
+        $this->codigoRecolhimentoFethab = null;
+
+        // Campo 56 - Responsável pelo recolhimento do FETHAB: E=Empresa, C=Cliente
+        $this->responsavelRecolhimentoFethab = null;
+
+
+        // Campo 57 - CFOP documento fiscal: Não informado (campo opcional)
+        
+        $this->cfopDocumentoFiscal = $this->valoresSegmento['cfop'];
+
+        // Campo 58 - Tipo de CT-e: 0=Normal, 1=Complemento de valores, 2=Anulação de débito
+        // $this->tipoCte = null;
+
+        // Campo 59 - CT-e referência: Não informado (campo opcional)
+        // $this->cteReferencia = null;
+
+        // Campo 60 - Modalidade da importação: 1=Com crédito, 2=Compensação, 3=Regime especial, 4=Sem crédito, 5=Outras
+        // $this->modalidadeImportacao = null;
+
+        // Campo 61 - Código da informação complementar: Não informado (campo opcional)
+        // $this->codigoInformacaoComplementar = null;
+
+        // Campo 62 - Informação complementar: Informações complementares de interesse do contribuinte (infCpl do XML)
+        $this->informacaoComplementar = '';
+
+        // Campo 63 - Classe de consumo: Não informado (campo opcional - para energia/gás)
+        // $this->classeConsumo = null;
+
+        // Campo 64 - Tipo de ligação: Não informado (campo opcional - para energia)
+        // $this->tipoLigacao = null;
+
+        // Campo 65 - Grupo de tensão: Não informado (campo opcional - para energia)
+        // $this->grupoTensao = null;
+
+        // Campo 66 - Tipo de assinante: Não informado (campo opcional - para telecomunicações)
+        // $this->tipoAssinante = null;
+
+        // Campo 67 - KWH consumido: Não informado (campo opcional - para energia)
+        // $this->kwhConsumido = null;
+
+        // Campo 68 - Valor fornecido / consumido de gás ou energia elétrica: Não informado
+        // $this->valorFornecidoConsumidoGasEnergia = null;
+
+        // Campo 69 - Valor cobrado de terceiros: Não informado (campo opcional)
+        // $this->valorCobradoTerceiros = null;
+
+        // Campo 70 - Tipo do documento de importação: 10=Declaração de Importação, 1=Declaração Simplificada
+        // $this->tipoDocumentoImportacao = null;
+
+        // Campo 71 - Número do Ato Concessório do regime Drawback: Não informado (campo opcional)
+        // $this->numeroAtoConcessorioDrawback = null;
+
+        // Campo 72 - Natureza do frete PIS/COFINS: 0-9 conforme tabela (para modelos 08, 08B, 09, 10, 11, 26, 27, 57)
+        // $this->naturezaFretePisCofins = null;
+
+        // Campo 73 - CST PIS/COFINS: Código 50-99 para modelos específicos
+        // $this->cstPisCofins = null;
+
+        // Campo 74 - Base do crédito PIS/COFINS: 03, 07, 13, 14 (para modelos específicos)
+        // $this->baseCreditoPisCofins = null;
+
+        // Campo 75 - Valor serviços / itens PIS/COFINS: Não informado (para modelos específicos)
+        // $this->valorServicosItensPisCofins = null;
+
+        // Campo 76 - Base de cálculo PIS/COFINS: Não informado (para modelos específicos)
+        // $this->baseCalculoPisCofins = null;
+
+        // Campo 77 - Alíquota de PIS: Não informado (campo opcional)
+        // $this->aliquotaPis = null;
+
+        // Campo 78 - Alíquota de COFINS: Não informado (campo opcional)
+        // $this->aliquotaCofins = null;
+
+        // Campo 79 - Chave de NFSe: Não informado (campo opcional)
+        // $this->chaveNfse = null;
+
+        // Campo 80 - Número do processo ou ato concessório: Não informado (para natureza frete 1, 3, 4, 5)
+        // $this->numeroProcessoAtoConcessorio = null;
+
+        // Campo 81 - Origem do processo: 1=Justiça Federal, 3=SRF, 9=Outros
+        // $this->origemProcesso = null;
+
+        // Campo 82 - Data da escrituração: Data quando situação for Documento Extemporâneo
+        $this->dataEscrituracao = isset($notaFiscal->data_entrada) ? $this->converterParaDateTime($notaFiscal->data_entrada) : null;
+
+        // Campo 83 - CFPS: Apenas para estado DF (Código Fiscal de Prestação de Serviços)
+        // $this->cfps = null;
+
+        // Campo 84 - Natureza da receita PIS/COFINS: Não informado (para modelos 07, 08, 08B, 09, 10, 11, 57)
+        // $this->naturezaReceitaPisCofins = null;
+
+        // Campo 85 - CST IPI: 00-49 conforme tabela CST IPI (para modelos 55, 01, 1B, 04 com regime especial)
+        $this->cstIpi = $this->ajustaIpi($this->valoresSegmento['valor_ipi'], $notaFiscal, $tagId, $issuer);
+
+        // Campo 86 - Lançamentos de SCP: Código SCP (Sociedade em Conta de Participação)
+        // $this->lancamentosScp = null;
+
+        // Campo 87 - Tipo de serviço: 1=Transporte de cargas, 2=Transporte de passageiros
+        // $this->tipoServico = null;
+
+        // Campo 88 - Município destino: Apenas para CT-e com CFOP iniciando em 2-XXX e imposto 145-DIFAL
+        // $this->municipioDestino = null;
+
+        // Campo 89 - Pedágio: Não informado (campo opcional)
+        // $this->pedagio = null;
+
+        // Campo 90 - IPI: Definido no método aplicarProporcionalidadeValores()
+        // Campo 91 - ICMS ST: Definido no método aplicarProporcionalidadeValores()
+
+        // Campo 92 - Classificação de Serviços Prestados - Tipo de serviço - EFD-Reinf: Não informado
+        // $this->classificacaoServicosTipoEfdReinf = null;
+
+        // Campo 93 - Classificação de Serviços Prestados - Indicativo de Prestação de Serviço - EFD-Reinf: Não informado
+        // $this->classificacaoServicosIndicativoEfdReinf = null;
+
+        // Campo 94 - Número do documento de arrecadação: Não informado (campo opcional)
+        // $this->numeroDocumentoArrecadacao = null;
+
+        // Campo 95 - Tipo do título: Não informado (campo opcional)
+        // $this->tipoTitulo = null;
+
+        // Campo 96 - Identificação: Até 60 caracteres (campo opcional)
+        // $this->identificacao = null;
+
+        // Campo 97 - ICMS Desonerado: Não informado (campo opcional)
+        // $this->icmsDesonerado = null;
+
+        // Campo 98 - IPI Devolução: Definido no método aplicarProporcionalidadeValores()
     }
 
     /**
@@ -232,7 +478,8 @@ class Registro1000 extends RegistroBase
     private function obterCfopEquivalente(NotaFiscalEletronica $notaFiscal, Issuer $issuer, ?int $tagId, ?string $ufEmitente): string
     {
         // Early return: sem tag, retorna CFOP original
-        $cfopOriginal = $this->extrairPrimeiroCFOP($notaFiscal);
+        $cfopOriginal = $this->valoresSegmento['cfop'];
+
 
         if (!$tagId) {
             return $cfopOriginal;
@@ -246,6 +493,7 @@ class Registro1000 extends RegistroBase
             issuerId: $issuer->id
         );
 
+
         $tipoDocumento = $this->determinarTipoDocumento($notaFiscal, $issuer);
         $ufIssuer = $issuer?->municipio?->sigla;
 
@@ -258,6 +506,7 @@ class Registro1000 extends RegistroBase
             $verificarUf ? $ufIssuer : null,
             $verificarUf ? $ufEmitente : null
         );
+
 
         // Verifica cache estático
         if (isset(self::$cfopEquivalenteCache[$cacheKey])) {
@@ -281,10 +530,59 @@ class Registro1000 extends RegistroBase
             $ufEmitente
         );
 
+
         // Armazena em cache e retorna
         self::$cfopEquivalenteCache[$cacheKey] = $cfopResultado;
 
         return $cfopResultado ?? $cfopOriginal;
+    }
+
+    private function ajustaIpi($valor, NotaFiscalEletronica $notaFiscal, $tagId, $issuer)
+    {
+        $campo = '';
+
+        $tag = $notaFiscal->tags->where('id', $tagId)->first();
+
+        $isIndustria = in_array('industria', $issuer->atividade);
+
+
+        if ($tag) {
+
+            $tagToConvert = $this->getTagToConvert($tag, $issuer, ipi: true);
+
+            $valor == 0 && $isIndustria && $tagToConvert ? $campo = '49' : $campo = '00';
+
+            $valor > 0 && $tagToConvert ? $campo = '49' : $campo = '00';
+        }
+
+        return $campo;
+    }
+
+    private function getTagToConvert($tag, $issuer, $icms = false, $ipi = false)
+    {
+
+        $tagsToConverter = Cache::remember('entradas_impostos_equivalentes_' . $issuer->id, 300, function () use ($issuer) {
+            return EntradasImpostosEquivalente::where('issuer_id', $issuer->id)->get();
+        });
+
+        if ($icms) {
+            $tagsToConverter = $tagsToConverter->where('status_icms', true);
+        }
+
+        if ($ipi) {
+            $tagsToConverter = $tagsToConverter->where('status_ipi', true);
+        }
+
+
+        foreach ($tagsToConverter as $tagConverter) {
+
+            if ($tagConverter->tag == intval($tag->code)) {
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -520,6 +818,23 @@ class Registro1000 extends RegistroBase
     }
 
     /**
+     * Verifica se a nota fiscal foi emitida (tpNf == 1) ou própria (tpNf == 0)
+     *
+     * @param NotaFiscalEletronica $notaFiscal
+     * @return string 'T' se tpNf == 1, 'P' caso contrário
+     */
+    private function checkNotaEmitida(NotaFiscalEletronica $notaFiscal): string
+    {
+        if ($notaFiscal->tpNf == 1) {
+            return 'T';
+        }
+
+        // Default return for tpNf == 0 or any other value
+        return 'P';
+    }
+
+
+    /**
      * Define o CNPJ do fornecedor baseado no tipo de operação (nacional ou importação)
      *
      * @param array $xmlData
@@ -528,10 +843,7 @@ class Registro1000 extends RegistroBase
      */
     private function definirCnpjFornecedor(array $xmlData, NotaFiscalEletronica $notaFiscal): string
     {
-        // Verifica se é uma nota de importação pelo CFOP
-        // CFOPs de importação começam com 3 (ex: 3101, 3201, 3202, 3205, 3206, 3207, 3208, 3209, 3211, 3251, 3551, 3667)
-        $cfop = $this->extrairPrimeiroCFOP($notaFiscal);
-        $isImportacao = strpos($cfop, '3') === 0;
+        $isImportacao = $this->checkIsImportacao($notaFiscal);
 
         if ($isImportacao) {
             // Para importação, usa CNPJ genérico
@@ -543,6 +855,20 @@ class Registro1000 extends RegistroBase
     }
 
     /**
+     * Verifica se a nota fiscal refere-se a uma operação de importação.
+     *
+     * @param NotaFiscalEletronica $notaFiscal Instância da nota fiscal a ser verificada.
+     * @return bool Retorna true quando o CFOP inicia com 3 (indicando importação), false caso contrário.
+     */
+    private function checkIsImportacao(NotaFiscalEletronica $notaFiscal): bool
+    {
+        // Verifica se é uma nota de importação pelo CFOP
+        // CFOPs de importação começam com 3 (ex: 3101, 3201, 3202, 3205, 3206, 3207, 3208, 3209, 3211, 3251, 3551, 3667)
+        $cfop = $this->valoresSegmento['cfop'];
+        return strpos($cfop, '3') === 0;
+    }
+
+    /**
      * Aplica o fator de proporcionalidade aos valores da nota fiscal
      *
      * @param array $xmlData
@@ -551,12 +877,109 @@ class Registro1000 extends RegistroBase
      */
     private function aplicarProporcionalidadeValores(array $xmlData, NotaFiscalEletronica $notaFiscal): void
     {
-        $this->valorFrete = $this->aplicarProporcionalidade((float)($notaFiscal->vFrete ?? 0));
-        $this->valorSeguro = $this->aplicarProporcionalidade((float)($notaFiscal->vSeg ?? 0));
-        $this->valorDespesas = $this->aplicarProporcionalidade((float)($notaFiscal->vOutro ?? 0));
-        $this->valorPis = $this->aplicarProporcionalidade((float)($notaFiscal->vPIS ?? 0));
-        $this->valorCofins = $this->aplicarProporcionalidade((float)($notaFiscal->vCOFINS ?? 0));
-        $this->valorProdutos = $this->aplicarProporcionalidade((float)($xmlData['total']['vProd'] ?? 0));
+        // Campo 26 - Valor do frete: Valor do frete da NF-e (aplicado proporcionalidade conforme valor da etiqueta)
+        $this->valorFrete = $this->aplicarProporcionalidade((float)($this->valoresSegmento['valor_frete'] ?? 0));
+
+        // Campo 27 - Valor do seguro: Valor do seguro da NF-e (aplicado proporcionalidade conforme valor da etiqueta)
+        $this->valorSeguro = $this->aplicarProporcionalidade((float)($this->valoresSegmento['valor_seguro'] ?? 0));
+
+        // Campo 28 - Valor das despesas: Valor das despesas acessórias (vOutro) (aplicado proporcionalidade conforme valor da etiqueta)
+        $this->valorDespesas = $this->aplicarProporcionalidade((float)($this->valoresSegmento['valor_outro'] ?? 0));
+
+        // Campo 29 - Valor do PIS: Valor do PIS da NF-e (aplicado proporcionalidade conforme valor da etiqueta)
+        $this->valorPis = $this->aplicarProporcionalidade((float)($this->valoresSegmento['valor_pis'] ?? 0));
+
+        // Campo 31 - Valor do COFINS: Valor do COFINS da NF-e (aplicado proporcionalidade conforme valor da etiqueta)
+        $this->valorCofins = $this->aplicarProporcionalidade((float)($this->valoresSegmento['valor_cofins'] ?? 0));
+
+        // Campo 39 - Valor produtos: Valor total dos produtos (vProd) (aplicado proporcionalidade conforme valor da etiqueta)
+        $this->valorProdutos = $this->aplicarProporcionalidade((float)($this->valoresSegmento['valor_produtos'] ?? 0));
+
+        // Valor do IPI para cálculo dos campos 90 e 98
+        $valorIpi = (float)($this->valoresSegmento['valor_ipi'] ?? 0);
+
+        dd($valorIpi);
+        // Campo 90 - IPI: Valor do IPI - só aplica o valor se a categoria da tag estiver marcada como is_devolucao = true
+        $this->ipi = $this->calcularIpi($valorIpi);
+
+        // Campo 91 - ICMS ST: Valor do ICMS ST (aplicado proporcionalidade conforme valor da etiqueta)
+        $this->icmsSt = $this->aplicarProporcionalidade((float)($this->valoresSegmento['valor_st'] ?? 0));
+
+        // Campo 98 - IPI Devolução: Valor do IPI para devolução - só aplica se a categoria NÃO estiver marcada como is_devolucao (is_devolucao = false)
+        $this->ipiDevolucao = $this->calcularIpiDevolucao($valorIpi);
+    }
+
+    /**
+     * Verifica se a categoria da tag está marcada como devolução
+     * Utiliza as tags já carregadas na nota fiscal via eager loading para evitar consultas N+1
+     *
+     * @return bool|null Retorna true se for devolução, false se não for, null se não conseguir determinar
+     */
+    private function isCategoriaDevolucao(): ?bool
+    {
+        // Se não há tag associada, retorna null (não é possível determinar)
+        if (!$this->tagId) {
+            return null;
+        }
+
+        // Busca a tag através do relacionamento já carregado na nota fiscal
+        // O relacionamento 'tagged' já carrega a tag via eager loading, e a tag já carrega a categoria
+        $tagged = $this->notaFiscal->tagged->firstWhere('tag_id', $this->tagId);
+
+        // Se não encontrou o registro tagged, retorna null
+        if (!$tagged || !$tagged->tag) {
+            return null;
+        }
+
+        $tag = $tagged->tag;
+
+        // Se a tag não tem categoria carregada, retorna null
+        if (!$tag->category) {
+            return null;
+        }
+
+        // Retorna o valor de is_devolucao da categoria
+        return $tag->category->is_devolucao === true;
+    }
+
+    /**
+     * Calcula o valor do IPI (Campo 90) aplicando proporcionalidade apenas se a categoria for de devolução
+     * Utiliza as tags já carregadas na nota fiscal via eager loading para evitar consultas N+1
+     *
+     * @param float $valorIpi
+     * @return float
+     */
+    private function calcularIpi(float $valorIpi): float
+    {
+        $isDevolucao = $this->isCategoriaDevolucao();
+
+        // Só aplica o IPI se a categoria estiver marcada como is_devolucao = true
+        if ($isDevolucao === true) {
+            return $this->aplicarProporcionalidade($valorIpi);
+        }
+
+        // Para categorias que não são de devolução ou não foi possível determinar, retorna 0
+        return 0;
+    }
+
+    /**
+     * Calcula o valor do IPI Devolução (Campo 98) aplicando proporcionalidade apenas se a categoria NÃO for de devolução
+     * Utiliza as tags já carregadas na nota fiscal via eager loading para evitar consultas N+1
+     *
+     * @param float $valorIpi
+     * @return float
+     */
+    private function calcularIpiDevolucao(float $valorIpi): float
+    {
+        $isDevolucao = $this->isCategoriaDevolucao();
+
+        // Só aplica o IPI Devolução se a categoria NÃO estiver marcada como is_devolucao (ou seja, is_devolucao = false)
+        if ($isDevolucao === false) {
+            return $this->aplicarProporcionalidade($valorIpi);
+        }
+
+        // Para categorias de devolução ou não foi possível determinar, retorna 0
+        return 0;
     }
 
     /**
@@ -582,19 +1005,29 @@ class Registro1000 extends RegistroBase
     }
 
     /**
-     * Extrai o primeiro CFOP dos produtos da nota fiscal
+     * Define o CFOP específico para o registro
+     * Sobrescreve o CFOP extraído automaticamente da nota fiscal
      *
-     * @param NotaFiscalEletronica $notaFiscal
-     * @return string
+     * @param string $cfop
+     * @return void
      */
-    private function extrairPrimeiroCFOP(NotaFiscalEletronica $notaFiscal): string
+    public function setCfop(string $cfop): void
     {
-        $produtos = $notaFiscal->produtos ?? [];
-        if (!empty($produtos) && isset($produtos[0]['CFOP'])) {
-            return (string)$produtos[0]['CFOP'];
-        }
-        return '5405'; // Valor padrão
+        $this->cfop = $cfop;
     }
+
+    /**
+     * Define o código do acumulador para o registro
+     *
+     * @param string|null $codigoAcumulador
+     * @return void
+     */
+    public function setCodigoAcumulador(?string $codigoAcumulador): void
+    {
+        $this->codigoAcumulador = $codigoAcumulador;
+    }
+
+
 
     /**
      * Converte uma data para DateTime
@@ -636,7 +1069,7 @@ class Registro1000 extends RegistroBase
             $this->formatarCampo($this->dataEntrada, null, 'X'), // Campo 11: Data da entrada
             $this->formatarCampo($this->dataEmissao, null, 'X'), // Campo 12: Data emissão
             $this->formatarCampo($this->valorContabil, null, 'D'), // Campo 13: Valor contábil
-            $this->formatarCampo($this->valorExclusaoDief, null, 'D'), // Campo 14: Valor da exclusão da DIEF
+            $this->formatarCampo($this->valorExclusaoDief, null, 'C'), // Campo 14: Valor da exclusão da DIEF
             $this->formatarCampo($this->observacao, null, 'C'), // Campo 15: Observação
             $this->formatarCampo($this->modalidadeFrete, null, 'C'), // Campo 16: Modalidade do frete
             $this->formatarCampo($this->emitenteNotaFiscal, null, 'C'), // Campo 17: Emitente da nota fiscal
@@ -714,7 +1147,13 @@ class Registro1000 extends RegistroBase
             $this->formatarCampo($this->pedagio, null, 'D'), // Campo 89: Pedágio
             $this->formatarCampo($this->ipi, null, 'D'), // Campo 90: IPI
             $this->formatarCampo($this->icmsSt, null, 'D'), // Campo 91: ICMS ST
-            $this->formatarCampo($this->classificacaoServicos, null, 'N'), // Campo 92: Classificação de Serviços Prestados
+            $this->formatarCampo($this->classificacaoServicosTipoEfdReinf, null, 'N'), // Campo 92: Classificação de Serviços Prestados - Tipo de serviço - EFD-Reinf
+            $this->formatarCampo($this->classificacaoServicosIndicativoEfdReinf, null, 'N'), // Campo 93: Classificação de Serviços Prestados - Indicativo de Prestação de Serviço - EFD-Reinf
+            $this->formatarCampo($this->numeroDocumentoArrecadacao, null, 'C'), // Campo 94: Número do documento de arrecadação
+            $this->formatarCampo($this->tipoTitulo, null, 'N'), // Campo 95: Tipo do título
+            $this->formatarCampo($this->identificacao, null, 'C'), // Campo 96: Identificação
+            $this->formatarCampo($this->icmsDesonerado, null, 'N'), // Campo 97: ICMS Desonerado
+            $this->formatarCampo($this->ipiDevolucao, null, 'N'), // Campo 98: IPI Devolução
         ];
 
         return $this->montarLinha($campos);

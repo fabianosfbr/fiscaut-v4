@@ -33,6 +33,7 @@ class Issuer extends Model
         'unecont_unregistered_at' => 'datetime',
         'data_abertura' => 'date',
         'data_situacao_cadastral' => 'date',
+        'atividade' => 'array',
     ];
 
     public function tenant()

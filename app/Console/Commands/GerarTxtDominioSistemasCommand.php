@@ -51,7 +51,7 @@ class GerarTxtDominioSistemasCommand extends Command
         // Obter os dados do banco de dados com eager loading para evitar N+1
         // Carrega o relacionamento 'tagged' que contém as tags e seus CategoryTags
         $collection = NotaFiscalEletronica::with('tagged.tag')
-            ->whereIn('id', [522935, 522936])
+            ->whereIn('id', [522945])
             ->get();
 
         if ($collection->isEmpty()) {
@@ -126,42 +126,32 @@ class GerarTxtDominioSistemasCommand extends Command
                 }
             }
 
-            // Cria registros 1000 para cada etiqueta aplicada à nota fiscal
-            // com valores proporcionais ao valor aplicado a cada etiqueta
+            // Cria registros 1000 agregados por CFOP
+
             $taggeds = $notaFiscal->tagged ?? collect();
-            
-            if ($taggeds->isNotEmpty() && $issuer) {
-                // Calcula o valor total aplicado às etiquetas
-                $valorTotalEtiquetas = $taggeds->sum('value');
-                
-                // Cria um registro 1000 para cada etiqueta com valores proporcionais
-                foreach ($taggeds as $tagged) {                    
-                    if ($tagged->tag && $tagged->value > 0) {                       
-                        $registro1000 = new \App\Integrations\DominioSistemas\Records\Registro1000(
-                            $notaFiscal,
-                            $issuer,
-                            $tagged->tag->id // Campo 5 - ID da Tag
-                        );
-                        
-                        // Calcula o fator de proporcionalidade
-                        $fatorProporcionalidade = $valorTotalEtiquetas > 0 
-                            ? ($tagged->value / $valorTotalEtiquetas) 
-                            : 1.0;
-                        
-                        // Aplica o fator de proporcionalidade aos valores
-                        $registro1000->setFatorProporcionalidade($fatorProporcionalidade);
-                        
-                        $registro1000s[] = $registro1000;
-                    }
+            $etiquetasValidas = $taggeds->filter(function ($tagged) {
+                return $tagged->tag && $tagged->value > 0;
+            });
+
+            $numSegmento = count($etiquetasValidas) > 1 ? 1 : 0;
+            // Cada CFOP gera um ou mais registros 1000, incrementando o segmento para cada etiqueta
+            $registrosPorCfop = $this->agregarValoresPorCfop($notaFiscal, $issuer);
+
+            foreach ($registrosPorCfop as $cfop => $valoresSegmento) {
+
+                foreach ($etiquetasValidas as $tagged) {
+
+                    $registro1000 = new \App\Integrations\DominioSistemas\Records\Registro1000(
+                        $notaFiscal,
+                        $valoresSegmento,
+                        $issuer,
+                        $tagged->tag->id, // Campo 5 - ID da Tag
+                        $numSegmento // Campo 7 - Segmento
+                    );
+
+                    $numSegmento++;
+                    $registro1000s[] = $registro1000;
                 }
-            } elseif ($issuer) {
-                // Se não houver etiquetas, cria um único registro 1000 com todos os valores
-                $registro1000 = new \App\Integrations\DominioSistemas\Records\Registro1000(
-                    $notaFiscal,
-                    $issuer,
-                    null
-                );
-                $registro1000s[] = $registro1000;
             }
         }
 
@@ -190,4 +180,92 @@ class GerarTxtDominioSistemasCommand extends Command
         }
     }
 
+    /**
+     * Agrega os valores das notas fiscais por CFOP e gera registros 1000.
+     * 
+     * Para cada CFOP distinto na nota fiscal, calcula os valores proporcionais
+     * das etiquetas e gera registros 1000 segmentados quando necessário.
+     *
+     * @param NotaFiscalEletronica $notaFiscal
+     * @param Issuer $issuer
+     * @return array Array de Registro1000
+     */
+    protected function agregarValoresPorCfop(NotaFiscalEletronica $notaFiscal, Issuer $issuer): array
+    {
+        $registros = [];
+        $taggeds = $notaFiscal->tagged ?? collect();
+
+        // Se não há etiquetas, retorna array vazio
+        if ($taggeds->isEmpty()) {
+            return $registros;
+        }
+
+        // Extrai produtos e agrupa por CFOP
+        $produtos = $notaFiscal->produtos ?? [];
+        $valoresPorCfop = $this->agruparValoresProdutosPorCfop($produtos);
+
+
+        return $valoresPorCfop;
+    }
+
+    /**
+     * Agrupa os valores dos produtos por CFOP, incluindo impostos.
+     *
+     * @param array $produtos
+     * @return array Array associativo com CFOP como chave e valores agregados
+     */
+    protected function agruparValoresProdutosPorCfop(array $produtos): array
+    {
+        $valoresPorCfop = [];
+
+        foreach ($produtos as $produto) {
+            $cfop = $produto['CFOP'] ?? null;
+
+            if (!$cfop) {
+                continue;
+            }
+
+            // Inicializa o CFOP se não existir
+            if (!isset($valoresPorCfop[$cfop])) {
+                $valoresPorCfop[$cfop] = [
+                    'cfop' => $cfop,
+                    'valor_base_calculo' => 0.0,
+                    'valor_produtos' => 0.0,
+                    'valor_frete' => 0.0,
+                    'valor_seguro' => 0.0,
+                    'valor_despesas' => 0.0,
+                    'valor_desconto' => 0.0,
+                    'quantidade_itens' => 0,
+                    // Impostos
+                    'valor_base_calculo' => 0.0,
+                    'valor_icms' => 0.0,
+                    'valor_ipi' => 0.0,
+                    'valor_pis' => 0.0,
+                    'valor_cofins' => 0.0,
+                    'valor_icms_st' => 0.0,
+                    'valor_base_calculo_icms_st' => 0.0,
+                    'valor_outro' => 0.0,
+
+                ];
+            }
+
+            // Soma os valores do produto ao CFOP
+            $valoresPorCfop[$cfop]['valor_base_calculo'] = (float) ($produto['impostos']['vBC'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_produtos'] += (float) ($produto['vProd'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_icms'] += (float) ($produto['impostos']['vICMS'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_frete'] += (float) ($produto['vFrete'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_seguro'] += (float) ($produto['vSeg'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_despesas'] += (float) ($produto['vOutro'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_desconto'] += (float) ($produto['vDesc'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_icms_st'] += (float) ($produto['impostos']['vICMSSTRet'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_base_calculo_icms_st'] = (float) ($produto['impostos']['vBCSTRet'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_ipi'] += (float) ($produto['impostos']['vIPI'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_pis'] += (float) ($produto['impostos']['vPIS'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_cofins'] += (float) ($produto['impostos']['vCOFINS'] ?? 0);
+
+            $valoresPorCfop[$cfop]['quantidade_itens']++;
+        }
+
+        return $valoresPorCfop;
+    }
 }

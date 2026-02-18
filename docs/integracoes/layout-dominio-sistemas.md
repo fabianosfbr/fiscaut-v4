@@ -421,6 +421,12 @@ Notas Fiscais de Entrada.
 | 90 | IPI | Decimal | 2 | | | |
 | 91 | ICMS ST | Decimal | 2 | | | |
 | 92 | Classificação de Serviços Prestados mediante cessão de mão de obra/Empreitada - Tipo de serviço - EFD-Reinf | Numérico | | | | |
+| 93 | Classificação de Serviços Prestados mediante cessão de mão de obra/Empreitada - Indicativo de Prestação de Serviço - EFD-Reinf | Numérico | | | | |
+| 94 | Número do documento de arrecadação | Caractere | | | | |
+| 95 | Tipo do título | Numérico | | | | |
+| 96 | Identificação | Caractere | | | | |
+| 97 | ICMS Desonerado | Numérico | | | | |
+| 98 | IPI Devolução | Numérico | | | | |
 
 ---
 
