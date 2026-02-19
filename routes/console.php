@@ -13,7 +13,8 @@ use App\Console\Scheduling\DynamicTaskCommandExecutor;
 Artisan::command('play', function () {
 
     $nfe = NotaFiscalEletronica::where('id', 522935, 522935 )->get();
-    dd($nfe->toJson());
+    $nfe = NotaFiscalEletronica::whereId(522811 )->first();
+    dd($nfe->produtos);
 });
 
 Artisan::command('schedule:run-dynamic {--force}', function (DynamicTaskCommandExecutor $executor) {

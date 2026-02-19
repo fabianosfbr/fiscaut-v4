@@ -129,7 +129,6 @@ class NotaFiscalEletronica extends Model
             $prod = $detItem['prod'] ?? [];
             $imposto = $detItem['imposto'] ?? [];
 
-            
             return [
                 'nItem' => $detItem['@attributes']['nItem'] ?? null,
                 'cProd' => $prod['cProd'] ?? null,
@@ -149,6 +148,7 @@ class NotaFiscalEletronica extends Model
                 'impostos' => [
                     'vBC' => searchValueInArray($imposto, 'vBC') ?? 0.0,
                     'CST' => searchValueInArray($imposto['ICMS'], 'CST') ?? 0,
+                    'CST_IPI' => isset($imposto['IPI']) ? searchValueInArray($imposto['IPI'], 'CST') ?? null : null,
                     'pICMS' => searchValueInArray($imposto, 'pICMS') ?? 0.0,
                     'vICMS' => searchValueInArray($imposto, 'vICMS') ?? 0.0,
                     'pST' => searchValueInArray($imposto, 'pST') ?? 0.0,
@@ -159,7 +159,14 @@ class NotaFiscalEletronica extends Model
                     'vPIS' => searchValueInArray($imposto, 'vPIS') ?? 0.0,
                     'pPIS' => searchValueInArray($imposto, 'pPIS') ?? 0.0,
                     'vCOFINS' => searchValueInArray($imposto, 'vCOFINS') ?? 0.0,
-                    'pCOFINS' => searchValueInArray($imposto, 'pCOFINS') ?? 0.0,
+                    'pCOFINS' => searchValueInArray($imposto, 'pCOFINS') ?? 0.0,                    
+                    'vBCFCPUFDest' => isset($imposto['ICMSUFDest']) ? searchValueInArray($imposto['ICMSUFDest'], 'vBCFCPUFDest') ?? 0.0 : 0.0,
+                    'pICMSUFDest' => isset($imposto['ICMSUFDest']) ? searchValueInArray($imposto['ICMSUFDest'], 'pICMSUFDest') ?? 0.0 : 0.0,
+                    'pICMSInter' => isset($imposto['ICMSUFDest']) ? searchValueInArray($imposto['ICMSUFDest'], 'pICMSInter') ?? 0.0 : 0.0,
+                    'pICMSInterPart' => isset($imposto['ICMSUFDest']) ? searchValueInArray($imposto['ICMSUFDest'], 'pICMSInterPart') ?? 0.0 : 0.0,
+                    'vICMSUFDest' => isset($imposto['ICMSUFDest']) ? searchValueInArray($imposto['ICMSUFDest'], 'vICMSUFDest') ?? 0.0 : 0.0,
+                    'vICMSUFRemet' => isset($imposto['ICMSUFDest']) ? searchValueInArray($imposto['ICMSUFDest'], 'vICMSUFRemet') ?? 0.0 : 0.0,
+                    
                 ],
             ];
         }, $detList));

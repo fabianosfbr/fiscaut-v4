@@ -249,12 +249,12 @@ class GerarTxtDominioSistemasCommand extends Command
             if (!$cfop) {
                 continue;
             }
-
             // Inicializa o CFOP se não existir
             if (!isset($valoresPorCfop[$cfop])) {
                 $valoresPorCfop[$cfop] = [
                     'cfop' => $cfop,
                     'csosn' => $produto['CSOSN'] ?? null,
+                    'cst_ipi' => $produto['impostos']['CST_IPI'] ?? null,
                     'valor_base_calculo' => 0.0,
                     'valor_produtos' => 0.0,
                     'valor_frete' => 0.0,
@@ -275,15 +275,16 @@ class GerarTxtDominioSistemasCommand extends Command
                     'percentual_icms' => $produto['impostos']['pICMS'] ?? 0.0,
                     'percentual_cofins' => $produto['impostos']['pCOFINS'] ?? 0.0,
                     'percentual_pis' => $produto['impostos']['pPIS'] ?? 0.0,
-                    
-                    'percentual_st' => 0.0,
+                    'percentual_ipi' => $produto['impostos']['pIPI'] ?? 0.0,                    
+                    'percentual_st_inter' => $produto['impostos']['pICMSInter'] ?? 0.0,
+                    'percentual_st_dest' => $produto['impostos']['pICMSUFDest'] ?? 0.0,
 
                 ];
             }
 
             // Soma os valores do produto ao CFOP
             $valoresPorCfop[$cfop]['valor_base_calculo'] = (float) ($produto['impostos']['vBC'] ?? 0);
-            $valoresPorCfop[$cfop]['valor_cst'] = (int) ($produto['impostos']['CST'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_st'] = (int) ($produto['impostos']['vICMSUFDest'] ?? 0);
             $valoresPorCfop[$cfop]['valor_produtos'] += (float) ($produto['vProd'] ?? 0);
             $valoresPorCfop[$cfop]['valor_icms'] += (float) ($produto['impostos']['vICMS'] ?? 0);
             $valoresPorCfop[$cfop]['valor_frete'] += (float) ($produto['vFrete'] ?? 0);
@@ -295,14 +296,11 @@ class GerarTxtDominioSistemasCommand extends Command
             $valoresPorCfop[$cfop]['valor_ipi'] += (float) ($produto['impostos']['vIPI'] ?? 0);
             $valoresPorCfop[$cfop]['valor_pis'] += (float) ($produto['impostos']['vPIS'] ?? 0);
             $valoresPorCfop[$cfop]['valor_cofins'] += (float) ($produto['impostos']['vCOFINS'] ?? 0);
-            $valoresPorCfop[$cfop]['percentual_cofins'] = (float) ($produto['impostos']['pCOFINS'] ?? 0);
-            $valoresPorCfop[$cfop]['percentual_pis'] = (float) ($produto['impostos']['pPIS'] ?? 0);
+
             if (($produto['impostos']['pICMS'] ?? null) !== null && (float) $produto['impostos']['pICMS'] != 0) {
                 $valoresPorCfop[$cfop]['percentual_icms'] = (float) $produto['impostos']['pICMS'];
             }
-            $valoresPorCfop[$cfop]['percentual_st'] = (float) ($produto['impostos']['pST'] ?? 0);
-
-
+      
             $valoresPorCfop[$cfop]['quantidade_itens']++;
         }
 

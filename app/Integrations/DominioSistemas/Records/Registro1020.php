@@ -220,325 +220,140 @@ class Registro1020 extends RegistroBase
     /**
      * Preenche os campos para ICMS (Código 1)
      * 
-     * Regras contábeis:
-     * - Base de cálculo: valor_base_calculo do segmento
-     * - Valor do imposto: valor_icms do segmento
-     * - Valor de isentas: valor contábil quando não há valor de imposto (isenção)
-     * - Valor de outras: para operações com outros benefícios fiscais
-     * - Valor ST: valor_icms_st do segmento
+     * Regras contábeis aplicadas:
+     * - CST 00: Tributado integralmente. Base e Imposto preenchidos.
+     * - CST 10: Tributado com ST. Base e Imposto preenchidos. ST ignorado neste registro (foco no ICMS próprio) ou tratado se houver campo.
+     * - CST 20: Redução de base. Diferença vai para Isentas/Outras.
+     * - CST 30/40/41/50/60: Isenções/Não incidência. Valor vai para Isentas/Outras.
+     * - CST 51: Diferimento. Pode ter valor parcial.
+     * - CST 90: Outros.
      * 
-     * @param array $valoresSegmento
-     * @param NotaFiscalEletronica $notaFiscal
-     * @return void
+     * O sistema verifica configurações de "Zerar ICMS" (EntradasImpostosEquivalente).
+     * Se "Zerar ICMS" estiver ativo, Base e Imposto são zerados e o valor vai para Isentas/Outras.
      */
     private function preencherIcms(array $valoresSegmento, NotaFiscalEletronica $notaFiscal): void
     {
-        $isZeraIcms = $this->isZeraIcms();
+        $cst = (string) ($valoresSegmento['valor_cst'] ?? '');
+        $csosn = (string) ($valoresSegmento['csosn'] ?? $valoresSegmento['CSOSN'] ?? '');
 
-
-        if (!is_null($valoresSegmento['CSOSN']) and !$isZeraIcms) {
-
-            // $valoresTotais[8] += $valores['vProd'] * $percentual;
-            // $valoresTotais[11] += $valores['vProd'] * $percentual;
+        // Se CST vier vazio e tiver CSOSN, converte para CST equivalente para processamento
+        if (empty($cst) && !empty($csosn)) {
+            $cst = match ($csosn) {
+                '101' => '00', // Permite crédito
+                '102', '103', '300', '400' => '41', // Não permite crédito (Não tributada)
+                '201' => '10', // Tributada com ST e com crédito
+                '202', '203' => '30', // Tributada com ST sem crédito (Isenta ou não tributada)
+                '500' => '60', // Cobrado anteriormente por substituição tributária
+                '900' => '90', // Outros
+                default => '90'
+            };
         }
 
-        if ($isZeraIcms) {
+        $valorProdutos = (float) ($valoresSegmento['valor_produtos'] ?? 0);
+        $valorBaseCalculo = (float) ($valoresSegmento['valor_base_calculo'] ?? 0);
+        $percentualIcms = (float) ($valoresSegmento['percentual_icms'] ?? 0);
+        $valorIcms = (float) ($valoresSegmento['valor_icms'] ?? 0);
+        $valorIpi = (float) ($valoresSegmento['valor_ipi'] ?? 0);
+        // $valorIcmsSt = (float) ($valoresSegmento['valor_icms_st'] ?? 0); // Se necessário para lógica futura
 
-            // $valoresTotais[8] += $valorContabil - ($valorIPI + $valorST);
-            // $valoresTotais[9] += $valorIPI;
-            // $valoresTotais[10] += $valorST;
-            // $valoresTotais[11] += $valorContabil;
+        // Valores padrão
+        $this->valorContabil = $valorProdutos;
+        $this->valorIpi = $valorIpi;
+        $this->valorSubstituicaoTributaria = 0; // Padrão zero, ajustar se necessário
+        
+        // Verifica se deve zerar ICMS (regra de negócio/configuração)
+        if ($this->isZeraIcms()) {
+            $this->baseCalculo = 0;
+            $this->aliquota = 0;
+            $this->valorImposto = 0;
+            $this->valorIsentas = 0;
+            $this->valorOutras = $this->valorContabil; // Move tudo para Outras
+            return;
         }
 
-        if ($valoresSegmento['valor_cst'] == '00') {
+        // Lógica por CST
+        switch ($cst) {
+            case '00': // Tributada integralmente
+                $this->baseCalculo = $valorBaseCalculo;
+                $this->aliquota = $percentualIcms;
+                $this->valorImposto = $valorIcms;
+                $this->valorIsentas = 0;
+                $this->valorOutras = 0;
+                break;
 
-            //Campo 4: Base de cálculo
-            $this->baseCalculo = $valoresSegmento['valor_base_calculo'];
+            case '10': // Tributada e com cobrança de ICMS por substituição tributária
+                // Aqui foca-se no ICMS próprio. O ST geralmente vai em outro campo ou registro, 
+                // mas o layout tem campo 10 (ST). O código original zerava. Manteremos foco no próprio.
+                $this->baseCalculo = $valorBaseCalculo;
+                $this->aliquota = $percentualIcms;
+                $this->valorImposto = $valorIcms;
+                $this->valorIsentas = 0;
+                $this->valorOutras = 0; 
+                break;
 
-            //Campo 5: Alíquota
-            $this->aliquota = $valoresSegmento['percentual_icms'];
+            case '20': // Com redução de base de cálculo
+            case '70': // Com redução de base de cálculo e cobrança de ICMS por ST
+                $this->baseCalculo = $valorBaseCalculo;
+                $this->aliquota = $percentualIcms;
+                $this->valorImposto = $valorIcms;
+                $this->valorIsentas = $this->valorContabil - $valorBaseCalculo; // Diferença é isenta
+                if ($this->valorIsentas < 0) $this->valorIsentas = 0;
+                $this->valorOutras = 0;
+                break;
 
-            //Campo 6: Valor do imposto
-            $this->valorImposto = $valoresSegmento['valor_icms'];
+            case '30': // Isenta ou não tributada e com cobrança de ICMS por ST
+            case '40': // Isenta
+            case '41': // Não tributada
+            case '50': // Suspensão
+                // Nestes casos, não há débito de ICMS próprio
+                $this->baseCalculo = 0;
+                $this->aliquota = 0;
+                $this->valorImposto = 0;
+                $this->valorIsentas = $this->valorContabil; // Tudo Isento
+                $this->valorOutras = 0;
+                break;
+            
+            case '60': // ICMS cobrado anteriormente por ST
+                // ST recolhido anteriormente -> Coluna Outras
+                $this->baseCalculo = 0;
+                $this->aliquota = 0;
+                $this->valorImposto = 0;
+                $this->valorIsentas = 0;
+                $this->valorOutras = $this->valorContabil;
+                break;
 
-            //Campo 7: Valor de isentas
-            $this->valorIsentas =  0;
+            case '51': // Diferimento
+                // Diferimento pode ser total ou parcial.
+                // Se parcial, tem base e imposto. Se total, comporta-se como isento/outras.
+                // Assumindo valores vindos do XML/Segmento:
+                $this->baseCalculo = $valorBaseCalculo;
+                $this->aliquota = $percentualIcms;
+                $this->valorImposto = $valorIcms;
+                
+                $diferenca = $this->valorContabil - $valorBaseCalculo;
+                $this->valorIsentas = 0;
+                $this->valorOutras = $diferenca > 0 ? $diferenca : 0; // Diferimento vai para Outras
+                break;
+            
+            case '90': // Outras
+                $this->baseCalculo = $valorBaseCalculo;
+                $this->aliquota = $percentualIcms;
+                $this->valorImposto = $valorIcms;
+                
+                $diferenca = $this->valorContabil - $valorBaseCalculo;
+                $this->valorIsentas = 0;
+                $this->valorOutras = $diferenca > 0 ? $diferenca : 0;
+                break;
 
-            //Campo 8: Valor de outras
-            $this->valorOutras =  $valoresSegmento['valor_produtos'];
-
-            //Campo 9
-            $this->valorIpi =  $valoresSegmento['valor_ipi'];
-
-            //Campo 10
-            $this->valorSubstituicaoTributaria =  0;
-
-            //Campo 11
-            $this->valorContabil = $valoresSegmento['valor_produtos'];
-
-            // $valoresTotais[4] += $valores['vBcICMS']  * $percentual;
-            // $valoresTotais[5] += $valores['pICMS'];
-            // $valoresTotais[6] += $valores['vICMS'] * $percentual;
-
-            // $valoresTotais[7] += 0;
-            // $valoresTotais[8] += $valorContabil - ($valorIPI + $valorST + $valores['vBcICMS'] * $percentual);
-            // $valoresTotais[9] += $valorIPI * $percentual;
-            // $valoresTotais[10] += $valorST  * $percentual;
-            // $valoresTotais[11] += $valorContabil;
+            default: // CST desconhecido ou não mapeado (70, etc.)
+                // Tratamento genérico: usa o que vier
+                $this->baseCalculo = $valorBaseCalculo;
+                $this->aliquota = $percentualIcms;
+                $this->valorImposto = $valorIcms;
+                $this->valorIsentas = 0;
+                $this->valorOutras = ($this->valorContabil - $valorBaseCalculo) > 0 ? ($this->valorContabil - $valorBaseCalculo) : 0;
+                break;
         }
-
-        if ($valoresSegmento['valor_cst'] == '10') {
-
-            //Campo 4: Base de cálculo
-            $this->baseCalculo = $valoresSegmento['valor_base_calculo'];
-
-            //Campo 5: Alíquota
-            $this->aliquota = $valoresSegmento['percentual_icms'];
-
-            //Campo 6: Valor do imposto
-            $this->valorImposto = $valoresSegmento['valor_icms'];
-
-            //Campo 7: Valor de isentas
-            $this->valorIsentas =  0;
-
-            //Campo 8: Valor de outras
-            $this->valorOutras =  $valoresSegmento['valor_produtos'];
-
-            //Campo 9
-            $this->valorIpi =  $valoresSegmento['valor_ipi'];
-
-            //Campo 10
-            $this->valorSubstituicaoTributaria =  0;
-
-            //Campo 11
-            $this->valorContabil = $valoresSegmento['valor_produtos'];
-
-            // $opcaoCreditoIcms = self::validaOpcaoCreditoIcms($valores, $doc, $currentIssuer);
-
-            // $valoresTotais[4] += $opcaoCreditoIcms ? $valores['vBcICMS'] * $percentual  : 0;
-            // $valoresTotais[5] += $opcaoCreditoIcms ? $valores['pICMS'] : 0;
-            // $valoresTotais[6] += $opcaoCreditoIcms ? $valores['vICMS'] * $percentual : 0;
-
-            // $valoresTotais[8] += $opcaoCreditoIcms ? $valorContabil - ($valorIPI + $valores['vBcICMS'] * $percentual + $valores['vICMSST'] * $percentual)  : $valorContabil - ($valorIPI + $valores['vICMSST']);
-            // $valoresTotais[9] +=  $valores['vIPI'] * $percentual;
-            // $valoresTotais[10] += $valores['vICMSST'] * $percentual;
-            // $valoresTotais[11] += $valorContabil;
-        }
-
-        if ($valoresSegmento['valor_cst'] == '20') {
-
-            //Campo 4: Base de cálculo
-            $this->baseCalculo = $valoresSegmento['valor_base_calculo'];
-
-            //Campo 5: Alíquota
-            $this->aliquota = $valoresSegmento['percentual_icms'];
-
-            //Campo 6: Valor do imposto
-            $this->valorImposto = $valoresSegmento['valor_icms'];
-
-
-            //Campo 7: Valor de isentas
-            $this->valorIsentas =  0;
-
-            //Campo 8: Valor de outras
-            $this->valorOutras =  $valoresSegmento['valor_produtos'];
-
-            //Campo 9
-            $this->valorIpi =  $valoresSegmento['valor_ipi'];
-
-            //Campo 10
-            $this->valorSubstituicaoTributaria =  0;
-
-            //Campo 11
-            $this->valorContabil = $valoresSegmento['valor_produtos'];
-
-            // $valoresTotais[4] += $valores['vBcICMS'] * $percentual;
-            // $valoresTotais[5] += $valores['pICMS'];
-            // $valoresTotais[6] += $valores['vICMS'] * $percentual;
-            // $valoresTotais[7] += $valorContabil - ($valores['vBcICMS'] * $percentual + $valores['vIPI'] * $percentual + $valores['vST']  * $percentual);
-            // $valoresTotais[8] += 0;
-            // $valoresTotais[9] += $valores['vIPI'] * $percentual;
-            // $valoresTotais[10] += $valores['vST']  * $percentual;
-            // $valoresTotais[11] += $valorContabil;
-        }
-
-
-        if ($valoresSegmento['valor_cst'] == '30' ||  $valoresSegmento['valor_cst'] == '70') {
-
-            $tomaCreditoIcms = $this->tomaCreditoIcms();
-
-            //Campo 4: Base de cálculo
-            $this->baseCalculo = $valoresSegmento['valor_base_calculo'];
-
-            //Campo 5: Alíquota
-            $this->aliquota = $valoresSegmento['percentual_icms'];
-
-            //Campo 6: Valor do imposto
-            $this->valorImposto = $valoresSegmento['valor_icms'];
-
-
-            //Campo 7: Valor de isentas
-            $this->valorIsentas =  0;
-
-            //Campo 8: Valor de outras
-            $this->valorOutras =  $valoresSegmento['valor_produtos'];
-
-            //Campo 9
-            $this->valorIpi =  $valoresSegmento['valor_ipi'];
-
-            //Campo 10
-            $this->valorSubstituicaoTributaria =  0;
-
-            //Campo 11
-            $this->valorContabil = $valoresSegmento['valor_produtos'];
-
-
-            // $valoresTotais[4] += $opcaoCreditoIcms ? $valores['vBcICMS'] * $percentual  : 0;
-            // $valoresTotais[5] += $opcaoCreditoIcms ? $valores['pICMS'] : 0;
-            // $valoresTotais[6] += $opcaoCreditoIcms ? $valores['vICMS'] * $percentual : 0;
-
-            // $valoresTotais[7] += $opcaoCreditoIcms ? $valorContabil - ($valorIPI + $valores['vBcICMS'] * $percentual + $valores['vICMSST'] * $percentual)  : $valorContabil - ($valorIPI + $valores['vICMSST']);
-            // $valoresTotais[9] +=  $valores['vIPI'] * $percentual;
-            // $valoresTotais[10] += $valores['vICMSST'] * $percentual;
-            // $valoresTotais[11] += $valorContabil;
-        }
-
-        if ($valoresSegmento['valor_cst'] == '40' ||  $valoresSegmento['valor_cst'] == '41') {
-
-            //Campo 4: Base de cálculo
-            $this->baseCalculo = $valoresSegmento['valor_base_calculo'];
-
-            //Campo 5: Alíquota
-            $this->aliquota = $valoresSegmento['percentual_icms'];
-
-            //Campo 6: Valor do imposto
-            $this->valorImposto = $valoresSegmento['valor_icms'];
-
-
-            //Campo 7: Valor de isentas
-            $this->valorIsentas =  0;
-
-            //Campo 8: Valor de outras
-            $this->valorOutras =  $valoresSegmento['valor_produtos'];
-
-            //Campo 9
-            $this->valorIpi =  $valoresSegmento['valor_ipi'];
-
-            //Campo 10
-            $this->valorSubstituicaoTributaria =  0;
-
-            //Campo 11
-            $this->valorContabil = $valoresSegmento['valor_produtos'];
-
-
-            // $valoresTotais[4] += $valores['vBcICMS'] * $percentual;
-            // $valoresTotais[5] = $valores['pICMS'];
-            // $valoresTotais[6] += $valores['vICMS'] * $percentual;
-            // $valoresTotais[7] += $valorContabil - ($valorIPI + $valores['vBcICMS'] * $percentual + $valores['vICMSST'] * $percentual);
-            // $valoresTotais[8] += 0;
-            // $valoresTotais[9] += $valores['vIPI']  * $percentual;
-            // $valoresTotais[10] += $valores['vICMSST']  * $percentual;
-            // $valoresTotais[11] += $valorContabil;
-        }
-
-        if ($valoresSegmento['valor_cst'] == '50' ||  $valoresSegmento['valor_cst'] == '51') {
-
-            //Campo 4: Base de cálculo
-            $this->baseCalculo = $valoresSegmento['valor_base_calculo'];
-
-            //Campo 5: Alíquota
-            $this->aliquota = $valoresSegmento['percentual_icms'];
-
-            //Campo 6: Valor do imposto
-            $this->valorImposto = $valoresSegmento['valor_icms'];
-
-
-            //Campo 7: Valor de isentas
-            $this->valorIsentas =  0;
-
-            //Campo 8: Valor de outras
-            $this->valorOutras =  $valoresSegmento['valor_produtos'];
-
-            //Campo 9
-            $this->valorIpi =  $valoresSegmento['valor_ipi'];
-
-            //Campo 10
-            $this->valorSubstituicaoTributaria =  0;
-
-            //Campo 11
-            $this->valorContabil = $valoresSegmento['valor_produtos'];
-
-
-            // $valoresTotais[4] += $valores['vBcICMS'] * $percentual;
-            // $valoresTotais[5] = $valores['pICMS'];
-            // $valoresTotais[6] += $valores['vICMS'] * $percentual;
-            // $valoresTotais[7] += 0;
-            // $valoresTotais[8] += $valorContabil - ($valorIPI + $valores['vBcICMS'] * $percentual + $valores['vICMSST'] * $percentual);
-            // $valoresTotais[9] += $valores['vIPI']  * $percentual;
-            // $valoresTotais[10] += $valores['vICMSST']  * $percentual;
-            // $valoresTotais[11] += $valorContabil;
-        }
-
-        if ($valoresSegmento['valor_cst'] == '60' ||  $valoresSegmento['valor_cst'] == '61' || $valoresSegmento['valor_cst'] == '90') {
-
-
-            //Campo 07
-            $this->valorIsentas =  0;
-
-            //Campo 08
-            $this->valorOutras =  $valoresSegmento['valor_produtos'];
-
-            //Campo 09
-            $this->valorIpi =  $valoresSegmento['valor_ipi'];
-
-            //Campo 10
-            $this->valorSubstituicaoTributaria =  0;
-
-            //Campo 11
-            $this->valorContabil = $valoresSegmento['valor_produtos'];
-
-
-            // $valoresTotais[8] += $valorContabil - ($valorIPI + $valorST);
-            // $valoresTotais[9] += $valores['vIPI']  * $percentual;
-            // $valoresTotais[10] += $valores['vST']  * $percentual;
-            // $valoresTotais[11] += $valorContabil;
-        }
-
-
-        // $valorBaseCalculo = (float) ($valoresSegmento['valor_base_calculo'] ?? 0);
-        // $valorIcms = (float) ($valoresSegmento['valor_icms'] ?? 0);
-        // $valorIcmsSt = (float) ($valoresSegmento['valor_icms_st'] ?? 0);
-
-        // // Campo 4 - Base de cálculo
-        // $this->baseCalculo = 0;
-
-        // // Campo 6 - Valor do Imposto
-        // $this->valorImposto = $valorIcms > 0 ? $valorIcms : 0;
-
-        // //  Campo 7 - Valor de Isentas: quando não há valor de imposto, o valor contábil é considerado isento
-        // //  Conforme exemplo do layout Domínio Sistemas
-        // if ($this->valorImposto == 0 && $this->valorContabil > 0) {
-        //     $this->valorIsentas = $this->valorContabil;
-        //     // Zera a base de cálculo quando não há imposto
-        //     $this->baseCalculo = 0;
-        // } else {
-        //     $this->valorIsentas = 0;
-        // }
-
-        // // Campo 8 - Valor de Outras: para operações com outros benefícios fiscais
-        // $this->valorOutras = $valorBaseCalculo > 0 ? $valorBaseCalculo : 0;
-
-        // // Campo 10 - Valor da substituição Tributária
-        // $this->valorSubstituicaoTributaria = $valorIcmsSt > 0 ? $valorIcmsSt : 0;
-
-        // // Campo 11 - Valor Contábil
-        // $this->valorContabil = $valorBaseCalculo > 0 ? $valorBaseCalculo : 0;
-
-        // // Campo 5 - Alíquota (calculada se houver base e valor)
-        // // Trunca o valor para 2 casas decimais (não arredonda)
-        // if ($this->baseCalculo > 0 && $this->valorImposto > 0) {
-        //     $this->aliquota = floor(($this->valorImposto / $this->baseCalculo) * 10000) / 100;
-        // }
     }
 
     /**
@@ -556,27 +371,102 @@ class Registro1020 extends RegistroBase
      */
     private function preencherIpi(array $valoresSegmento, NotaFiscalEletronica $notaFiscal): void
     {
+        $cstIpi = (string) ($valoresSegmento['valor_cst_ipi'] ?? $valoresSegmento['cst_ipi'] ?? '');
         $valorIpi = (float) ($valoresSegmento['valor_ipi'] ?? 0);
         $valorProdutos = (float) ($valoresSegmento['valor_produtos'] ?? 0);
 
-        // Campo 9 - Valor do IPI (campo específico do registro)
-        $this->valorIpi = $valorIpi > 0 ? $valorIpi : 0;
-
-        // Campo 4 - Base de cálculo: valor dos produtos quando há IPI
-        if ($valorIpi > 0) {
-            $this->baseCalculo = $valorProdutos;
-            // Campo 6 - Valor do Imposto
-            $this->valorImposto = $valorIpi;
-        } else {
-            // Quando não há IPI, o valor contábil é considerado isento
+      
+        // Verifica se deve zerar IPI (regra de negócio/configuração)
+        if ($this->isZeraIpi()) {
+            $this->valorIpi = 0;
             $this->baseCalculo = 0;
+            $this->valorOutras = $this->valorContabil;
+            $this->valorContabil = $this->valorContabil;
             $this->valorImposto = 0;
-            // Campo 7 - Valor de Isentas
-            $this->valorIsentas = $this->valorContabil;
+            $this->valorIsentas = 0;
+            
+            return;
         }
 
-        // Campo 8 - Valor de Outras: para operações com isenção parcial
-        $this->valorOutras = 0;
+        // Campo 9 - Valor do IPI (campo específico do registro)
+        $this->valorIpi = $valorIpi > 0 ? $valorIpi : 0;
+       
+        // Se tiver CST, usa lógica específica
+        if ($cstIpi !== '') {
+            switch ($cstIpi) {
+                case '00': // Entrada com recuperação de crédito
+                case '50': // Saída tributada (eventual)
+                    $this->baseCalculo = $valorProdutos;
+                    $this->valorImposto = $valorIpi;
+                    $this->valorIsentas = 0;
+                    $this->valorOutras = 0;
+                    break;
+
+                case '49': // Outras entradas
+                case '99': // Outras saídas
+                    if ($valorIpi > 0) {
+                        $this->baseCalculo = $valorProdutos;
+                        $this->valorImposto = $valorIpi;
+                        $this->valorIsentas = 0;
+                        $this->valorOutras = 0;
+                    } else {
+                        $this->baseCalculo = 0;
+                        $this->valorImposto = 0;
+                        $this->valorIsentas = 0;
+                        $this->valorOutras = $this->valorContabil;
+                    }
+                    break;
+
+                case '01': // Entrada tributada com alíquota zero
+                case '02': // Entrada isenta
+                case '03': // Entrada não-tributada
+                case '04': // Entrada imune
+                case '05': // Entrada com suspensão
+                case '51': // Saída tributada com alíquota zero
+                case '52': // Saída isenta
+                case '53': // Saída não-tributada
+                case '54': // Saída imune
+                case '55': // Saída com suspensão
+                    $this->baseCalculo = 0;
+                    $this->valorImposto = 0;
+                    $this->valorIsentas = $this->valorContabil;
+                    $this->valorOutras = 0;
+                    break;
+                
+                default:
+                    // Fallback para lógica baseada em valor se CST não for reconhecido
+                    if ($valorIpi > 0) {
+                        $this->baseCalculo = $valorProdutos;
+                        $this->valorImposto = $valorIpi;
+                        $this->valorIsentas = 0;
+                    } else {
+                        $this->baseCalculo = 0;
+                        $this->valorImposto = 0;
+                        $this->valorIsentas = $this->valorContabil;
+                    }
+                    $this->valorOutras = 0;
+                    break;
+            }
+        } else {
+            // Lógica legada (sem CST)
+            if ($valorIpi > 0) {
+                $this->baseCalculo = $valorProdutos;
+                // Campo 6 - Valor do Imposto
+                $this->valorImposto = $valorIpi;
+                // Campo 7 - Valor de Isentas
+                $this->valorIsentas = 0;
+            } else {
+                
+                // Quando não há IPI, o valor contábil é considerado isento
+                $this->baseCalculo = 0;
+                $this->valorImposto = 0;
+                // Campo 7 - Valor de Isentas
+                $this->valorIsentas = $this->valorContabil;
+            }
+
+            // Campo 8 - Valor de Outras: para operações com isenção parcial
+            $this->valorOutras = 0;
+        }
     }
 
     /**
@@ -597,8 +487,9 @@ class Registro1020 extends RegistroBase
         $valorDifal = (float) ($notaFiscal->vICMSUFDest ?? 0);
         $valorBaseCalculo = (float) ($valoresSegmento['valor_base_calculo'] ?? 0);
 
+       
         // Campo 4 - Base de cálculo
-        $this->baseCalculo = $valorBaseCalculo > 0 ? $valorBaseCalculo : 0;
+        $this->baseCalculo =  $valorDifal > 0 ? $valorBaseCalculo : 0;
 
         // Campo 6 - Valor do Imposto (DIFAL)
         $this->valorImposto = $valorDifal > 0 ? $valorDifal : 0;
@@ -614,6 +505,8 @@ class Registro1020 extends RegistroBase
         if ($this->baseCalculo > 0 && $this->valorImposto > 0) {
             $this->aliquota = floor(($this->valorImposto / $this->baseCalculo) * 10000) / 100;
         }
+
+        $this->valorContabil = $valorDifal > 0 ? $valorDifal : 0;
 
         // Campo 15 - Alíquota Interestadual para SP
         // Este campo é usado para informar a alíquota interestadual quando aplicável
@@ -701,7 +594,7 @@ class Registro1020 extends RegistroBase
     private function isZeraIcms(): bool
     {
         // Gera a chave de cache única para esta combinação issuer/tag
-        $cacheKey = "{$this->issuer->id}_{$this->tagged->code}";
+        $cacheKey = "{$this->issuer->id}_{$this->tagged->tag_id}";
 
         // Verifica se já está em cache
         if (isset(self::$zeraIcmsCache[$cacheKey])) {
@@ -730,7 +623,7 @@ class Registro1020 extends RegistroBase
     private function isZeraIpi(): bool
     {
         // Gera a chave de cache única para esta combinação issuer/tag
-        $cacheKey = "{$this->issuer->id}_{$this->tagged->code}";
+        $cacheKey = "{$this->issuer->id}_{$this->tagged->tag_id}";
 
         // Verifica se já está em cache
         if (isset(self::$zeraIpiCache[$cacheKey])) {
@@ -742,6 +635,7 @@ class Registro1020 extends RegistroBase
             ->where('issuer_id', $this->issuer->id)
             ->where('status_ipi', true)
             ->first();
+
 
         // Armazena o resultado em cache
         $result = $check !== null;
@@ -766,11 +660,11 @@ class Registro1020 extends RegistroBase
             $tagsCreditoIcms = GeneralSetting::getValue(
                 name: 'configuracoes_gerais',
                 key: 'tagsCreditoIcms',
-                default: false,
+                default: [],
                 issuerId: $this->issuer->id
             );
 
-            if (in_array($this->tagged->tag_id, $tagsCreditoIcms)) {
+            if (is_array($tagsCreditoIcms) && in_array($this->tagged->tag_id, $tagsCreditoIcms)) {
                 return true;
             }
         }
