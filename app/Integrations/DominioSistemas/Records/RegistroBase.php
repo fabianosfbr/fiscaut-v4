@@ -39,7 +39,13 @@ abstract class RegistroBase implements IRegistro
      */
     protected function formatarCampo($valor, ?int $tamanhoMaximo = null, string $tipo = 'C'): string
     {
+        // Para tipos numéricos/decimais, valor zero deve ser formatado como "0,00"
+        // Para caracteres, null ou string vazia retorna vazio
         if ($valor === null || $valor === '') {
+            // Para decimais, retorna "0,00" quando o valor é null/vazio
+            if (in_array($tipo, ['D', 'D2', 'D6'])) {
+                return '0,00';
+            }
             return '';
         }
 
@@ -70,6 +76,15 @@ abstract class RegistroBase implements IRegistro
                 if (is_numeric($valor)) {
                     // Formata com 3 casas decimais e usa vírgula como separador
                     $valor = number_format((float)$valor, 3, ',', '');
+                } else {
+                    $valor = (string)$valor;
+                }
+                break;
+
+            case 'D2': // Decimal: usar vírgula como separador com 2 casas decimais
+                if (is_numeric($valor)) {
+                    // Formata com 2 casas decimais e usa vírgula como separador
+                    $valor = number_format((float)$valor, 2, ',', '');
                 } else {
                     $valor = (string)$valor;
                 }

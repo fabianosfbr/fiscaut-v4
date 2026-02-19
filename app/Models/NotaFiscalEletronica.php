@@ -129,6 +129,7 @@ class NotaFiscalEletronica extends Model
             $prod = $detItem['prod'] ?? [];
             $imposto = $detItem['imposto'] ?? [];
 
+            
             return [
                 'nItem' => $detItem['@attributes']['nItem'] ?? null,
                 'cProd' => $prod['cProd'] ?? null,
@@ -144,8 +145,10 @@ class NotaFiscalEletronica extends Model
                 'vSeg' => $prod['vSeg'] ?? null,
                 'cEAN' => $prod['cEAN'] ?? null,
                 'cEANTrib' => $prod['cEANTrib'] ?? null,
+                'CSOSN' => searchValueInArray($imposto, 'CSOSN') ?? null,
                 'impostos' => [
                     'vBC' => searchValueInArray($imposto, 'vBC') ?? 0.0,
+                    'CST' => searchValueInArray($imposto['ICMS'], 'CST') ?? 0,
                     'pICMS' => searchValueInArray($imposto, 'pICMS') ?? 0.0,
                     'vICMS' => searchValueInArray($imposto, 'vICMS') ?? 0.0,
                     'pST' => searchValueInArray($imposto, 'pST') ?? 0.0,
