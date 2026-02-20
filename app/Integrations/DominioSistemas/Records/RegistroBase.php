@@ -216,7 +216,7 @@ abstract class RegistroBase implements IRegistro
     protected function procurarNoArray(array $array, array $chaves): array
     {
         foreach ($chaves as $chave) {
-            if (isset($array[$chave])) {
+            if (isset($array[$chave]) && is_array($array[$chave])) {
                 return $array[$chave];
             }
         }
