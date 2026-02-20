@@ -2,8 +2,7 @@
 
 namespace App\Filament\Actions;
 
-use App\Imports\OptimizedExcelSuperLogicaImport;
-use App\Jobs\ImportarLancamentoContabilJob;
+use App\Jobs\ImportarLancamentoContabilSuperLogicaJob;
 use App\Models\ImportarLancamentoContabil;
 use App\Models\JobProgress;
 use Exception;
@@ -30,7 +29,6 @@ class ImportarLancamentoContabilSuperLogicaAction
                     ->delete();
             })
             ->action(function (array $data, Action $action) {
-
                 $relativePath = $data['excel_file'];
                 $filePath = Storage::disk('local')->path($relativePath);
 
@@ -45,57 +43,25 @@ class ImportarLancamentoContabilSuperLogicaAction
                 }
 
                 try {
-                    $fileReader = (new OptimizedExcelSuperLogicaImport($filePath));
-
-                    $rows = $fileReader->import();
-
-                    if (empty($rows)) {
-                        Notification::make()
-                            ->title('Arquivo vazio')
-                            ->body('O arquivo Excel está vazio.')
-                            ->danger()
-                            ->send();
-                        $action->halt();
-                    }
-
                     $user = Auth::user();
                     $issuer = $user->currentIssuer;
-                    foreach ($rows as $row) {
 
-                        $import = new ImportarLancamentoContabil;
-                        $import->issuer_id = $issuer->id;
-                        $import->user_id = $user->id;
-                        $import->data = $row['credito'] ?? $row['liquidacao'];
-                        $import->valor = abs($row['valor']);
-                        $import->debito = $row['conta_debito'];
-                        $import->credito = $row['conta_credito'];
-                        $import->is_exist = true;
-                        $import->historico = $row['historico'] ?? null;
-                        $import->metadata = [
-                            'codigo_historico' => $row['codigo_historico'] ?? null,
-                            'row' => $row,
-                            'type' => 'super_logica',
-                        ];
+                    // Cria o registro de progresso
+                    $jobProgress = JobProgress::create([
+                        'status' => 'pending',
+                        'progress' => 0,
+                        'message' => 'Aguardando início do processamento...',
+                    ]);
 
-                        $import->saveQuietly();
-                    }
+                    session()->put('lancamento_super_logica', $jobProgress->id);
 
-                    // // Cria o registro de progresso
-                    // $jobProgress = $jobProgress = JobProgress::create([
-                    //     'status' => 'pending',
-                    //     'progress' => 0,
-                    //     'message' => 'Aguardando início do processamento...',
-                    // ]);
-
-                    // session()->put('jobProgressId', $jobProgress->id);
-
-                    // // Dispara o Job em background
-                    // ImportarLancamentoContabilJob::dispatch(
-                    //     $layout->id,
-                    //     $relativePath,
-                    //     Auth::user()->id,
-                    //     $jobProgress->id
-                    // );
+                    // Dispara o Job em background
+                    ImportarLancamentoContabilSuperLogicaJob::dispatch(
+                        $relativePath,
+                        $user->id,
+                        $issuer->id,
+                        $jobProgress->id
+                    );
 
                     Notification::make()
                         ->title('Importação Iniciada')

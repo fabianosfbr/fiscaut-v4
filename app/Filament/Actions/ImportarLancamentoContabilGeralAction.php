@@ -73,7 +73,7 @@ class ImportarLancamentoContabilGeralAction
                         'message' => 'Aguardando início do processamento...',
                     ]);
 
-                    session()->put('jobProgressId', $jobProgress->id);
+                    session()->put('lancamento_geral', $jobProgress->id);
 
                     // Dispara o Job em background
                     ImportarLancamentoContabilJob::dispatch(

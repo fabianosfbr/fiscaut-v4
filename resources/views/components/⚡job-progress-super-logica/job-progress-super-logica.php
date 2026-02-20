@@ -21,7 +21,7 @@ new class extends Component
     {
         // Se o jobId não for passado via parâmetro, tenta pegar da sessão
         if (! $jobId) {
-            $jobId = session()->get('lancamento_geral');
+            $jobId = session()->get('lancamento_super_logica');
         }
 
         ds(session()->all());
@@ -59,8 +59,8 @@ new class extends Component
             $this->isVisible = false;
 
             // Limpa a sessão para não reaparecer no próximo mount
-            if (session()->get('lancamento_geral') === $this->jobId) {
-                session()->forget('lancamento_geral');
+            if (session()->get('lancamento_super_logica') === $this->jobId) {
+                session()->forget('lancamento_super_logica');
             }
 
             // Dispara evento para atualizar tabelas ou outros componentes

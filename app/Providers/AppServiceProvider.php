@@ -49,18 +49,26 @@ class AppServiceProvider extends ServiceProvider
 
         FilamentView::registerRenderHook(
             TablesRenderHook::SELECTION_INDICATOR_ACTIONS_BEFORE,
-            fn (): string => Blade::render('@livewire(\'keep-rows-selected-table\')'),
+            fn(): string => Blade::render('@livewire(\'keep-rows-selected-table\')'),
         );
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::CONTENT_START,
-            fn (): string => Blade::render('@livewire(\'issuer-switcher\')'),
+            fn(): string => Blade::render('@livewire(\'issuer-switcher\')'),
         );
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::PAGE_HEADER_WIDGETS_START,
-            fn (): string => Blade::render('@livewire(\'job-progress\')'),
+            fn(): string => Blade::render('@livewire(\'job-progress\')'),
+            scopes: \App\Filament\Resources\ImportarLancamentoContabilGerals\Pages\ListImportarLancamentoContabilGerals::class,
         );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::PAGE_START,
+            fn(): string => Blade::render('@livewire(\'job-progress-super-logica\')'),
+            scopes: \App\Filament\Resources\ImportarLancamentoContabilSuperLogicas\Pages\ListImportarLancamentoContabilSuperLogicas::class,
+        );
+
     }
 
     public function formatter(): void
