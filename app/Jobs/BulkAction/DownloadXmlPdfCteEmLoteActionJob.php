@@ -14,7 +14,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use NFePHP\DA\CTe\Dacte;
 use setasign\Fpdi\Fpdi;
@@ -42,16 +41,16 @@ class DownloadXmlPdfCteEmLoteActionJob implements ShouldQueue
             $this->records->loadMissing('tagged.tag');
 
             // Ensure the downloads directory exists with proper permissions
-            $directory = 'downloads/' . now()->format('m-Y');
-            $directoryPath = storage_path('app/private/' . $directory);
+            $directory = 'downloads/'.now()->format('m-Y');
+            $directoryPath = storage_path('app/private/'.$directory);
 
-            if (!is_dir($directoryPath)) {
+            if (! is_dir($directoryPath)) {
                 mkdir($directoryPath, 0755, true);
             }
 
-            $randomName = Str::random(8) . '.zip';
-            $filename = $directory . '/' . $randomName;
-            $pathFile = storage_path('app/private/' . $filename);
+            $randomName = Str::random(8).'.zip';
+            $filename = $directory.'/'.$randomName;
+            $pathFile = storage_path('app/private/'.$filename);
 
             $zip = new ZipArchive;
             $result = $zip->open($pathFile, ZipArchive::CREATE | ZipArchive::OVERWRITE);
@@ -61,7 +60,7 @@ class DownloadXmlPdfCteEmLoteActionJob implements ShouldQueue
                     'result_code' => $result,
                     'path_file' => $pathFile,
                     'job_class' => self::class,
-                    'user_id' => $this->userId
+                    'user_id' => $this->userId,
                 ]);
 
                 throw new \Exception("Could not create zip file. Error code: {$result}");
@@ -82,7 +81,7 @@ class DownloadXmlPdfCteEmLoteActionJob implements ShouldQueue
                             $subPath = '#Multiplas Etiquetas/';
                         } elseif ($tagCount === 1) {
                             $tags = $record->tagNamesWithCode();
-                            $subPath = ($tags[0] ?? 'Sem Etiqueta') . '/';
+                            $subPath = ($tags[0] ?? 'Sem Etiqueta').'/';
                         } else {
                             $subPath = 'Sem Etiqueta/';
                         }
@@ -100,12 +99,12 @@ class DownloadXmlPdfCteEmLoteActionJob implements ShouldQueue
                         }
 
                         $pdfFileName = "{$record->chave}.pdf";
-                        $zip->addFromString($subPath . $pdfFileName, $pdfContent);
+                        $zip->addFromString($subPath.$pdfFileName, $pdfContent);
                     }
 
                     if ($baixarXml) {
                         $xmlFileName = "{$record->chave}.xml";
-                        $zip->addFromString($subPath . $xmlFileName, $xml_content);
+                        $zip->addFromString($subPath.$xmlFileName, $xml_content);
                     }
                 } catch (\Exception $e) {
                     $erros[] = "Erro ao gerar DACTE para o CT-e {$record->nCTe}: {$e->getMessage()}";
@@ -113,18 +112,18 @@ class DownloadXmlPdfCteEmLoteActionJob implements ShouldQueue
                         'chave' => $record->chave,
                         'nCTe' => $record->nCTe,
                         'error' => $e->getMessage(),
-                        'job_class' => self::class
+                        'job_class' => self::class,
                     ]);
                 }
             }
 
             // Properly close the zip archive with error checking
             $closeResult = $zip->close();
-            if (!$closeResult) {
+            if (! $closeResult) {
                 Log::error('Failed to close zip archive', [
                     'path_file' => $pathFile,
                     'job_class' => self::class,
-                    'user_id' => $this->userId
+                    'user_id' => $this->userId,
                 ]);
 
                 throw new \Exception('Could not close zip file properly');
@@ -134,7 +133,7 @@ class DownloadXmlPdfCteEmLoteActionJob implements ShouldQueue
             $secureDownload = SecureDownload::create([
                 'user_id' => $this->userId,
                 'file_path' => $filename,
-                'file_name' => 'cte_' . now()->format('Ymd_His') . '.zip',
+                'file_name' => 'cte_'.now()->format('Ymd_His').'.zip',
                 'mime_type' => 'application/zip',
                 'size' => filesize($pathFile),
                 'job_class' => self::class,
@@ -155,10 +154,10 @@ class DownloadXmlPdfCteEmLoteActionJob implements ShouldQueue
                         ->url(route('download', ['uuid' => $secureDownload->id])),
                 ]);
 
-            if (!empty($erros)) {
+            if (! empty($erros)) {
                 $notification->body(
-                    'Seus arquivos foram processados com sucesso, mas ocorreram alguns erros:' .
-                        PHP_EOL . implode(PHP_EOL, $erros)
+                    'Seus arquivos foram processados com sucesso, mas ocorreram alguns erros:'.
+                        PHP_EOL.implode(PHP_EOL, $erros)
                 );
             }
 
@@ -168,7 +167,7 @@ class DownloadXmlPdfCteEmLoteActionJob implements ShouldQueue
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'user_id' => $this->userId,
-                'job_class' => self::class
+                'job_class' => self::class,
             ]);
 
             // Re-throw the exception to fail the job appropriately
@@ -189,12 +188,12 @@ class DownloadXmlPdfCteEmLoteActionJob implements ShouldQueue
             // 2. Use FPDI to merge the PDFs
             $tmpDanfe = tempnam(sys_get_temp_dir(), 'danfe_');
             $tmpTags = tempnam(sys_get_temp_dir(), 'tags_');
-            
+
             file_put_contents($tmpDanfe, $pdfContent);
             file_put_contents($tmpTags, $tagsPdfContent);
 
-            $pdf = new Fpdi();
-            
+            $pdf = new Fpdi;
+
             // Add original DANFE pages
             $pageCount = $pdf->setSourceFile($tmpDanfe);
             for ($i = 1; $i <= $pageCount; $i++) {
@@ -223,8 +222,9 @@ class DownloadXmlPdfCteEmLoteActionJob implements ShouldQueue
         } catch (\Exception $e) {
             Log::error('Error appending tags page to PDF', [
                 'chave' => $record->chave,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return $pdfContent; // Return original if fails
         }
     }

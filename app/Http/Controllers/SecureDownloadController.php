@@ -3,11 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\SecureDownload;
-use App\Models\SecureDownloadLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SecureDownloadController extends Controller
 {
@@ -48,7 +46,7 @@ class SecureDownloadController extends Controller
     private function processDownload(SecureDownload $secureDownload)
     {
         // 1. Authentication & Authorization
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             abort(401, 'Usuário não autenticado.');
         }
 
@@ -56,7 +54,7 @@ class SecureDownloadController extends Controller
 
         // 4. Verificação de Permissões (Propriedade ou Roles)
         // Check if the user is the owner OR has admin role (if exists)
-        if ($secureDownload->user_id !== $user->id && !$this->userIsAdmin($user)) {
+        if ($secureDownload->user_id !== $user->id && ! $this->userIsAdmin($user)) {
             abort(403, 'Você não tem permissão para acessar este arquivo.');
         }
 
@@ -66,10 +64,9 @@ class SecureDownloadController extends Controller
         }
 
         // 3. Localização do Arquivo
-        if (!Storage::disk('local')->exists($secureDownload->file_path)) {
+        if (! Storage::disk('local')->exists($secureDownload->file_path)) {
             abort(404, 'Arquivo não encontrado no storage.');
         }
-
 
         // 5. Processo de Download (Streaming)
         return Storage::disk('local')->download(
@@ -92,7 +89,7 @@ class SecureDownloadController extends Controller
     {
         // Example: if using a role relation
         // return $user->role && $user->role->name === 'admin';
-        
+
         // Or if using a simple boolean field
         // return (bool) $user->is_admin;
 

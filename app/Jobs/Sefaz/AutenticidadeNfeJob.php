@@ -3,17 +3,17 @@
 namespace App\Jobs\Sefaz;
 
 use App\Models\Issuer;
-use NFePHP\NFe\Complements;
-use Illuminate\Bus\Queueable;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use NFePHP\NFe\Common\Standardize;
-use Illuminate\Support\Facades\Log;
 use App\Models\NotaFiscalEletronica;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use NFePHP\NFe\Common\Standardize;
+use NFePHP\NFe\Complements;
 
 class AutenticidadeNfeJob implements ShouldQueue
 {
@@ -60,7 +60,7 @@ class AutenticidadeNfeJob implements ShouldQueue
 
                     DB::table('log_sefaz_nfe_events')->where('id', $evento->id)->update(['is_verificado_sefaz' => true]);
 
-                    Log::warning('Nfe cancelada:' . $nfe->chave);
+                    Log::warning('Nfe cancelada:'.$nfe->chave);
                 }
 
                 if ($result == '110111') {

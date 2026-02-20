@@ -2,14 +2,14 @@
 
 namespace App\Filament\Resources\ParametroSuperLogicas\Schemas;
 
-use Filament\Schemas\Schema;
+use App\Filament\Forms\Components\SelectPlanoDeConta;
 use App\Models\HistoricoContabil;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
-use Filament\Forms\Components\TagsInput;
 use Filament\Schemas\Components\Section;
-use App\Filament\Forms\Components\SelectPlanoDeConta;
+use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
 
 class ParametroSuperLogicaForm
@@ -28,7 +28,6 @@ class ParametroSuperLogicaForm
                                     ->required()
                                     ->columnSpan(2),
                             ])->columnSpan(2),
-
 
                         Grid::make(2)
                             ->schema([
@@ -51,11 +50,13 @@ class ParametroSuperLogicaForm
                                     ->orderBy('codigo', 'asc')
                                     ->get()
                                     ->map(function ($item) {
-                                        $item->codigo_descricao = $item->codigo . ' | ' . $item->descricao;
+                                        $item->codigo_descricao = $item->codigo.' | '.$item->descricao;
+
                                         return $item;
                                     })
 
                                     ->pluck('codigo_descricao', 'codigo');
+
                                 return $values;
                             })
                             ->columnSpan(2),

@@ -7,7 +7,7 @@ use DateTime;
 /**
  * Registro 0135 - Produtos - Valor Unitário
  * Produtos - Valor Unitário. Este é um registro filho do registro 0100.
- * 
+ *
  * Campos:
  * 1 - Identificação do registro (fixo: 0135)
  * 2 - Data (primeiro dia do mês)
@@ -16,6 +16,7 @@ use DateTime;
 class Registro0135 extends RegistroBase
 {
     private DateTime $data;
+
     private float $valorUnitario;
 
     public function __construct(
@@ -23,7 +24,7 @@ class Registro0135 extends RegistroBase
         float $valorUnitario
     ) {
         // Converte a data para o primeiro dia do mês
-        $this->data = $data->setDate((int)$data->format('Y'), (int)$data->format('m'), 1);
+        $this->data = $data->setDate((int) $data->format('Y'), (int) $data->format('m'), 1);
         $this->valorUnitario = $valorUnitario;
     }
 
@@ -46,7 +47,7 @@ class Registro0135 extends RegistroBase
     public function isValid(): bool
     {
         // Validação específica para o Registro 0135
-        return !empty($this->data) && $this->valorUnitario >= 0;
+        return ! empty($this->data) && $this->valorUnitario >= 0;
     }
 
     // Getters
@@ -61,7 +62,7 @@ class Registro0135 extends RegistroBase
     }
 
     // Setters
-    public function setData(DateTime $data): void   
+    public function setData(DateTime $data): void
     {
         $this->data = $data;
     }

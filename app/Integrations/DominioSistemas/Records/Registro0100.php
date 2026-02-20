@@ -104,106 +104,191 @@ use App\Models\NotaFiscalEletronica;
 class Registro0100 extends RegistroBase
 {
     private string $codigoProduto;
+
     private string $descricaoProduto;
+
     private ?string $codigoNbm = null;
+
     private ?string $codigoNcm = null;
+
     private ?string $codigoNcmExterior = null;
+
     private ?string $codigoBarras = null;
+
     private ?int $codigoImpostoImportacao = null;
+
     private ?int $codigoGrupoProdutos = null;
+
     private ?string $unidadeMedida = null;
+
     private ?string $unidadeMedidaDiferente = null; // S/N
+
     private ?string $tipoProduto = null; // A, M, V, O
+
     private ?int $tipoArmaFogo = null; // 0, 1
+
     private ?string $descricaoArmaFogo = null;
+
     private ?int $tipoMedicamento = null; // 0, 1, 2
+
     private ?string $servicoIssqn = null; // S/N
+
     private ?string $codigoChassiVeiculo = null;
+
     private ?float $valorUnitario = null;
+
     private ?float $quantidadeEstoqueInicial = null;
+
     private ?float $valorEstoqueInicial = null;
+
     private ?int $codigoSitTributariaIcms = null;
+
     private ?float $aliquotaIcms = null;
+
     private ?float $aliquotaIpi = null;
+
     private ?string $periodicidadeIpi = null; // D, M
+
     private ?string $observacao = null;
+
     private ?string $exportaDnf = null; // S/N
+
     private ?string $exTipi = null;
+
     private ?int $dnfCodigoEspecieProduto = null;
+
     private ?int $dnfUnidadeMedidaPadrao = null;
+
     private ?float $dnfFatorConversao = null;
+
     private ?int $dnfCodigoProduto = null;
+
     private ?int $dnfCapacidadeVolumetrica = null;
+
     private ?string $seDicCodigoEan = null;
+
     private ?int $seDicCodigoProdutoRelevante = null;
+
     private ?string $scancGera = null; // S/N
+
     private ?int $scancCodigoProduto = null;
+
     private ?string $scancContemGasolinaA = null; // S/N
+
     private ?string $scancTipoProduto = null;
+
     private ?string $grfCtbGera = null; // S/N
+
     private ?int $grfCtbCodigoProduto = null;
+
     private ?string $diefUnidade = null; // UN, KG, LT, MT, M2, M3, KW, PR
+
     private ?int $diefTipoProdutoServico = null; // 1, 2, 3
+
     private ?string $sintegra88St = null; // S/N
+
     private ?int $sintegra88StCodigoProduto = null;
+
     private ?string $goInfoIpmDpi = null;
+
     private ?int $goCodigoProdutoServicoIpmDpi = null;
+
     private ?string $goProdutoRelacionado = null; // S/N
+
     private ?string $amCestaBasica = null; // S/N
+
     private ?int $amCodigoProdutoDam = null;
+
     private ?string $rsProdutoSubstTributaria = null;
+
     private ?string $rsDataInicioSubstTributaria = null; // dd/mm/aaaa
+
     private ?string $rsProdutoPrecoTabelado = null; // S/N
+
     private ?float $rsValorUnitarioSubstTributaria = null;
+
     private ?float $rsMvaSubstTributaria = null;
+
     private ?string $rsGrupoSubstTributaria = null;
+
     private ?string $prEquipamentoEcf = null; // S/N
+
     private ?string $msPossuiIncentivoFiscal = null; // S/N
+
     private ?string $dfProdutoRegimeEspecial = null; // 1, 0
+
     private ?int $dfItemPadraoRegimeEspecial = null;
+
     private ?int $peTipoProduto = null; // 1, 2, 3, 4, 5, 6
+
     private ?string $spControlaRessarcimentoCat1799 = null; // S/N
+
     private ?string $spDataSaldoInicialCat1799 = null; // dd/mm/aaaa
+
     private ?float $spValorUnitariosCat1799 = null;
+
     private ?float $spQuantidadeCat1799 = null;
+
     private ?float $spValorFinalCat1799 = null;
+
     private ?int $spedGenero = null;
+
     private ?int $spedCodigoServico = null;
+
     private ?int $spedTipoItem = null; // 0-9, 99
+
     private ?int $spedClassificacao = null;
+
     private ?int $spedContaContabilEstoqueEmSeuPoder = null;
+
     private ?int $spedContaContabilEstoqueEmPoderTerceiros = null;
+
     private ?int $spedContaContabilEstoqueTerceirosEmSeuPoder = null;
+
     private ?string $spedTipoReceita = null; // 0, 1
+
     private ?int $spedEnergiaGasCanalizado = null;
+
     private ?string $dataCadastro = null; // dd/mm/aaaa
+
     private ?string $produtoEscrituradoLmc = null; // S/N
+
     private ?string $codigoCombustivelDf = null;
+
     private ?string $codigoCombustivelAnp = null;
+
     private ?string $produtoRelacionadoMp5402011 = null; // S/N
+
     private ?string $descricaoComplementarLancamentoNotas = null;
+
     private ?string $codigoAtividadeInssFolha = null;
+
     private ?string $daconTipoProduto = null;
+
     private ?string $daconCreditoPresumidoAgroindustriais = null; // 1, 2, 0
+
     private ?int $desconsiderar = null;
+
     private ?int $spedContaContabilEstoqueEmProcesso = null;
+
     private ?int $spedContaContabilEstoqueHistoricoProcesso = null;
+
     private ?int $spedContaContabilEstoqueAcabado = null;
+
     private ?int $spedContaContabilEstoqueHistoricoAcabado = null;
+
     private ?int $codigoCest = null;
+
     private ?int $registroExportacaoRe = null;
+
     private ?string $identificador = null;
 
     /**
      * Cache estático para armazenar os CategoryTags já consultados
      * Key: category_id
      * Value: CategoryTag model instance
-     *
-     * @var array
      */
     private static array $categoryTagCache = [];
-
-
 
     public function __construct(
         NotaFiscalEletronica $notaFiscal,
@@ -225,16 +310,16 @@ class Registro0100 extends RegistroBase
             $this->unidadeMedida = $produto['uCom'];
         }
         if (isset($produto['vUnCom'])) {
-            $this->valorUnitario = (float)$produto['vUnCom'];
+            $this->valorUnitario = (float) $produto['vUnCom'];
         }
         if (isset($produto['vProd'])) {
-            $this->valorEstoqueInicial = (float)$produto['vProd'];
+            $this->valorEstoqueInicial = (float) $produto['vProd'];
         }
         if (isset($produto['qCom'])) {
-            $this->quantidadeEstoqueInicial = (float)$produto['qCom'];
+            $this->quantidadeEstoqueInicial = (float) $produto['qCom'];
         }
         if (isset($produto['CFOP'])) {
-            $this->codigoSitTributariaIcms = (int)$produto['CFOP'];
+            $this->codigoSitTributariaIcms = (int) $produto['CFOP'];
         }
 
         // Campo 9: Código do grupo de produtos
@@ -259,16 +344,13 @@ class Registro0100 extends RegistroBase
     /**
      * Obtém a conta contábil do grupo de produtos a partir da etiqueta aplicada à nota fiscal
      * Utiliza cache estático para evitar consultas repetidas ao banco de dados
-     *
-     * @param NotaFiscalEletronica $notaFiscal
-     * @return int|null
      */
     private function obterContaContabilDoGrupo(NotaFiscalEletronica $notaFiscal): ?int
     {
         // Obtém a primeira tag através do relacionamento tagged (HasTags trait)
         $tagged = $notaFiscal->tagged->first();
 
-        if (!$tagged || !$tagged->tag || !$tagged->tag->category_id) {
+        if (! $tagged || ! $tagged->tag || ! $tagged->tag->category_id) {
             return null;
         }
 
@@ -278,22 +360,19 @@ class Registro0100 extends RegistroBase
         $categoryTag = $this->getCategoryTagFromCache($categoryId);
 
         // Retorna a conta contábil se existir
-        return $categoryTag?->conta_contabil ? (int)$categoryTag->conta_contabil : null;
+        return $categoryTag?->conta_contabil ? (int) $categoryTag->conta_contabil : null;
     }
 
     /**
      * Obtém o código do grupo do CategoryTag a partir da etiqueta aplicada à nota fiscal
      * Utiliza o mesmo cache estático de CategoryTags
-     *
-     * @param NotaFiscalEletronica $notaFiscal
-     * @return int|null
      */
     private function obterGrupoDoCategoryTag(NotaFiscalEletronica $notaFiscal): ?int
     {
         // Obtém a primeira tag através do relacionamento tagged (HasTags trait)
         $tagged = $notaFiscal->tagged->first();
 
-        if (!$tagged || !$tagged->tag || !$tagged->tag->category_id) {
+        if (! $tagged || ! $tagged->tag || ! $tagged->tag->category_id) {
             return null;
         }
 
@@ -303,29 +382,22 @@ class Registro0100 extends RegistroBase
         $categoryTag = $this->getCategoryTagFromCache($categoryId);
 
         // Retorna o grupo se existir
-        return $categoryTag?->grupo ? (int)$categoryTag->grupo : null;
+        return $categoryTag?->grupo ? (int) $categoryTag->grupo : null;
     }
 
     /**
      * Obtém o CategoryTag do cache ou faz a consulta ao banco de dados
-     *
-     * @param int $categoryId
-     * @return \App\Models\CategoryTag|null
      */
     private function getCategoryTagFromCache(int $categoryId): ?\App\Models\CategoryTag
     {
         // Verifica se já está em cache
-        if (!isset(self::$categoryTagCache[$categoryId])) {
+        if (! isset(self::$categoryTagCache[$categoryId])) {
             // Busca o CategoryTag e armazena em cache
             self::$categoryTagCache[$categoryId] = \App\Models\CategoryTag::find($categoryId);
         }
 
         return self::$categoryTagCache[$categoryId];
     }
-
-    
-
-
 
     public function getTipoRegistro(): string
     {
@@ -434,7 +506,7 @@ class Registro0100 extends RegistroBase
     public function isValid(): bool
     {
         // Validação específica para o Registro 0100
-        return !empty($this->codigoProduto) && !empty($this->descricaoProduto);
+        return ! empty($this->codigoProduto) && ! empty($this->descricaoProduto);
     }
 
     // Getters
@@ -442,358 +514,447 @@ class Registro0100 extends RegistroBase
     {
         return $this->codigoProduto;
     }
+
     public function getDescricaoProduto(): string
     {
         return $this->descricaoProduto;
     }
+
     public function getCodigoNbm(): ?string
     {
         return $this->codigoNbm;
     }
+
     public function getCodigoNcm(): ?string
     {
         return $this->codigoNcm;
     }
+
     public function getCodigoNcmExterior(): ?string
     {
         return $this->codigoNcmExterior;
     }
+
     public function getCodigoBarras(): ?string
     {
         return $this->codigoBarras;
     }
+
     public function getCodigoImpostoImportacao(): ?int
     {
         return $this->codigoImpostoImportacao;
     }
+
     public function getCodigoGrupoProdutos(): ?int
     {
         return $this->codigoGrupoProdutos;
     }
+
     public function getUnidadeMedida(): ?string
     {
         return $this->unidadeMedida;
     }
+
     public function getUnidadeMedidaDiferente(): ?string
     {
         return $this->unidadeMedidaDiferente;
     }
+
     public function getTipoProduto(): ?string
     {
         return $this->tipoProduto;
     }
+
     public function getTipoArmaFogo(): ?int
     {
         return $this->tipoArmaFogo;
     }
+
     public function getDescricaoArmaFogo(): ?string
     {
         return $this->descricaoArmaFogo;
     }
+
     public function getTipoMedicamento(): ?int
     {
         return $this->tipoMedicamento;
     }
+
     public function getServicoIssqn(): ?string
     {
         return $this->servicoIssqn;
     }
+
     public function getCodigoChassiVeiculo(): ?string
     {
         return $this->codigoChassiVeiculo;
     }
+
     public function getValorUnitario(): ?float
     {
         return $this->valorUnitario;
     }
+
     public function getQuantidadeEstoqueInicial(): ?float
     {
         return $this->quantidadeEstoqueInicial;
     }
+
     public function getValorEstoqueInicial(): ?float
     {
         return $this->valorEstoqueInicial;
     }
+
     public function getCodigoSitTributariaIcms(): ?int
     {
         return $this->codigoSitTributariaIcms;
     }
+
     public function getAliquotaIcms(): ?float
     {
         return $this->aliquotaIcms;
     }
+
     public function getAliquotaIpi(): ?float
     {
         return $this->aliquotaIpi;
     }
+
     public function getPeriodicidadeIpi(): ?string
     {
         return $this->periodicidadeIpi;
     }
+
     public function getObservacao(): ?string
     {
         return $this->observacao;
     }
+
     public function getExportaDnf(): ?string
     {
         return $this->exportaDnf;
     }
+
     public function getExTipi(): ?string
     {
         return $this->exTipi;
     }
+
     public function getDnfCodigoEspecieProduto(): ?int
     {
         return $this->dnfCodigoEspecieProduto;
     }
+
     public function getDnfUnidadeMedidaPadrao(): ?int
     {
         return $this->dnfUnidadeMedidaPadrao;
     }
+
     public function getDnfFatorConversao(): ?float
     {
         return $this->dnfFatorConversao;
     }
+
     public function getDnfCodigoProduto(): ?int
     {
         return $this->dnfCodigoProduto;
     }
+
     public function getDnfCapacidadeVolumetrica(): ?int
     {
         return $this->dnfCapacidadeVolumetrica;
     }
+
     public function getSeDicCodigoEan(): ?string
     {
         return $this->seDicCodigoEan;
     }
+
     public function getSeDicCodigoProdutoRelevante(): ?int
     {
         return $this->seDicCodigoProdutoRelevante;
     }
+
     public function getScancGera(): ?string
     {
         return $this->scancGera;
     }
+
     public function getScancCodigoProduto(): ?int
     {
         return $this->scancCodigoProduto;
     }
+
     public function getScancContemGasolinaA(): ?string
     {
         return $this->scancContemGasolinaA;
     }
+
     public function getScancTipoProduto(): ?string
     {
         return $this->scancTipoProduto;
     }
+
     public function getGrfCtbGera(): ?string
     {
         return $this->grfCtbGera;
     }
+
     public function getGrfCtbCodigoProduto(): ?int
     {
         return $this->grfCtbCodigoProduto;
     }
+
     public function getDieFUnidade(): ?string
     {
         return $this->diefUnidade;
     }
+
     public function getDieFTipoProdutoServico(): ?int
     {
         return $this->diefTipoProdutoServico;
     }
+
     public function getSintegra88St(): ?string
     {
         return $this->sintegra88St;
     }
+
     public function getSintegra88StCodigoProduto(): ?int
     {
         return $this->sintegra88StCodigoProduto;
     }
+
     public function getGoInfoIpmDpi(): ?string
     {
         return $this->goInfoIpmDpi;
     }
+
     public function getGoCodigoProdutoServicoIpmDpi(): ?int
     {
         return $this->goCodigoProdutoServicoIpmDpi;
     }
+
     public function getGoProdutoRelacionado(): ?string
     {
         return $this->goProdutoRelacionado;
     }
+
     public function getAmCestaBasica(): ?string
     {
         return $this->amCestaBasica;
     }
+
     public function getAmCodigoProdutoDam(): ?int
     {
         return $this->amCodigoProdutoDam;
     }
+
     public function getRsProdutoSubstTributaria(): ?string
     {
         return $this->rsProdutoSubstTributaria;
     }
+
     public function getRsDataInicioSubstTributaria(): ?string
     {
         return $this->rsDataInicioSubstTributaria;
     }
+
     public function getRsProdutoPrecoTabelado(): ?string
     {
         return $this->rsProdutoPrecoTabelado;
     }
+
     public function getRsValorUnitarioSubstTributaria(): ?float
     {
         return $this->rsValorUnitarioSubstTributaria;
     }
+
     public function getRsMvaSubstTributaria(): ?float
     {
         return $this->rsMvaSubstTributaria;
     }
+
     public function getRsGrupoSubstTributaria(): ?string
     {
         return $this->rsGrupoSubstTributaria;
     }
+
     public function getPrEquipamentoEcf(): ?string
     {
         return $this->prEquipamentoEcf;
     }
+
     public function getMsPossuiIncentivoFiscal(): ?string
     {
         return $this->msPossuiIncentivoFiscal;
     }
+
     public function getDfProdutoRegimeEspecial(): ?string
     {
         return $this->dfProdutoRegimeEspecial;
     }
+
     public function getDfItemPadraoRegimeEspecial(): ?int
     {
         return $this->dfItemPadraoRegimeEspecial;
     }
+
     public function getPeTipoProduto(): ?int
     {
         return $this->peTipoProduto;
     }
+
     public function getSpControlaRessarcimentoCat1799(): ?string
     {
         return $this->spControlaRessarcimentoCat1799;
     }
+
     public function getSpDataSaldoInicialCat1799(): ?string
     {
         return $this->spDataSaldoInicialCat1799;
     }
+
     public function getSpValorUnitariosCat1799(): ?float
     {
         return $this->spValorUnitariosCat1799;
     }
+
     public function getSpQuantidadeCat1799(): ?float
     {
         return $this->spQuantidadeCat1799;
     }
+
     public function getSpValorFinalCat1799(): ?float
     {
         return $this->spValorFinalCat1799;
     }
+
     public function getSpedGenero(): ?int
     {
         return $this->spedGenero;
     }
+
     public function getSpedCodigoServico(): ?int
     {
         return $this->spedCodigoServico;
     }
+
     public function getSpedTipoItem(): ?int
     {
         return $this->spedTipoItem;
     }
+
     public function getSpedClassificacao(): ?int
     {
         return $this->spedClassificacao;
     }
+
     public function getSpedContaContabilEstoqueEmSeuPoder(): ?int
     {
         return $this->spedContaContabilEstoqueEmSeuPoder;
     }
+
     public function getSpedContaContabilEstoqueEmPoderTerceiros(): ?int
     {
         return $this->spedContaContabilEstoqueEmPoderTerceiros;
     }
+
     public function getSpedContaContabilEstoqueTerceirosEmSeuPoder(): ?int
     {
         return $this->spedContaContabilEstoqueTerceirosEmSeuPoder;
     }
+
     public function getSpedTipoReceita(): ?string
     {
         return $this->spedTipoReceita;
     }
+
     public function getSpedEnergiaGasCanalizado(): ?int
     {
         return $this->spedEnergiaGasCanalizado;
     }
+
     public function getDataCadastro(): ?string
     {
         return $this->dataCadastro;
     }
+
     public function getProdutoEscrituradoLmc(): ?string
     {
         return $this->produtoEscrituradoLmc;
     }
+
     public function getCodigoCombustivelDf(): ?string
     {
         return $this->codigoCombustivelDf;
     }
+
     public function getCodigoCombustivelAnp(): ?string
     {
         return $this->codigoCombustivelAnp;
     }
+
     public function getProdutoRelacionadoMp5402011(): ?string
     {
         return $this->produtoRelacionadoMp5402011;
     }
+
     public function getDescricaoComplementarLancamentoNotas(): ?string
     {
         return $this->descricaoComplementarLancamentoNotas;
     }
+
     public function getCodigoAtividadeInssFolha(): ?string
     {
         return $this->codigoAtividadeInssFolha;
     }
+
     public function getDaconTipoProduto(): ?string
     {
         return $this->daconTipoProduto;
     }
+
     public function getDaconCreditoPresumidoAgroindustriais(): ?string
     {
         return $this->daconCreditoPresumidoAgroindustriais;
     }
+
     public function getDesconsiderar(): ?int
     {
         return $this->desconsiderar;
     }
+
     public function getSpedContaContabilEstoqueEmProcesso(): ?int
     {
         return $this->spedContaContabilEstoqueEmProcesso;
     }
+
     public function getSpedContaContabilEstoqueHistoricoProcesso(): ?int
     {
         return $this->spedContaContabilEstoqueHistoricoProcesso;
     }
+
     public function getSpedContaContabilEstoqueAcabado(): ?int
     {
         return $this->spedContaContabilEstoqueAcabado;
     }
+
     public function getSpedContaContabilEstoqueHistoricoAcabado(): ?int
     {
         return $this->spedContaContabilEstoqueHistoricoAcabado;
     }
+
     public function getCodigoCest(): ?int
     {
         return $this->codigoCest;
     }
+
     public function getRegistroExportacaoRe(): ?int
     {
         return $this->registroExportacaoRe;
     }
+
     public function getIdentificador(): ?string
     {
         return $this->identificador;
@@ -804,358 +965,447 @@ class Registro0100 extends RegistroBase
     {
         $this->codigoProduto = $codigoProduto;
     }
+
     public function setDescricaoProduto(string $descricaoProduto): void
     {
         $this->descricaoProduto = $descricaoProduto;
     }
+
     public function setCodigoNbm(?string $codigoNbm): void
     {
         $this->codigoNbm = $codigoNbm;
     }
+
     public function setCodigoNcm(?string $codigoNcm): void
     {
         $this->codigoNcm = $codigoNcm;
     }
+
     public function setCodigoNcmExterior(?string $codigoNcmExterior): void
     {
         $this->codigoNcmExterior = $codigoNcmExterior;
     }
+
     public function setCodigoBarras(?string $codigoBarras): void
     {
         $this->codigoBarras = $codigoBarras;
     }
+
     public function setCodigoImpostoImportacao(?int $codigoImpostoImportacao): void
     {
         $this->codigoImpostoImportacao = $codigoImpostoImportacao;
     }
+
     public function setCodigoGrupoProdutos(?int $codigoGrupoProdutos): void
     {
         $this->codigoGrupoProdutos = $codigoGrupoProdutos;
     }
+
     public function setUnidadeMedida(?string $unidadeMedida): void
     {
         $this->unidadeMedida = $unidadeMedida;
     }
+
     public function setUnidadeMedidaDiferente(?string $unidadeMedidaDiferente): void
     {
         $this->unidadeMedidaDiferente = $unidadeMedidaDiferente;
     }
+
     public function setTipoProduto(?string $tipoProduto): void
     {
         $this->tipoProduto = $tipoProduto;
     }
+
     public function setTipoArmaFogo(?int $tipoArmaFogo): void
     {
         $this->tipoArmaFogo = $tipoArmaFogo;
     }
+
     public function setDescricaoArmaFogo(?string $descricaoArmaFogo): void
     {
         $this->descricaoArmaFogo = $descricaoArmaFogo;
     }
+
     public function setTipoMedicamento(?int $tipoMedicamento): void
     {
         $this->tipoMedicamento = $tipoMedicamento;
     }
+
     public function setServicoIssqn(?string $servicoIssqn): void
     {
         $this->servicoIssqn = $servicoIssqn;
     }
+
     public function setCodigoChassiVeiculo(?string $codigoChassiVeiculo): void
     {
         $this->codigoChassiVeiculo = $codigoChassiVeiculo;
     }
+
     public function setValorUnitario(?float $valorUnitario): void
     {
         $this->valorUnitario = $valorUnitario;
     }
+
     public function setQuantidadeEstoqueInicial(?float $quantidadeEstoqueInicial): void
     {
         $this->quantidadeEstoqueInicial = $quantidadeEstoqueInicial;
     }
+
     public function setValorEstoqueInicial(?float $valorEstoqueInicial): void
     {
         $this->valorEstoqueInicial = $valorEstoqueInicial;
     }
+
     public function setCodigoSitTributariaIcms(?int $codigoSitTributariaIcms): void
     {
         $this->codigoSitTributariaIcms = $codigoSitTributariaIcms;
     }
+
     public function setAliquotaIcms(?float $aliquotaIcms): void
     {
         $this->aliquotaIcms = $aliquotaIcms;
     }
+
     public function setAliquotaIpi(?float $aliquotaIpi): void
     {
         $this->aliquotaIpi = $aliquotaIpi;
     }
+
     public function setPeriodicidadeIpi(?string $periodicidadeIpi): void
     {
         $this->periodicidadeIpi = $periodicidadeIpi;
     }
+
     public function setObservacao(?string $observacao): void
     {
         $this->observacao = $observacao;
     }
+
     public function setExportaDnf(?string $exportaDnf): void
     {
         $this->exportaDnf = $exportaDnf;
     }
+
     public function setExTipi(?string $exTipi): void
     {
         $this->exTipi = $exTipi;
     }
+
     public function setDnfCodigoEspecieProduto(?int $dnfCodigoEspecieProduto): void
     {
         $this->dnfCodigoEspecieProduto = $dnfCodigoEspecieProduto;
     }
+
     public function setDnfUnidadeMedidaPadrao(?int $dnfUnidadeMedidaPadrao): void
     {
         $this->dnfUnidadeMedidaPadrao = $dnfUnidadeMedidaPadrao;
     }
+
     public function setDnfFatorConversao(?float $dnfFatorConversao): void
     {
         $this->dnfFatorConversao = $dnfFatorConversao;
     }
+
     public function setDnfCodigoProduto(?int $dnfCodigoProduto): void
     {
         $this->dnfCodigoProduto = $dnfCodigoProduto;
     }
+
     public function setDnfCapacidadeVolumetrica(?int $dnfCapacidadeVolumetrica): void
     {
         $this->dnfCapacidadeVolumetrica = $dnfCapacidadeVolumetrica;
     }
+
     public function setSeDicCodigoEan(?string $seDicCodigoEan): void
     {
         $this->seDicCodigoEan = $seDicCodigoEan;
     }
+
     public function setSeDicCodigoProdutoRelevante(?int $seDicCodigoProdutoRelevante): void
     {
         $this->seDicCodigoProdutoRelevante = $seDicCodigoProdutoRelevante;
     }
+
     public function setScancGera(?string $scancGera): void
     {
         $this->scancGera = $scancGera;
     }
+
     public function setScancCodigoProduto(?int $scancCodigoProduto): void
     {
         $this->scancCodigoProduto = $scancCodigoProduto;
     }
+
     public function setScancContemGasolinaA(?string $scancContemGasolinaA): void
     {
         $this->scancContemGasolinaA = $scancContemGasolinaA;
     }
+
     public function setScancTipoProduto(?string $scancTipoProduto): void
     {
         $this->scancTipoProduto = $scancTipoProduto;
     }
+
     public function setGrfCtbGera(?string $grfCtbGera): void
     {
         $this->grfCtbGera = $grfCtbGera;
     }
+
     public function setGrfCtbCodigoProduto(?int $grfCtbCodigoProduto): void
     {
         $this->grfCtbCodigoProduto = $grfCtbCodigoProduto;
     }
+
     public function setDieFUnidade(?string $diefUnidade): void
     {
         $this->diefUnidade = $diefUnidade;
     }
+
     public function setDieFTipoProdutoServico(?int $diefTipoProdutoServico): void
     {
         $this->diefTipoProdutoServico = $diefTipoProdutoServico;
     }
+
     public function setSintegra88St(?string $sintegra88St): void
     {
         $this->sintegra88St = $sintegra88St;
     }
+
     public function setSintegra88StCodigoProduto(?int $sintegra88StCodigoProduto): void
     {
         $this->sintegra88StCodigoProduto = $sintegra88StCodigoProduto;
     }
+
     public function setGoInfoIpmDpi(?string $goInfoIpmDpi): void
     {
         $this->goInfoIpmDpi = $goInfoIpmDpi;
     }
+
     public function setGoCodigoProdutoServicoIpmDpi(?int $goCodigoProdutoServicoIpmDpi): void
     {
         $this->goCodigoProdutoServicoIpmDpi = $goCodigoProdutoServicoIpmDpi;
     }
+
     public function setGoProdutoRelacionado(?string $goProdutoRelacionado): void
     {
         $this->goProdutoRelacionado = $goProdutoRelacionado;
     }
+
     public function setAmCestaBasica(?string $amCestaBasica): void
     {
         $this->amCestaBasica = $amCestaBasica;
     }
+
     public function setAmCodigoProdutoDam(?int $amCodigoProdutoDam): void
     {
         $this->amCodigoProdutoDam = $amCodigoProdutoDam;
     }
+
     public function setRsProdutoSubstTributaria(?string $rsProdutoSubstTributaria): void
     {
         $this->rsProdutoSubstTributaria = $rsProdutoSubstTributaria;
     }
+
     public function setRsDataInicioSubstTributaria(?string $rsDataInicioSubstTributaria): void
     {
         $this->rsDataInicioSubstTributaria = $rsDataInicioSubstTributaria;
     }
+
     public function setRsProdutoPrecoTabelado(?string $rsProdutoPrecoTabelado): void
     {
         $this->rsProdutoPrecoTabelado = $rsProdutoPrecoTabelado;
     }
+
     public function setRsValorUnitarioSubstTributaria(?float $rsValorUnitarioSubstTributaria): void
     {
         $this->rsValorUnitarioSubstTributaria = $rsValorUnitarioSubstTributaria;
     }
+
     public function setRsMvaSubstTributaria(?float $rsMvaSubstTributaria): void
     {
         $this->rsMvaSubstTributaria = $rsMvaSubstTributaria;
     }
+
     public function setRsGrupoSubstTributaria(?string $rsGrupoSubstTributaria): void
     {
         $this->rsGrupoSubstTributaria = $rsGrupoSubstTributaria;
     }
+
     public function setPrEquipamentoEcf(?string $prEquipamentoEcf): void
     {
         $this->prEquipamentoEcf = $prEquipamentoEcf;
     }
+
     public function setMsPossuiIncentivoFiscal(?string $msPossuiIncentivoFiscal): void
     {
         $this->msPossuiIncentivoFiscal = $msPossuiIncentivoFiscal;
     }
+
     public function setDfProdutoRegimeEspecial(?string $dfProdutoRegimeEspecial): void
     {
         $this->dfProdutoRegimeEspecial = $dfProdutoRegimeEspecial;
     }
+
     public function setDfItemPadraoRegimeEspecial(?int $dfItemPadraoRegimeEspecial): void
     {
         $this->dfItemPadraoRegimeEspecial = $dfItemPadraoRegimeEspecial;
     }
+
     public function setPeTipoProduto(?int $peTipoProduto): void
     {
         $this->peTipoProduto = $peTipoProduto;
     }
+
     public function setSpControlaRessarcimentoCat1799(?string $spControlaRessarcimentoCat1799): void
     {
         $this->spControlaRessarcimentoCat1799 = $spControlaRessarcimentoCat1799;
     }
+
     public function setSpDataSaldoInicialCat1799(?string $spDataSaldoInicialCat1799): void
     {
         $this->spDataSaldoInicialCat1799 = $spDataSaldoInicialCat1799;
     }
+
     public function setSpValorUnitariosCat1799(?float $spValorUnitariosCat1799): void
     {
         $this->spValorUnitariosCat1799 = $spValorUnitariosCat1799;
     }
+
     public function setSpQuantidadeCat1799(?float $spQuantidadeCat1799): void
     {
         $this->spQuantidadeCat1799 = $spQuantidadeCat1799;
     }
+
     public function setSpValorFinalCat1799(?float $spValorFinalCat1799): void
     {
         $this->spValorFinalCat1799 = $spValorFinalCat1799;
     }
+
     public function setSpedGenero(?int $spedGenero): void
     {
         $this->spedGenero = $spedGenero;
     }
+
     public function setSpedCodigoServico(?int $spedCodigoServico): void
     {
         $this->spedCodigoServico = $spedCodigoServico;
     }
+
     public function setSpedTipoItem(?int $spedTipoItem): void
     {
         $this->spedTipoItem = $spedTipoItem;
     }
+
     public function setSpedClassificacao(?int $spedClassificacao): void
     {
         $this->spedClassificacao = $spedClassificacao;
     }
+
     public function setSpedContaContabilEstoqueEmSeuPoder(?int $spedContaContabilEstoqueEmSeuPoder): void
     {
         $this->spedContaContabilEstoqueEmSeuPoder = $spedContaContabilEstoqueEmSeuPoder;
     }
+
     public function setSpedContaContabilEstoqueEmPoderTerceiros(?int $spedContaContabilEstoqueEmPoderTerceiros): void
     {
         $this->spedContaContabilEstoqueEmPoderTerceiros = $spedContaContabilEstoqueEmPoderTerceiros;
     }
+
     public function setSpedContaContabilEstoqueTerceirosEmSeuPoder(?int $spedContaContabilEstoqueTerceirosEmSeuPoder): void
     {
         $this->spedContaContabilEstoqueTerceirosEmSeuPoder = $spedContaContabilEstoqueTerceirosEmSeuPoder;
     }
+
     public function setSpedTipoReceita(?string $spedTipoReceita): void
     {
         $this->spedTipoReceita = $spedTipoReceita;
     }
+
     public function setSpedEnergiaGasCanalizado(?int $spedEnergiaGasCanalizado): void
     {
         $this->spedEnergiaGasCanalizado = $spedEnergiaGasCanalizado;
     }
+
     public function setDataCadastro(?string $dataCadastro): void
     {
         $this->dataCadastro = $dataCadastro;
     }
+
     public function setProdutoEscrituradoLmc(?string $produtoEscrituradoLmc): void
     {
         $this->produtoEscrituradoLmc = $produtoEscrituradoLmc;
     }
+
     public function setCodigoCombustivelDf(?string $codigoCombustivelDf): void
     {
         $this->codigoCombustivelDf = $codigoCombustivelDf;
     }
+
     public function setCodigoCombustivelAnp(?string $codigoCombustivelAnp): void
     {
         $this->codigoCombustivelAnp = $codigoCombustivelAnp;
     }
+
     public function setProdutoRelacionadoMp5402011(?string $produtoRelacionadoMp5402011): void
     {
         $this->produtoRelacionadoMp5402011 = $produtoRelacionadoMp5402011;
     }
+
     public function setDescricaoComplementarLancamentoNotas(?string $descricaoComplementarLancamentoNotas): void
     {
         $this->descricaoComplementarLancamentoNotas = $descricaoComplementarLancamentoNotas;
     }
+
     public function setCodigoAtividadeInssFolha(?string $codigoAtividadeInssFolha): void
     {
         $this->codigoAtividadeInssFolha = $codigoAtividadeInssFolha;
     }
+
     public function setDaconTipoProduto(?string $daconTipoProduto): void
     {
         $this->daconTipoProduto = $daconTipoProduto;
     }
+
     public function setDaconCreditoPresumidoAgroindustriais(?string $daconCreditoPresumidoAgroindustriais): void
     {
         $this->daconCreditoPresumidoAgroindustriais = $daconCreditoPresumidoAgroindustriais;
     }
+
     public function setDesconsiderar(?int $desconsiderar): void
     {
         $this->desconsiderar = $desconsiderar;
     }
+
     public function setSpedContaContabilEstoqueEmProcesso(?int $spedContaContabilEstoqueEmProcesso): void
     {
         $this->spedContaContabilEstoqueEmProcesso = $spedContaContabilEstoqueEmProcesso;
     }
+
     public function setSpedContaContabilEstoqueHistoricoProcesso(?int $spedContaContabilEstoqueHistoricoProcesso): void
     {
         $this->spedContaContabilEstoqueHistoricoProcesso = $spedContaContabilEstoqueHistoricoProcesso;
     }
+
     public function setSpedContaContabilEstoqueAcabado(?int $spedContaContabilEstoqueAcabado): void
     {
         $this->spedContaContabilEstoqueAcabado = $spedContaContabilEstoqueAcabado;
     }
+
     public function setSpedContaContabilEstoqueHistoricoAcabado(?int $spedContaContabilEstoqueHistoricoAcabado): void
     {
         $this->spedContaContabilEstoqueHistoricoAcabado = $spedContaContabilEstoqueHistoricoAcabado;
     }
+
     public function setCodigoCest(?int $codigoCest): void
     {
         $this->codigoCest = $codigoCest;
     }
+
     public function setRegistroExportacaoRe(?int $registroExportacaoRe): void
     {
         $this->registroExportacaoRe = $registroExportacaoRe;
     }
+
     public function setIdentificador(?string $identificador): void
     {
         $this->identificador = $identificador;

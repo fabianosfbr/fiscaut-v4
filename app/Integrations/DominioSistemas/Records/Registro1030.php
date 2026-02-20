@@ -3,8 +3,8 @@
 namespace App\Integrations\DominioSistemas\Records;
 
 use App\Models\Issuer;
-use App\Models\Tagged;
 use App\Models\NotaFiscalEletronica;
+use App\Models\Tagged;
 
 /**
  * Registro 1030 - Notas Fiscais de Entrada - Estoque
@@ -12,9 +12,13 @@ use App\Models\NotaFiscalEletronica;
 class Registro1030 extends RegistroBase
 {
     private array $produto;
+
     private ?string $cfopEquivalente;
+
     private NotaFiscalEletronica $notaFiscal;
+
     private Issuer $issuer;
+
     private Tagged $tagged;
 
     public function __construct(
@@ -38,7 +42,7 @@ class Registro1030 extends RegistroBase
 
     public function converterParaLinhaTxt(): string
     {
-       
+
         $isZeraIcms = $this->isZeraIcms($this->issuer, $this->tagged->tag_id);
         $isZeraIpi = $this->isZeraIpi($this->issuer, $this->tagged->tag_id);
 
@@ -58,7 +62,7 @@ class Registro1030 extends RegistroBase
         $campos[] = $isZeraIcms ? '090' : $this->converterCSTICMS($this->produto['impostos']['CST'] ?? ''); // 10: Código da Situação Tributária
         $campos[] = $this->formatarCampo($this->produto['vProd'] ?? 0, null, 'D'); // 11: Valor bruto do produto
         $campos[] = $this->formatarCampo($this->produto['vDesc'] ?? 0, null, 'D'); // 12: Valor do desconto
-        $campos[] = $isZeraIcms ? '0,00' : $this->converterCSTICMS($this->produto['impostos']['vBC'] ?? '');; // 13: Base de cálculo do ICMS
+        $campos[] = $isZeraIcms ? '0,00' : $this->converterCSTICMS($this->produto['impostos']['vBC'] ?? ''); // 13: Base de cálculo do ICMS
 
         $campos[] = $this->formatarCampo($this->produto['impostos']['vBCFCPUFDest'] ?? '', null, 'N'); // 14: Base de cálculo do ICMS p/ Substituição Tributária
         $campos[] = $this->formatarCampo($this->produto['impostos']['pICMS'] ?? '', null, 'C'); // 15: Alíquota do ICMS
@@ -83,7 +87,6 @@ class Registro1030 extends RegistroBase
 
         // COFINS
         $cofinsData = $this->extrairDadosCofins($impostos);
-
 
         $campos[] = '0,00'; // 26: ICMS NFP
         $campos[] = $this->formatarCampo($this->produto['vUnCom'] ?? 0, null, 'D6'); // 27: Valor Unitário (6 decimais)
@@ -220,7 +223,6 @@ class Registro1030 extends RegistroBase
         return $this->montarLinha($campos);
     }
 
-
     private function extrairDadosIcms($imposto)
     {
         if (isset($imposto['ICMS'])) {
@@ -228,6 +230,7 @@ class Registro1030 extends RegistroBase
                 return $value; // Retorna o array do primeiro tipo de ICMS encontrado
             }
         }
+
         return [];
     }
 
@@ -236,6 +239,7 @@ class Registro1030 extends RegistroBase
         if (isset($imposto['IPI']['IPITrib'])) {
             return $imposto['IPI']['IPITrib'];
         }
+
         return [];
     }
 
@@ -246,6 +250,7 @@ class Registro1030 extends RegistroBase
                 return $value;
             }
         }
+
         return [];
     }
 
@@ -256,6 +261,7 @@ class Registro1030 extends RegistroBase
                 return $value;
             }
         }
+
         return [];
     }
 }

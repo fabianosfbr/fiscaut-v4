@@ -2,11 +2,10 @@
 
 namespace App\Filament\Resources\ParametroSuperLogicas\Pages;
 
-use App\Models\PlanoDeConta;
-use Filament\Actions\DeleteAction;
-use Illuminate\Support\Facades\Auth;
-use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\ParametroSuperLogicas\ParametroSuperLogicaResource;
+use App\Models\PlanoDeConta;
+use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Auth;
 
 class EditParametroSuperLogica extends EditRecord
 {
@@ -30,7 +29,6 @@ class EditParametroSuperLogica extends EditRecord
 
         return $data;
     }
-
 
     protected function mutateFormDataBeforeFill(array $data): array
     {

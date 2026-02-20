@@ -2,16 +2,16 @@
 
 namespace App\Console\Commands\Sefaz;
 
-use App\Models\Issuer;
-use Illuminate\Support\Carbon;
-use Illuminate\Console\Command;
-use App\Models\LogSefazCteContent;
-use Illuminate\Support\Facades\Log;
 use App\Jobs\Sefaz\SefazCteDownloadAndProcessBatchJob;
+use App\Models\Issuer;
+use App\Models\LogSefazCteContent;
+use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class MonitoraNsuCteFaltante extends Command
 {
-     protected $signature = 'app:monitora-nsu-cte-faltante
+    protected $signature = 'app:monitora-nsu-cte-faltante
                                 {--issuer= : ID do emitente para download específico}
                                 {--nsu= : NSU inicial para consulta}';
 
@@ -35,7 +35,7 @@ class MonitoraNsuCteFaltante extends Command
         $issuers = Issuer::where('validade_certificado', '>', now())
             ->where('is_enabled', true)
             ->where('cte_servico', true)
-            ->when($issuerId !== null, fn($q) => $q->where('id', $issuerId))
+            ->when($issuerId !== null, fn ($q) => $q->where('id', $issuerId))
             ->get();
 
         foreach ($issuers as $issuer) {
@@ -54,7 +54,7 @@ class MonitoraNsuCteFaltante extends Command
                     ->get()->pluck('nsu', 'id');
 
                 for ($nsu = $min; $nsu < $max; $nsu++) {
-                    if (!$nsus->contains($nsu)) {
+                    if (! $nsus->contains($nsu)) {
 
                         SefazCteDownloadAndProcessBatchJob::dispatch(issuer: $issuer, nsu: $nsu);
 

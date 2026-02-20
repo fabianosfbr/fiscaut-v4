@@ -2,22 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class ParametroSuperLogica extends Model
 {
     protected $with = ['contaCredito', 'contaDebito'];
+
     protected $table = 'contabil_parametros_gerais_super_logica';
 
     protected $guarded = ['id'];
-
 
     protected $casts = [
         'params' => 'array',
         'check_value' => 'boolean',
     ];
-
 
     public function contaCredito()
     {

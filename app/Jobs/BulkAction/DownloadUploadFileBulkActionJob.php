@@ -43,16 +43,16 @@ class DownloadUploadFileBulkActionJob implements ShouldQueue
     {
         try {
             // Ensure the downloads directory exists with proper permissions
-            $directory = 'downloads/' . now()->format('m-Y');
-            $directoryPath = storage_path('app/private/' . $directory);
+            $directory = 'downloads/'.now()->format('m-Y');
+            $directoryPath = storage_path('app/private/'.$directory);
 
-            if (!is_dir($directoryPath)) {
+            if (! is_dir($directoryPath)) {
                 mkdir($directoryPath, 0755, true);
             }
 
-            $randomName = Str::random(8) . '.zip';
-            $filename = $directory . '/' . $randomName;
-            $pathFile = storage_path('app/private/' . $filename);
+            $randomName = Str::random(8).'.zip';
+            $filename = $directory.'/'.$randomName;
+            $pathFile = storage_path('app/private/'.$filename);
 
             $zip = new ZipArchive;
             $result = $zip->open($pathFile, ZipArchive::CREATE | ZipArchive::OVERWRITE);
@@ -62,7 +62,7 @@ class DownloadUploadFileBulkActionJob implements ShouldQueue
                     'result_code' => $result,
                     'path_file' => $pathFile,
                     'job_class' => self::class,
-                    'user_id' => $this->userId
+                    'user_id' => $this->userId,
                 ]);
 
                 throw new \Exception("Could not create zip file. Error code: {$result}");
@@ -72,13 +72,13 @@ class DownloadUploadFileBulkActionJob implements ShouldQueue
                 foreach ($this->records as $file) {
                     $tipoDocumentos = config('admin.doc_types');
                     if (count($file->tagged) > 1) {
-                        $name = $tipoDocumentos[$file->doc_type->value] . '/' . '#Multiplas Etiquetas/' . basename($file->path);
+                        $name = $tipoDocumentos[$file->doc_type->value].'/'.'#Multiplas Etiquetas/'.basename($file->path);
                         $file_content = Storage::disk('local')->get($file->path);
                         $zip->addFromString($name, $file_content);
                     } else {
                         foreach ($file->tagNamesWithCode() as $path) {
                             $file_content = Storage::disk('local')->get($file->path);
-                            $name = $tipoDocumentos[$file->doc_type->value] . '/' . $path . '/' . basename($file->path);
+                            $name = $tipoDocumentos[$file->doc_type->value].'/'.$path.'/'.basename($file->path);
                             $zip->addFromString($name, $file_content);
                         }
                     }
@@ -87,13 +87,13 @@ class DownloadUploadFileBulkActionJob implements ShouldQueue
                 foreach ($this->records as $file) {
 
                     if (count($file->tagged) > 1) {
-                        $name = '#Multiplas Etiquetas/' . basename($file->path);
+                        $name = '#Multiplas Etiquetas/'.basename($file->path);
                         $file_content = Storage::disk('local')->get($file->path);
                         $zip->addFromString($name, $file_content);
                     } else {
                         foreach ($file->tagNamesWithCode() as $path) {
                             $file_content = Storage::disk('local')->get($file->path);
-                            $name = $path . '/' . basename($file->path);
+                            $name = $path.'/'.basename($file->path);
                             $zip->addFromString($name, $file_content);
                         }
                     }
@@ -102,11 +102,11 @@ class DownloadUploadFileBulkActionJob implements ShouldQueue
 
             // Properly close the zip archive with error checking
             $closeResult = $zip->close();
-            if (!$closeResult) {
+            if (! $closeResult) {
                 Log::error('Failed to close zip archive', [
                     'path_file' => $pathFile,
                     'job_class' => self::class,
-                    'user_id' => $this->userId
+                    'user_id' => $this->userId,
                 ]);
 
                 throw new \Exception('Could not close zip file properly');
@@ -116,7 +116,7 @@ class DownloadUploadFileBulkActionJob implements ShouldQueue
             $secureDownload = SecureDownload::create([
                 'user_id' => $this->userId,
                 'file_path' => $filename,
-                'file_name' => 'arquivos_' . now()->format('Ymd_His') . '.zip',
+                'file_name' => 'arquivos_'.now()->format('Ymd_His').'.zip',
                 'mime_type' => 'application/zip',
                 'size' => filesize($pathFile),
                 'job_class' => self::class,
@@ -143,7 +143,7 @@ class DownloadUploadFileBulkActionJob implements ShouldQueue
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'user_id' => $this->userId,
-                'job_class' => self::class
+                'job_class' => self::class,
             ]);
 
             // Re-throw the exception to fail the job appropriately

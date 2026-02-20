@@ -1,28 +1,26 @@
 <?php
 
-use Livewire\Component;
+use App\Filament\Forms\Components\SelectTagGrouped;
 use App\Models\CategoryTag;
-use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Repeater;
 use App\Models\EntradasProdutosGenerico;
+use App\Models\GrupoEntradasProdutosGenerico;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Actions\Contracts\HasActions;
-use Filament\Schemas\Contracts\HasSchemas;
-use App\Models\GrupoEntradasProdutosGenerico;
-use App\Filament\Forms\Components\SelectTagGrouped;
-use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Livewire\Component;
 
-
-new class extends Component implements HasSchemas, HasActions
+new class extends Component implements HasActions, HasSchemas
 {
-    use InteractsWithSchemas;
     use InteractsWithActions;
+    use InteractsWithSchemas;
 
     public ?array $data = [];
 
@@ -176,7 +174,7 @@ new class extends Component implements HasSchemas, HasActions
             $this->showSuccessNotification();
             $this->refreshFormData();
         } catch (\Exception $e) {
-            Log::error('Erro ao salvar produtos genéricos: ' . $e->getMessage());
+            Log::error('Erro ao salvar produtos genéricos: '.$e->getMessage());
             $this->showErrorNotification($e->getMessage());
         } finally {
             $this->isLoading = false;
@@ -265,7 +263,7 @@ new class extends Component implements HasSchemas, HasActions
     {
         Notification::make()
             ->title('Erro')
-            ->body('Erro ao salvar produtos genéricos: ' . $message)
+            ->body('Erro ao salvar produtos genéricos: '.$message)
             ->danger()
             ->send();
     }

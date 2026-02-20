@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands\Sefaz;
 
-use App\Models\Issuer;
-use Illuminate\Support\Carbon;
-use Illuminate\Console\Command;
-use App\Models\LogSefazNfeContent;
-use Illuminate\Support\Facades\Log;
 use App\Jobs\Sefaz\SefazNfeDownloadAndProcessBatchJob;
+use App\Models\Issuer;
+use App\Models\LogSefazNfeContent;
+use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class MonitoraNsuNfeFaltante extends Command
 {
@@ -40,7 +40,7 @@ class MonitoraNsuNfeFaltante extends Command
         $issuers = Issuer::where('validade_certificado', '>', now())
             ->where('is_enabled', true)
             ->where('nfe_servico', true)
-            ->when($issuerId !== null, fn($q) => $q->where('id', $issuerId))
+            ->when($issuerId !== null, fn ($q) => $q->where('id', $issuerId))
             ->get();
 
         foreach ($issuers as $issuer) {
@@ -59,7 +59,7 @@ class MonitoraNsuNfeFaltante extends Command
                     ->get()->pluck('nsu', 'id');
 
                 for ($nsu = $min; $nsu < $max; $nsu++) {
-                    if (!$nsus->contains($nsu)) {
+                    if (! $nsus->contains($nsu)) {
 
                         SefazNfeDownloadAndProcessBatchJob::dispatch(issuer: $issuer, nsu: $nsu);
 

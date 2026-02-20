@@ -4,9 +4,9 @@ namespace App\Integrations\DominioSistemas\Records;
 
 /**
  * Registro 0000 - Identificação da Empresa (Header)
- * Este registro é obrigatório e deve ser o primeiro do arquivo para identificar 
+ * Este registro é obrigatório e deve ser o primeiro do arquivo para identificar
  * a empresa à qual os dados pertencem.
- * 
+ *
  * Campos:
  * 1 - Identificação do registro (fixo: 0000)
  * 2 - Inscrição da empresa (CNPJ/CPF/CEI/CAEPF da empresa)
@@ -38,7 +38,7 @@ class Registro0000 extends RegistroBase
     public function isValid(): bool
     {
         // Validação específica para o Registro 0000
-        return !empty($this->inscricaoEmpresa) && 
+        return ! empty($this->inscricaoEmpresa) &&
                preg_match('/^\d{11,14}$/', $this->inscricaoEmpresa); // CNPJ ou CPF
     }
 

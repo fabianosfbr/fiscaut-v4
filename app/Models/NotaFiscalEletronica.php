@@ -153,20 +153,20 @@ class NotaFiscalEletronica extends Model
                     'vICMS' => searchValueInArray($imposto, 'vICMS') ?? 0.0,
                     'pST' => searchValueInArray($imposto, 'pST') ?? 0.0,
                     'vBCSTRet' => searchValueInArray($imposto, 'vBCSTRet') ?? 0.0,
-                    'vICMSSubstituto' => searchValueInArray($imposto, 'vICMSSubstituto') ?? 0.0,                    
+                    'vICMSSubstituto' => searchValueInArray($imposto, 'vICMSSubstituto') ?? 0.0,
                     'vICMSSTRet' => searchValueInArray($imposto, 'vICMSSTRet') ?? 0.0,
                     'vIPI' => searchValueInArray($imposto, 'vIPI') ?? 0.0,
                     'vPIS' => searchValueInArray($imposto, 'vPIS') ?? 0.0,
                     'pPIS' => searchValueInArray($imposto, 'pPIS') ?? 0.0,
                     'vCOFINS' => searchValueInArray($imposto, 'vCOFINS') ?? 0.0,
-                    'pCOFINS' => searchValueInArray($imposto, 'pCOFINS') ?? 0.0,                    
+                    'pCOFINS' => searchValueInArray($imposto, 'pCOFINS') ?? 0.0,
                     'vBCFCPUFDest' => isset($imposto['ICMSUFDest']) ? searchValueInArray($imposto['ICMSUFDest'], 'vBCFCPUFDest') ?? 0.0 : 0.0,
                     'pICMSUFDest' => isset($imposto['ICMSUFDest']) ? searchValueInArray($imposto['ICMSUFDest'], 'pICMSUFDest') ?? 0.0 : 0.0,
                     'pICMSInter' => isset($imposto['ICMSUFDest']) ? searchValueInArray($imposto['ICMSUFDest'], 'pICMSInter') ?? 0.0 : 0.0,
                     'pICMSInterPart' => isset($imposto['ICMSUFDest']) ? searchValueInArray($imposto['ICMSUFDest'], 'pICMSInterPart') ?? 0.0 : 0.0,
                     'vICMSUFDest' => isset($imposto['ICMSUFDest']) ? searchValueInArray($imposto['ICMSUFDest'], 'vICMSUFDest') ?? 0.0 : 0.0,
                     'vICMSUFRemet' => isset($imposto['ICMSUFDest']) ? searchValueInArray($imposto['ICMSUFDest'], 'vICMSUFRemet') ?? 0.0 : 0.0,
-                    
+
                 ],
             ];
         }, $detList));

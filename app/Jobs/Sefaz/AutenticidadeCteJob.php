@@ -2,18 +2,18 @@
 
 namespace App\Jobs\Sefaz;
 
+use App\Models\ConhecimentoTransporteEletronico;
 use App\Models\Issuer;
-use NFePHP\CTe\Complements;
 use Illuminate\Bus\Queueable;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use NFePHP\CTe\Common\Standardize;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Models\ConhecimentoTransporteEletronico;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use NFePHP\CTe\Common\Standardize;
+use NFePHP\CTe\Complements;
 
 class AutenticidadeCteJob implements ShouldQueue
 {
@@ -60,7 +60,7 @@ class AutenticidadeCteJob implements ShouldQueue
 
                     DB::table('log_sefaz_cte_events')->where('id', $evento->id)->update(['is_verificado_sefaz' => true]);
 
-                    Log::warning('CTe cancelada:' . $cte->chave);
+                    Log::warning('CTe cancelada:'.$cte->chave);
                 }
 
                 if ($result == '110111') {

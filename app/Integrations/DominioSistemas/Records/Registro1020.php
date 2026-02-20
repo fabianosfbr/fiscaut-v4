@@ -2,18 +2,18 @@
 
 namespace App\Integrations\DominioSistemas\Records;
 
-use App\Models\Issuer;
-use App\Models\Tagged;
-use App\Models\GeneralSetting;
-use App\Models\NotaFiscalEletronica;
 use App\Models\EntradasImpostosEquivalente;
+use App\Models\GeneralSetting;
+use App\Models\Issuer;
+use App\Models\NotaFiscalEletronica;
+use App\Models\Tagged;
 
 /**
  * Registro 1020 - Notas Fiscais de Entrada - Impostos
- * 
+ *
  * Este registro é filho do registro 1000 e contém os valores de impostos
  * da nota fiscal de entrada.
- * 
+ *
  * Deve ser gerado um registro 1020 para cada tipo de imposto:
  * - Código 1: ICMS
  * - Código 2: IPI
@@ -21,14 +21,12 @@ use App\Models\EntradasImpostosEquivalente;
  */
 class Registro1020 extends RegistroBase
 {
-
-
-
     private Tagged $tagged;
 
     private NotaFiscalEletronica $notaFiscal;
 
     private Issuer $issuer;
+
     /**
      * Campo 2 - Código do imposto
      * 1 = ICMS
@@ -153,11 +151,11 @@ class Registro1020 extends RegistroBase
 
     /**
      * Construtor do registro 1020
-     * 
-     * @param int $codigoImposto Código do imposto (1=ICMS, 2=IPI, 8=DIFAL)
-     * @param array $valoresSegmento Valores do segmento da nota fiscal
-     * @param NotaFiscalEletronica $notaFiscal Nota fiscal eletrônica
-     * @param Tagged $tagged Tagged
+     *
+     * @param  int  $codigoImposto  Código do imposto (1=ICMS, 2=IPI, 8=DIFAL)
+     * @param  array  $valoresSegmento  Valores do segmento da nota fiscal
+     * @param  NotaFiscalEletronica  $notaFiscal  Nota fiscal eletrônica
+     * @param  Tagged  $tagged  Tagged
      */
     public function __construct(
         int $codigoImposto,
@@ -182,10 +180,6 @@ class Registro1020 extends RegistroBase
 
     /**
      * Preenche os campos do registro conforme o tipo de imposto
-     * 
-     * @param array $valoresSegmento
-     * @param NotaFiscalEletronica $notaFiscal
-     * @return void
      */
     private function preencherCamposPorImposto(array $valoresSegmento, NotaFiscalEletronica $notaFiscal): void
     {
@@ -204,7 +198,7 @@ class Registro1020 extends RegistroBase
 
     /**
      * Preenche os campos para ICMS (Código 1)
-     * 
+     *
      * Regras contábeis aplicadas:
      * - CST 00: Tributado integralmente. Base e Imposto preenchidos.
      * - CST 10: Tributado com ST. Base e Imposto preenchidos. ST ignorado neste registro (foco no ICMS próprio) ou tratado se houver campo.
@@ -212,7 +206,7 @@ class Registro1020 extends RegistroBase
      * - CST 30/40/41/50/60: Isenções/Não incidência. Valor vai para Isentas/Outras.
      * - CST 51: Diferimento. Pode ter valor parcial.
      * - CST 90: Outros.
-     * 
+     *
      * O sistema verifica configurações de "Zerar ICMS" (EntradasImpostosEquivalente).
      * Se "Zerar ICMS" estiver ativo, Base e Imposto são zerados e o valor vai para Isentas/Outras.
      */
@@ -222,7 +216,7 @@ class Registro1020 extends RegistroBase
         $csosn = (string) ($valoresSegmento['csosn'] ?? $valoresSegmento['CSOSN'] ?? '');
 
         // Se CST vier vazio e tiver CSOSN, converte para CST equivalente para processamento
-        if (empty($cst) && !empty($csosn)) {
+        if (empty($cst) && ! empty($csosn)) {
             $cst = match ($csosn) {
                 '101' => '00', // Permite crédito
                 '102', '103', '300', '400' => '41', // Não permite crédito (Não tributada)
@@ -245,7 +239,7 @@ class Registro1020 extends RegistroBase
         $this->valorContabil = $valorProdutos;
         $this->valorIpi = $valorIpi;
         $this->valorSubstituicaoTributaria = 0; // Padrão zero, ajustar se necessário
-        
+
         // Verifica se deve zerar ICMS (regra de negócio/configuração)
         if ($this->isZeraIcms($this->issuer, $this->tagged->tag_id)) {
             $this->baseCalculo = 0;
@@ -253,6 +247,7 @@ class Registro1020 extends RegistroBase
             $this->valorImposto = 0;
             $this->valorIsentas = 0;
             $this->valorOutras = $this->valorContabil; // Move tudo para Outras
+
             return;
         }
 
@@ -267,13 +262,13 @@ class Registro1020 extends RegistroBase
                 break;
 
             case '10': // Tributada e com cobrança de ICMS por substituição tributária
-                // Aqui foca-se no ICMS próprio. O ST geralmente vai em outro campo ou registro, 
+                // Aqui foca-se no ICMS próprio. O ST geralmente vai em outro campo ou registro,
                 // mas o layout tem campo 10 (ST). O código original zerava. Manteremos foco no próprio.
                 $this->baseCalculo = $valorBaseCalculo;
                 $this->aliquota = $percentualIcms;
                 $this->valorImposto = $valorIcms;
                 $this->valorIsentas = 0;
-                $this->valorOutras = 0; 
+                $this->valorOutras = 0;
                 break;
 
             case '20': // Com redução de base de cálculo
@@ -282,7 +277,9 @@ class Registro1020 extends RegistroBase
                 $this->aliquota = $percentualIcms;
                 $this->valorImposto = $valorIcms;
                 $this->valorIsentas = $this->valorContabil - $valorBaseCalculo; // Diferença é isenta
-                if ($this->valorIsentas < 0) $this->valorIsentas = 0;
+                if ($this->valorIsentas < 0) {
+                    $this->valorIsentas = 0;
+                }
                 $this->valorOutras = 0;
                 break;
 
@@ -297,7 +294,7 @@ class Registro1020 extends RegistroBase
                 $this->valorIsentas = $this->valorContabil; // Tudo Isento
                 $this->valorOutras = 0;
                 break;
-            
+
             case '60': // ICMS cobrado anteriormente por ST
                 // ST recolhido anteriormente -> Coluna Outras
                 $this->baseCalculo = 0;
@@ -314,17 +311,17 @@ class Registro1020 extends RegistroBase
                 $this->baseCalculo = $valorBaseCalculo;
                 $this->aliquota = $percentualIcms;
                 $this->valorImposto = $valorIcms;
-                
+
                 $diferenca = $this->valorContabil - $valorBaseCalculo;
                 $this->valorIsentas = 0;
                 $this->valorOutras = $diferenca > 0 ? $diferenca : 0; // Diferimento vai para Outras
                 break;
-            
+
             case '90': // Outras
                 $this->baseCalculo = $valorBaseCalculo;
                 $this->aliquota = $percentualIcms;
                 $this->valorImposto = $valorIcms;
-                
+
                 $diferenca = $this->valorContabil - $valorBaseCalculo;
                 $this->valorIsentas = 0;
                 $this->valorOutras = $diferenca > 0 ? $diferenca : 0;
@@ -343,16 +340,12 @@ class Registro1020 extends RegistroBase
 
     /**
      * Preenche os campos para IPI (Código 2)
-     * 
+     *
      * Regras contábeis:
      * - Base de cálculo: valor_produtos quando há IPI
      * - Valor do imposto: valor_ipi do segmento
      * - Valor de isentas: valor contábil quando não há IPI
      * - Valor do IPI: valor_ipi do segmento (campo específico)
-     * 
-     * @param array $valoresSegmento
-     * @param NotaFiscalEletronica $notaFiscal
-     * @return void
      */
     private function preencherIpi(array $valoresSegmento, NotaFiscalEletronica $notaFiscal): void
     {
@@ -360,7 +353,6 @@ class Registro1020 extends RegistroBase
         $valorIpi = (float) ($valoresSegmento['valor_ipi'] ?? 0);
         $valorProdutos = (float) ($valoresSegmento['valor_produtos'] ?? 0);
 
-      
         // Verifica se deve zerar IPI (regra de negócio/configuração)
         if ($this->isZeraIpi($this->issuer, $this->tagged->tag_id)) {
             $this->valorIpi = 0;
@@ -369,13 +361,13 @@ class Registro1020 extends RegistroBase
             $this->valorContabil = $this->valorContabil;
             $this->valorImposto = 0;
             $this->valorIsentas = 0;
-            
+
             return;
         }
 
         // Campo 9 - Valor do IPI (campo específico do registro)
         $this->valorIpi = $valorIpi > 0 ? $valorIpi : 0;
-       
+
         // Se tiver CST, usa lógica específica
         if ($cstIpi !== '') {
             switch ($cstIpi) {
@@ -417,7 +409,7 @@ class Registro1020 extends RegistroBase
                     $this->valorIsentas = $this->valorContabil;
                     $this->valorOutras = 0;
                     break;
-                
+
                 default:
                     // Fallback para lógica baseada em valor se CST não for reconhecido
                     if ($valorIpi > 0) {
@@ -441,7 +433,7 @@ class Registro1020 extends RegistroBase
                 // Campo 7 - Valor de Isentas
                 $this->valorIsentas = 0;
             } else {
-                
+
                 // Quando não há IPI, o valor contábil é considerado isento
                 $this->baseCalculo = 0;
                 $this->valorImposto = 0;
@@ -456,15 +448,11 @@ class Registro1020 extends RegistroBase
 
     /**
      * Preenche os campos para DIFAL (Código 8)
-     * 
+     *
      * Regras contábeis:
      * - Base de cálculo: valor_base_calculo do segmento
      * - Valor do imposto: valor do DIFAL (vICMSUFDest)
      * - Alíquota interestadual: diferença entre alíquota interna e interestadual
-     * 
-     * @param array $valoresSegmento
-     * @param NotaFiscalEletronica $notaFiscal
-     * @return void
      */
     private function preencherDifal(array $valoresSegmento, NotaFiscalEletronica $notaFiscal): void
     {
@@ -472,9 +460,8 @@ class Registro1020 extends RegistroBase
         $valorDifal = (float) ($notaFiscal->vICMSUFDest ?? 0);
         $valorBaseCalculo = (float) ($valoresSegmento['valor_base_calculo'] ?? 0);
 
-       
         // Campo 4 - Base de cálculo
-        $this->baseCalculo =  $valorDifal > 0 ? $valorBaseCalculo : 0;
+        $this->baseCalculo = $valorDifal > 0 ? $valorBaseCalculo : 0;
 
         // Campo 6 - Valor do Imposto (DIFAL)
         $this->valorImposto = $valorDifal > 0 ? $valorDifal : 0;
@@ -500,8 +487,6 @@ class Registro1020 extends RegistroBase
 
     /**
      * Retorna o tipo de registro
-     * 
-     * @return string
      */
     public function getTipoRegistro(): string
     {
@@ -510,8 +495,6 @@ class Registro1020 extends RegistroBase
 
     /**
      * Converte o registro para uma linha no formato TXT
-     * 
-     * @return string
      */
     public function converterParaLinhaTxt(): string
     {
@@ -542,8 +525,6 @@ class Registro1020 extends RegistroBase
 
     /**
      * Valida se o registro está em conformidade com o layout
-     * 
-     * @return bool
      */
     public function isValid(): bool
     {
@@ -552,8 +533,6 @@ class Registro1020 extends RegistroBase
 
     /**
      * Retorna o código do imposto
-     * 
-     * @return int
      */
     public function getCodigoImposto(): int
     {
@@ -562,18 +541,11 @@ class Registro1020 extends RegistroBase
 
     /**
      * Retorna o valor contábil
-     * 
-     * @return float|null
      */
     public function getValorContabil(): ?float
     {
         return $this->valorContabil;
     }
-
-    
-
-    
-
 
     public function tomaCreditoIcms(): bool
     {

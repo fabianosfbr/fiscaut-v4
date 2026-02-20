@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class EntradasProdutosGenericos extends Model
 {
-
     protected $guarded = ['id'];
 
     protected $casts = [
@@ -29,7 +27,7 @@ class EntradasProdutosGenericos extends Model
         parent::boot();
 
         static::created(function ($item) {
-            Cache::forget('grupo_entradas_produtos_genericos_' . $item->tenant_id);
+            Cache::forget('grupo_entradas_produtos_genericos_'.$item->tenant_id);
         });
     }
 }

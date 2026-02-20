@@ -2,16 +2,7 @@
 
 namespace App\Filament\Actions;
 
-use App\Models\Issuer;
-use App\Models\CategoryTag;
-use App\Models\GeneralSetting;
-use Filament\Actions\BulkAction;
-use App\Models\NotaFiscalEletronica;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\DatePicker;
-use Illuminate\Database\Eloquent\Collection;
-use App\Filament\Forms\Components\SelectTagGrouped;
+use App\Integrations\DominioSistemas\DominioSistemasService;
 use App\Integrations\DominioSistemas\Records\Registro0000;
 use App\Integrations\DominioSistemas\Records\Registro0020;
 use App\Integrations\DominioSistemas\Records\Registro0030;
@@ -20,7 +11,11 @@ use App\Integrations\DominioSistemas\Records\Registro1015;
 use App\Integrations\DominioSistemas\Records\Registro1020;
 use App\Integrations\DominioSistemas\Records\Registro1030;
 use App\Integrations\DominioSistemas\Records\Registro1500;
-use App\Integrations\DominioSistemas\DominioSistemasService;
+use App\Models\Issuer;
+use App\Models\NotaFiscalEletronica;
+use Filament\Actions\BulkAction;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 
 class GerarTxtIntegracaoDominioSistema
 {
@@ -41,7 +36,7 @@ class GerarTxtIntegracaoDominioSistema
                 $issuer = Auth::user()->currentIssuer;
                 $inscricaoEmpresa = $issuer->cnpj;
 
-                $service = new DominioSistemasService();
+                $service = new DominioSistemasService;
                 $registros = [];
 
                 // Adiciona o registro 0000 (cabeçalho) com o CNPJ da empresa
@@ -54,23 +49,20 @@ class GerarTxtIntegracaoDominioSistema
                 $registro0100s = [];
                 $registro1000s = [];
 
-
                 // Processa cada nota fiscal para coletar registros por tipo
                 foreach ($records as $notaFiscal) {
                     // Coleta registro 0020 para o emitente da nota fiscal
                     $emitenteCnpj = $notaFiscal->emitente_cnpj;
 
-                    if (!isset($registro0020s[$emitenteCnpj])) {
+                    if (! isset($registro0020s[$emitenteCnpj])) {
                         $registro0020 = new Registro0020($notaFiscal);
                         $registro0020s[$emitenteCnpj] = $registro0020;
                     }
 
-
-
                     // Coleta registro 0030 para o transportador da nota fiscal
                     if (isset($notaFiscal->transportador_cnpj)) {
                         $transportadorCnpj = $notaFiscal->transportador_cnpj;
-                        if (!isset($registro0030s[$transportadorCnpj])) {
+                        if (! isset($registro0030s[$transportadorCnpj])) {
                             $registro0030 = new Registro0030($notaFiscal);
                             $registro0030s[$transportadorCnpj] = $registro0030;
                         }
@@ -93,7 +85,7 @@ class GerarTxtIntegracaoDominioSistema
 
                                 $registro0135 = new \App\Integrations\DominioSistemas\Records\Registro0135(
                                     $notaFiscal->data_emissao,
-                                    (float)$produto['vUnCom']
+                                    (float) $produto['vUnCom']
                                 );
                                 $registro0100s[] = $registro0135;
                             }
@@ -120,7 +112,6 @@ class GerarTxtIntegracaoDominioSistema
                     // Cada CFOP gera um ou mais registros 1000, incrementando o segmento para cada etiqueta
                     $registrosPorCfop = self::agregarValoresPorCfop($notaFiscal);
 
-
                     foreach ($registrosPorCfop as $cfop => $valoresSegmento) {
                         $produtosAdicionadosCfop = false;
 
@@ -138,10 +129,8 @@ class GerarTxtIntegracaoDominioSistema
                             $numSegmento++;
                             $registro1000s[] = $registro1000;
 
-
                             // Cria registro 1010 (Informação Complementar) se houver
                             $registro1010 = new Registro1010($notaFiscal);
-
 
                             $registro1000s[] = $registro1010;
 
@@ -163,7 +152,7 @@ class GerarTxtIntegracaoDominioSistema
 
                             // Cria registros 1030 (Produtos) para cada produto do CFOP
                             // Adiciona apenas ao primeiro segmento deste CFOP para evitar duplicação
-                            if (!$produtosAdicionadosCfop && !empty($valoresSegmento['produtos'])) {
+                            if (! $produtosAdicionadosCfop && ! empty($valoresSegmento['produtos'])) {
                                 foreach ($valoresSegmento['produtos'] as $produto) {
                                     $registro1030 = new Registro1030($notaFiscal, $produto, $tagged, $issuer, $cfopEquivalente);
                                     $registro1000s[] = $registro1030;
@@ -182,7 +171,6 @@ class GerarTxtIntegracaoDominioSistema
                     }
                 }
 
-
                 // Adiciona os registros na ordem correta: 0000, 0020, 0030, 0100, 1000
                 $registros = array_merge($registros, array_values($registro0020s));
                 $registros = array_merge($registros, array_values($registro0030s));
@@ -190,21 +178,20 @@ class GerarTxtIntegracaoDominioSistema
                 $registros = array_merge($registros, $registro1000s);
 
                 $conteudo = $service->gerarConteudoTxt($registros, $inscricaoEmpresa);
-                
+
                 return response()->streamDownload(function () use ($conteudo) {
                     echo $conteudo;
-                }, str()->random(14) . '.txt');
+                }, str()->random(14).'.txt');
             });
     }
 
     /**
      * Agrega os valores das notas fiscais por CFOP e gera registros 1000.
-     * 
+     *
      * Para cada CFOP distinto na nota fiscal, calcula os valores proporcionais
      * das etiquetas e gera registros 1000 segmentados quando necessário.
      *
-     * @param NotaFiscalEletronica $notaFiscal
-     * @param Issuer $issuer
+     * @param  Issuer  $issuer
      * @return array Array de Registro1000
      */
     protected static function agregarValoresPorCfop(NotaFiscalEletronica $notaFiscal): array
@@ -221,29 +208,26 @@ class GerarTxtIntegracaoDominioSistema
         $produtos = $notaFiscal->produtos ?? [];
         $valoresPorCfop = self::agruparValoresProdutosPorCfop($produtos);
 
-
         return $valoresPorCfop;
     }
 
     /**
      * Agrupa os valores dos produtos por CFOP, incluindo impostos.
      *
-     * @param array $produtos
      * @return array Array associativo com CFOP como chave e valores agregados
      */
     protected static function agruparValoresProdutosPorCfop(array $produtos): array
     {
         $valoresPorCfop = [];
 
-
         foreach ($produtos as $produto) {
             $cfop = $produto['CFOP'] ?? null;
 
-            if (!$cfop) {
+            if (! $cfop) {
                 continue;
             }
             // Inicializa o CFOP se não existir
-            if (!isset($valoresPorCfop[$cfop])) {
+            if (! isset($valoresPorCfop[$cfop])) {
                 $valoresPorCfop[$cfop] = [
                     'cfop' => $cfop,
                     'csosn' => $produto['CSOSN'] ?? null,

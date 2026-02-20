@@ -5,7 +5,7 @@ namespace App\Integrations\DominioSistemas\Records;
 /**
  * Registro 0150 - Produtos - Unidade de Medida
  * Produtos - Unidade de medida.
- * 
+ *
  * Campos:
  * 1 - Identificação do registro (fixo: 0150)
  * 2 - Sigla
@@ -14,6 +14,7 @@ namespace App\Integrations\DominioSistemas\Records;
 class Registro0150 extends RegistroBase
 {
     private string $sigla;
+
     private string $descricao;
 
     public function __construct(
@@ -43,7 +44,7 @@ class Registro0150 extends RegistroBase
     public function isValid(): bool
     {
         // Validação específica para o Registro 0150
-        return !empty($this->sigla) && !empty($this->descricao);
+        return ! empty($this->sigla) && ! empty($this->descricao);
     }
 
     // Getters

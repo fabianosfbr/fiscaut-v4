@@ -5,7 +5,7 @@ namespace App\Integrations\DominioSistemas\Records;
 /**
  * Registro 0010 - Cadastro de Clientes
  * Utilizado para importar ou atualizar o cadastro de clientes.
- * 
+ *
  * Campos:
  * 1 - Identificação (fixo: 0010)
  * 2 - Inscrição (CNPJ/CPF/CEI/CAEPF)
@@ -34,26 +34,47 @@ namespace App\Integrations\DominioSistemas\Records;
 class Registro0010 extends RegistroBase
 {
     private string $inscricao;
+
     private string $razaoSocial;
+
     private ?string $apelido = null;
+
     private ?string $endereco = null;
+
     private ?string $numero = null;
+
     private ?string $complemento = null;
+
     private ?string $bairro = null;
+
     private ?string $codMunicipio = null;
+
     private ?string $uf = null;
+
     private ?string $codigoPais = null;
+
     private ?string $cep = null;
+
     private ?string $inscricaoEstadual = null;
+
     private ?string $inscricaoMunicipal = null;
+
     private ?string $inscricaoSuframa = null;
+
     private ?string $ddd = null;
+
     private ?string $telefone = null;
+
     private ?string $fax = null;
+
     private ?\DateTime $dataCadastro = null;
+
     private ?string $contaContabil = null;
+
     private ?string $naturezaJuridica = null;
+
     private ?string $regimeApuracao = null;
+
     private ?string $contribuinteIcms = null;
 
     public function __construct(
@@ -105,54 +126,228 @@ class Registro0010 extends RegistroBase
     public function isValid(): bool
     {
         // Validação específica para o Registro 0010
-        return !empty($this->inscricao) && !empty($this->razaoSocial);
+        return ! empty($this->inscricao) && ! empty($this->razaoSocial);
     }
 
     // Getters
-    public function getInscricao(): string { return $this->inscricao; }
-    public function getRazaoSocial(): string { return $this->razaoSocial; }
-    public function getApelido(): ?string { return $this->apelido; }
-    public function getEndereco(): ?string { return $this->endereco; }
-    public function getNumero(): ?string { return $this->numero; }
-    public function getComplemento(): ?string { return $this->complemento; }
-    public function getBairro(): ?string { return $this->bairro; }
-    public function getCodMunicipio(): ?string { return $this->codMunicipio; }
-    public function getUf(): ?string { return $this->uf; }
-    public function getCodigoPais(): ?string { return $this->codigoPais; }
-    public function getCep(): ?string { return $this->cep; }
-    public function getInscricaoEstadual(): ?string { return $this->inscricaoEstadual; }
-    public function getInscricaoMunicipal(): ?string { return $this->inscricaoMunicipal; }
-    public function getInscricaoSuframa(): ?string { return $this->inscricaoSuframa; }
-    public function getDdd(): ?string { return $this->ddd; }
-    public function getTelefone(): ?string { return $this->telefone; }
-    public function getFax(): ?string { return $this->fax; }
-    public function getDataCadastro(): ?\DateTime { return $this->dataCadastro; }
-    public function getContaContabil(): ?string { return $this->contaContabil; }
-    public function getNaturezaJuridica(): ?string { return $this->naturezaJuridica; }
-    public function getRegimeApuracao(): ?string { return $this->regimeApuracao; }
-    public function getContribuinteIcms(): ?string { return $this->contribuinteIcms; }
+    public function getInscricao(): string
+    {
+        return $this->inscricao;
+    }
+
+    public function getRazaoSocial(): string
+    {
+        return $this->razaoSocial;
+    }
+
+    public function getApelido(): ?string
+    {
+        return $this->apelido;
+    }
+
+    public function getEndereco(): ?string
+    {
+        return $this->endereco;
+    }
+
+    public function getNumero(): ?string
+    {
+        return $this->numero;
+    }
+
+    public function getComplemento(): ?string
+    {
+        return $this->complemento;
+    }
+
+    public function getBairro(): ?string
+    {
+        return $this->bairro;
+    }
+
+    public function getCodMunicipio(): ?string
+    {
+        return $this->codMunicipio;
+    }
+
+    public function getUf(): ?string
+    {
+        return $this->uf;
+    }
+
+    public function getCodigoPais(): ?string
+    {
+        return $this->codigoPais;
+    }
+
+    public function getCep(): ?string
+    {
+        return $this->cep;
+    }
+
+    public function getInscricaoEstadual(): ?string
+    {
+        return $this->inscricaoEstadual;
+    }
+
+    public function getInscricaoMunicipal(): ?string
+    {
+        return $this->inscricaoMunicipal;
+    }
+
+    public function getInscricaoSuframa(): ?string
+    {
+        return $this->inscricaoSuframa;
+    }
+
+    public function getDdd(): ?string
+    {
+        return $this->ddd;
+    }
+
+    public function getTelefone(): ?string
+    {
+        return $this->telefone;
+    }
+
+    public function getFax(): ?string
+    {
+        return $this->fax;
+    }
+
+    public function getDataCadastro(): ?\DateTime
+    {
+        return $this->dataCadastro;
+    }
+
+    public function getContaContabil(): ?string
+    {
+        return $this->contaContabil;
+    }
+
+    public function getNaturezaJuridica(): ?string
+    {
+        return $this->naturezaJuridica;
+    }
+
+    public function getRegimeApuracao(): ?string
+    {
+        return $this->regimeApuracao;
+    }
+
+    public function getContribuinteIcms(): ?string
+    {
+        return $this->contribuinteIcms;
+    }
 
     // Setters
-    public function setInscricao(string $inscricao): void { $this->inscricao = $inscricao; }
-    public function setRazaoSocial(string $razaoSocial): void { $this->razaoSocial = $razaoSocial; }
-    public function setApelido(?string $apelido): void { $this->apelido = $apelido; }
-    public function setEndereco(?string $endereco): void { $this->endereco = $endereco; }
-    public function setNumero(?string $numero): void { $this->numero = $numero; }
-    public function setComplemento(?string $complemento): void { $this->complemento = $complemento; }
-    public function setBairro(?string $bairro): void { $this->bairro = $bairro; }
-    public function setCodMunicipio(?string $codMunicipio): void { $this->codMunicipio = $codMunicipio; }
-    public function setUf(?string $uf): void { $this->uf = $uf; }
-    public function setCodigoPais(?string $codigoPais): void { $this->codigoPais = $codigoPais; }
-    public function setCep(?string $cep): void { $this->cep = $cep; }
-    public function setInscricaoEstadual(?string $inscricaoEstadual): void { $this->inscricaoEstadual = $inscricaoEstadual; }
-    public function setInscricaoMunicipal(?string $inscricaoMunicipal): void { $this->inscricaoMunicipal = $inscricaoMunicipal; }
-    public function setInscricaoSuframa(?string $inscricaoSuframa): void { $this->inscricaoSuframa = $inscricaoSuframa; }
-    public function setDdd(?string $ddd): void { $this->ddd = $ddd; }
-    public function setTelefone(?string $telefone): void { $this->telefone = $telefone; }
-    public function setFax(?string $fax): void { $this->fax = $fax; }
-    public function setDataCadastro(?\DateTime $dataCadastro): void { $this->dataCadastro = $dataCadastro; }
-    public function setContaContabil(?string $contaContabil): void { $this->contaContabil = $contaContabil; }
-    public function setNaturezaJuridica(?string $naturezaJuridica): void { $this->naturezaJuridica = $naturezaJuridica; }
-    public function setRegimeApuracao(?string $regimeApuracao): void { $this->regimeApuracao = $regimeApuracao; }
-    public function setContribuinteIcms(?string $contribuinteIcms): void { $this->contribuinteIcms = $contribuinteIcms; }
+    public function setInscricao(string $inscricao): void
+    {
+        $this->inscricao = $inscricao;
+    }
+
+    public function setRazaoSocial(string $razaoSocial): void
+    {
+        $this->razaoSocial = $razaoSocial;
+    }
+
+    public function setApelido(?string $apelido): void
+    {
+        $this->apelido = $apelido;
+    }
+
+    public function setEndereco(?string $endereco): void
+    {
+        $this->endereco = $endereco;
+    }
+
+    public function setNumero(?string $numero): void
+    {
+        $this->numero = $numero;
+    }
+
+    public function setComplemento(?string $complemento): void
+    {
+        $this->complemento = $complemento;
+    }
+
+    public function setBairro(?string $bairro): void
+    {
+        $this->bairro = $bairro;
+    }
+
+    public function setCodMunicipio(?string $codMunicipio): void
+    {
+        $this->codMunicipio = $codMunicipio;
+    }
+
+    public function setUf(?string $uf): void
+    {
+        $this->uf = $uf;
+    }
+
+    public function setCodigoPais(?string $codigoPais): void
+    {
+        $this->codigoPais = $codigoPais;
+    }
+
+    public function setCep(?string $cep): void
+    {
+        $this->cep = $cep;
+    }
+
+    public function setInscricaoEstadual(?string $inscricaoEstadual): void
+    {
+        $this->inscricaoEstadual = $inscricaoEstadual;
+    }
+
+    public function setInscricaoMunicipal(?string $inscricaoMunicipal): void
+    {
+        $this->inscricaoMunicipal = $inscricaoMunicipal;
+    }
+
+    public function setInscricaoSuframa(?string $inscricaoSuframa): void
+    {
+        $this->inscricaoSuframa = $inscricaoSuframa;
+    }
+
+    public function setDdd(?string $ddd): void
+    {
+        $this->ddd = $ddd;
+    }
+
+    public function setTelefone(?string $telefone): void
+    {
+        $this->telefone = $telefone;
+    }
+
+    public function setFax(?string $fax): void
+    {
+        $this->fax = $fax;
+    }
+
+    public function setDataCadastro(?\DateTime $dataCadastro): void
+    {
+        $this->dataCadastro = $dataCadastro;
+    }
+
+    public function setContaContabil(?string $contaContabil): void
+    {
+        $this->contaContabil = $contaContabil;
+    }
+
+    public function setNaturezaJuridica(?string $naturezaJuridica): void
+    {
+        $this->naturezaJuridica = $naturezaJuridica;
+    }
+
+    public function setRegimeApuracao(?string $regimeApuracao): void
+    {
+        $this->regimeApuracao = $regimeApuracao;
+    }
+
+    public function setContribuinteIcms(?string $contribuinteIcms): void
+    {
+        $this->contribuinteIcms = $contribuinteIcms;
+    }
 }

@@ -1,34 +1,30 @@
 <?php
 
-use App\Models\Cfop;
-use Livewire\Component;
+use App\Filament\Forms\Components\SelectTagGrouped;
 use App\Models\CategoryTag;
+use App\Models\Cfop;
+use App\Models\EntradaCfopEquivalente;
+use App\Models\GrupoEntradaCfopEquivalente;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
-use Filament\Forms\Components\Select;
-use App\Models\EntradaCfopEquivalente;
-use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\Repeater;
-use App\Models\EntradasProdutosGenerico;
-use Filament\Forms\Components\TagsInput;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
-use Filament\Actions\Contracts\HasActions;
-use Filament\Schemas\Contracts\HasSchemas;
-use App\Models\GrupoEntradaCfopEquivalente;
-use App\Models\GrupoEntradasProdutosGenerico;
-use App\Filament\Forms\Components\SelectTagGrouped;
-use Filament\Actions\Concerns\InteractsWithActions;
-use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Livewire\Component;
 
-
-new class extends Component implements HasSchemas, HasActions
+new class extends Component implements HasActions, HasSchemas
 {
-    use InteractsWithSchemas;
     use InteractsWithActions;
-const TIPO = 'cte-nota-entrada';
+    use InteractsWithSchemas;
+
+    const TIPO = 'cte-nota-entrada';
 
     public ?array $data = [];
 
@@ -120,7 +116,7 @@ const TIPO = 'cte-nota-entrada';
                                     ->searchable()
                                     ->preload()
                                     ->required()
-                                    ->options(fn() => Cfop::all()->pluck('descricao', 'codigo'))
+                                    ->options(fn () => Cfop::all()->pluck('descricao', 'codigo'))
                                     ->columnSpan(2),
 
                                 TagsInput::make('cfops_saida')

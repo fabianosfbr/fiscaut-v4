@@ -2,14 +2,13 @@
 
 namespace App\Jobs;
 
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
-
 use App\Models\Issuer;
 use App\Models\Tenant;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
 
 class ExpiredCertificateNotificationJob implements ShouldQueue
 {

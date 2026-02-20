@@ -32,14 +32,14 @@ new class extends Component implements HasActions, HasSchemas, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn(): Builder => EntradasImpostosEquivalente::query()->where('issuer_id', Auth::user()->currentIssuer->id))
+            ->query(fn (): Builder => EntradasImpostosEquivalente::query()->where('issuer_id', Auth::user()->currentIssuer->id))
             ->defaultSort('created_at', 'desc')
             ->searchDebounce(750)
             ->columns([
                 TextColumn::make('tag')
                     ->label('Etiqueta')
                     ->formatStateUsing(function (EntradasImpostosEquivalente $record) {
-                        return $record->tag . ' - ' . $record->tag_description;
+                        return $record->tag.' - '.$record->tag_description;
                     })
                     ->searchable(),
                 TextColumn::make('description')
@@ -116,7 +116,6 @@ new class extends Component implements HasActions, HasSchemas, HasTable
     {
 
         $tag = Tag::find($data['tag']);
-
 
         EntradasImpostosEquivalente::updateOrCreate(
             [

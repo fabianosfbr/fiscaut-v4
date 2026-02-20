@@ -52,7 +52,7 @@ class SefazNfeDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha na inicialização do serviço: ' . $e->getMessage());
+            throw new Exception('Falha na inicialização do serviço: '.$e->getMessage());
         }
     }
 
@@ -95,7 +95,7 @@ class SefazNfeDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha ao carregar certificado digital: ' . $e->getMessage());
+            throw new Exception('Falha ao carregar certificado digital: '.$e->getMessage());
         }
     }
 
@@ -104,7 +104,7 @@ class SefazNfeDownloadService
      *
      * @param  string|null  $ultNsu  Last NSU for batch download (optional, uses issuer's last NSU if not provided)
      * @param  string|null  $nsu  Specific NSU for single document download (if provided, performs specific query)
-     * @return array  Returns array with downloaded documents and metadata:
+     * @return array Returns array with downloaded documents and metadata:
      *               - 'documentos' => array of downloaded documents
      *               - 'total_documentos' => total count of documents
      *               - 'iterations' => number of iterations performed
@@ -112,12 +112,11 @@ class SefazNfeDownloadService
      *               - 'nsu_inicial' => initial NSU
      *               - 'deve_aguardar' => boolean indicating if should wait before next query
      *
-     * @throws Exception  If download fails
+     * @throws Exception If download fails
      */
     public function downloadNfeInBatch(?string $ultNsu = null, ?string $nsu = null): array
     {
         $allDocuments = [];
-
 
         $currentNsu = $ultNsu ? (int) $ultNsu : $this->getLastSavedNsu();
         $initialNsu = $currentNsu;
@@ -125,7 +124,6 @@ class SefazNfeDownloadService
         $shouldStop = false;
         $loopLimit = $nsu ? 1 : 50; // Se for NSU específico, faz apenas uma iteração
         $sleepSeconds = $this->getDistDFeSleepSeconds();
-
 
         try {
 
@@ -183,7 +181,6 @@ class SefazNfeDownloadService
                 }
             } while (true);
 
-
             return [
                 'documentos' => $allDocuments,
                 'total_documentos' => count($allDocuments),
@@ -201,7 +198,7 @@ class SefazNfeDownloadService
                 'iterations' => $iterations,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha no download: ' . $e->getMessage());
+            throw new Exception('Falha no download: '.$e->getMessage());
         }
     }
 
@@ -232,8 +229,8 @@ class SefazNfeDownloadService
 
             Log::channel('sefaz_log')->info(
                 $nsu ?
-                    "Log de consulta NFe - SEFAZ - registro específico - " . explode(':', $this->issuer->razao_social)[0] . " : \n" . $response :
-                    "Log de consulta NFe - SEFAZ - registro em lote - " . explode(':', $this->issuer->razao_social)[0] . " : \n" . $response
+                    'Log de consulta NFe - SEFAZ - registro específico - '.explode(':', $this->issuer->razao_social)[0]." : \n".$response :
+                    'Log de consulta NFe - SEFAZ - registro em lote - '.explode(':', $this->issuer->razao_social)[0]." : \n".$response
             );
             // Processa a resposta
             $result = $this->processDistDFeResponse($response);
@@ -251,7 +248,7 @@ class SefazNfeDownloadService
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            throw new Exception('Falha no download de NFe: ' . $e->getMessage());
+            throw new Exception('Falha no download de NFe: '.$e->getMessage());
         }
     }
 
@@ -368,7 +365,7 @@ class SefazNfeDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha ao processar resposta: ' . $e->getMessage());
+            throw new Exception('Falha ao processar resposta: '.$e->getMessage());
         }
     }
 
@@ -496,7 +493,7 @@ class SefazNfeDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha ao verificar status SEFAZ: ' . $e->getMessage());
+            throw new Exception('Falha ao verificar status SEFAZ: '.$e->getMessage());
         }
     }
 

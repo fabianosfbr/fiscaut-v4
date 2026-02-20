@@ -3,12 +3,11 @@
 namespace App\Services;
 
 use Exception;
-use Illuminate\Support\Facades\File;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Facades\File;
 
 class LogViewService
 {
-
     private const LOG_LEVEL_CLASSES = [
         'debug' => 'info',
         'info' => 'info',
@@ -43,7 +42,7 @@ class LogViewService
     {
         $file = self::pathToLogFile($file);
 
-        if (!File::exists($file)) {
+        if (! File::exists($file)) {
             throw new Exception('Arquivo de log não existe.');
         }
 
@@ -57,7 +56,7 @@ class LogViewService
 
         preg_match_all($pattern, $file, $headings);
 
-        if (!is_array($headings)) {
+        if (! is_array($headings)) {
             return $logs;
         }
 
@@ -70,11 +69,11 @@ class LogViewService
         foreach ($headings as $heading) {
             for ($i = 0, $j = count($heading); $i < $j; $i++) {
                 foreach (self::LOG_LEVELS as $level) {
-                    if (strpos(strtolower($heading[$i]), '.' . $level) || strpos(strtolower($heading[$i]), $level . ':')) {
-                        $pattern = '/^\[(?P<date>(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}))\](?:.*?(?P<context>(\w+))\.|.*?)' . $level . ': (?P<text>.*?)(?P<in_file> in .*?:[0-9]+)?$/i';
+                    if (strpos(strtolower($heading[$i]), '.'.$level) || strpos(strtolower($heading[$i]), $level.':')) {
+                        $pattern = '/^\[(?P<date>(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}))\](?:.*?(?P<context>(\w+))\.|.*?)'.$level.': (?P<text>.*?)(?P<in_file> in .*?:[0-9]+)?$/i';
                         preg_match($pattern, $heading[$i], $current);
 
-                        if (!isset($current['text'])) {
+                        if (! isset($current['text'])) {
                             continue;
                         }
 
@@ -106,7 +105,7 @@ class LogViewService
             return $file;
         }
 
-        $file = $logsPath . '/' . $file;
+        $file = $logsPath.'/'.$file;
 
         if (dirname($file) !== $logsPath) {
             throw new Exception('Diretório do arquivo de log não é permitido.');

@@ -94,24 +94,24 @@ class XmlExtractorService
                         ]);
                     }
                 }
-                
+
                 // Properly close the zip archive with error checking
                 $closeResult = $zip->close();
-                if (!$closeResult) {
+                if (! $closeResult) {
                     Log::error('Failed to close zip archive in extractFromZip', [
                         'temp_path' => $tempPath,
-                        'service_class' => self::class
+                        'service_class' => self::class,
                     ]);
-                    
+
                     throw new Exception('Could not close zip file properly');
                 }
             } else {
                 Log::error('Failed to open zip archive in extractFromZip', [
                     'result_code' => $result,
                     'temp_path' => $tempPath,
-                    'service_class' => self::class
+                    'service_class' => self::class,
                 ]);
-                
+
                 throw new Exception("Não foi possível abrir o arquivo ZIP. Código de erro: {$result}");
             }
 
@@ -128,9 +128,9 @@ class XmlExtractorService
             Log::error('Error in extractFromZip method', [
                 'error' => $e->getMessage(),
                 'temp_path' => $tempPath,
-                'service_class' => self::class
+                'service_class' => self::class,
             ]);
-            
+
             // Garante que o arquivo temporário seja removido em caso de erro
             if (file_exists($tempPath)) {
                 unlink($tempPath);
@@ -164,24 +164,24 @@ class XmlExtractorService
                         ]);
                     }
                 }
-                
+
                 // Properly close the zip archive with error checking
                 $closeResult = $zip->close();
-                if (!$closeResult) {
+                if (! $closeResult) {
                     Log::error('Failed to close zip archive in extractFromZipPath', [
                         'zip_file_path' => $zipFilePath,
-                        'service_class' => self::class
+                        'service_class' => self::class,
                     ]);
-                    
+
                     throw new Exception('Could not close zip file properly');
                 }
             } else {
                 Log::error('Failed to open zip archive in extractFromZipPath', [
                     'result_code' => $result,
                     'zip_file_path' => $zipFilePath,
-                    'service_class' => self::class
+                    'service_class' => self::class,
                 ]);
-                
+
                 throw new Exception("Não foi possível abrir o arquivo ZIP. Código de erro: {$result}");
             }
 
@@ -196,9 +196,9 @@ class XmlExtractorService
                 'error' => $e->getMessage(),
                 'zip_file_path' => $zipFilePath,
                 'service_class' => self::class,
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
-            
+
             throw $e;
         }
     }

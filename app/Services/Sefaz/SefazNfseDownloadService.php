@@ -7,11 +7,9 @@ use Exception;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 use NFePHP\Common\Certificate;
-use NFePHP\NFe\Tools;
 
 class SefazNfseDownloadService
 {
-  
     private Issuer $issuer;
 
     private array $config;
@@ -28,7 +26,7 @@ class SefazNfseDownloadService
     protected function initializeTools(): void
     {
         try {
-       
+
             // Carrega o certificado digital
             $this->loadCertificate();
 
@@ -40,8 +38,6 @@ class SefazNfseDownloadService
             throw new Exception('Falha na inicialização do serviço: '.$e->getMessage());
         }
     }
-
-
 
     private function loadCertificate(): void
     {
@@ -172,11 +168,10 @@ class SefazNfseDownloadService
                 $response = $this->getDistDfe(ultNsu: $currentNsu);
             }
 
-
             Log::channel('sefaz_log')->info(
                 $nsu ?
-                    "Log de consulta NFSE - SEFAZ - registro específico - " . explode(':', $this->issuer->razao_social)[0] . " : \n" . substr($response, 0, 2000) :
-                    "Log de consulta NFSE - SEFAZ - registro em lote - " . explode(':', $this->issuer->razao_social)[0] . " : \n" . substr($response, 0, 2000)
+                    'Log de consulta NFSE - SEFAZ - registro específico - '.explode(':', $this->issuer->razao_social)[0]." : \n".substr($response, 0, 2000) :
+                    'Log de consulta NFSE - SEFAZ - registro em lote - '.explode(':', $this->issuer->razao_social)[0]." : \n".substr($response, 0, 2000)
             );
 
             // Processa a resposta
@@ -288,7 +283,7 @@ class SefazNfseDownloadService
                 // Define o NSU máximo baseado no maior NSU encontrado
                 $result['maxNSU'] = $result['ultNSU'];
             } elseif ($data->StatusProcessamento === 'NENHUM_DOCUMENTO_LOCALIZADO') {
-                //Não fazer nada
+                // Não fazer nada
             } else {
                 // Outros status possíveis indicam problemas
                 Log::warning('Status inesperado na resposta SEFAZ NFSE', [

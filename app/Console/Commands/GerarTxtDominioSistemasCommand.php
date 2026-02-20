@@ -2,21 +2,18 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Issuer;
-use Illuminate\Console\Command;
-use Illuminate\Support\Collection;
-use App\Models\NotaFiscalEletronica;
 use App\Integrations\DominioSistemas\DominioSistemasService;
-use App\Integrations\DominioSistemas\Records\RegistroFactory;
 use App\Integrations\DominioSistemas\Records\Registro0000;
 use App\Integrations\DominioSistemas\Records\Registro0020;
 use App\Integrations\DominioSistemas\Records\Registro0030;
-use App\Integrations\DominioSistemas\Records\Registro0100;
 use App\Integrations\DominioSistemas\Records\Registro1010;
 use App\Integrations\DominioSistemas\Records\Registro1015;
 use App\Integrations\DominioSistemas\Records\Registro1020;
 use App\Integrations\DominioSistemas\Records\Registro1030;
 use App\Integrations\DominioSistemas\Records\Registro1500;
+use App\Models\Issuer;
+use App\Models\NotaFiscalEletronica;
+use Illuminate\Console\Command;
 
 class GerarTxtDominioSistemasCommand extends Command
 {
@@ -48,8 +45,9 @@ class GerarTxtDominioSistemasCommand extends Command
 
         $issuer = Issuer::where('cnpj', $inscricaoEmpresa)->first();
 
-        if (!$issuer) {
+        if (! $issuer) {
             $this->error('Empresa não encontrada.');
+
             return 1;
         }
 
@@ -61,10 +59,11 @@ class GerarTxtDominioSistemasCommand extends Command
 
         if ($collection->isEmpty()) {
             $this->error('A Collection está vazia.');
+
             return 1;
         }
 
-        $service = new DominioSistemasService();
+        $service = new DominioSistemasService;
         $registros = [];
 
         // Adiciona o registro 0000 (cabeçalho) com o CNPJ da empresa
@@ -84,7 +83,7 @@ class GerarTxtDominioSistemasCommand extends Command
         foreach ($collection as $notaFiscal) {
             // Coleta registro 0020 para o emitente da nota fiscal
             $emitenteCnpj = $notaFiscal->emitente_cnpj;
-            if (!isset($registro0020s[$emitenteCnpj])) {
+            if (! isset($registro0020s[$emitenteCnpj])) {
                 $registro0020 = new Registro0020($notaFiscal);
                 $registro0020s[$emitenteCnpj] = $registro0020;
             }
@@ -92,7 +91,7 @@ class GerarTxtDominioSistemasCommand extends Command
             // Coleta registro 0030 para o transportador da nota fiscal
             if (isset($notaFiscal->transportador_cnpj)) {
                 $transportadorCnpj = $notaFiscal->transportador_cnpj;
-                if (!isset($registro0030s[$transportadorCnpj])) {
+                if (! isset($registro0030s[$transportadorCnpj])) {
                     $registro0030 = new Registro0030($notaFiscal);
                     $registro0030s[$transportadorCnpj] = $registro0030;
                 }
@@ -115,7 +114,7 @@ class GerarTxtDominioSistemasCommand extends Command
 
                         $registro0135 = new \App\Integrations\DominioSistemas\Records\Registro0135(
                             $notaFiscal->data_emissao,
-                            (float)$produto['vUnCom']
+                            (float) $produto['vUnCom']
                         );
                         $registro0100s[] = $registro0135;
                     }
@@ -159,11 +158,9 @@ class GerarTxtDominioSistemasCommand extends Command
                     $numSegmento++;
                     $registro1000s[] = $registro1000;
 
-
                     // Cria registro 1010 (Informação Complementar) se houver
                     $registro1010 = new Registro1010($notaFiscal);
 
-                   
                     $registro1000s[] = $registro1010;
 
                     // Cria registro 1015 (Observação) se houver
@@ -184,7 +181,7 @@ class GerarTxtDominioSistemasCommand extends Command
 
                     // Cria registros 1030 (Produtos) para cada produto do CFOP
                     // Adiciona apenas ao primeiro segmento deste CFOP para evitar duplicação
-                    if (!$produtosAdicionadosCfop && !empty($valoresSegmento['produtos'])) {
+                    if (! $produtosAdicionadosCfop && ! empty($valoresSegmento['produtos'])) {
                         foreach ($valoresSegmento['produtos'] as $produto) {
                             $registro1030 = new Registro1030($notaFiscal, $produto, $tagged, $issuer, $cfopEquivalente);
                             $registro1000s[] = $registro1030;
@@ -194,7 +191,7 @@ class GerarTxtDominioSistemasCommand extends Command
 
                     // Cria registros 1500 (Parcelas) se houver
                     // Adiciona para cada registro 1000 gerado
-                    $parcelas = $notaFiscal->parcelas;        
+                    $parcelas = $notaFiscal->parcelas;
                     foreach ($parcelas as $idx => $parcela) {
                         $registro1500 = new Registro1500($notaFiscal, $parcela, $idx + 1);
                         $registro1000s[] = $registro1500;
@@ -211,6 +208,7 @@ class GerarTxtDominioSistemasCommand extends Command
 
         if (empty($registros)) {
             $this->error('Nenhum registro válido foi criado a partir da Collection.');
+
             return 1;
         }
 
@@ -220,22 +218,22 @@ class GerarTxtDominioSistemasCommand extends Command
 
         if ($success) {
             $this->info("Arquivo TXT gerado com sucesso: {$outputPath}");
-            $this->info("Número de registros processados: " . count($registros));
+            $this->info('Número de registros processados: '.count($registros));
+
             return 0;
         } else {
             $this->error('Falha ao gerar o arquivo TXT.');
+
             return 1;
         }
     }
 
     /**
      * Agrega os valores das notas fiscais por CFOP e gera registros 1000.
-     * 
+     *
      * Para cada CFOP distinto na nota fiscal, calcula os valores proporcionais
      * das etiquetas e gera registros 1000 segmentados quando necessário.
      *
-     * @param NotaFiscalEletronica $notaFiscal
-     * @param Issuer $issuer
      * @return array Array de Registro1000
      */
     protected function agregarValoresPorCfop(NotaFiscalEletronica $notaFiscal, Issuer $issuer): array
@@ -252,29 +250,26 @@ class GerarTxtDominioSistemasCommand extends Command
         $produtos = $notaFiscal->produtos ?? [];
         $valoresPorCfop = $this->agruparValoresProdutosPorCfop($produtos);
 
-
         return $valoresPorCfop;
     }
 
     /**
      * Agrupa os valores dos produtos por CFOP, incluindo impostos.
      *
-     * @param array $produtos
      * @return array Array associativo com CFOP como chave e valores agregados
      */
     protected function agruparValoresProdutosPorCfop(array $produtos): array
     {
         $valoresPorCfop = [];
 
-
         foreach ($produtos as $produto) {
             $cfop = $produto['CFOP'] ?? null;
 
-            if (!$cfop) {
+            if (! $cfop) {
                 continue;
             }
             // Inicializa o CFOP se não existir
-            if (!isset($valoresPorCfop[$cfop])) {
+            if (! isset($valoresPorCfop[$cfop])) {
                 $valoresPorCfop[$cfop] = [
                     'cfop' => $cfop,
                     'csosn' => $produto['CSOSN'] ?? null,
@@ -299,7 +294,7 @@ class GerarTxtDominioSistemasCommand extends Command
                     'percentual_icms' => $produto['impostos']['pICMS'] ?? 0.0,
                     'percentual_cofins' => $produto['impostos']['pCOFINS'] ?? 0.0,
                     'percentual_pis' => $produto['impostos']['pPIS'] ?? 0.0,
-                    'percentual_ipi' => $produto['impostos']['pIPI'] ?? 0.0,                    
+                    'percentual_ipi' => $produto['impostos']['pIPI'] ?? 0.0,
                     'percentual_st_inter' => $produto['impostos']['pICMSInter'] ?? 0.0,
                     'percentual_st_dest' => $produto['impostos']['pICMSUFDest'] ?? 0.0,
                     'produtos' => [],
@@ -324,7 +319,7 @@ class GerarTxtDominioSistemasCommand extends Command
             if (($produto['impostos']['pICMS'] ?? null) !== null && (float) $produto['impostos']['pICMS'] != 0) {
                 $valoresPorCfop[$cfop]['percentual_icms'] = (float) $produto['impostos']['pICMS'];
             }
-      
+
             $valoresPorCfop[$cfop]['quantidade_itens']++;
             $valoresPorCfop[$cfop]['produtos'][] = $produto;
         }

@@ -2,9 +2,8 @@
 
 namespace App\Console\Commands;
 
-
-use Illuminate\Console\Command;
 use App\Jobs\ExpiredCertificateNotificationJob;
+use Illuminate\Console\Command;
 
 class CheckCertificateExpired extends Command
 {
@@ -29,6 +28,6 @@ class CheckCertificateExpired extends Command
     {
 
         ExpiredCertificateNotificationJob::dispatch();
-        
+
     }
 }

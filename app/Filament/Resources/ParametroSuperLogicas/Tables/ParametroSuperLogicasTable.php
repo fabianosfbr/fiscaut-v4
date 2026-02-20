@@ -2,16 +2,16 @@
 
 namespace App\Filament\Resources\ParametroSuperLogicas\Tables;
 
-use Filament\Tables\Table;
-use Filament\Actions\EditAction;
-use Illuminate\Support\Facades\Auth;
+use App\Filament\Exports\ParametroSuperLogicaExporter;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Exports\ParametroSuperLogicaExporter;
+use Illuminate\Support\Facades\Auth;
 
 class ParametroSuperLogicasTable
 {
@@ -26,7 +26,7 @@ class ParametroSuperLogicasTable
                     ->label('Parametros')
                     ->badge()
                     ->color('gray')
-                    ->searchable(query: fn(Builder $query, string $search): Builder => $query->SearchByParametro(search: $search)),
+                    ->searchable(query: fn (Builder $query, string $search): Builder => $query->SearchByParametro(search: $search)),
 
                 TextColumn::make('contaCredito')
                     ->label('Conta crédito')
@@ -35,7 +35,8 @@ class ParametroSuperLogicasTable
                     })
                     ->tooltip(function (TextColumn $column): ?string {
                         $state = $column->getState();
-                        return $state?->codigo . ' | ' . $state?->nome;
+
+                        return $state?->codigo.' | '.$state?->nome;
                     })
                     ->badge(),
 
@@ -46,7 +47,8 @@ class ParametroSuperLogicasTable
                     })
                     ->tooltip(function (TextColumn $column): ?string {
                         $state = $column->getState();
-                        return $state?->codigo . ' | ' . $state?->nome;
+
+                        return $state?->codigo.' | '.$state?->nome;
                     })
                     ->badge(),
 

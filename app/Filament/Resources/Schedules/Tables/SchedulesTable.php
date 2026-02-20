@@ -2,18 +2,18 @@
 
 namespace App\Filament\Resources\Schedules\Tables;
 
-use Carbon\Carbon;
-use Filament\Tables\Table;
-use Filament\Actions\Action;
-use Filament\Actions\BulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
 use App\Enums\ScheduleStatusEnum;
+use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
-use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 
 class SchedulesTable
 {
@@ -33,13 +33,13 @@ class SchedulesTable
                     return $record->command;
                 })
                     ->label('Comando')
-                    ->tooltip(fn($record) => $record->description)
+                    ->tooltip(fn ($record) => $record->description)
                     ->searchable()->sortable(),
                 TextColumn::make('params')->label('Argumentos')
                     ->getStateUsing(function ($record, $component) {
                         $tags = $record->params;
                         if (is_array($tags)) {
-                            return collect($tags)->filter(fn($value) => ! empty($value['value']))->map(fn($value, $key) => ($value['name'] ?? $key) . '=' . $value['value'])->toArray();
+                            return collect($tags)->filter(fn ($value) => ! empty($value['value']))->map(fn ($value, $key) => ($value['name'] ?? $key).'='.$value['value'])->toArray();
                         }
 
                         if (! ($separator = $component->getSeparator())) {
@@ -54,7 +54,7 @@ class SchedulesTable
 
                         return $tags;
                     })->separator(',')->searchable()->sortable(),
-                TextColumn::make('options')->label('Opções')->searchable()->sortable()->getStateUsing(fn($record) => $record->getOptions())->separator(',')->badge(),
+                TextColumn::make('options')->label('Opções')->searchable()->sortable()->getStateUsing(fn ($record) => $record->getOptions())->separator(',')->badge(),
                 TextColumn::make('expression')->label('Expressão')->searchable()->sortable(),
                 TextColumn::make('environments')->label('Ambientes')->separator(',')->searchable()->sortable()->badge()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('status')
@@ -66,7 +66,7 @@ class SchedulesTable
                     ->dateTime('d/m/Y H:i:s')
                     ->wrap()
                     ->toggleable(true, isToggledHiddenByDefault: false),
-                TextColumn::make('updated_at')->getStateUsing(fn($record) => $record->created_at == $record->updated_at ? 'Nunca' : $record->updated_at)
+                TextColumn::make('updated_at')->getStateUsing(fn ($record) => $record->created_at == $record->updated_at ? 'Nunca' : $record->updated_at)
                     ->wrap()->formatStateUsing(static function ($column, $state) use ($table): ?string {
                         $format = $table->getDefaultDateTimeDisplayFormat();
                         if (blank($state) || $state == 'Nunca') {
@@ -83,7 +83,7 @@ class SchedulesTable
             ->recordActions([
                 ActionGroup::make([
                     EditAction::make()
-                        ->hidden(fn($record) => $record->trashed())
+                        ->hidden(fn ($record) => $record->trashed())
                         ->tooltip('Editar agendamento')
                         ->button()
                         ->hiddenLabel(),
@@ -92,13 +92,13 @@ class SchedulesTable
                         ->hiddenLabel()
                         ->color('info')
                         ->tooltip('Ver histórico')
-                        ->visible(fn($record) => $record->histories()->count()),
+                        ->visible(fn ($record) => $record->histories()->count()),
                     ForceDeleteAction::make(),
                     Action::make('toggle')
                         ->button()
-                        ->icon(fn($record) => $record->status == ScheduleStatusEnum::Active ? 'heroicon-o-pause' : 'heroicon-o-play')
-                        ->color(fn($record) => $record->status == ScheduleStatusEnum::Active ? 'danger' : 'success')
-                        ->tooltip(fn($record) => $record->status == ScheduleStatusEnum::Active ? 'Pausar' : 'Retomar')
+                        ->icon(fn ($record) => $record->status == ScheduleStatusEnum::Active ? 'heroicon-o-pause' : 'heroicon-o-play')
+                        ->color(fn ($record) => $record->status == ScheduleStatusEnum::Active ? 'danger' : 'success')
+                        ->tooltip(fn ($record) => $record->status == ScheduleStatusEnum::Active ? 'Pausar' : 'Retomar')
                         ->hiddenLabel()
                         ->action(function ($record) {
                             $record->status = $record->status == ScheduleStatusEnum::Active ? ScheduleStatusEnum::Inactive : ScheduleStatusEnum::Active;

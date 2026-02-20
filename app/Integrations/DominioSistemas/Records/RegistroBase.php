@@ -3,11 +3,11 @@
 namespace App\Integrations\DominioSistemas\Records;
 
 use App\Models\Cest;
+use App\Models\EntradasImpostosEquivalente;
 use App\Models\Issuer;
-use Illuminate\Support\Facades\Log;
 use App\Models\NotaFiscalEletronica;
 use Illuminate\Support\Facades\Cache;
-use App\Models\EntradasImpostosEquivalente;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Classe abstrata base que define a estrutura comum a todos os registros
@@ -16,58 +16,45 @@ use App\Models\EntradasImpostosEquivalente;
 abstract class RegistroBase implements IRegistro
 {
     protected const SEPARADOR_PADRAO = '|';
+
     protected const CODIFICACAO_ARQUIVO = 'Windows-1252';
 
     /**
      * Cache estático para armazenar os ProdutoFornecedor já consultados
      * Key: cnpj_num_nfe_codigo_produto (MD5 hash)
      * Value: ProdutoFornecedor model instance
-     *
-     * @var array
      */
     protected static array $produtoFornecedorCache = [];
-
 
     /**
      * Cache estático para armazenar as verificações de zera ICMS já consultadas
      * Key: issuer_id_tag_code
      * Value: bool
-     *
-     * @var array
      */
     protected static array $zeraIcmsCache = [];
-
 
     /**
      * Cache estático para armazenar as verificações de zera IPI já consultadas
      * Key: issuer_id_tag_code
      * Value: bool
-     *
-     * @var array
      */
     protected static array $zeraIpiCache = [];
 
     /**
      * Retorna o tipo de registro (ex: 0000, 0010, 0100, etc.)
-     *
-     * @return string
      */
     abstract public function getTipoRegistro(): string;
 
     /**
      * Converte o registro para uma linha no formato TXT
-     *
-     * @return string
      */
     abstract public function converterParaLinhaTxt(): string;
 
     /**
      * Formata um campo de acordo com as regras do layout
      *
-     * @param mixed $valor
-     * @param int|null $tamanhoMaximo
-     * @param string $tipo (C=Caractere, N=Numérico inteiro, D=Decimal com 3 casas, D6=Decimal com 6 casas, X=Data)
-     * @return string
+     * @param  mixed  $valor
+     * @param  string  $tipo  (C=Caractere, N=Numérico inteiro, D=Decimal com 3 casas, D6=Decimal com 6 casas, X=Data)
      */
     protected function formatarCampo($valor, ?int $tamanhoMaximo = null, string $tipo = 'C'): string
     {
@@ -78,6 +65,7 @@ abstract class RegistroBase implements IRegistro
             if (in_array($tipo, ['D', 'D2', 'D6'])) {
                 return '0,00';
             }
+
             return '';
         }
 
@@ -92,48 +80,48 @@ abstract class RegistroBase implements IRegistro
                 } elseif ($valor instanceof \DateTime) {
                     $valor = $valor->format('d/m/Y');
                 } else {
-                    $valor = (string)$valor;
+                    $valor = (string) $valor;
                 }
                 break;
 
             case 'N': // Numérico inteiro
                 if (is_numeric($valor)) {
-                    $valor = (string)(int)$valor;
+                    $valor = (string) (int) $valor;
                 } else {
-                    $valor = (string)$valor;
+                    $valor = (string) $valor;
                 }
                 break;
 
             case 'D': // Decimal: usar vírgula como separador com 3 casas decimais
                 if (is_numeric($valor)) {
                     // Formata com 3 casas decimais e usa vírgula como separador
-                    $valor = number_format((float)$valor, 3, ',', '');
+                    $valor = number_format((float) $valor, 3, ',', '');
                 } else {
-                    $valor = (string)$valor;
+                    $valor = (string) $valor;
                 }
                 break;
 
             case 'D2': // Decimal: usar vírgula como separador com 2 casas decimais
                 if (is_numeric($valor)) {
                     // Formata com 2 casas decimais e usa vírgula como separador
-                    $valor = number_format((float)$valor, 2, ',', '');
+                    $valor = number_format((float) $valor, 2, ',', '');
                 } else {
-                    $valor = (string)$valor;
+                    $valor = (string) $valor;
                 }
                 break;
 
             case 'D6': // Decimal: usar vírgula como separador com 6 casas decimais
                 if (is_numeric($valor)) {
                     // Formata com 6 casas decimais e usa vírgula como separador
-                    $valor = number_format((float)$valor, 6, ',', '');
+                    $valor = number_format((float) $valor, 6, ',', '');
                 } else {
-                    $valor = (string)$valor;
+                    $valor = (string) $valor;
                 }
                 break;
 
             case 'C': // Caractere
             default:
-                $valor = (string)$valor;
+                $valor = (string) $valor;
                 break;
         }
 
@@ -147,9 +135,6 @@ abstract class RegistroBase implements IRegistro
 
     /**
      * Codifica o conteúdo para Windows-1252 conforme exigido pelo layout
-     *
-     * @param string $conteudo
-     * @return string
      */
     protected function codificarConteudo(string $conteudo): string
     {
@@ -158,15 +143,12 @@ abstract class RegistroBase implements IRegistro
 
     /**
      * Monta uma linha do arquivo TXT com os campos separados por pipe
-     *
-     * @param array $campos
-     * @return string
      */
     protected function montarLinha(array $campos): string
     {
         $linha = self::SEPARADOR_PADRAO; // Começa com o separador
         foreach ($campos as $campo) {
-            $linha .= $campo . self::SEPARADOR_PADRAO;
+            $linha .= $campo.self::SEPARADOR_PADRAO;
         }
 
         return $linha;
@@ -175,9 +157,7 @@ abstract class RegistroBase implements IRegistro
     /**
      * Extrai dados do XML da nota fiscal
      *
-     * @param mixed $notaFiscal
-     * @param array $buscas
-     * @return array
+     * @param  mixed  $notaFiscal
      */
     protected function extrairDadosDoXml($notaFiscal, array $buscas): array
     {
@@ -186,11 +166,11 @@ abstract class RegistroBase implements IRegistro
         }
 
         try {
-            // Descompactar o XML 
+            // Descompactar o XML
             $xmlContent = gzuncompress($notaFiscal->xml);
 
             // Usar o serviço de leitura de XML para converter para array
-            $xmlService = new \App\Services\Xml\XmlReaderService();
+            $xmlService = new \App\Services\Xml\XmlReaderService;
             $dados = $xmlService->read($xmlContent);
 
             $resultados = [];
@@ -201,17 +181,14 @@ abstract class RegistroBase implements IRegistro
             return $resultados;
         } catch (\Exception $e) {
             // Em caso de erro na leitura do XML, retornar array vazio
-            Log::warning("Erro ao processar XML da NFe: " . $e->getMessage());
+            Log::warning('Erro ao processar XML da NFe: '.$e->getMessage());
+
             return [];
         }
     }
 
     /**
      * Procura por chaves específicas em um array multidimensional
-     *
-     * @param array $array
-     * @param array $chaves
-     * @return array
      */
     protected function procurarNoArray(array $array, array $chaves): array
     {
@@ -225,7 +202,7 @@ abstract class RegistroBase implements IRegistro
         foreach ($array as $key => $value) {
             if (is_array($value)) {
                 $resultado = $this->procurarNoArray($value, $chaves);
-                if (!empty($resultado)) {
+                if (! empty($resultado)) {
                     return $resultado;
                 }
             }
@@ -236,8 +213,6 @@ abstract class RegistroBase implements IRegistro
 
     /**
      * Valida se o registro está em conformidade com o layout
-     *
-     * @return bool
      */
     public function isValid(): bool
     {
@@ -257,13 +232,13 @@ abstract class RegistroBase implements IRegistro
 
         $value = $cests->filter(function ($item) use ($valueSearch) {
 
-            return false !== stripos($item->ncm, $valueSearch);
+            return stripos($item->ncm, $valueSearch) !== false;
         });
 
         return $value->first()?->cest;
     }
 
-    protected  function converterCSTICMS($cst)
+    protected function converterCSTICMS($cst)
     {
         $result = '000';
 
@@ -396,6 +371,7 @@ abstract class RegistroBase implements IRegistro
                 $result = '090';
                 break;
         }
+
         return $result;
     }
 
@@ -432,15 +408,13 @@ abstract class RegistroBase implements IRegistro
                 $result = '49';
                 break;
         }
+
         return $result;
     }
-
 
     /**
      * Verifica se o IPI deve ser zerado para a tag/issuer atual
      * Utiliza cache estático para evitar consultas repetidas ao banco de dados
-     *
-     * @return bool
      */
     protected function isZeraIpi(Issuer $issuer, int $tagId): bool
     {
@@ -458,7 +432,6 @@ abstract class RegistroBase implements IRegistro
             ->where('status_ipi', true)
             ->first();
 
-
         // Armazena o resultado em cache
         $result = $check !== null;
         self::$zeraIpiCache[$cacheKey] = $result;
@@ -466,12 +439,9 @@ abstract class RegistroBase implements IRegistro
         return $result;
     }
 
-
     /**
      * Verifica se o ICMS deve ser zerado para a tag/issuer atual
      * Utiliza cache estático para evitar consultas repetidas ao banco de dados
-     *
-     * @return bool
      */
     protected function isZeraIcms(Issuer $issuer, int $tagId): bool
     {
@@ -500,11 +470,6 @@ abstract class RegistroBase implements IRegistro
      * Obtém o identificador do produto (campo 91)
      * Se a nota fiscal é entrada própria, usa o código do produto
      * Caso contrário, usa o external_id do ProdutoFornecedor
-     *
-     * @param NotaFiscalEletronica $notaFiscal
-     * @param array $produto
-     * @param string|null $issuerCnpj
-     * @return string|null
      */
     protected function obterIdentificador(NotaFiscalEletronica $notaFiscal, array $produto, ?string $issuerCnpj): ?string
     {
@@ -523,7 +488,6 @@ abstract class RegistroBase implements IRegistro
             return $produto['cProd'] ?? null;
         }
 
-    
         // Caso contrário, busca o external_id no ProdutoFornecedor
         return $this->obterExternalIdProduto($notaFiscal, $produto);
     }
@@ -531,10 +495,6 @@ abstract class RegistroBase implements IRegistro
     /**
      * Busca o external_id do ProdutoFornecedor
      * Utiliza cache estático e findOrCreate para otimizar as consultas
-     *
-     * @param NotaFiscalEletronica $notaFiscal
-     * @param array $produto
-     * @return string|null
      */
     protected function obterExternalIdProduto(NotaFiscalEletronica $notaFiscal, array $produto): ?string
     {
@@ -554,6 +514,7 @@ abstract class RegistroBase implements IRegistro
         // Verifica se já está em cache
         if (isset(self::$produtoFornecedorCache[$cacheKey])) {
             $produtoFornecedor = self::$produtoFornecedorCache[$cacheKey];
+
             return $produtoFornecedor?->external_id;
         }
 
@@ -573,8 +534,6 @@ abstract class RegistroBase implements IRegistro
             ]
         );
 
-    
-
         // Armazena em cache
         self::$produtoFornecedorCache[$cacheKey] = $produtoFornecedor;
 
@@ -584,11 +543,6 @@ abstract class RegistroBase implements IRegistro
 
     /**
      * Gera a chave única para o cache de ProdutoFornecedor
-     *
-     * @param string $cnpj
-     * @param string $numNfe
-     * @param string $codigoProduto
-     * @return string
      */
     private function getProdutoFornecedorCacheKey(string $cnpj, string $numNfe, string $codigoProduto): string
     {

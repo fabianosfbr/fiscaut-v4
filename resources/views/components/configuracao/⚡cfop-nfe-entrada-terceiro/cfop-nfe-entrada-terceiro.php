@@ -1,33 +1,29 @@
 <?php
 
-use App\Models\Cfop;
-use Livewire\Component;
+use App\Filament\Forms\Components\SelectTagGrouped;
 use App\Models\CategoryTag;
-use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
-use Filament\Forms\Components\Select;
+use App\Models\Cfop;
 use App\Models\EntradaCfopEquivalente;
+use App\Models\GrupoEntradaCfopEquivalente;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Repeater;
-use App\Models\EntradasProdutosGenerico;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
-use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Actions\Contracts\HasActions;
-use Filament\Schemas\Contracts\HasSchemas;
-use App\Models\GrupoEntradaCfopEquivalente;
-use App\Models\GrupoEntradasProdutosGenerico;
-use App\Filament\Forms\Components\SelectTagGrouped;
-use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Livewire\Component;
 
-
-new class extends Component implements HasSchemas, HasActions
+new class extends Component implements HasActions, HasSchemas
 {
-    use InteractsWithSchemas;
     use InteractsWithActions;
+    use InteractsWithSchemas;
 
     const TIPO = 'nfe-entrada-terceiro';
 
@@ -121,7 +117,7 @@ new class extends Component implements HasSchemas, HasActions
                                     ->searchable()
                                     ->preload()
                                     ->required()
-                                    ->options(fn() => Cfop::all()->pluck('descricao', 'codigo'))
+                                    ->options(fn () => Cfop::all()->pluck('descricao', 'codigo'))
                                     ->columnSpan(2),
 
                                 TagsInput::make('cfops_saida')
@@ -139,14 +135,14 @@ new class extends Component implements HasSchemas, HasActions
                                     ->columnSpan(1),
                             ])
                             ->columns(5)
-                            ->itemLabel(fn(array $state): ?string => isset($state['cfop_entrada']) ? "CFOP: {$state['cfop_entrada']}" : null)
+                            ->itemLabel(fn (array $state): ?string => isset($state['cfop_entrada']) ? "CFOP: {$state['cfop_entrada']}" : null)
                             ->addActionLabel('Adicionar CFOP')
                             ->reorderable()
                             ->collapsible()
                             ->columnSpanFull(),
                     ])
                     ->columns(2)
-                    ->itemLabel(fn(array $state): ?string => ! empty($state['tag_id']) ? 'Etiquetas: ' . count($state['tag_id']) : 'Sem etiquetas')
+                    ->itemLabel(fn (array $state): ?string => ! empty($state['tag_id']) ? 'Etiquetas: '.count($state['tag_id']) : 'Sem etiquetas')
                     ->addActionLabel('Adicionar Etiqueta')
                     ->reorderable()
                     ->collapsible()
@@ -187,7 +183,7 @@ new class extends Component implements HasSchemas, HasActions
             $this->showSuccessNotification();
             $this->refreshFormData();
         } catch (\Exception $e) {
-            Log::error('Erro ao salvar CFOPs equivalentes: ' . $e->getMessage());
+            Log::error('Erro ao salvar CFOPs equivalentes: '.$e->getMessage());
             $this->showErrorNotification($e->getMessage());
         } finally {
             $this->isLoading = false;
@@ -280,7 +276,7 @@ new class extends Component implements HasSchemas, HasActions
     {
         Notification::make()
             ->title('Erro')
-            ->body('Erro ao salvar CFOPs equivalentes: ' . $message)
+            ->body('Erro ao salvar CFOPs equivalentes: '.$message)
             ->danger()
             ->send();
     }

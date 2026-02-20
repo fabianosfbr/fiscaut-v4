@@ -189,7 +189,7 @@ class XmlNfeReaderService
         $nSeqEvento = $evento['nSeqEvento'];
         $dhEvento = $evento['dhEvento'];
         $xEvento = $evento['xEvento'];
-       
+
         $carta_correcao = [];
         $log = LogSefazNfeEvent::updateOrCreate(
             [

@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-
 use App\Models\ScheduleHistory;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class ClearScheduleHistory extends Command
 {

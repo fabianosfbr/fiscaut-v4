@@ -2,119 +2,216 @@
 
 namespace App\Integrations\DominioSistemas\Records;
 
-use App\Models\Issuer;
+use App\Models\EntradasAcumuladoresEquivalente;
+use App\Models\EntradasImpostosEquivalente;
 use App\Models\GeneralSetting;
+use App\Models\Issuer;
 use App\Models\NotaFiscalEletronica;
 use Illuminate\Support\Facades\Cache;
-use App\Models\EntradasImpostosEquivalente;
-use App\Models\EntradasAcumuladoresEquivalente;
 
 /**
  * Registro 1000 - Notas Fiscais de Entrada
  * Notas Fiscais de Entrada.
- * 
+ *
  * Este registro é gerado para cada etiqueta aplicada à nota fiscal,
  * com os valores proporcionais ao valor aplicado a cada etiqueta.
  */
 class Registro1000 extends RegistroBase
 {
     private string $codigoEspecie;
+
     private array $valoresSegmento;
+
     private string $inscricaoFornecedor;
+
     private ?string $codigoExclusaoDief = null;
+
     private ?string $codigoAcumulador = null; // Campo 5 - ID da CategoryTag
+
     private string $cfop; // Campo 6 - CFOP (pode ser equivalente)
+
     private ?string $segmento = null;
+
     private int $numeroDocumento;
+
     private ?string $serie = null;
+
     private ?int $numeroDocumentoFinal = null;
+
     private \DateTime $dataEntrada;
+
     private \DateTime $dataEmissao;
+
     private float $valorContabil;
+
     private ?string $valorExclusaoDief = null;
+
     private ?string $observacao = null;
+
     private ?string $modalidadeFrete = null;
+
     private ?string $emitenteNotaFiscal = null;
+
     private ?string $cfopExtendidoDetalhamento = null;
+
     private ?string $codigoTransferenciaCredito = null;
+
     private ?string $codigoRecolhimentoIssRetido = null;
+
     private ?string $codigoRecolhimentoIrrf = null;
+
     private ?string $codigoObservacao = null;
+
     private ?\DateTime $dataVistoTransfCreditoIcms = null;
+
     private ?string $fatoGeradorCrf = null;
+
     private ?string $fatoGeradorIrrf = null;
+
     private ?float $valorFrete = null;
+
     private ?float $valorSeguro = null;
+
     private ?float $valorDespesas = null;
+
     private ?float $valorPis = null;
+
     private ?string $codigoAntecipacaoTributaria = null;
+
     private ?float $valorCofins = null;
+
     private ?float $valorDareNota = null;
+
     private ?float $aliquotaDareNota = null;
+
     private ?float $valorBaseCalculoIcmsSt = null;
+
     private ?float $entradasSaidasIsentas = null;
+
     private ?float $outrasEntradasIsentas = null;
+
     private ?float $valorTransporteIncluidoBase = null;
+
     private ?string $codigoRessarcimento = null;
+
     private float $valorProdutos;
+
     private string $municipioOrigem;
+
     private int $situacaoNota;
+
     private ?string $codigoSituacaoTributaria = null;
+
     private ?string $subSerie = null;
+
     private ?string $inscricaoEstadualFornecedor = null;
+
     private ?string $inscricaoMunicipalFornecedor = null;
+
     private ?string $codigoOperacaoPrestacao = null;
+
     private ?float $valorDeduzirReceitaTributavel = null;
+
     private ?\DateTime $competencia = null;
+
     private ?int $operacao = null;
+
     private ?string $numeroParecerFiscal = null;
+
     private ?\DateTime $dataParecerFiscal = null;
+
     private ?string $numeroDeclaracaoImportacao = null;
+
     private ?string $possuiBeneficioFiscal = null;
+
     private ?string $chaveNotaFiscalEletronica = null;
+
     private ?string $codigoRecolhimentoFethab = null;
+
     private ?string $responsavelRecolhimentoFethab = null;
+
     private ?string $cfopDocumentoFiscal = null;
+
     private ?int $tipoCte = null;
+
     private ?string $cteReferencia = null;
+
     private ?int $modalidadeImportacao = null;
+
     private ?string $codigoInformacaoComplementar = null;
+
     private ?string $informacaoComplementar = null;
+
     private ?int $classeConsumo = null;
+
     private ?int $tipoLigacao = null;
+
     private ?int $grupoTensao = null;
+
     private ?int $tipoAssinante = null;
+
     private ?int $kwhConsumido = null;
+
     private ?float $valorFornecidoConsumidoGasEnergia = null;
+
     private ?float $valorCobradoTerceiros = null;
+
     private ?int $tipoDocumentoImportacao = null;
+
     private ?string $numeroAtoConcessorioDrawback = null;
+
     private ?int $naturezaFretePisCofins = null;
+
     private ?int $cstPisCofins = null;
+
     private ?int $baseCreditoPisCofins = null;
+
     private ?float $valorServicosItensPisCofins = null;
+
     private ?float $baseCalculoPisCofins = null;
+
     private ?float $aliquotaPis = null;
+
     private ?float $aliquotaCofins = null;
+
     private ?string $chaveNfse = null;
+
     private ?string $numeroProcessoAtoConcessorio = null;
+
     private ?string $origemProcesso = null;
+
     private ?\DateTime $dataEscrituracao = null;
+
     private ?int $cfps = null;
+
     private ?int $naturezaReceitaPisCofins = null;
+
     private ?string $cstIpi = null;
+
     private ?int $lancamentosScp = null;
+
     private ?int $tipoServico = null;
+
     private ?int $municipioDestino = null;
+
     private ?float $pedagio = null;
+
     private ?float $ipi = null;
+
     private ?float $icmsSt = null;
+
     private ?int $classificacaoServicosTipoEfdReinf = null; // Campo 92
+
     private ?int $classificacaoServicosIndicativoEfdReinf = null; // Campo 93
+
     private ?string $numeroDocumentoArrecadacao = null; // Campo 94
+
     private ?int $tipoTitulo = null; // Campo 95
+
     private ?string $identificacao = null; // Campo 96
+
     private ?float $icmsDesonerado = null; // Campo 97
+
     private ?float $ipiDevolucao = null; // Campo 98
 
     /**
@@ -141,8 +238,6 @@ class Registro1000 extends RegistroBase
      * Cache estático para armazenar os CFOPs equivalentes já consultados
      * Key: issuer_id_tag_id_cfop
      * Value: cfop_entrada equivalente ou null
-     *
-     * @var array
      */
     private static array $cfopEquivalenteCache = [];
 
@@ -150,8 +245,6 @@ class Registro1000 extends RegistroBase
      * Cache estático para armazenar os CFOPs acumuladores já consultados
      * Key: issuer_id_tag_id_cfop
      * Value: cfop_entrada equivalente ou null
-     *
-     * @var array
      */
     private static array $acumuladorEquivalenteCache = [];
 
@@ -193,9 +286,8 @@ class Registro1000 extends RegistroBase
         $this->codigoExclusaoDief = 0;
 
         // Campo 6 - CFOP: Código Fiscal de Operações e Prestações (pode ser equivalente conforme configuração)
-    
-        $this->cfop = $this->obterCfopEquivalente($notaFiscal, $issuer, $tagId, $xmlData['emit']['enderEmit']['UF']);
 
+        $this->cfop = $this->obterCfopEquivalente($notaFiscal, $issuer, $tagId, $xmlData['emit']['enderEmit']['UF']);
 
         // Campo 5 - Código do acumulador: ID da CategoryTag (etiqueta de classificação)
         $this->codigoAcumulador = $this->obterAcumuladorEquivalente($notaFiscal, $issuer, $tagId, $this->cfop);
@@ -204,7 +296,7 @@ class Registro1000 extends RegistroBase
         $this->segmento = $segmento;
 
         // Campo 8 - Número do documento: Número da NF-e
-        $this->numeroDocumento = (int)($notaFiscal->nNF ?? 0);
+        $this->numeroDocumento = (int) ($notaFiscal->nNF ?? 0);
 
         // Campo 9 - Série: Série da NF-e
         $this->serie = $notaFiscal->serie ?? null;
@@ -234,7 +326,6 @@ class Registro1000 extends RegistroBase
         // Campo 17 - Emitente da nota fiscal: P=Próprio, T=Terceiros
         $this->emitenteNotaFiscal = $this->checkNotaEmitida($notaFiscal);
 
-    
         // Campo 18 - CFOP estendido/detalhamento: Apenas para estado de SE
         $this->cfopExtendidoDetalhamento = 0;
 
@@ -300,7 +391,6 @@ class Registro1000 extends RegistroBase
         // Campo 43 - Sub série: Não informado (campo opcional)
         $this->subSerie = '0';
 
-
         // Campo 44 - Inscrição estadual do fornecedor: IE do emitente da NF-e
         $this->inscricaoEstadualFornecedor = $this->checkIsImportacao($notaFiscal) ? $xmlData['dest']['IE'] ?? '' : $xmlData['emit']['IE'] ?? '';
 
@@ -341,9 +431,8 @@ class Registro1000 extends RegistroBase
         // Campo 56 - Responsável pelo recolhimento do FETHAB: E=Empresa, C=Cliente
         $this->responsavelRecolhimentoFethab = null;
 
-
         // Campo 57 - CFOP documento fiscal: Não informado (campo opcional)
-        
+
         $this->cfopDocumentoFiscal = $this->valoresSegmento['cfop'];
 
         // Campo 58 - Tipo de CT-e: 0=Normal, 1=Complemento de valores, 2=Anulação de débito
@@ -480,10 +569,6 @@ class Registro1000 extends RegistroBase
      * Obtém o CFOP equivalente baseado nas etiquetas e configurações
      * Utiliza cache estático para otimizar consultas repetidas
      *
-     * @param NotaFiscalEletronica $notaFiscal
-     * @param Issuer $issuer
-     * @param int|null $tagId
-     * @param string|null $ufEmitente
      * @return string CFOP original ou equivalente
      */
     private function obterCfopEquivalente(NotaFiscalEletronica $notaFiscal, Issuer $issuer, ?int $tagId, ?string $ufEmitente): string
@@ -491,8 +576,7 @@ class Registro1000 extends RegistroBase
         // Early return: sem tag, retorna CFOP original
         $cfopOriginal = $this->valoresSegmento['cfop'];
 
-
-        if (!$tagId) {
+        if (! $tagId) {
             return $cfopOriginal;
         }
 
@@ -503,7 +587,6 @@ class Registro1000 extends RegistroBase
             default: false,
             issuerId: $issuer->id
         );
-
 
         $tipoDocumento = $this->determinarTipoDocumento($notaFiscal, $issuer);
         $ufIssuer = $issuer?->municipio?->sigla;
@@ -518,7 +601,6 @@ class Registro1000 extends RegistroBase
             $verificarUf ? $ufEmitente : null
         );
 
-
         // Verifica cache estático
         if (isset(self::$cfopEquivalenteCache[$cacheKey])) {
             return self::$cfopEquivalenteCache[$cacheKey] ?? $cfopOriginal;
@@ -527,8 +609,9 @@ class Registro1000 extends RegistroBase
         // Busca grupo com a tag específica
         $grupoEncontrado = $this->buscarGrupoPorTag($issuer, $tagId, $tipoDocumento);
 
-        if (!$grupoEncontrado) {
+        if (! $grupoEncontrado) {
             self::$cfopEquivalenteCache[$cacheKey] = null;
+
             return $cfopOriginal;
         }
 
@@ -540,7 +623,6 @@ class Registro1000 extends RegistroBase
             $ufIssuer,
             $ufEmitente
         );
-
 
         // Armazena em cache e retorna
         self::$cfopEquivalenteCache[$cacheKey] = $cfopResultado;
@@ -555,7 +637,6 @@ class Registro1000 extends RegistroBase
         $tag = $notaFiscal->tags->where('id', $tagId)->first();
 
         $isIndustria = in_array('industria', $issuer->atividade);
-
 
         if ($tag) {
 
@@ -572,7 +653,7 @@ class Registro1000 extends RegistroBase
     private function getTagToConvert($tag, $issuer, $icms = false, $ipi = false)
     {
 
-        $tagsToConverter = Cache::remember('entradas_impostos_equivalentes_' . $issuer->id, 300, function () use ($issuer) {
+        $tagsToConverter = Cache::remember('entradas_impostos_equivalentes_'.$issuer->id, 300, function () use ($issuer) {
             return EntradasImpostosEquivalente::where('issuer_id', $issuer->id)->get();
         });
 
@@ -583,7 +664,6 @@ class Registro1000 extends RegistroBase
         if ($ipi) {
             $tagsToConverter = $tagsToConverter->where('status_ipi', true);
         }
-
 
         foreach ($tagsToConverter as $tagConverter) {
 
@@ -598,14 +678,6 @@ class Registro1000 extends RegistroBase
 
     /**
      * Gera a chave de cache para CFOP equivalente
-     *
-     * @param int $issuerId
-     * @param int $tagId
-     * @param string $cfop
-     * @param string $tipoDocumento
-     * @param string|null $ufIssuer
-     * @param string|null $ufEmitente
-     * @return string
      */
     private function gerarChaveCacheCfop(
         int $issuerId,
@@ -626,11 +698,6 @@ class Registro1000 extends RegistroBase
 
     /**
      * Busca o grupo de CFOP equivalente que contém a tag especificada
-     *
-     * @param Issuer $issuer
-     * @param int $tagId
-     * @param string $tipoDocumento
-     * @return \App\Models\GrupoEntradaCfopEquivalente|null
      */
     private function buscarGrupoPorTag(Issuer $issuer, int $tagId, string $tipoDocumento): ?\App\Models\GrupoEntradaCfopEquivalente
     {
@@ -652,13 +719,6 @@ class Registro1000 extends RegistroBase
 
     /**
      * Busca o CFOP equivalente dentro de um grupo
-     *
-     * @param \App\Models\GrupoEntradaCfopEquivalente $grupo
-     * @param string $cfopOriginal
-     * @param bool $verificarUf
-     * @param string|null $ufIssuer
-     * @param string|null $ufEmitente
-     * @return string|null
      */
     private function buscarCfopEquivalenteNoGrupo(
         \App\Models\GrupoEntradaCfopEquivalente $grupo,
@@ -670,12 +730,12 @@ class Registro1000 extends RegistroBase
         foreach ($grupo->cfopsEquivalentes as $cfopEquivalente) {
             $valores = $this->normalizarValoresCfop($cfopEquivalente->valores);
 
-            if (!in_array($cfopOriginal, $valores)) {
+            if (! in_array($cfopOriginal, $valores)) {
                 continue;
             }
 
             // Se não precisa verificar UF, retorna o CFOP de entrada
-            if (!$verificarUf) {
+            if (! $verificarUf) {
                 return $cfopEquivalente->cfop_entrada ?? $cfopOriginal;
             }
 
@@ -691,8 +751,7 @@ class Registro1000 extends RegistroBase
     /**
      * Normaliza os valores de CFOP para array
      *
-     * @param mixed $valores
-     * @return array
+     * @param  mixed  $valores
      */
     private function normalizarValoresCfop($valores): array
     {
@@ -705,11 +764,6 @@ class Registro1000 extends RegistroBase
 
     /**
      * Verifica se a regra de UF é atendida
-     *
-     * @param bool $ufDiferente
-     * @param string|null $ufIssuer
-     * @param string|null $ufEmitente
-     * @return bool
      */
     private function verificarRegraUf(bool $ufDiferente, ?string $ufIssuer, ?string $ufEmitente): bool
     {
@@ -724,9 +778,6 @@ class Registro1000 extends RegistroBase
      * Obtém o CFOP equivalente baseado nas etiquetas e configurações
      * Utiliza cache estático para otimizar consultas repetidas
      *
-     * @param NotaFiscalEletronica $notaFiscal
-     * @param Issuer $issuer
-     * @param int|null $tagId
      * @return string CFOP original ou equivalente
      */
     private function obterAcumuladorEquivalente(NotaFiscalEletronica $notaFiscal, Issuer $issuer, ?int $tagId, int $cfopOriginal): string
@@ -738,19 +789,16 @@ class Registro1000 extends RegistroBase
         // Gera a chave do cache incluindo o tipo de documento
         $cacheKey = "{$issuer->id}_{$tagId}_{$cfopOriginal}_{$tipoDocumento}";
 
-
         // Verifica se já está em cache
         if (isset(self::$acumuladorEquivalenteCache[$cacheKey])) {
             return self::$acumuladorEquivalenteCache[$cacheKey] ?? $cfopOriginal;
         }
 
-
-        $acumuladores = Cache::remember('acumuladores_issuer_' . $tipoDocumento . '_' . $issuer->id, 1800, function () use ($tagId, $tipoDocumento, $issuer) {
+        $acumuladores = Cache::remember('acumuladores_issuer_'.$tipoDocumento.'_'.$issuer->id, 1800, function () use ($tipoDocumento, $issuer) {
             return EntradasAcumuladoresEquivalente::where('tipo', $tipoDocumento)
                 ->where('issuer_id', $issuer->id)
                 ->get();
         });
-
 
         // Verifica se o CFOP original está em algum dos registros
         foreach ($acumuladores as $acumulador) {
@@ -758,6 +806,7 @@ class Registro1000 extends RegistroBase
             if (count($acumulador->cfops) > 0) {
                 if (in_array($tagId, $acumulador->valores) && in_array($cfopOriginal, $acumulador->cfops)) {
                     self::$acumuladorEquivalenteCache[$cacheKey] = $acumulador->etiqueta_entrada;
+
                     return $acumulador->etiqueta_entrada;
                 }
             }
@@ -771,14 +820,13 @@ class Registro1000 extends RegistroBase
 
         // Se não encontrou o CFOP nos equivalentes, retorna o original
         self::$acumuladorEquivalenteCache[$cacheKey] = null;
+
         return $cfopOriginal;
     }
 
     /**
      * Determina o tipo de documento para filtrar os CFOPs equivalentes
      *
-     * @param NotaFiscalEletronica $notaFiscal
-     * @param Issuer $issuer
      * @return string Tipo do documento (nfe-entrada-propria, nfe-entrada-terceiro, etc.)
      */
     private function determinarTipoDocumento(NotaFiscalEletronica $notaFiscal, Issuer $issuer): string
@@ -792,7 +840,7 @@ class Registro1000 extends RegistroBase
     /**
      * Traduz o código numérico da modalidade do frete para a letra correspondente.
      *
-     * @param int|string $modFrete Código da modalidade do frete (0-9).
+     * @param  int|string  $modFrete  Código da modalidade do frete (0-9).
      * @return string Letra correspondente ao tipo de frete:
      *                C = Conta do emitente (0)
      *                F = Conta do destinatário (1)
@@ -831,7 +879,6 @@ class Registro1000 extends RegistroBase
     /**
      * Verifica se a nota fiscal foi emitida (tpNf == 1) ou própria (tpNf == 0)
      *
-     * @param NotaFiscalEletronica $notaFiscal
      * @return string 'T' se tpNf == 1, 'P' caso contrário
      */
     private function checkNotaEmitida(NotaFiscalEletronica $notaFiscal): string
@@ -844,13 +891,8 @@ class Registro1000 extends RegistroBase
         return 'P';
     }
 
-
     /**
      * Define o CNPJ do fornecedor baseado no tipo de operação (nacional ou importação)
-     *
-     * @param array $xmlData
-     * @param NotaFiscalEletronica $notaFiscal
-     * @return string
      */
     private function definirCnpjFornecedor(array $xmlData, NotaFiscalEletronica $notaFiscal): string
     {
@@ -868,7 +910,7 @@ class Registro1000 extends RegistroBase
     /**
      * Verifica se a nota fiscal refere-se a uma operação de importação.
      *
-     * @param NotaFiscalEletronica $notaFiscal Instância da nota fiscal a ser verificada.
+     * @param  NotaFiscalEletronica  $notaFiscal  Instância da nota fiscal a ser verificada.
      * @return bool Retorna true quando o CFOP inicia com 3 (indicando importação), false caso contrário.
      */
     private function checkIsImportacao(NotaFiscalEletronica $notaFiscal): bool
@@ -876,44 +918,41 @@ class Registro1000 extends RegistroBase
         // Verifica se é uma nota de importação pelo CFOP
         // CFOPs de importação começam com 3 (ex: 3101, 3201, 3202, 3205, 3206, 3207, 3208, 3209, 3211, 3251, 3551, 3667)
         $cfop = $this->valoresSegmento['cfop'];
+
         return strpos($cfop, '3') === 0;
     }
 
     /**
      * Aplica o fator de proporcionalidade aos valores da nota fiscal
-     *
-     * @param array $xmlData
-     * @param NotaFiscalEletronica $notaFiscal
-     * @return void
      */
     private function aplicarProporcionalidadeValores(array $xmlData, NotaFiscalEletronica $notaFiscal): void
     {
         // Campo 26 - Valor do frete: Valor do frete da NF-e (aplicado proporcionalidade conforme valor da etiqueta)
-        $this->valorFrete = $this->aplicarProporcionalidade((float)($this->valoresSegmento['valor_frete'] ?? 0));
+        $this->valorFrete = $this->aplicarProporcionalidade((float) ($this->valoresSegmento['valor_frete'] ?? 0));
 
         // Campo 27 - Valor do seguro: Valor do seguro da NF-e (aplicado proporcionalidade conforme valor da etiqueta)
-        $this->valorSeguro = $this->aplicarProporcionalidade((float)($this->valoresSegmento['valor_seguro'] ?? 0));
+        $this->valorSeguro = $this->aplicarProporcionalidade((float) ($this->valoresSegmento['valor_seguro'] ?? 0));
 
         // Campo 28 - Valor das despesas: Valor das despesas acessórias (vOutro) (aplicado proporcionalidade conforme valor da etiqueta)
-        $this->valorDespesas = $this->aplicarProporcionalidade((float)($this->valoresSegmento['valor_outro'] ?? 0));
+        $this->valorDespesas = $this->aplicarProporcionalidade((float) ($this->valoresSegmento['valor_outro'] ?? 0));
 
         // Campo 29 - Valor do PIS: Valor do PIS da NF-e (aplicado proporcionalidade conforme valor da etiqueta)
-        $this->valorPis = $this->aplicarProporcionalidade((float)($this->valoresSegmento['valor_pis'] ?? 0));
+        $this->valorPis = $this->aplicarProporcionalidade((float) ($this->valoresSegmento['valor_pis'] ?? 0));
 
         // Campo 31 - Valor do COFINS: Valor do COFINS da NF-e (aplicado proporcionalidade conforme valor da etiqueta)
-        $this->valorCofins = $this->aplicarProporcionalidade((float)($this->valoresSegmento['valor_cofins'] ?? 0));
+        $this->valorCofins = $this->aplicarProporcionalidade((float) ($this->valoresSegmento['valor_cofins'] ?? 0));
 
         // Campo 39 - Valor produtos: Valor total dos produtos (vProd) (aplicado proporcionalidade conforme valor da etiqueta)
-        $this->valorProdutos = $this->aplicarProporcionalidade((float)($this->valoresSegmento['valor_produtos'] ?? 0));
+        $this->valorProdutos = $this->aplicarProporcionalidade((float) ($this->valoresSegmento['valor_produtos'] ?? 0));
 
         // Valor do IPI para cálculo dos campos 90 e 98
-        $valorIpi = (float)($this->valoresSegmento['valor_ipi'] ?? 0);
+        $valorIpi = (float) ($this->valoresSegmento['valor_ipi'] ?? 0);
 
         // Campo 90 - IPI: Valor do IPI - só aplica o valor se a categoria da tag estiver marcada como is_devolucao = true
         $this->ipi = $this->calcularIpi($valorIpi);
 
         // Campo 91 - ICMS ST: Valor do ICMS ST (aplicado proporcionalidade conforme valor da etiqueta)
-        $this->icmsSt = $this->aplicarProporcionalidade((float)($this->valoresSegmento['valor_st'] ?? 0));
+        $this->icmsSt = $this->aplicarProporcionalidade((float) ($this->valoresSegmento['valor_st'] ?? 0));
 
         // Campo 98 - IPI Devolução: Valor do IPI para devolução - só aplica se a categoria NÃO estiver marcada como is_devolucao (is_devolucao = false)
         $this->ipiDevolucao = $this->calcularIpiDevolucao($valorIpi);
@@ -928,7 +967,7 @@ class Registro1000 extends RegistroBase
     private function isCategoriaDevolucao(): ?bool
     {
         // Se não há tag associada, retorna null (não é possível determinar)
-        if (!$this->tagId) {
+        if (! $this->tagId) {
             return null;
         }
 
@@ -937,14 +976,14 @@ class Registro1000 extends RegistroBase
         $tagged = $this->notaFiscal->tagged->firstWhere('tag_id', $this->tagId);
 
         // Se não encontrou o registro tagged, retorna null
-        if (!$tagged || !$tagged->tag) {
+        if (! $tagged || ! $tagged->tag) {
             return null;
         }
 
         $tag = $tagged->tag;
 
         // Se a tag não tem categoria carregada, retorna null
-        if (!$tag->category) {
+        if (! $tag->category) {
             return null;
         }
 
@@ -955,9 +994,6 @@ class Registro1000 extends RegistroBase
     /**
      * Calcula o valor do IPI (Campo 90) aplicando proporcionalidade apenas se a categoria for de devolução
      * Utiliza as tags já carregadas na nota fiscal via eager loading para evitar consultas N+1
-     *
-     * @param float $valorIpi
-     * @return float
      */
     private function calcularIpi(float $valorIpi): float
     {
@@ -975,9 +1011,6 @@ class Registro1000 extends RegistroBase
     /**
      * Calcula o valor do IPI Devolução (Campo 98) aplicando proporcionalidade apenas se a categoria NÃO for de devolução
      * Utiliza as tags já carregadas na nota fiscal via eager loading para evitar consultas N+1
-     *
-     * @param float $valorIpi
-     * @return float
      */
     private function calcularIpiDevolucao(float $valorIpi): float
     {
@@ -994,9 +1027,6 @@ class Registro1000 extends RegistroBase
 
     /**
      * Aplica o fator de proporcionalidade a um valor
-     *
-     * @param float $valor
-     * @return float
      */
     private function aplicarProporcionalidade(float $valor): float
     {
@@ -1005,9 +1035,6 @@ class Registro1000 extends RegistroBase
 
     /**
      * Define o fator de proporcionalidade baseado no valor da etiqueta
-     *
-     * @param float $fator
-     * @return void
      */
     public function setFatorProporcionalidade(float $fator): void
     {
@@ -1017,9 +1044,6 @@ class Registro1000 extends RegistroBase
     /**
      * Define o CFOP específico para o registro
      * Sobrescreve o CFOP extraído automaticamente da nota fiscal
-     *
-     * @param string $cfop
-     * @return void
      */
     public function setCfop(string $cfop): void
     {
@@ -1028,22 +1052,16 @@ class Registro1000 extends RegistroBase
 
     /**
      * Define o código do acumulador para o registro
-     *
-     * @param string|null $codigoAcumulador
-     * @return void
      */
     public function setCodigoAcumulador(?string $codigoAcumulador): void
     {
         $this->codigoAcumulador = $codigoAcumulador;
     }
 
-
-
     /**
      * Converte uma data para DateTime
      *
-     * @param mixed $data
-     * @return \DateTime
+     * @param  mixed  $data
      */
     private function converterParaDateTime($data): \DateTime
     {
@@ -1055,7 +1073,7 @@ class Registro1000 extends RegistroBase
             return new \DateTime($data);
         }
 
-        return new \DateTime();
+        return new \DateTime;
     }
 
     public function getTipoRegistro(): string
@@ -1171,8 +1189,8 @@ class Registro1000 extends RegistroBase
 
     public function isValid(): bool
     {
-        return !empty($this->inscricaoFornecedor) &&
-            !empty($this->cfop) &&
+        return ! empty($this->inscricaoFornecedor) &&
+            ! empty($this->cfop) &&
             $this->numeroDocumento > 0;
     }
 

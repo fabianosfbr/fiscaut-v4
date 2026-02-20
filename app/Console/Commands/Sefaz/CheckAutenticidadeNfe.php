@@ -2,15 +2,14 @@
 
 namespace App\Console\Commands\Sefaz;
 
+use App\Jobs\Sefaz\AutenticidadeNfeJob;
 use App\Models\Issuer;
-use NFePHP\NFe\Complements;
+use App\Models\NotaFiscalEletronica;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use NFePHP\NFe\Common\Standardize;
 use Illuminate\Support\Facades\Log;
-use App\Models\NotaFiscalEletronica;
-use App\Jobs\Sefaz\AutenticidadeNfeJob;
-
+use NFePHP\NFe\Common\Standardize;
+use NFePHP\NFe\Complements;
 
 class CheckAutenticidadeNfe extends Command
 {
@@ -43,8 +42,8 @@ class CheckAutenticidadeNfe extends Command
             $nfe = NotaFiscalEletronica::where('chave', $chave)->where('status_nota', 100)->first();
 
             $evento = DB::table('log_sefaz_nfe_events')
-            ->where('tp_evento', 110111)
-            ->where('chave', '>=', $chave)->first();
+                ->where('tp_evento', 110111)
+                ->where('chave', '>=', $chave)->first();
 
             if (isset($nfe) and isset($nfe->xml) and isset($evento)) {
                 $stdCl = new Standardize(gzuncompress($nfe->xml));
@@ -59,8 +58,8 @@ class CheckAutenticidadeNfe extends Command
 
                     $nfe->update(['status_nota' => 101, 'xml' => gzcompress($xml)]);
 
-                    Log::warning('Nfe cancelada:' . $nfe->chave);
-                    dump('Nfe cancelada:' . $nfe->chave);
+                    Log::warning('Nfe cancelada:'.$nfe->chave);
+                    dump('Nfe cancelada:'.$nfe->chave);
                 }
             }
         } else {
@@ -68,14 +67,11 @@ class CheckAutenticidadeNfe extends Command
                 ->where('is_enabled', true)
                 ->get();
 
-
             foreach ($issuers as $issuer) {
 
                 AutenticidadeNfeJob::dispatch($issuer);
             }
         }
-
-
 
         return Command::SUCCESS;
     }

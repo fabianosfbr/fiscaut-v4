@@ -33,10 +33,10 @@ class ParametroSuperLogicaExporter extends Exporter
 
     public static function getCompletedNotificationBody(Export $export): string
     {
-        $body = 'Os parâmetros da Super Lógica foram concluídos e ' . Number::format($export->successful_rows) . ' ' . str('linha')->plural($export->successful_rows) . ' exportadas.';
+        $body = 'Os parâmetros da Super Lógica foram concluídos e '.Number::format($export->successful_rows).' '.str('linha')->plural($export->successful_rows).' exportadas.';
 
         if ($failedRowsCount = $export->getFailedRowsCount()) {
-            $body .= ' ' . Number::format($failedRowsCount) . ' ' . str('linha')->plural($failedRowsCount) . ' falhou ao exportar.';
+            $body .= ' '.Number::format($failedRowsCount).' '.str('linha')->plural($failedRowsCount).' falhou ao exportar.';
         }
 
         return $body;

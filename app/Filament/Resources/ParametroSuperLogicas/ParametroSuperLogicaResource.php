@@ -8,11 +8,10 @@ use App\Filament\Resources\ParametroSuperLogicas\Pages\ListParametroSuperLogicas
 use App\Filament\Resources\ParametroSuperLogicas\Schemas\ParametroSuperLogicaForm;
 use App\Filament\Resources\ParametroSuperLogicas\Tables\ParametroSuperLogicasTable;
 use App\Models\ParametroSuperLogica;
-use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class ParametroSuperLogicaResource extends Resource
 {

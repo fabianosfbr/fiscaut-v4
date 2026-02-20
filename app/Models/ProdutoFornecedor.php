@@ -21,15 +21,12 @@ class ProdutoFornecedor extends Model
 
     /**
      * Find or create a ProdutoFornecedor record
-     *
-     * @param array $attributes
-     * @return static
      */
     public static function findOrCreate(array $attributes): static
     {
         $record = static::where($attributes)->first();
 
-        if (!$record) {
+        if (! $record) {
             $record = static::create($attributes);
         }
 

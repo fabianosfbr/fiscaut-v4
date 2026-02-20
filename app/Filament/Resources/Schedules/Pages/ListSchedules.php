@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\Schedules\Pages;
 
-use Filament\Support\Enums\Width;
+use App\Filament\Resources\Schedules\ScheduleResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use App\Filament\Resources\Schedules\ScheduleResource;
+use Filament\Support\Enums\Width;
 
 class ListSchedules extends ListRecords
 {

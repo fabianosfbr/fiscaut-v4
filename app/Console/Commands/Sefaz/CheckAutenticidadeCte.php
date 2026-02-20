@@ -2,14 +2,14 @@
 
 namespace App\Console\Commands\Sefaz;
 
-use App\Models\Issuer;
-use NFePHP\NFe\Complements;
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use NFePHP\NFe\Common\Standardize;
-use Illuminate\Support\Facades\Log;
 use App\Jobs\Sefaz\AutenticidadeCteJob;
 use App\Models\ConhecimentoTransporteEletronico;
+use App\Models\Issuer;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use NFePHP\NFe\Common\Standardize;
+use NFePHP\NFe\Complements;
 
 class CheckAutenticidadeCte extends Command
 {
@@ -56,8 +56,8 @@ class CheckAutenticidadeCte extends Command
 
                     $cte->update(['status_nota' => 101, 'xml' => gzcompress($xml)]);
 
-                    Log::warning('Nfe cancelada:' . $cte->chave);
-                    dump('Nfe cancelada:' . $cte->chave);
+                    Log::warning('Nfe cancelada:'.$cte->chave);
+                    dump('Nfe cancelada:'.$cte->chave);
                 }
             }
         } else {
@@ -65,14 +65,11 @@ class CheckAutenticidadeCte extends Command
                 ->where('is_enabled', true)
                 ->get();
 
-
             foreach ($issuers as $issuer) {
 
                 AutenticidadeCteJob::dispatch($issuer);
             }
         }
-
-
 
         return Command::SUCCESS;
     }

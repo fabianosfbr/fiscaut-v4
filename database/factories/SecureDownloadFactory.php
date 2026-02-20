@@ -21,8 +21,8 @@ class SecureDownloadFactory extends Factory
         return [
             'uuid' => (string) Str::uuid(),
             'user_id' => User::factory(),
-            'file_path' => 'downloads/' . $this->faker->uuid . '.zip',
-            'file_name' => $this->faker->word . '.zip',
+            'file_path' => 'downloads/'.$this->faker->uuid.'.zip',
+            'file_name' => $this->faker->word.'.zip',
             'mime_type' => 'application/zip',
             'size' => $this->faker->numberBetween(100, 1000000),
             'job_class' => 'App\Jobs\BulkAction\DownloadUploadFileBulkActionJob',

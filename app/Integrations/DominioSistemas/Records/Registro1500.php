@@ -10,7 +10,9 @@ use App\Models\NotaFiscalEletronica;
 class Registro1500 extends RegistroBase
 {
     private $parcela;
+
     private $numeroParcela;
+
     private $notaFiscal;
 
     public function __construct(NotaFiscalEletronica $notaFiscal, array $parcela, int $numeroParcela)
@@ -42,7 +44,6 @@ class Registro1500 extends RegistroBase
         $campos[] = '0,00'; // 12: Valor da CSOC Retido
         $campos[] = '0,00'; // 13: Valor do IRRF Pessoa Física
         $campos[] = $this->formatarCampo($this->parcela['nDup'] ?? '', null, 'C'); // 14: Número do Título
-
 
         return $this->montarLinha($campos);
     }

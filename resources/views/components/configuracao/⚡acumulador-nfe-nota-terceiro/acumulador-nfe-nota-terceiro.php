@@ -1,25 +1,25 @@
 <?php
 
-use Livewire\Component;
+use App\Filament\Forms\Components\SelectTagGrouped;
 use App\Models\Acumulador;
 use App\Models\CategoryTag;
-use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
+use App\Models\EntradaAcumuladorEquivalente;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TagsInput;
 use Filament\Notifications\Notification;
-use Filament\Actions\Contracts\HasActions;
-use Filament\Schemas\Contracts\HasSchemas;
-use App\Models\EntradaAcumuladorEquivalente;
-use App\Filament\Forms\Components\SelectTagGrouped;
-use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Livewire\Component;
 
-new class extends Component implements HasSchemas, HasActions
+new class extends Component implements HasActions, HasSchemas
 {
-    use InteractsWithSchemas;
     use InteractsWithActions;
+    use InteractsWithSchemas;
 
     const TIPO = 'nfe-entrada-terceiro';
 
@@ -31,7 +31,7 @@ new class extends Component implements HasSchemas, HasActions
 
     public function mount(): void
     {
-     
+
         $this->loadCurrentSettings();
     }
 
@@ -47,10 +47,7 @@ new class extends Component implements HasSchemas, HasActions
 
         $entradas = EntradaAcumuladorEquivalente::getAllCached($currentIssuer->id, $currentIssuer->tenant_id, self::TIPO);
 
-
         $formData = $this->transformDatabaseToFormData($entradas);
-
-
 
         $this->form->fill([
             'itens' => $formData,
@@ -137,7 +134,7 @@ new class extends Component implements HasSchemas, HasActions
                     ])
                     ->columns(5)
                     ->addActionLabel('Adicionar Acumulador')
-                    ->itemLabel(fn(array $state): ?string => ! empty($state['etiqueta_entrada']) ? 'Acumulador: ' . $state['etiqueta_entrada'] : 'Sem acumulador')
+                    ->itemLabel(fn (array $state): ?string => ! empty($state['etiqueta_entrada']) ? 'Acumulador: '.$state['etiqueta_entrada'] : 'Sem acumulador')
                     ->reorderable()
                     ->collapsible()
                     ->columnSpanFull(),
@@ -172,8 +169,6 @@ new class extends Component implements HasSchemas, HasActions
 
             foreach ($formData['itens'] as $item) {
 
-
-
                 EntradaAcumuladorEquivalente::create([
                     'tenant_id' => $currentIssuer->tenant_id,
                     'issuer_id' => $currentIssuer->id,
@@ -191,7 +186,7 @@ new class extends Component implements HasSchemas, HasActions
             $this->showSuccessNotification();
             $this->refreshFormData();
         } catch (\Exception $e) {
-            Log::error('Erro ao salvar Acumuladores NFe Notas Terceiro: ' . $e->getMessage());
+            Log::error('Erro ao salvar Acumuladores NFe Notas Terceiro: '.$e->getMessage());
             $this->showErrorNotification($e->getMessage());
         } finally {
             $this->isLoading = false;
@@ -226,7 +221,7 @@ new class extends Component implements HasSchemas, HasActions
     {
         Notification::make()
             ->title('Erro')
-            ->body('Erro ao salvar Acumuladores NFe Notas Terceiro: ' . $message)
+            ->body('Erro ao salvar Acumuladores NFe Notas Terceiro: '.$message)
             ->danger()
             ->send();
     }

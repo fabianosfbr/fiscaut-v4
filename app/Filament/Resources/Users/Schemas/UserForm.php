@@ -3,13 +3,12 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use App\Models\User;
-use App\Models\Tenant;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Hash;
-use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Grid;
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
 
 class UserForm
 {
@@ -30,9 +29,9 @@ class UserForm
                         TextInput::make('password')
                             ->label('Senha')
                             ->password()
-                            ->dehydrateStateUsing(fn(string $state): string => Hash::make($state))
-                            ->dehydrated(fn(?string $state): bool => filled($state))
-                            ->required(fn(string $operation): bool => $operation === 'create')
+                            ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
+                            ->dehydrated(fn (?string $state): bool => filled($state))
+                            ->required(fn (string $operation): bool => $operation === 'create')
                             ->columnSpan(2),
                         Grid::make(1)
                             ->schema([

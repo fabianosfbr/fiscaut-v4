@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Issuer extends Model
 {
     protected $with = ['municipio'];
-    
+
     protected $guarded = ['id'];
 
     protected $casts = [

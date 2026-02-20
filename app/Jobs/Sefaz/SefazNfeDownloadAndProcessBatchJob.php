@@ -34,6 +34,7 @@ class SefazNfeDownloadAndProcessBatchJob implements ShouldQueue
 
     /**
      * Create a new job instance.
+     *
      * @param  Issuer  $issuer  The issuer to download documents for
      * @param  string|null  $ultNsu  Last NSU for batch download (optional, uses issuer's last NSU if not provided)
      * @param  string|null  $nsu  Specific NSU for single document download (if provided, performs specific query)
