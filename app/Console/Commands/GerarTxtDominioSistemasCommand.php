@@ -15,6 +15,8 @@ use App\Integrations\DominioSistemas\Records\Registro0100;
 use App\Integrations\DominioSistemas\Records\Registro1010;
 use App\Integrations\DominioSistemas\Records\Registro1015;
 use App\Integrations\DominioSistemas\Records\Registro1020;
+use App\Integrations\DominioSistemas\Records\Registro1030;
+use App\Integrations\DominioSistemas\Records\Registro1500;
 
 class GerarTxtDominioSistemasCommand extends Command
 {
@@ -141,6 +143,7 @@ class GerarTxtDominioSistemasCommand extends Command
             $registrosPorCfop = $this->agregarValoresPorCfop($notaFiscal, $issuer);
 
             foreach ($registrosPorCfop as $cfop => $valoresSegmento) {
+                $produtosAdicionadosCfop = false;
 
                 foreach ($etiquetasValidas as $tagged) {
 
@@ -152,12 +155,15 @@ class GerarTxtDominioSistemasCommand extends Command
                         $numSegmento // Campo 7 - Segmento
                     );
 
+                    $cfopEquivalente = $registro1000->getCfop();
                     $numSegmento++;
                     $registro1000s[] = $registro1000;
 
 
                     // Cria registro 1010 (Informação Complementar) se houver
                     $registro1010 = new Registro1010($notaFiscal);
+
+                   
                     $registro1000s[] = $registro1010;
 
                     // Cria registro 1015 (Observação) se houver
@@ -175,6 +181,24 @@ class GerarTxtDominioSistemasCommand extends Command
 
                     $registro1020Difal = new Registro1020(8, $valoresSegmento, $notaFiscal, $tagged, $issuer);
                     $registro1000s[] = $registro1020Difal;
+
+                    // Cria registros 1030 (Produtos) para cada produto do CFOP
+                    // Adiciona apenas ao primeiro segmento deste CFOP para evitar duplicação
+                    if (!$produtosAdicionadosCfop && !empty($valoresSegmento['produtos'])) {
+                        foreach ($valoresSegmento['produtos'] as $produto) {
+                            $registro1030 = new Registro1030($notaFiscal, $produto, $tagged, $issuer, $cfopEquivalente);
+                            $registro1000s[] = $registro1030;
+                        }
+                        $produtosAdicionadosCfop = true;
+                    }
+
+                    // Cria registros 1500 (Parcelas) se houver
+                    // Adiciona para cada registro 1000 gerado
+                    $parcelas = $notaFiscal->parcelas;        
+                    foreach ($parcelas as $idx => $parcela) {
+                        $registro1500 = new Registro1500($notaFiscal, $parcela, $idx + 1);
+                        $registro1000s[] = $registro1500;
+                    }
                 }
             }
         }
@@ -278,7 +302,7 @@ class GerarTxtDominioSistemasCommand extends Command
                     'percentual_ipi' => $produto['impostos']['pIPI'] ?? 0.0,                    
                     'percentual_st_inter' => $produto['impostos']['pICMSInter'] ?? 0.0,
                     'percentual_st_dest' => $produto['impostos']['pICMSUFDest'] ?? 0.0,
-
+                    'produtos' => [],
                 ];
             }
 
@@ -302,6 +326,7 @@ class GerarTxtDominioSistemasCommand extends Command
             }
       
             $valoresPorCfop[$cfop]['quantidade_itens']++;
+            $valoresPorCfop[$cfop]['produtos'][] = $produto;
         }
 
         return $valoresPorCfop;

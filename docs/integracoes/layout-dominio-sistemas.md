@@ -478,35 +478,147 @@ Notas Fiscais de Entrada - Impostos. Este é um registro filho do registro 1000.
 ---
 
 ### Registro 1030 - Notas Fiscais de Entrada - Estoque
-Notas Fiscais de Entrada - Estoque. Este é um registro filho do registro 1000.
+Notas Fiscais de Entrada - Estoque. Este é um registro filho do registro 1000. *Este registro deve ser preenchido caso a nota de entrada tenha estoque, e devem ser informados os produtos que constam na emissão da nota fiscal.*
 
 | Campo | Nº Campo | Tipo | Casas Decimais | Formato | Valor | Comentário |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 1 | Identificação do registro | Caractere | | | `1030` | Fixo 1030 – Identificação do Registro. Registro filho do registro 1000 |
-| 2 | Código do produto | Caractere | | | | |
-| 3 | Quantidade | Decimal | 3 | | | |
-| 4 | Valor unitário | Decimal | 3 | | | |
-| 5 | Valor total | Decimal | 2 | | | |
-| 6 | Unidade de medida | Caractere | | | | |
-| 7 | Centro de custo | Numérico | | | | |
-| 8 | Conta contábil | Numérico | | | | |
-| 9 | Data de validade | Data | | dd/mm/aaaa | | |
-| 10 | Lote | Caractere | | | | |
-| 11 | Número de série | Caractere | | | | |
-| 12 | Localização física | Caractere | | | | |
-| 13 | Código do fornecedor | Caractere | | | | |
-| 14 | Número do documento fiscal | Numérico | | | | |
-| 15 | Série do documento fiscal | Caractere | | | | |
-| 16 | Data do documento fiscal | Data | | dd/mm/aaaa | | |
-| 17 | CFOP | Numérico | | | | |
-| 18 | Código da situação tributária | Numérico | | | | |
-| 19 | Base de cálculo do ICMS | Decimal | 2 | | | |
-| 20 | Valor do ICMS | Decimal | 2 | | | |
-| 21 | Base de cálculo do ICMS ST | Decimal | 2 | | | |
-| 22 | Valor do ICMS ST | Decimal | 2 | | | |
-| 23 | Valor do IPI | Decimal | 2 | | | |
-| 24 | Valor do PIS | Decimal | 2 | | | |
-| 25 | Valor da COFINS | Decimal | 2 | | | |
+| Identificação do registro | 1 | Caractere | | | `1030` | Fixo 1030 – Identificação do Registro. Registro filho do registro 1000. |
+| Código do produto | 2 | Caractere | | | | |
+| Quantidade | 3 | Decimal | 2 | | | |
+| Valor total | 4 | Decimal | 2 | | | Base Cal. + IPI. |
+| Valor IPI | 5 | Decimal | 2 | | | |
+| Base de cálculo | 6 | Decimal | 2 | | | |
+| Tipo de Lançamento | 7 | Numérico | | | | Informar: 1=Produto vinculado a nota / 2=Lançamento Extra. |
+| Data | 8 | Data | | dd/mm/aaaa | | |
+| Número da DI | 9 | Decimal | 2 | | | |
+| Código da Situação Tributária | 10 | Numérico | | | | |
+| Valor bruto do produto | 11 | Decimal | 2 | | | |
+| Valor do desconto | 12 | Decimal | 2 | | | |
+| Base de cálculo do ICMS | 13 | Decimal | 2 | | | |
+| Base de cálculo do ICMS p/ Substituição Tributária | 14 | Decimal | 2 | | | |
+| Alíquota do ICMS | 15 | Decimal | 2 | | | |
+| Produto Incentivado | 16 | Caractere | | | | Preencher com S ou N. Apenas para o Estado de PE. |
+| Código da apuração | 17 | Numérico | | | | Apenas para o Estado de PE. |
+| Valor do frete | 18 | Decimal | 2 | | | |
+| Valor do seguro | 19 | Decimal | 2 | | | |
+| Valor das despesas acessórias | 20 | Decimal | 2 | | | |
+| Quantidade de gasolina | 21 | Decimal | 3 | | | |
+| Valor do ICMS | 22 | Decimal | 2 | | | |
+| Valor da SUBTRI | 23 | Decimal | 2 | | | |
+| Valor de isentas IPI | 24 | Decimal | 2 | | | |
+| Valor de outras IPI | 25 | Decimal | 2 | | | |
+| ICMS NFP | 26 | Decimal | 2 | | | |
+| Valor Unitário | 27 | Decimal | 6 | | | |
+| Alíquota da Substituição Tributária | 28 | Decimal | 2 | | | |
+| Código de Tributação do IPI | 29 | Numérico | | | | |
+| Alíquota do IPI | 30 | Decimal | 2 | | | |
+| Base de cálculo ISSQN | 31 | Decimal | 2 | | | |
+| Alíquota do ISSQN | 32 | Decimal | 2 | | | |
+| Valor ISSQN | 33 | Decimal | 2 | | | |
+| CFOP | 34 | Numérico | | | | |
+| Série de fabricação do ECF | 35 | Caractere | | | | |
+| Alíquota do PIS | 36 | Decimal | 4 | | | |
+| Alíquota da COFINS | 37 | Decimal | 4 | | | |
+| Valor do PIS | 38 | Decimal | 2 | | | |
+| Valor da COFINS | 39 | Decimal | 2 | | | |
+| Unidade de medida | 40 | Caractere | | | | |
+| Centro de custo | 41 | Numérico | | | | |
+| Conta contábil | 42 | Numérico | | | | |
+| Data de validade | 43 | Data | | dd/mm/aaaa | | |
+| Lote | 44 | Caractere | | | | |
+| Número de série | 45 | Caractere | | | | |
+| Localização física | 46 | Caractere | | | | |
+| Código do fornecedor | 47 | Caractere | | | | |
+| Número do documento fiscal | 48 | Numérico | | | | |
+| Série do documento fiscal | 49 | Caractere | | | | |
+| Data do documento fiscal | 50 | Data | | dd/mm/aaaa | | |
+| CST PIS | 51 | Numérico | | | | |
+| CST COFINS | 52 | Numérico | | | | |
+| Natureza da receita – PIS/COFINS | 53 | Numérico | | | | |
+| Indicador de Operação | 54 | Caractere | | | | |
+| Código da conta analítica | 55 | Numérico | | | | |
+| Código do centro de custo | 56 | Numérico | | | | |
+| Código do histórico | 57 | Numérico | | | | |
+| Complemento do histórico | 58 | Caractere | | | | |
+| Identificação da conta contábil da contrapartida | 59 | Numérico | | | | |
+| Código da conta analítica da contrapartida | 60 | Numérico | | | | |
+| Código do centro de custo da contrapartida | 61 | Numérico | | | | |
+| Base de cálculo do IPI | 62 | Decimal | 2 | | | |
+| Valor do imposto de importação | 63 | Decimal | 2 | | | |
+| Valor do PIS Importação | 64 | Decimal | 2 | | | |
+| Valor da COFINS Importação | 65 | Decimal | 2 | | | |
+| Valor do PIS ST | 66 | Decimal | 2 | | | |
+| Valor da COFINS ST | 67 | Decimal | 2 | | | |
+| Data da DI | 68 | Data | | dd/mm/aaaa | | |
+| Número da adição | 69 | Numérico | | | | |
+| Sequencial da adição | 70 | Numérico | | | | |
+| Desconto da DI | 71 | Decimal | 2 | | | |
+| Valor do IOF | 72 | Decimal | 2 | | | |
+| Valor das despesas aduaneiras | 73 | Decimal | 2 | | | |
+| Valor do seguro (DI) | 74 | Decimal | 2 | | | |
+| Valor do frete (DI) | 75 | Decimal | 2 | | | |
+| Indicador de Receita | 76 | Numérico | | | | |
+| CNPJ do Fabricante | 77 | Caractere | | | | |
+| Código do Benefício Fiscal | 78 | Caractere | | | | |
+| Motivo da Desoneração do ICMS | 79 | Numérico | | | | |
+| Valor do ICMS Desonerado | 80 | Decimal | 2 | | | |
+| Valor do Abatimento NT | 81 | Decimal | 2 | | | |
+| Código do Enquadramento do IPI | 82 | Caractere | | | | |
+| Código do Selo de Controle IPI | 83 | Caractere | | | | |
+| Quantidade do Selo de Controle IPI | 84 | Numérico | | | | |
+| Classificação de Item de Energia Elétrica/Telecomunicação | 85 | Numérico | | | | |
+| Valor contábil produto | 86 | Decimal | 2 | | | |
+| Quantidade tributada PIS por unidade de medida | 87 | Decimal | 3 | | | |
+| Valor da unidade de medida PIS | 88 | Decimal | 4 | | | |
+| Valor PIS por unidade de medida | 89 | Decimal | 2 | | | |
+| Quantidade tributada COFINS por unidade de medida | 90 | Decimal | 3 | | | |
+| Valor unidade COFINS por unidade de medida | 91 | Decimal | 4 | | | |
+| Valor COFINS por unidade de medida | 92 | Decimal | 2 | | | |
+| Base do crédito | 93 | Numérico | | | | 01=Revenda; 02=Insumo; 03=Serv.Insumo; 04=Energia; 05=Aluguel Prédio; 06=Aluguel Máq; 07=Armazenagem; 08=Arrendamento; etc. |
+| Número da Nota/Redução Z/Cupom Fiscal devolvido | 94 | Numérico | | | | NF, Contador Redução Z ou Cupom Fiscal. |
+| Descrição complementar | 95 | Caractere | | | | |
+| Nota devolvida – CST PIS | 96 | Numérico | | | | |
+| Nota devolvida – CST COFINS | 97 | Numérico | | | | |
+| Vínculo de Crédito PIS | 98 | Numérico | | | | |
+| Vínculo de Crédito COFINS | 99 | Numérico | | | | |
+| Exclusão PIS | 100 | Decimal | 2 | | | |
+| Exclusão COFINS | 101 | Decimal | 2 | | | |
+| Base de cálculo - ICMS Carga Média | 102 | Decimal | 2 | | | |
+| Alíquota - ICMS Carga Média | 103 | Decimal | 2 | | | |
+| Valor - ICMS Carga Média | 104 | Decimal | 2 | | | |
+| Número de série da máquina ECF - Documento devolvido | 105 | Numérico | | | | |
+| PIS/COFINS - Percentual de redução na base de cálculo | 106 | Decimal | 2 | | | Informar o percentual de redução. |
+| Código de recolhimento PIS – Nota devolvida | 107 | Numérico | | | | |
+| Código de recolhimento COFINS – Nota devolvida | 108 | Numérico | | | | |
+| Código de recolhimento PIS | 109 | Numérico | | | | |
+| Código de recolhimento COFINS | 110 | Numérico | | | | |
+| Crédito Presumido PIS/COFINS - PIS | 111 | Decimal | 2 | | | |
+| Crédito Presumido PIS/COFINS - COFINS | 112 | Decimal | 2 | | | |
+| ICMS ST Antecipação Total - Base de cálculo | 113 | Decimal | 2 | | | |
+| ICMS ST Antecipação Total - Alíquota | 114 | Decimal | 2 | | | |
+| ICMS ST Antecipação Total - Valor | 115 | Decimal | 2 | | | |
+| Código de recolhimento – IPI | 116 | Caractere | | | | |
+| Código CEST | 117 | Numérico | | | | Informar o código CEST conforme tabela Código Especificador da Substituição Tributária - CEST. |
+| ICMS ST Retido – Base de cálculo | 118 | Decimal | 2 | | | Informar o valor da base de cálculo do ICMS ST Retido anteriormente (compra de substituído tributário). Preencher apenas para os Estados do DF, RJ, MG, SC, RS e SP. |
+| ICMS ST Retido – Valor | 119 | Decimal | 2 | | | Informar o valor do ICMS ST Retido anteriormente (compra de substituído tributário). Preencher apenas para os Estados do DF, RJ, MG, SC, RS e SP. |
+| ICMS ST Retido – Possui a tag no XML | 120 | Caractere | | S ou N | Informar o valor do ICMS ST Retido anteriormente (compra de substituído tributário). Preencher apenas para os Estados de PR, MG, SC, RS e SP. |
+| Identificador | 121 | Caractere | | | | Permitir informar no máximo 60 caracteres. |
+| ICMS Próprio do Substituto – Valor | 122 | Decimal | 2 | | | Informar o valor do ICMS Próprio do substituto destacado anteriormente na nota. Preencher apenas para o Estado de PR. |
+| Valor Desonerado | 123 | Decimal | 2 | | | Somente informar para notas de modelo/espécie "Nota Fiscal Eletrônica, código 55", "Nota Fiscal Eletrônica Avulsa, código 55" e "Nota Fiscal Eletrônica para Consumidor Final - NFC-e, código 65". |
+| Código (Tipo de Uso/Isenção) | 124 | Numérico | | | | 1-Táxi; 3-Produtor Agropecuário/Uso na agropecuária; 4-Frotista/Locadora; 5-Diplomático/Consular; 6-Utilitários e Motocicleta da Amazônia Ocidental e Áreas de Livre Comércio; 7-SUFRAMA; 8-Venda a Órgão Público; 9-Outros; 10-Deficiente Condutor; 11-Deficiente Não Condutor; 12-Órgão de fomento e desenvolvimento agropecuário; 90-Solicitado pelo Fisco. |
+| Código (Dedução ICMS) | 125 | Decimal | | | | Permitir importar somente quando: "[ ] Deduzir o valor do ICMS da base de cálculo do PIS e COFINS" em "Controle/Parâmetros" MARCADA. O acumulador possuir o imposto "1-ICMS" e pelo menos um dos impostos "17-PIS-MP66" e "19-COFINS-N" ou "106-PISN/SCP" e "107-COFN/SCP" ou "140-PISNC/CR" e "141-COFNC/CR". |
+| ICMS Monofásico Qtde Trib. | 126 | Decimal | 4 | | | Informar a quantidade tributada do ICMS Monofásico. (Preencher apenas para os Estados do BA, CE, GO, MA, PI, RJ, SC, SE e TO). Para o estado de SC, somente informar para notas de modelo/espécie "Nota Fiscal Eletrônica, código 55" e "Nota Fiscal Eletrônica para Consumidor Final - NFC-e, código 65". Para SP somente informar para notas de modelo/espécie "Nota Fiscal Eletrônica, código 55". |
+| ICMS Monofásico Alíq. Fixa (ad rem.) | 127 | Decimal | 4 | | | Informar a alíquota fixa do ICMS Monofásico. (Preencher apenas para os Estados do BA, CE, GO, MA, PI, RJ, SC, SE e TO). Para o estado de SC, somente informar para notas de modelo/espécie "Nota Fiscal Eletrônica, código 55" e "Nota Fiscal Eletrônica para Consumidor Final - NFC-e, código 65". Para SP somente informar para notas de modelo/espécie "Nota Fiscal Eletrônica, código 55". |
+| ICMS Monofásico Valor | 128 | Decimal | 2 | | | Informar o valor do ICMS Monofásico. (Preencher apenas para os Estados do BA, CE, GO, MA, PI, RJ, SC, SE e TO). Para o estado de SC, somente informar para notas de modelo/espécie "Nota Fiscal Eletrônica, código 55" e "Nota Fiscal Eletrônica para Consumidor Final - NFC-e, código 65". Para SP somente informar para notas de modelo/espécie "Nota Fiscal Eletrônica, código 55". |
+| ICMS Monofásico Fator de Correção do Volume (FCV) | 129 | Decimal | 4 | | | Informar o valor do Fator de Correção do Volume (FCV) do ICMS Monofásico (Preencher para o Estado de GO), permitir 05 caracteres no total (sem contar ponto e vírgula), sendo 4 casas decimais após a vírgula. |
+| IBS - cClass Trib | 130 | Caractere | | | | No lançamento de notas de entrada, na guia 'Estoque', no grupo 'IBS', preencher o campo "cClass Trib:". |
+| IBS - Base de cálculo | 131 | Decimal | 2 | | | No lançamento de notas de entrada, na guia 'Estoque', no grupo 'IBS', preencher o campo "Base Cálculo". |
+| IBS - Alíquota | 132 | Decimal | 2 | | | No lançamento de notas de entrada, na guia 'Estoque', no grupo 'IBS', preencher o campo "Alíquota". |
+| IBS - Valor | 133 | Decimal | 2 | | | No lançamento de notas de entrada, na guia 'Estoque', no grupo 'IBS', preencher o campo "Valor". |
+| CBS - cClass Trib | 134 | Caractere | | | | No lançamento de notas de entrada, na guia 'Estoque', no grupo 'CBS', preencher o campo "cClass Trib:". |
+| CBS - Base de cálculo | 135 | Decimal | 2 | | | No lançamento de notas de entrada, na guia 'Estoque', no grupo 'CBS', preencher o campo "Base Cálculo". |
+| CBS - Alíquota | 136 | Decimal | 2 | | | No lançamento de notas de entrada, na guia 'Estoque', no grupo 'CBS', preencher o campo "Alíquota". |
+| CBS - Valor | 137 | Decimal | 2 | | | No lançamento de notas de entrada, na guia 'Estoque', no grupo 'CBS', preencher o campo "Valor". |
 
 ---
 

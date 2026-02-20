@@ -21,23 +21,8 @@ use App\Models\EntradasImpostosEquivalente;
  */
 class Registro1020 extends RegistroBase
 {
-    /**
-     * Cache estático para armazenar as verificações de zera ICMS já consultadas
-     * Key: issuer_id_tag_code
-     * Value: bool
-     *
-     * @var array
-     */
-    private static array $zeraIcmsCache = [];
 
-    /**
-     * Cache estático para armazenar as verificações de zera IPI já consultadas
-     * Key: issuer_id_tag_code
-     * Value: bool
-     *
-     * @var array
-     */
-    private static array $zeraIpiCache = [];
+
 
     private Tagged $tagged;
 
@@ -262,7 +247,7 @@ class Registro1020 extends RegistroBase
         $this->valorSubstituicaoTributaria = 0; // Padrão zero, ajustar se necessário
         
         // Verifica se deve zerar ICMS (regra de negócio/configuração)
-        if ($this->isZeraIcms()) {
+        if ($this->isZeraIcms($this->issuer, $this->tagged->tag_id)) {
             $this->baseCalculo = 0;
             $this->aliquota = 0;
             $this->valorImposto = 0;
@@ -377,7 +362,7 @@ class Registro1020 extends RegistroBase
 
       
         // Verifica se deve zerar IPI (regra de negócio/configuração)
-        if ($this->isZeraIpi()) {
+        if ($this->isZeraIpi($this->issuer, $this->tagged->tag_id)) {
             $this->valorIpi = 0;
             $this->baseCalculo = 0;
             $this->valorOutras = $this->valorContabil;
@@ -585,64 +570,9 @@ class Registro1020 extends RegistroBase
         return $this->valorContabil;
     }
 
-    /**
-     * Verifica se o ICMS deve ser zerado para a tag/issuer atual
-     * Utiliza cache estático para evitar consultas repetidas ao banco de dados
-     *
-     * @return bool
-     */
-    private function isZeraIcms(): bool
-    {
-        // Gera a chave de cache única para esta combinação issuer/tag
-        $cacheKey = "{$this->issuer->id}_{$this->tagged->tag_id}";
+    
 
-        // Verifica se já está em cache
-        if (isset(self::$zeraIcmsCache[$cacheKey])) {
-            return self::$zeraIcmsCache[$cacheKey];
-        }
-
-        // Realiza a consulta no banco de dados
-        $check = EntradasImpostosEquivalente::where('tag_id', $this->tagged->tag_id)
-            ->where('issuer_id', $this->issuer->id)
-            ->where('status_icms', true)
-            ->first();
-
-        // Armazena o resultado em cache
-        $result = $check !== null;
-        self::$zeraIcmsCache[$cacheKey] = $result;
-
-        return $result;
-    }
-
-    /**
-     * Verifica se o IPI deve ser zerado para a tag/issuer atual
-     * Utiliza cache estático para evitar consultas repetidas ao banco de dados
-     *
-     * @return bool
-     */
-    private function isZeraIpi(): bool
-    {
-        // Gera a chave de cache única para esta combinação issuer/tag
-        $cacheKey = "{$this->issuer->id}_{$this->tagged->tag_id}";
-
-        // Verifica se já está em cache
-        if (isset(self::$zeraIpiCache[$cacheKey])) {
-            return self::$zeraIpiCache[$cacheKey];
-        }
-
-        // Realiza a consulta no banco de dados
-        $check = EntradasImpostosEquivalente::where('tag_id', $this->tagged->tag_id)
-            ->where('issuer_id', $this->issuer->id)
-            ->where('status_ipi', true)
-            ->first();
-
-
-        // Armazena o resultado em cache
-        $result = $check !== null;
-        self::$zeraIpiCache[$cacheKey] = $result;
-
-        return $result;
-    }
+    
 
 
     public function tomaCreditoIcms(): bool

@@ -172,6 +172,23 @@ class NotaFiscalEletronica extends Model
         }, $detList));
     }
 
+    public function getParcelasAttribute(): array
+    {
+        $xml = $this->extrairXmlComoString();
+        if ($xml === null) {
+            return [];
+        }
+
+        $data = (new XmlReaderService)->read($xml);
+        $dup = $data['nfeProc']['NFe']['infNFe']['cobr']['dup'] ?? null;
+
+        if ($dup === null) {
+            return [];
+        }
+
+        return $this->normalizeList($dup);
+    }
+
     public function getEnderecoDestinatarioCompletoAttribute(): string
     {
         $xml = $this->extrairXmlComoString();

@@ -203,14 +203,7 @@ class Registro0100 extends RegistroBase
      */
     private static array $categoryTagCache = [];
 
-    /**
-     * Cache estático para armazenar os ProdutoFornecedor já consultados
-     * Key: cnpj_num_nfe_codigo_produto (MD5 hash)
-     * Value: ProdutoFornecedor model instance
-     *
-     * @var array
-     */
-    private static array $produtoFornecedorCache = [];
+
 
     public function __construct(
         NotaFiscalEletronica $notaFiscal,
@@ -330,99 +323,9 @@ class Registro0100 extends RegistroBase
         return self::$categoryTagCache[$categoryId];
     }
 
-    /**
-     * Obtém o identificador do produto (campo 91)
-     * Se a nota fiscal é entrada própria, usa o código do produto
-     * Caso contrário, usa o external_id do ProdutoFornecedor
-     *
-     * @param NotaFiscalEletronica $notaFiscal
-     * @param array $produto
-     * @param string|null $issuerCnpj
-     * @return string|null
-     */
-    private function obterIdentificador(NotaFiscalEletronica $notaFiscal, array $produto, ?string $issuerCnpj): ?string
-    {
-        // Verifica se é entrada própria
-        // Entrada própria: emitente_cnpj == destinatario_cnpj (ou issuer_cnpj)
-        $isEntradaPropria = false;
+    
 
-        if ($issuerCnpj) {
-            $isEntradaPropria = ($notaFiscal->emitente_cnpj === $issuerCnpj);
-        } else {
-            $isEntradaPropria = ($notaFiscal->emitente_cnpj === $notaFiscal->destinatario_cnpj);
-        }
 
-        // Se for entrada própria, usa o código do produto
-        if ($isEntradaPropria) {
-            return $produto['cProd'] ?? null;
-        }
-
-        // Caso contrário, busca o external_id no ProdutoFornecedor
-        return $this->obterExternalIdProduto($notaFiscal, $produto);
-    }
-
-    /**
-     * Busca o external_id do ProdutoFornecedor
-     * Utiliza cache estático e findOrCreate para otimizar as consultas
-     *
-     * @param NotaFiscalEletronica $notaFiscal
-     * @param array $produto
-     * @return string|null
-     */
-    private function obterExternalIdProduto(NotaFiscalEletronica $notaFiscal, array $produto): ?string
-    {
-        $codigoProduto = $produto['cProd'] ?? '';
-
-        if (empty($codigoProduto) || empty($notaFiscal->emitente_cnpj) || empty($notaFiscal->nNF)) {
-            return null;
-        }
-
-        // Cria a chave do cache
-        $cacheKey = $this->getProdutoFornecedorCacheKey(
-            $notaFiscal->emitente_cnpj,
-            $notaFiscal->nNF,
-            $codigoProduto
-        );
-
-        // Verifica se já está em cache
-        if (isset(self::$produtoFornecedorCache[$cacheKey])) {
-            $produtoFornecedor = self::$produtoFornecedorCache[$cacheKey];
-            return $produtoFornecedor?->external_id;
-        }
-
-        // Dados para busca/criação do ProdutoFornecedor
-        // Todos os campos NOT NULL devem estar nos attributes
-        $attributes = [
-            'cnpj' => $notaFiscal->emitente_cnpj,
-            'num_nfe' => $notaFiscal->nNF,
-            'codigo_produto' => $codigoProduto,
-            'external_id' => $codigoProduto, // Usa o código do produto como external_id inicial
-            'descricao_produto' => $produto['xProd'] ?? $codigoProduto, // Usa descrição ou código
-            'unidade_comercializada' => $produto['uCom'] ?? 'UN', // Usa unidade ou padrão 'UN'
-        ];
-
-        // Usa findOrCreate para buscar ou criar o registro
-        $produtoFornecedor = \App\Models\ProdutoFornecedor::findOrCreate($attributes);
-
-        // Armazena em cache
-        self::$produtoFornecedorCache[$cacheKey] = $produtoFornecedor;
-
-        // Retorna o external_id se existir
-        return $produtoFornecedor->external_id ?? null;
-    }
-
-    /**
-     * Gera a chave única para o cache de ProdutoFornecedor
-     *
-     * @param string $cnpj
-     * @param string $numNfe
-     * @param string $codigoProduto
-     * @return string
-     */
-    private function getProdutoFornecedorCacheKey(string $cnpj, string $numNfe, string $codigoProduto): string
-    {
-        return md5("{$cnpj}_{$numNfe}_{$codigoProduto}");
-    }
 
     public function getTipoRegistro(): string
     {
