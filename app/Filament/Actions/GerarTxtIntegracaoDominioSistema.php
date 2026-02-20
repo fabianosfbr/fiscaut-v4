@@ -1,0 +1,303 @@
+<?php
+
+namespace App\Filament\Actions;
+
+use App\Models\Issuer;
+use App\Models\CategoryTag;
+use App\Models\GeneralSetting;
+use Filament\Actions\BulkAction;
+use App\Models\NotaFiscalEletronica;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\DatePicker;
+use Illuminate\Database\Eloquent\Collection;
+use App\Filament\Forms\Components\SelectTagGrouped;
+use App\Integrations\DominioSistemas\Records\Registro0000;
+use App\Integrations\DominioSistemas\Records\Registro0020;
+use App\Integrations\DominioSistemas\Records\Registro0030;
+use App\Integrations\DominioSistemas\Records\Registro1010;
+use App\Integrations\DominioSistemas\Records\Registro1015;
+use App\Integrations\DominioSistemas\Records\Registro1020;
+use App\Integrations\DominioSistemas\Records\Registro1030;
+use App\Integrations\DominioSistemas\Records\Registro1500;
+use App\Integrations\DominioSistemas\DominioSistemasService;
+
+class GerarTxtIntegracaoDominioSistema
+{
+    public static function make(): BulkAction
+    {
+        return BulkAction::make('gerar-txt-integracao-dominio-sistema')
+            ->label('Integração Dominio Sistema')
+            ->requiresConfirmation()
+            ->icon('heroicon-o-tag')
+            ->modalHeading('Gerar Arquivo de Integração Dominio Sistema')
+            ->modalWidth('lg')
+            ->modalDescription('Todos os documentos selecionados e etiquetados serão processados.')
+            ->closeModalByClickingAway(false)
+            ->closeModalByEscaping(false)
+            ->modalSubmitActionLabel('Sim, gerar arquivo')
+            ->action(function (Collection $records) {
+
+                $issuer = Auth::user()->currentIssuer;
+                $inscricaoEmpresa = $issuer->cnpj;
+
+                $service = new DominioSistemasService();
+                $registros = [];
+
+                // Adiciona o registro 0000 (cabeçalho) com o CNPJ da empresa
+                $registro0000 = new Registro0000($inscricaoEmpresa);
+                $registros[] = $registro0000;
+
+                // Arrays para armazenar registros por tipo
+                $registro0020s = [];
+                $registro0030s = [];
+                $registro0100s = [];
+                $registro1000s = [];
+
+
+                // Processa cada nota fiscal para coletar registros por tipo
+                foreach ($records as $notaFiscal) {
+                    // Coleta registro 0020 para o emitente da nota fiscal
+                    $emitenteCnpj = $notaFiscal->emitente_cnpj;
+
+                    if (!isset($registro0020s[$emitenteCnpj])) {
+                        $registro0020 = new Registro0020($notaFiscal);
+                        $registro0020s[$emitenteCnpj] = $registro0020;
+                    }
+
+
+
+                    // Coleta registro 0030 para o transportador da nota fiscal
+                    if (isset($notaFiscal->transportador_cnpj)) {
+                        $transportadorCnpj = $notaFiscal->transportador_cnpj;
+                        if (!isset($registro0030s[$transportadorCnpj])) {
+                            $registro0030 = new Registro0030($notaFiscal);
+                            $registro0030s[$transportadorCnpj] = $registro0030;
+                        }
+                    }
+
+                    // Coleta registros 0100 para os produtos da nota fiscal
+                    $produtos = $notaFiscal->produtos;
+                    foreach ($produtos as $produto) {
+                        if (isset($produto['cProd']) && isset($produto['xProd'])) {
+                            $registro0100 = new \App\Integrations\DominioSistemas\Records\Registro0100(
+                                $notaFiscal,
+                                $produto,
+                                $inscricaoEmpresa
+                            );
+
+                            $registro0100s[] = $registro0100;
+
+                            // Cria registro 0135 (Valor Unitário) para o produto
+                            if (isset($produto['vUnCom'])) {
+
+                                $registro0135 = new \App\Integrations\DominioSistemas\Records\Registro0135(
+                                    $notaFiscal->data_emissao,
+                                    (float)$produto['vUnCom']
+                                );
+                                $registro0100s[] = $registro0135;
+                            }
+
+                            // Cria registro 0150 (Unidade de Medida) para o produto
+                            if (isset($produto['uCom'])) {
+                                $registro0150 = new \App\Integrations\DominioSistemas\Records\Registro0150(
+                                    $produto['uCom'],
+                                    $produto['uCom'] // Descrição igual à sigla
+                                );
+                                $registro0100s[] = $registro0150;
+                            }
+                        }
+                    }
+
+                    // Cria registros 1000 agregados por CFOP
+
+                    $taggeds = $notaFiscal->tagged ?? collect();
+                    $etiquetasValidas = $taggeds->filter(function ($tagged) {
+                        return $tagged->tag && $tagged->value > 0;
+                    });
+
+                    $numSegmento = count($etiquetasValidas) > 1 ? 1 : 0;
+                    // Cada CFOP gera um ou mais registros 1000, incrementando o segmento para cada etiqueta
+                    $registrosPorCfop = self::agregarValoresPorCfop($notaFiscal);
+
+
+                    foreach ($registrosPorCfop as $cfop => $valoresSegmento) {
+                        $produtosAdicionadosCfop = false;
+
+                        foreach ($etiquetasValidas as $tagged) {
+
+                            $registro1000 = new \App\Integrations\DominioSistemas\Records\Registro1000(
+                                $notaFiscal,
+                                $valoresSegmento,
+                                $issuer,
+                                $tagged->tag->id, // Campo 5 - ID da Tag
+                                $numSegmento // Campo 7 - Segmento
+                            );
+
+                            $cfopEquivalente = $registro1000->getCfop();
+                            $numSegmento++;
+                            $registro1000s[] = $registro1000;
+
+
+                            // Cria registro 1010 (Informação Complementar) se houver
+                            $registro1010 = new Registro1010($notaFiscal);
+
+
+                            $registro1000s[] = $registro1010;
+
+                            // Cria registro 1015 (Observação) se houver
+                            $registro1015 = new Registro1015($notaFiscal);
+                            $registro1000s[] = $registro1015;
+
+                            // Cria registros 1020 (Impostos) para cada tipo de imposto
+                            // Código 1 = ICMS, Código 2 = IPI, Código 8 = DIFAL
+
+                            $registro1020Icms = new Registro1020(1, $valoresSegmento, $notaFiscal, $tagged, $issuer);
+                            $registro1000s[] = $registro1020Icms;
+
+                            $registro1020Ipi = new Registro1020(2, $valoresSegmento, $notaFiscal, $tagged, $issuer);
+                            $registro1000s[] = $registro1020Ipi;
+
+                            $registro1020Difal = new Registro1020(8, $valoresSegmento, $notaFiscal, $tagged, $issuer);
+                            $registro1000s[] = $registro1020Difal;
+
+                            // Cria registros 1030 (Produtos) para cada produto do CFOP
+                            // Adiciona apenas ao primeiro segmento deste CFOP para evitar duplicação
+                            if (!$produtosAdicionadosCfop && !empty($valoresSegmento['produtos'])) {
+                                foreach ($valoresSegmento['produtos'] as $produto) {
+                                    $registro1030 = new Registro1030($notaFiscal, $produto, $tagged, $issuer, $cfopEquivalente);
+                                    $registro1000s[] = $registro1030;
+                                }
+                                $produtosAdicionadosCfop = true;
+                            }
+
+                            // Cria registros 1500 (Parcelas) se houver
+                            // Adiciona para cada registro 1000 gerado
+                            $parcelas = $notaFiscal->parcelas;
+                            foreach ($parcelas as $idx => $parcela) {
+                                $registro1500 = new Registro1500($notaFiscal, $parcela, $idx + 1);
+                                $registro1000s[] = $registro1500;
+                            }
+                        }
+                    }
+                }
+
+
+                // Adiciona os registros na ordem correta: 0000, 0020, 0030, 0100, 1000
+                $registros = array_merge($registros, array_values($registro0020s));
+                $registros = array_merge($registros, array_values($registro0030s));
+                $registros = array_merge($registros, $registro0100s);
+                $registros = array_merge($registros, $registro1000s);
+
+                $conteudo = $service->gerarConteudoTxt($registros, $inscricaoEmpresa);
+                
+                return response()->streamDownload(function () use ($conteudo) {
+                    echo $conteudo;
+                }, str()->random(14) . '.txt');
+            });
+    }
+
+    /**
+     * Agrega os valores das notas fiscais por CFOP e gera registros 1000.
+     * 
+     * Para cada CFOP distinto na nota fiscal, calcula os valores proporcionais
+     * das etiquetas e gera registros 1000 segmentados quando necessário.
+     *
+     * @param NotaFiscalEletronica $notaFiscal
+     * @param Issuer $issuer
+     * @return array Array de Registro1000
+     */
+    protected static function agregarValoresPorCfop(NotaFiscalEletronica $notaFiscal): array
+    {
+        $registros = [];
+        $taggeds = $notaFiscal->tagged ?? collect();
+
+        // Se não há etiquetas, retorna array vazio
+        if ($taggeds->isEmpty()) {
+            return $registros;
+        }
+
+        // Extrai produtos e agrupa por CFOP
+        $produtos = $notaFiscal->produtos ?? [];
+        $valoresPorCfop = self::agruparValoresProdutosPorCfop($produtos);
+
+
+        return $valoresPorCfop;
+    }
+
+    /**
+     * Agrupa os valores dos produtos por CFOP, incluindo impostos.
+     *
+     * @param array $produtos
+     * @return array Array associativo com CFOP como chave e valores agregados
+     */
+    protected static function agruparValoresProdutosPorCfop(array $produtos): array
+    {
+        $valoresPorCfop = [];
+
+
+        foreach ($produtos as $produto) {
+            $cfop = $produto['CFOP'] ?? null;
+
+            if (!$cfop) {
+                continue;
+            }
+            // Inicializa o CFOP se não existir
+            if (!isset($valoresPorCfop[$cfop])) {
+                $valoresPorCfop[$cfop] = [
+                    'cfop' => $cfop,
+                    'csosn' => $produto['CSOSN'] ?? null,
+                    'cst_ipi' => $produto['impostos']['CST_IPI'] ?? null,
+                    'valor_base_calculo' => 0.0,
+                    'valor_produtos' => 0.0,
+                    'valor_frete' => 0.0,
+                    'valor_seguro' => 0.0,
+                    'valor_despesas' => 0.0,
+                    'valor_desconto' => 0.0,
+                    'quantidade_itens' => 0,
+                    // Impostos
+                    'valor_base_calculo' => 0.0,
+                    'valor_cst' => 0,
+                    'valor_icms' => 0.0,
+                    'valor_ipi' => 0.0,
+                    'valor_pis' => 0.0,
+                    'valor_cofins' => 0.0,
+                    'valor_icms_st' => 0.0,
+                    'valor_base_calculo_icms_st' => 0.0,
+                    'valor_outro' => 0.0,
+                    'percentual_icms' => $produto['impostos']['pICMS'] ?? 0.0,
+                    'percentual_cofins' => $produto['impostos']['pCOFINS'] ?? 0.0,
+                    'percentual_pis' => $produto['impostos']['pPIS'] ?? 0.0,
+                    'percentual_ipi' => $produto['impostos']['pIPI'] ?? 0.0,
+                    'percentual_st_inter' => $produto['impostos']['pICMSInter'] ?? 0.0,
+                    'percentual_st_dest' => $produto['impostos']['pICMSUFDest'] ?? 0.0,
+                    'produtos' => [],
+                ];
+            }
+
+            // Soma os valores do produto ao CFOP
+            $valoresPorCfop[$cfop]['valor_base_calculo'] = (float) ($produto['impostos']['vBC'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_st'] = (int) ($produto['impostos']['vICMSUFDest'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_produtos'] += (float) ($produto['vProd'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_icms'] += (float) ($produto['impostos']['vICMS'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_frete'] += (float) ($produto['vFrete'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_seguro'] += (float) ($produto['vSeg'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_despesas'] += (float) ($produto['vOutro'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_desconto'] += (float) ($produto['vDesc'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_icms_st'] += (float) ($produto['impostos']['vICMSSTRet'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_base_calculo_icms_st'] = (float) ($produto['impostos']['vBCSTRet'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_ipi'] += (float) ($produto['impostos']['vIPI'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_pis'] += (float) ($produto['impostos']['vPIS'] ?? 0);
+            $valoresPorCfop[$cfop]['valor_cofins'] += (float) ($produto['impostos']['vCOFINS'] ?? 0);
+
+            if (($produto['impostos']['pICMS'] ?? null) !== null && (float) $produto['impostos']['pICMS'] != 0) {
+                $valoresPorCfop[$cfop]['percentual_icms'] = (float) $produto['impostos']['pICMS'];
+            }
+
+            $valoresPorCfop[$cfop]['quantidade_itens']++;
+            $valoresPorCfop[$cfop]['produtos'][] = $produto;
+        }
+
+        return $valoresPorCfop;
+    }
+}
