@@ -1,133 +1,257 @@
-# Architecture Documentation
+# Architecture (Fiscaut v4.1)
 
-Fiscaut v4.1 is a commercial-grade tax and fiscal management application built on the **TALL stack** (Tailwind CSS, Alpine.js, Laravel, and Livewire). It employs a **Modular Monolith** architecture, leveraging the FilamentPHP ecosystem to provide a highly extensible administrative interface and sophisticated data management system.
+Fiscaut v4.1 is a commercial-grade tax and fiscal management application built on the **TALL stack** (Tailwind CSS, Alpine.js, Laravel, Livewire). The system follows a **Modular Monolith** approach: business capabilities are organized into cohesive modules (models, resources, services, jobs), but deployed as a single Laravel application.
+
+This document explains the high-level architecture, key layers, data flow, and the frontend component model used by Filament/Livewire.
+
+Related docs:
+- [Project Overview](./project-overview.md)
+- [Data Flow](./data-flow.md)
+- [Filament Admin](./filament-admin.md)
+- [Codebase Map](./codebase-map.json)
+
+---
 
 ## Technology Stack
 
 | Layer | Technology |
-|-------|------------|
-| **Backend Framework** | Laravel v12 |
-| **Admin Panel** | FilamentPHP v5 |
-| **Frontend Reactivity** | Livewire v4 & Alpine.js |
-| **Styling** | Tailwind CSS |
-| **Database** | MySQL |
-| **Caching/Queues** | Redis (via Laravel Horizon) |
-| **Runtime** | PHP-FPM / Nginx (Docker/Sail) |
+|------:|------------|
+| Backend Framework | Laravel v12 |
+| Admin Panel | FilamentPHP v5 |
+| Frontend Reactivity | Livewire v4 + Alpine.js |
+| Styling | Tailwind CSS |
+| Database | MySQL |
+| Cache/Queues | Redis (Laravel Horizon) |
+| Runtime | PHP-FPM / Nginx (Docker/Sail) |
 
 ---
 
-## Architectural Layers
+## Architectural Style: Modular Monolith on Laravel + Filament
 
-The application follows the standard Laravel MVC pattern, enhanced by Filament's resource-based architecture for rapid administrative development.
+The application uses the Laravel MVC baseline, but most “admin app” use-cases are implemented as **Filament Resources** rather than traditional controllers. This produces a practical structure:
 
-### 1. Domain Layer (`app/Models`)
-The domain layer encapsulates business entities and persistence logic.
-- **Models**: High-level entities such as `Cfop`, `Cnae`, `User`, and `SimplesNacionalAnexo`.
-- **Relationships**: Defined via standard Eloquent relationships (HasMany, BelongsTo) to maintain data integrity and the fiscal data graph.
-- **Query Scoping**: Heavy utilization of Global Scopes and `modifyQueryUsing` hooks to enforce multi-tenancy and issuer-based filtering.
-
-### 2. Application Layer (`app/Filament` & `app/Livewire`)
-This layer orchestrates business logic and user interactions.
-- **Filament Resources**: Located in `app/Filament/Resources`, these act as the primary controllers for CRUD operations.
-- **Schemas & Tables**: Configuration for forms and tables is often extracted into dedicated classes or methods within the Resource directories to promote reusability and clean code.
-- **Actions**: Custom logic for data processing (e.g., exports, status changes, downloads) is encapsulated in reusable `Action` and `ActionGroup` classes.
-- **Relation Managers**: Handle sub-resources (e.g., managing specific fiscal details within an `Issuer` context) directly within the parent view.
-  - See [Filament Admin](./filament-admin.md) for a concrete inventory of resources/pages/actions in `app/Filament`.
-
-### 3. Presentation Layer (`resources/views` & JS Components)
-- **Blade Templates**: Provide the structural layouts and integrate Livewire components.
-- **Filament UI Components**: Standardized UI components for forms (Inputs, Selects, Rich Editors) and tables (Columns, Filters).
-- **Alpine.js Components**: Client-side logic for complex UI elements like `Wizard`, `Tabs`, and `RichEditor`. These are located in `public/js/filament/` and `vendor/filament/`.
-- **Assets**: Core frontend logic for Filament components is bundled and served from `public/js/filament/`.
-
-### 4. Infrastructure Layer
-- **Service Providers**: (`app/Providers`) Responsible for bootstrapping application services, registering Filament panels, and configuring security guards.
-- **Migrations**: (`database/migrations`) Define the relational schema for the MySQL database.
+- **Models** define domain entities and persistence rules.
+- **Resources/Pages/RelationManagers** define admin screens, forms, tables, actions, and authorization.
+- **Services/Jobs** implement integration-heavy and asynchronous workflows (e.g., XML ingestion, SEFAZ download pipelines).
+- **Livewire + Alpine** deliver interactive UIs with server-side state and client-side enhancements.
 
 ---
 
-## Key Design Patterns
+## Layered Architecture
 
-| Pattern | Implementation in Fiscaut |
-|---------|---------------------------|
-| **MVC** | Fundamental Laravel structure separating data, UI, and logic. |
-| **Resource-Based Routing** | Filament resources automatically map URL structures to specific database entities. |
-| **Multi-Tenancy Scoping** | Systematic filtering of queries based on `tenant_id` or `currentIssuer` to ensure data isolation between different clients. |
-| **Facade/Singleton** | Static interfaces to internal services, such as the `Notification::make()` utility. |
-| **Action Pattern** | Encapsulating specific tasks (like "Download Report") into discrete, testable classes rather than bloated controllers. |
+### 1) Domain Layer (`app/Models`)
+Responsible for business entities and persistence rules.
+
+**Responsibilities**
+- Eloquent models for core entities (e.g., `Cfop`, `Cnae`, `User`, `SimplesNacionalAnexo`, fiscal documents).
+- Relationships using Eloquent relations (`hasMany`, `belongsTo`, etc.).
+- Query scoping and constraints (global scopes and `modifyQueryUsing`) to enforce:
+  - multi-tenancy
+  - issuer/empresa boundaries
+  - consistent filtering across the admin
+
+**Typical patterns**
+- Global scopes for tenant isolation
+- Accessors/mutators for domain-specific formatting
+- Shared query scopes for repeated filters
 
 ---
 
-## Frontend Component Architecture
+### 2) Application Layer (`app/Filament`, `app/Livewire`, Services, Jobs)
+Orchestrates user interactions, application workflows, and integration pipelines.
 
-The application utilizes a sophisticated JavaScript bridge between the PHP backend and the browser, primarily managed by Alpine.js and Livewire.
+#### Filament (`app/Filament`)
+Filament acts as the primary “application layer” for CRUD and administrative workflows.
 
-### Core Utilities
-Found in `vendor/filament/support/resources/js/utilities/`:
-- **`Select`**: A robust utility class for managing dropdown logic, searching, and item selection.
-- **`Pluralize`**: String manipulation utility for generating dynamic UI labels.
-- **`Modal`**: Logic for managing overlay states, keyboard interactions (ESC to close), and accessibility.
+**Key building blocks**
+- **Resources** (`app/Filament/Resources`): Define CRUD screens, routing, forms, tables, and policies.
+- **Pages**: Custom screens beyond CRUD (dashboards, wizards, reports).
+- **Relation Managers**: Sub-resource management within a parent context (e.g., fiscal details under an Issuer).
+- **Actions / ActionGroups**: Encapsulate operations like exports, downloads, status transitions, and batch operations.
 
-### Component Logic
-Interactive UI elements are broken down into specialized scripts:
-- **Forms**: Components like `rich-editor.js`, `tags-input.js`, and `file-upload.js` handle client-side validation, asynchronous file processing, and rich text manipulation.
-- **Tables**: Logic in `table.js` handles row selection, bulk actions, and real-time polling updates.
-- **Notifications**: Managed by the `Notification` class in `vendor/filament/notifications/resources/js/Notification.js`, providing real-time feedback via toast messages.
+> See [Filament Admin](./filament-admin.md) for the catalog of resources/pages and how they map to business areas.
+
+#### Livewire (`app/Livewire`)
+Livewire components cover interactive experiences that benefit from server-driven state without writing a SPA.
+
+**Typical usage**
+- dynamic forms
+- inline interactions
+- step-based or reactive UIs where Filament components are extended
+
+#### Services & Jobs (integration and async work)
+The application uses service classes for integration logic and jobs for queued processing (especially for high-volume XML processing and external APIs).
+
+Common characteristics:
+- jobs are queued (Redis/Horizon) for throughput and resilience
+- services encapsulate parsing, normalization, identification, and persistence logic
+
+---
+
+### 3) Presentation Layer (`resources/views`, `public/js/filament`)
+Presentation is a combination of Blade + Filament + Livewire, with Alpine-powered component behaviors.
+
+#### Blade (`resources/views`)
+- Layout structure and rendering scaffolding
+- Embeds Livewire components and Filament views
+
+#### Filament/Livewire client-side assets (`public/js/filament`)
+Filament’s interactive components rely on JavaScript shipped to the browser. In this repository, key scripts live in:
+
+- **Models / schemas**
+  - `public/js/filament/schemas`
+  - `public/js/filament/schemas/components`
+
+- **Components**
+  - `public/js/filament/widgets/components`
+  - `public/js/filament/forms/components`
+  - `public/js/filament/tables/components/columns`
+  - `public/js/filament/widgets/components/stats-overview/stat`
+
+These scripts are primarily Alpine-powered component implementations that bridge server-rendered configuration (schemas) with client-side interactions (wizards, tabs, editors, tag inputs, etc.).
+
+**Notable component scripts (examples)**
+- Schemas:
+  - `public/js/filament/schemas/components/wizard.js` (Wizard behavior)
+  - `public/js/filament/schemas/components/tabs.js` (Tabs behavior)
+- Forms:
+  - `public/js/filament/forms/components/textarea.js`
+  - `public/js/filament/forms/components/tags-input.js`
+  - `public/js/filament/forms/components/rich-editor.js`
+  - `public/js/filament/forms/components/key-value.js`
+  - `public/js/filament/forms/components/checkbox-list.js`
+- Tables (columns):
+  - `public/js/filament/tables/components/columns/toggle.js`
+  - `public/js/filament/tables/components/columns/text-input.js`
+  - `public/js/filament/tables/components/columns/checkbox.js`
+
+**How to think about these files**
+- They are **client-side “adapters”**: Filament/Livewire generate HTML + metadata; these scripts add interactive behavior (keyboard handling, state sync, editor integration, etc.).
+- They are not the source of truth for business rules; instead, they implement UX and state handling.
+
+---
+
+### 4) Infrastructure Layer (`app/Providers`, `database/migrations`, runtime)
+Infrastructure bootstraps the application and defines persistence schema.
+
+**Key parts**
+- **Service Providers** (`app/Providers`):
+  - register bindings and services
+  - configure Filament panels
+  - define guards/security integration
+- **Migrations** (`database/migrations`):
+  - MySQL schema and constraints
+- **Queues/Cache**:
+  - Redis + Horizon for background processing and throughput
+- **Runtime**:
+  - typical Laravel deployment using PHP-FPM and Nginx (often via Docker/Sail in development)
+
+---
+
+## Key Design Patterns Used
+
+| Pattern | How it appears in Fiscaut |
+|---|---|
+| MVC | Laravel foundation for request lifecycle and data access. |
+| Resource-based UI | Filament Resources map entities to CRUD UI and routes. |
+| Multi-tenancy scoping | Systematic query filtering by tenant/issuer context. |
+| Action Pattern | Discrete, reusable operations (export, download, change status) instead of bloated controllers. |
+| Services + Jobs pipeline | Integration-heavy tasks implemented as services and queued jobs for scale and resilience. |
 
 ---
 
 ## System Entry Points
 
-- **Web Entry**: `public/index.php` routes all incoming HTTP traffic through the Laravel middleware stack.
-- **Admin Panel**: Accessible via the path defined in `AdminPanelProvider.php` (defaults to `/admin`), serving as the main interface for fiscal management.
-- **CLI**: The `artisan` command-line interface serves as the entry point for background tasks, migrations, and scheduled fiscal processing jobs.
+- **Web**: `public/index.php` → Laravel HTTP kernel → middleware → routes → Filament/Livewire.
+- **Admin Panel**: configured by the Filament panel provider (commonly defaulting to `/admin`).
+- **CLI**: `artisan` for migrations, scheduled tasks, and queue workers.
 
 ---
 
-## Data Flow & Security
+## Request/Data Flow (Typical Admin Interaction)
 
-1. **Request**: A user interacts with a Filament Table or Form (e.g., updating a tax rate).
-2. **Middleware**: Laravel and Filament middleware verify session authentication and tenant access rights.
-3. **Processing**: Livewire intercepts the action via AJAX, executing logic in the corresponding Resource or RelationManager on the server.
-4. **Data Access**: The Eloquent Model applies necessary scopes (e.g., `tenant_id`) before executing the query against MySQL.
-5. **Response**: Livewire updates only the affected DOM elements using Alpine.js for smooth transitions, or triggers a `Notification` toast to confirm success.
+Example: a user edits a tax configuration in a Filament form.
+
+1. **User action**: User changes a field or clicks “Save” in a Filament resource.
+2. **Middleware/auth**: Laravel + Filament middleware validate session, permissions, and tenant/issuer access.
+3. **Livewire request**: The action is sent via AJAX to the Livewire component that backs the resource/page.
+4. **Server execution**:
+   - Resource/Page logic runs (validation, authorization, transformations).
+   - Eloquent models apply scopes (tenant/issuer) automatically.
+5. **Persistence**: MySQL write occurs (often wrapped in transactions for consistency).
+6. **UI update**:
+   - Livewire returns a DOM diff.
+   - Alpine enhances transitions and component behavior.
+   - Notifications may be triggered (toast feedback) via Filament notifications.
+
+---
+
+## Frontend Component Architecture (Filament + Alpine)
+
+The interactive UI is largely driven by:
+- **Filament configuration (PHP)**: defines “what the UI is”
+- **Livewire state (PHP)**: defines “how it behaves on the server”
+- **Alpine component logic (JS)**: defines “how it behaves in the browser”
+
+### Core utilities (upstream Filament)
+In Filament’s upstream packages (commonly under `vendor/filament/.../resources/js/utilities/`), you typically find foundational utilities such as:
+- Select/dropdown orchestration
+- modal behavior and accessibility
+- string utilities (pluralization, labels)
+
+These utilities underpin the components shipped into `public/js/filament/`.
 
 ---
 
 ## XML Processing Architecture
 
-The application includes a sophisticated XML processing engine designed to handle various types of fiscal documents (NF-e, CT-e, and related events) from multiple sources.
+A major subsystem in Fiscaut is ingestion and processing of fiscal XML documents (NF-e, CT-e, and events). This is designed as a set of **identification + parsing + routing + persistence** pipelines.
 
-### XML Processing Services
+### Core Services (conceptual)
+- **`XmlReaderService`**: parses XML into structured data (arrays/DTO-like structures).
+- **`XmlIdentifierService`**: detects document type (NF-e, CT-e, event) and routes to the right processor.
+- **`XmlNfeReaderService`**: NF-e document/event interpretation.
+- **`XmlCteReaderService`**: CT-e document/event interpretation.
 
-The system uses specialized services for handling different types of XML documents:
+### Ingestion Methods (pipelines)
+1. **Manual upload**
+   - User uploads XML files through the admin UI.
+   - Processing is typically queued (e.g., `ProcessXmlFile` job).
+2. **SEFAZ integration**
+   - Automated retrieval of documents/events.
+   - Coordinated job pipeline (download batch → process documents).
+3. **SIEG integration**
+   - Bulk import via SIEG API and corresponding jobs.
+4. **Bulk import**
+   - Batch processing multiple XML files (e.g., `ProcessXmlFileBatch`).
 
-- **`XmlNfeReaderService`**: Handles Nota Fiscal Eletrônica (NF-e) documents, including complete invoices, summaries, and events (such as cancellations and correction letters).
-- **`XmlCteReaderService`**: Handles Conhecimento de Transporte Eletrônico (CT-e) documents, including complete transport receipts and events.
-- **`XmlReaderService`**: Core parsing service that converts XML content to structured arrays.
-- **`XmlIdentifierService`**: Identifies the type of XML document (NF-e, CT-e, event, etc.) to route it to the appropriate processor.
+### Persistence Targets (examples)
+Processed data is stored in dedicated models/tables, e.g.:
+- `NotaFiscalEletronica` for NF-e
+- `ConhecimentoTransporteEletronico` for CT-e
+- raw XML and event logs:
+  - `LogSefazNfeContent`, `LogSefazCteContent`
+  - `LogSefazNfeEvent`, `LogSefazCteEvent`
 
-### XML Processing Pipelines
-
-The system supports multiple XML import methods:
-
-1. **Manual Upload**: Users can upload XML files directly through the admin interface, triggering the `ProcessXmlFile` job.
-2. **SEFAZ Integration**: Automated retrieval of documents from the national SEFAZ environment using the coordinated job pipeline (`SefazNfeDownloadAndProcessBatchJob`, `SefazNfeDownloadBatchJob`, `SefazNfeProcessDocumentJob`).
-3. **SIEG Integration**: Bulk import from the SIEG API using the `SiegConnect` job pipeline.
-4. **Bulk Import**: Batch processing of multiple XML files using the `ProcessXmlFileBatch` job.
-
-### Data Persistence
-
-Processed XML data is persisted to specific models:
-- `NotaFiscalEletronica` for NF-e documents
-- `ConhecimentoTransporteEletronico` for CT-e documents
-- `LogSefazNfeContent` and `LogSefazCteContent` for raw XML storage
-- `LogSefazNfeEvent` and `LogSefazCteEvent` for event tracking
+**Why this design**
+- Supports high throughput with queues.
+- Separates raw storage (audit/debug) from normalized domain tables.
+- Enables re-processing and traceability of events and source payloads.
 
 ---
 
-## Related Documentation
-- [Project Overview](./project-overview.md)
-- [Data Flow](./data-flow.md)
-- [Filament Admin](./filament-admin.md)
-- [Codebase Map](./codebase-map.json)
+## Conventions and Practical Notes for Developers
+
+- Prefer implementing admin CRUD via **Filament Resources** rather than custom controllers.
+- Keep business logic in **services** or **domain methods**, not in Blade/JS.
+- Use **jobs** for IO-heavy work (SEFAZ/SIEG, XML parsing, large batch imports).
+- Treat `public/js/filament/**` as **UI behavior**: changes here affect component interactivity and can impact many screens.
+
+---
+
+## Cross-References
+
+- Filament resources, pages, actions inventory: **[Filament Admin](./filament-admin.md)**
+- System-level flow diagrams and interaction sequences: **[Data Flow](./data-flow.md)**
+- General orientation: **[Project Overview](./project-overview.md)**
+- Repository structure map: **[Codebase Map](./codebase-map.json)**

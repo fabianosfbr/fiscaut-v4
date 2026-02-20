@@ -1,164 +1,269 @@
-# Data Flow and Integrations
+# Data Flow (Fiscaut v4.1)
 
-This document describes how data moves through the Fiscaut v4.1 ecosystem. It covers the reactive cycle between the frontend and backend, state management within the TALL stack, and specific fiscal data handling.
+Este documento descreve como os dados circulam no ecossistema do **Fiscaut v4.1**, cobrindo:
 
-## Architecture Overview
+- Ciclo reativo entre **frontend (Filament/Alpine)** e **backend (Laravel/Livewire)**
+- Escopo e isolamento de dados (**tenant** e **issuer**)
+- Fluxos fiscais principais (NF-e/CT-e): **Distribuição DF-e (NSU/docZip)**, **manifestação**, **importação manual**
+- Filas, jobs e persistência
+- Pontos de observabilidade e tratamento de erros
 
-Fiscaut follows the **TALL stack** architecture, which defines a specific flow for data synchronization:
+---
 
-1.  **Tailwind CSS**: Utility-first styling for the UI.
-2.  **Alpine.js**: Handles local browser state and lightweight client-side interactions.
-3.  **Laravel**: The backend core providing business logic, security, and persistence.
-4.  **Livewire**: Acts as the bridge, synchronizing the Alpine.js state with the Laravel backend via AJAX.
+## 1) Visão geral da arquitetura (TALL + Filament)
 
-## The Reactive Data Loop
+O Fiscaut segue o padrão **TALL Stack**:
 
-The primary data flow mechanism in Fiscaut is the **Livewire Request/Response cycle**.
+1. **Tailwind CSS**: estilo e layout.
+2. **Alpine.js**: estado local no navegador e interações leves.
+3. **Laravel**: regras de negócio, autenticação, autorização e persistência.
+4. **Livewire**: ponte reativa (AJAX) entre UI e backend.
+5. **Filament** (sobre Livewire): componentes prontos (forms, tables, pages, widgets) e convenções para recursos administrativos.
 
-### 1. Client-Side Capture
-When a user interacts with a Filament component (e.g., entering data into a `TextInput` or selecting a date in `vendor/filament/forms/resources/js/components/date-time-picker.js`), Alpine.js captures the input event.
+Em termos de fluxo, o “centro” é o **componente Livewire**: ele mantém estado, executa ações, valida e re-renderiza a UI de forma incremental (DOM diff).
 
-### 2. State Synchronization
-Livewire intercepts these changes. For complex components, utility functions like `findClosestLivewireComponent` (defined in `vendor/filament/support/resources/js/partials.js`) are used to locate the relevant backend component and dispatch updates.
+---
 
-### 3. Server-Side Processing
-The backend receives the updated state and performs:
--   **Validation**: Executes rules defined in the Resource (e.g., `CategoryTagForm.php`).
--   **Authorization**: Checks Laravel Policies to ensure the user has the `update` or `create` capability.
--   **Lifecycle Hooks**: Functions like `mutateFormDataBeforeCreate()` are called to transform data before it hits the database.
+## 2) O loop reativo (Livewire Request/Response)
 
-### 4. DOM Diffing & UI Feedback
-The server sends back a JSON payload containing the new HTML and state. Livewire performs a "DOM diff," updating only the modified elements. Notifications are often triggered at this stage using the `Notification` class:
+O ciclo padrão de atualização de dados funciona assim:
 
-```javascript
-// Example of a notification being triggered from the JS side
+### 2.1 Captura no cliente (Filament + Alpine)
+- O usuário interage com um componente (ex.: `TextInput`, `Toggle`, `TagsInput`, `Textarea`, etc.).
+- Eventos do DOM são processados e o estado do componente é atualizado no lado do cliente.
+
+### 2.2 Sincronização com o componente Livewire
+- O Livewire intercepta as mudanças e envia um request assíncrono ao servidor com o “delta” do estado.
+- Componentes mais complexos usam utilitários para encontrar o componente Livewire “pai” antes de disparar atualizações (ex.: `findClosestLivewireComponent` em `vendor/filament/support/resources/js/partials.js`).
+
+### 2.3 Processamento no servidor (Laravel)
+O backend recebe o estado e executa, tipicamente, nesta ordem:
+
+1. **Autorização**: policies/guards verificam se o usuário pode criar/editar/consultar.
+2. **Validação**: regras definidas no Resource/Page/Component (Filament) são aplicadas.
+3. **Hooks de lifecycle** (quando existentes): por exemplo, mutações antes de persistir (como `mutateFormDataBeforeCreate()` / `mutateFormDataBeforeSave()` em Resources/Pages Filament).
+
+### 2.4 Resposta e DOM diff
+- O servidor responde com um payload (incluindo HTML e estado).
+- O Livewire aplica **DOM diff**, atualizando apenas os trechos necessários.
+- Feedback ao usuário (ex.: notificações) pode ser emitido nesse estágio.
+
+Exemplo (notificação disparada no front):
+
+```js
 new Notification()
-    .title('Saved successfully')
-    .success()
-    .send();
+  .title('Saved successfully')
+  .success()
+  .send()
 ```
 
 ---
 
-## Data Scoping & Isolation
+## 3) Escopo e isolamento de dados
 
-Fiscaut uses a multi-layered approach to ensure data security and organization.
+O Fiscaut aplica isolamento em múltiplas camadas para garantir que os dados corretos sejam lidos e modificados.
 
-### Multi-Tenancy (`tenant_id`)
-Most models are scoped by a `tenant_id`. This is typically handled via a Global Scope in Eloquent, ensuring that a user in "Company A" cannot accidentally query or modify records belonging to "Company B."
+### 3.1 Multi-tenancy (`tenant_id`)
+- A maioria das entidades é vinculada a um `tenant_id`.
+- Comumente isso é aplicado via **Global Scope** (Eloquent), impedindo que consultas tragam dados de outro tenant.
 
-### Issuer Context (`issuer_id`)
-In a fiscal context, a single user or tenant may manage multiple companies (Issuers).
--   **Active Issuer**: The application maintains an "Active Issuer" context, usually stored in the session.
--   **Filtering**: Resources like `CategoryTagsTable.php` filter results based on the current `issuer_id`.
+**Objetivo:** garantir isolamento organizacional.
 
----
+### 3.2 Contexto fiscal por empresa (`issuer_id`)
+Dentro de um tenant, um usuário pode operar múltiplas empresas emissoras (“Issuers”).
 
-## Fiscal Document Lifecycle
+- Existe um **Active Issuer** (normalmente em sessão).
+- Tabelas e recursos Filament filtram dados por `issuer_id` (ex.: listagens e relatórios).
 
-Processing fiscal documents (NF-e, NFC-e) involves specific integration patterns:
-
-### Certificate Management
-Digital certificates (`.pfx` files) are required for signing XML documents.
-1.  **Storage**: Certificates and passwords are stored in the `issuers` table (encrypted at rest) and decrypted only at runtime.
-2.  **Retrieval**: Services load `Issuer->certificado_content` and `Issuer->senha_certificado` and build a `NFePHP\Common\Certificate` instance in memory.
-3.  **Communication**: The system interacts with SEFAZ web services (Distribuição DF-e / Manifestação) using the certificate for authentication.
-
-### Background Synchronization
-Since SEFAZ integrations can be slow or intermittent, heavy operations are offloaded to background queues:
--   **Job Dispatch**: When a user clicks "Synchronize," a background job is dispatched.
--   **Polling**: The UI may poll for the status of these background jobs or receive an update via a WebSocket event.
+**Objetivo:** separar dados fiscais por CNPJ/empresa emissora.
 
 ---
 
-## Leitura de documentos via SEFAZ (Distribuição DF-e)
+## 4) Ciclo de vida de documentos fiscais (NF-e / CT-e)
 
-O fluxo de “leitura” (distribuição de DF-e via NSU) é dividido em 2 etapas: **consulta do lote** e **processamento por docZip**.
+Os documentos fiscais têm particularidades:
 
-### NF-e (modelo 55)
+- Assinatura e comunicação exigem **certificado digital**.
+- A integração com SEFAZ pode ser lenta/intermitente.
+- Processamentos são frequentemente assíncronos (**jobs e filas**).
 
-- Serviço: `app/Services/Sefaz/NfeService.php`
-- Checkpoint por empresa (Issuer):
-  - `issuers.ult_nsu_nfe` (último NSU processado)
-  - `issuers.ultima_consulta_nfe` (timestamp de consulta)
-- Execução (alto nível):
-  - Monta config (tpAmb, UF, CNPJ, schemes/versão) e chama `NFePHP\NFe\Tools->sefazDistDFe($ultNSU, 0)`.
-  - Quando há docZip no retorno, despacha `ProcessResponseNfeSefazJob` (fila `high`) e cada docZip é processado em `ProcessXmlResponseNfeSefazJob` (fila `low`).
-  - Os docZip são decodificados como `base64` + `gzdecode` (XML original).
-- Persistência:
-  - Resumo (`resNFe`): `LogSefazResumoNfe::updateOrCreate(...)` guarda metadados e XML (string).
-  - Documento completo (`nfeProc`): `NotaFiscalEletronica::updateOrCreate(...)` guarda XML comprimido (`gzcompress`) e metadados extraídos do `nfeProc`.
-- Eventos:
-  - `resEvento`, `procEventoNFe` e `evento` são direcionados para rotinas de log e não alteram o status do documento diretamente.
-- Manifestação:
-  - `NfeService::manifestaCienciaDaOperacao()` usa `Tools->sefazManifesta()` e registra `LogSefazManifestoEvent`, além de marcar `LogSefazResumoNfe.is_ciente_operacao`.
+### 4.1 Certificados digitais
+Fluxo típico:
 
-### CT-e (Distribuição DF-e)
+1. **Armazenamento**: conteúdo `.pfx` e senha ficam vinculados ao `Issuer` (idealmente criptografados em repouso).
+2. **Uso**: em runtime, o serviço carrega certificado/senha e cria uma instância de `NFePHP\Common\Certificate` (em memória).
+3. **Comunicação SEFAZ**: requisições autenticadas e assinadas via certificado.
 
-- Serviço: `app/Services/Sefaz/CteService.php`
-- Checkpoint por empresa (Issuer):
-  - `issuers.ult_nsu_cte`
-  - `issuers.ultima_consulta_cte`
-- Execução (alto nível):
-  - Monta config (tpAmb, UF, CNPJ, schemes/versão) e chama `NFePHP\CTe\Tools->sefazDistDFe($ultNSU, 0)`.
-  - Despacha `ProcessResponseCteSefazJob` (fila `high`) e processa docZip em `ProcessXmlResponseCteSefazJob` (fila `low`), também via `base64` + `gzdecode`.
-- Persistência:
-  - Documento completo (`cteProc`): `ConhecimentoTransporteEletronico::updateOrCreate(...)` guarda XML comprimido (`gzcompress`) e metadados do `cteProc`.
-  - Se o CT-e contiver chaves de NF-e vinculadas, despacha `CheckNfeData` (fila `low`) para enriquecer/associar dados.
-- Eventos:
-  - `procEventoCTe`, `eventoCTe` e `evento` são direcionados para rotinas de log.
+**Ponto importante:** nunca persista certificado “em claro” em logs; evite dump de config em produção.
 
-### Restrições e throttling
+### 4.2 Processamento assíncrono (filas)
+Operações mais pesadas são offloaded:
 
-- Ambos os serviços limitam o loop de consulta (até 50 iterações) e aplicam `sleep(8)` entre consultas.
-- O processamento para quando `cStat` indicar “sem documentos” ou “consumo indevido” (`137`/`656`) e grava o checkpoint no Issuer quando `ultNSU` está disponível.
+- A UI aciona uma sincronização (ex.: “Buscar documentos”).
+- O backend despacha jobs em filas (prioridades como `high`/`low`).
+- A UI pode:
+  - Fazer polling de status, ou
+  - Receber eventos (ex.: websocket, quando implementado).
 
 ---
 
-## External Integrations
+## 5) Leitura via SEFAZ (Distribuição DF-e por NSU)
 
-| Integration | File/Component Reference | Purpose |
-| :--- | :--- | :--- |
-| **MySQL** | `app/Models/` | Relational data persistence. |
-| **SEFAZ APIs** | `app/Services/Sefaz/NfeService.php`, `app/Services/Sefaz/CteService.php` | Distribuição DF-e (NSU/docZip) e manifestação. |
-| **CNPJ API** | `CreateIssuer.php` | Automated lookup of company registration data. |
-| **Filesystem** | `config/filesystems.php` | Storage of uploaded XML/ZIP files and generated artifacts (ex.: PDFs). |
+A distribuição DF-e é dividida em duas etapas:
+
+1. **Consulta do lote** (por NSU)
+2. **Processamento de cada `docZip`**
+
+Em ambos os casos (NF-e e CT-e), o padrão é: consultar, obter `docZip`, decodificar, persistir metadados/documentos e atualizar checkpoints por issuer.
 
 ---
 
-## Importação manual de XML/ZIP (NF-e e CT-e)
+### 5.1 NF-e (modelo 55)
 
-Além da leitura por NSU, existe um fluxo de importação manual (upload) para processar XMLs e ZIPs com documentos/eventos:
+**Serviço:** `app/Services/Sefaz/NfeService.php`
 
-- UI (Filament): `app/Filament/Pages/Importar/XmlImport.php`
-  - Salva o arquivo no disk `local` (diretório `xml-imports`) e cria um batch de processamento.
-- Batch/job:
-  - `app/Jobs/ProcessXmlFileBatch.php` cria `Bus::batch([ProcessXmlFile...])` e acompanha status.
-  - `app/Jobs/ProcessXmlFile.php` lê o arquivo do Storage, extrai XML(s), identifica o tipo e chama:
+#### Checkpoints por Issuer
+- `issuers.ult_nsu_nfe`: último NSU processado
+- `issuers.ultima_consulta_nfe`: timestamp da última consulta
+
+#### Execução (alto nível)
+1. Monta config (ambiente, UF, CNPJ, versões/schemes).
+2. Chama `NFePHP\NFe\Tools->sefazDistDFe($ultNSU, 0)`.
+3. Se houver `docZip`:
+   - Despacha `ProcessResponseNfeSefazJob` (fila `high`)
+   - Para cada `docZip`, despacha `ProcessXmlResponseNfeSefazJob` (fila `low`)
+4. Decodificação típica do `docZip`:
+   - `base64_decode` + `gzdecode` → XML original
+
+#### Persistência
+- Resumo (`resNFe`): `LogSefazResumoNfe::updateOrCreate(...)`
+  - Armazena metadados e o XML (string)
+- Documento completo (`nfeProc`): `NotaFiscalEletronica::updateOrCreate(...)`
+  - Armazena XML **comprimido** (`gzcompress`) + metadados extraídos do `nfeProc`
+
+#### Eventos
+- `resEvento`, `procEventoNFe` e `evento` vão para rotinas de log.
+- Por padrão, não alteram diretamente o status do documento (a regra pode variar conforme implementação).
+
+#### Manifestação
+- `NfeService::manifestaCienciaDaOperacao()` usa `Tools->sefazManifesta()`
+- Registra `LogSefazManifestoEvent`
+- Marca `LogSefazResumoNfe.is_ciente_operacao`
+
+---
+
+### 5.2 CT-e (Distribuição DF-e)
+
+**Serviço:** `app/Services/Sefaz/CteService.php`
+
+#### Checkpoints por Issuer
+- `issuers.ult_nsu_cte`
+- `issuers.ultima_consulta_cte`
+
+#### Execução (alto nível)
+1. Monta config e chama `NFePHP\CTe\Tools->sefazDistDFe($ultNSU, 0)`.
+2. Despacha `ProcessResponseCteSefazJob` (fila `high`).
+3. Processa `docZip` em `ProcessXmlResponseCteSefazJob` (fila `low`).
+4. Decodificação:
+   - `base64_decode` + `gzdecode`
+
+#### Persistência
+- Documento completo (`cteProc`): `ConhecimentoTransporteEletronico::updateOrCreate(...)`
+  - XML comprimido (`gzcompress`) + metadados extraídos
+
+#### Enriquecimento (NF-e vinculadas)
+- Se o CT-e contiver chaves de NF-e referenciadas, despacha `CheckNfeData` (fila `low`) para enriquecer/associar informações.
+
+#### Eventos
+- `procEventoCTe`, `eventoCTe` e `evento` seguem para rotinas de log.
+
+---
+
+### 5.3 Restrições e throttling
+Para evitar consumo indevido e respeitar limitações:
+
+- Loop de consulta limitado (até **50 iterações**).
+- `sleep(8)` entre consultas.
+- Interrompe quando `cStat` indicar:
+  - “sem documentos”
+  - “consumo indevido” (ex.: `137`/`656`)
+- Checkpoints (`ultNSU`) são persistidos no Issuer sempre que disponíveis.
+
+---
+
+## 6) Importação manual de XML/ZIP (NF-e e CT-e)
+
+Além do fluxo automático por NSU, há importação via upload:
+
+### 6.1 UI (Filament)
+- Página: `app/Filament/Pages/Importar/XmlImport.php`
+- A página:
+  - Salva o arquivo no disk `local` (diretório `xml-imports`)
+  - Cria um batch de processamento
+
+### 6.2 Batch e Jobs
+- `app/Jobs/ProcessXmlFileBatch.php`
+  - Cria `Bus::batch([ProcessXmlFile...])` e acompanha status
+- `app/Jobs/ProcessXmlFile.php`
+  - Lê o arquivo do Storage
+  - Extrai XML(s)
+  - Identifica tipo e chama o serviço correspondente:
     - `NfeService->exec($xmlReader, $xml, 'Importacao')` ou
     - `CteService->exec($xmlReader, $xml, 'Importacao')`
-- Extração/identificação:
-  - `app/Services/Xml/XmlExtractorService.php` extrai `.xml` e varre `.zip`.
-  - `app/Services/Xml/XmlIdentifierService.php` infere o tipo pelo elemento raiz (`nfeProc`, `resNFe`, `cteProc`, eventos, etc.).
+
+### 6.3 Extração e identificação
+- `app/Services/Xml/XmlExtractorService.php`
+  - Extrai `.xml` diretamente e “varre” `.zip`
+- `app/Services/Xml/XmlIdentifierService.php`
+  - Inferência pelo elemento raiz: `nfeProc`, `resNFe`, `cteProc`, eventos etc.
+
+**Resultado:** o pipeline de persistência/atualização é o mesmo (ou muito similar) ao usado no fluxo SEFAZ.
 
 ---
 
-## Error Handling & Debugging
+## 7) Integrações externas
 
-### Frontend Errors
-Client-side issues in Alpine.js or Filament components are visible in the browser console. The `vendor/filament/support/resources/js/utilities/select.js` and other utilities include internal checks to prevent common data binding errors.
-
-### Backend Exceptions
--   **Validation Errors**: Automatically caught by Filament/Livewire and displayed as inline form errors.
--   **System Errors**: Logged to `storage/logs/laravel.log`.
--   **Fiscal Communication Errors**: Specific errors from government web services are typically parsed and displayed to the user via "Danger" notifications to facilitate troubleshooting.
-
-### Observação de implementação (logs SEFAZ)
-Os serviços e jobs de leitura chamam métodos como `registerLogNfeContent` e `registerLogCteEvent` via o trait `App\Services\Sefaz\Traits\HasLogSefaz`. Se esse trait não estiver presente no projeto, o processamento de leitura pode falhar com erro de classe/trait não encontrado e/ou métodos inexistentes.
+| Integração | Referência | Finalidade |
+|---|---|---|
+| MySQL | `app/Models/` | Persistência relacional |
+| SEFAZ APIs | `app/Services/Sefaz/NfeService.php`, `app/Services/Sefaz/CteService.php` | Distribuição DF-e (NSU/docZip) e manifestação |
+| API de CNPJ | `CreateIssuer.php` | Busca automática de dados cadastrais |
+| Filesystem | `config/filesystems.php` | Uploads e artefatos (XML/ZIP/PDF etc.) |
 
 ---
 
-## Related Documentation
--   **Models**: See `app/Models` for schema definitions.
--   **Resources**: See `app/Filament/Resources` for UI logic and form schemas.
--   **Policies**: See `app/Policies` for data access rules.
+## 8) Tratamento de erros e observabilidade
+
+### 8.1 Erros no frontend
+- Problemas em Alpine/Filament aparecem no console do navegador.
+- Utilitários do Filament (ex.: `vendor/filament/support/resources/js/utilities/select.js`) costumam ter checks para prevenir erros comuns de binding.
+
+### 8.2 Erros no backend
+- **Validação**: Filament/Livewire exibem inline errors automaticamente.
+- **Exceções**: registradas em `storage/logs/laravel.log`.
+- **Erros SEFAZ**: normalmente parseados e exibidos ao usuário via notificações de erro (“Danger”) para facilitar troubleshooting.
+
+### 8.3 Observação importante (logs SEFAZ)
+Os serviços/jobs de leitura chamam métodos como `registerLogNfeContent` e `registerLogCteEvent` via o trait:
+
+- `App\Services\Sefaz\Traits\HasLogSefaz`
+
+Se esse trait (ou métodos associados) não existir/estiver incompleto, a leitura pode falhar com:
+- classe/trait não encontrado
+- métodos inexistentes
+
+**Ação recomendada:** garantir que o trait exista e esteja coberto por testes de integração (simulando respostas SEFAZ com `docZip`).
+
+---
+
+## 9) Referências relacionadas no projeto
+
+- **Models**: `app/Models/` (mapeamento e scopes como `tenant_id`/`issuer_id`)
+- **Resources/Pages Filament**: `app/Filament/Resources`, `app/Filament/Pages` (schemas, validação, hooks)
+- **Policies**: `app/Policies` (autorização de leitura/escrita)
+- **Frontend Filament (build vendor/public)**:
+  - `public/js/filament/forms/components/*`
+  - `public/js/filament/tables/components/columns/*`
+  - `public/js/filament/schemas/components/*`
+
+Essas referências ajudam a rastrear como a UI captura dados, sincroniza com Livewire e aciona ações no backend.

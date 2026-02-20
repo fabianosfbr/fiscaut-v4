@@ -1,126 +1,234 @@
-# Getting Started with Fiscaut v4.1
+# Getting Started (Dev & QA) — Fiscaut v4.1
 
-Welcome to the development and testing environment for **Fiscaut v4.1**. This platform is a modern enterprise application built on the **Laravel** framework, utilizing the **TALL stack** (Tailwind CSS, Alpine.js, Laravel, and Livewire) with **Filament v3** as the primary administrative and data management engine.
+This guide helps you set up **Fiscaut v4.1** locally for development and QA testing. Fiscaut is a Laravel application built with the **TALL stack** (Tailwind, Alpine, Laravel, Livewire) and uses **Filament v3** for admin/data management UI.
 
 ---
 
 ## Prerequisites
 
-Ensure your local machine satisfies the following version requirements:
+Make sure your workstation meets these minimum versions:
 
-*   **PHP:** 8.2 or higher
-*   **Node.js:** v18.x (LTS) or higher
-*   **Package Managers:** Composer (PHP) and NPM (JavaScript)
-*   **Database:** MySQL 8.0+, PostgreSQL, or SQLite
-*   **Tools:** Git
+- **PHP**: 8.2+
+- **Composer**: latest stable
+- **Node.js**: 18.x LTS+
+- **NPM**: comes with Node (or use pnpm/yarn if the project supports it)
+- **Database**: MySQL 8+, PostgreSQL, or SQLite
+- **Git**
+
+Recommended (not required): Redis, Mailpit, Docker/Sail (if your team uses containers).
 
 ---
 
-## Installation Guide
+## Repository Setup
 
-Follow these steps to set up your local development instance:
+Clone the repository and enter the project directory:
 
-### 1. Repository Setup
 ```bash
 git clone <repository-url>
 cd fiscaut-v4.1
 ```
 
-### 2. Dependency Management
-Install the backend and frontend dependencies:
-```bash
-# Install PHP packages
-composer install
+---
 
-# Install JavaScript packages
+## Install Dependencies
+
+Install backend (PHP) and frontend (JS) dependencies:
+
+```bash
+composer install
 npm install
 ```
 
-### 3. Environment Configuration
-Create your local environment file and generate the application security key:
+If you encounter memory issues during install:
+- For Composer: consider `COMPOSER_MEMORY_LIMIT=-1 composer install`
+- For Node: ensure Node 18+ is in use
+
+---
+
+## Environment Configuration
+
+Create the environment file and generate the application key:
+
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-> **Configuration:** Open `.env` and update the `DB_CONNECTION`, `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD` settings to match your local database server.
+### Configure the database
 
-### 4. Database Initialization
-Run the migrations to build the schema:
-```bash
-php artisan migrate
+Open `.env` and set the database connection variables:
+
+- `DB_CONNECTION`
+- `DB_HOST`
+- `DB_PORT`
+- `DB_DATABASE`
+- `DB_USERNAME`
+- `DB_PASSWORD`
+
+Example (MySQL):
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=fiscaut
+DB_USERNAME=root
+DB_PASSWORD=
 ```
 
 ---
 
-## Development Workflow
+## Database Initialization
 
-To run the application, you must execute the PHP server and the frontend asset compiler simultaneously.
+Run migrations to create the schema:
 
-### Running the Application
-*   **Terminal 1 (Backend):** `php artisan serve` (Accessible at `http://127.0.0.1:8000`)
-*   **Terminal 2 (Frontend/Vite):** `npm run dev` (Enables Hot Module Replacement)
+```bash
+php artisan migrate
+```
 
-### Building for Production
-To compile and minify assets for testing in a production-like environment:
+If your project includes seeders and you need test data:
+
+```bash
+php artisan db:seed
+# or
+php artisan migrate --seed
+```
+
+---
+
+## Run the Application (Local Dev)
+
+You typically run **two processes** in parallel:
+
+### Terminal 1 — Backend (Laravel)
+
+```bash
+php artisan serve
+```
+
+App will be available at:
+
+- `http://127.0.0.1:8000`
+
+### Terminal 2 — Frontend (Vite)
+
+```bash
+npm run dev
+```
+
+This enables hot module replacement (HMR) for frontend assets.
+
+---
+
+## Build Assets for Production-like Testing
+
+To compile and minify assets (useful for QA verification of production builds):
+
 ```bash
 npm run build
 ```
 
 ---
 
-## Architecture and File Structure
+## Project Structure (What to Know)
 
-Fiscaut v4.1 follows a modular architecture where Filament handles the UI components and Livewire manages reactivity.
+Fiscaut is organized around Laravel conventions, with Filament providing most admin UI building blocks.
 
-### Directory Map
+### Key directories
 
 | Path | Purpose |
-| :--- | :--- |
-| `app/Filament/Resources` | PHP definitions for CRUD interfaces, forms, and tables. |
-| `vendor/filament/` | Core framework logic (Forms, Tables, Actions, Notifications). |
-| `public/js/filament/schemas` | Compiled JavaScript components for Filament schemas. |
-| `vendor/filament/support/resources/js/utilities` | Core JS utility functions (e.g., `Select`, `Pluralize`). |
-| `resources/js/` | Custom application-level JavaScript and assets. |
+| --- | --- |
+| `app/Filament/Resources` | Filament Resources defining CRUD pages, forms, and tables. |
+| `vendor/filament/` | Filament framework core (Forms, Tables, Actions, Notifications). |
+| `public/js/filament/schemas` | Compiled Filament schema JS (built assets used by the UI). |
+| `public/js/filament/schemas/components` | Compiled JS components (e.g., Tabs/Wizard). |
+| `public/js/filament/forms/components` | Compiled JS for form inputs (Textarea, Rich Editor, Tags Input, etc.). |
+| `public/js/filament/tables/components/columns` | Compiled JS for table column interactivity (Toggle/TextInput/Checkbox). |
+| `resources/js/` | Application-level frontend code (if the project adds custom JS). |
 
-### Core Components
+### How Filament fits in
 
-The application utilizes several specialized components for data entry and display:
-
-*   **Forms:** Located in `vendor/filament/forms/resources/js/components`. Key components include `RichEditor`, `Select`, `FileUpload`, and `TagsInput`.
-*   **Tables:** Located in `vendor/filament/tables/resources/js/components`. Includes interactive columns like `ToggleColumn`, `TextInputColumn`, and `CheckboxColumn`.
-*   **Notifications:** Managed via `vendor/filament/notifications`. Use `Notification::make()` in PHP to trigger real-time alerts.
-
----
-
-## Public API and Utilities
-
-For developers extending the frontend, the following utilities are frequently used:
-
-*   **`Select` Utility:** Located at `vendor/filament/support/resources/js/utilities/select.js`. Provides advanced dropdown and selection logic.
-*   **Livewire Integration:** The function `findClosestLivewireComponent` is essential for scripts interacting with Livewire's DOM structure.
-*   **Rich Editor Extensions:** Custom extensions for the Trix-based editor are found in `vendor/filament/forms/resources/js/components/rich-editor/extensions.js`.
+- **Filament Resources** (PHP) define:
+  - Form schemas (fields/components)
+  - Table schemas (columns/filters/actions)
+  - CRUD pages
+- **Livewire** powers reactivity (server-driven UI updates).
+- **Filament JS assets** (compiled into `public/js/filament/...`) provide client-side behavior for complex components like rich editors, tags input, wizards, and table column controls.
 
 ---
 
-## Essential Artisan Commands
+## Common Developer & QA Commands
+
+### Artisan (Laravel)
 
 | Command | Description |
-| :--- | :--- |
-| `php artisan make:filament-resource` | Create a new model-based CRUD interface. |
-| `php artisan filament:assets` | Republish Filament's frontend assets. |
-| `php artisan filament:optimize` | Cache components for performance. |
-| `php artisan test` | Run the test suite (Pest/PHPUnit). |
-| `php artisan route:list` | View all registered application routes. |
+| --- | --- |
+| `php artisan test` | Run test suite (Pest/PHPUnit depending on project setup). |
+| `php artisan route:list` | Inspect available routes. |
+| `php artisan migrate:fresh --seed` | Rebuild DB from scratch and seed (useful in QA). |
+| `php artisan config:clear` | Clear config cache (after `.env` edits, etc.). |
+| `php artisan cache:clear` | Clear application cache. |
+| `php artisan view:clear` | Clear compiled Blade views. |
+| `php artisan filament:assets` | Republish Filament assets (useful when UI assets look stale). |
+| `php artisan filament:optimize` | Optimize/cache Filament components for performance. |
+| `php artisan make:filament-resource ModelName` | Generate a new Filament Resource scaffold. |
+
+### Node/Vite
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start Vite dev server (HMR). |
+| `npm run build` | Build production assets. |
 
 ---
 
 ## Troubleshooting
 
-*   **Assets Not Loading:** Ensure `npm run dev` is active. If styles appear broken, run `php artisan filament:assets` to refresh vendor files.
-*   **Database Connection Issues:** Double-check the `DB_PORT` and `DB_HOST` in your `.env`. If using Docker/Sail, ensure the containers are running.
-*   **Permission Errors:** Ensure the web server has write access to `storage/` and `bootstrap/cache/`:
-    ```bash
-    chmod -R 775 storage bootstrap/cache
-    ```
-*   **Component Synchronization:** If Livewire components are not updating, verify that the `wire:key` attributes are unique within your Blade templates.
+### Assets not loading / broken UI styles
+
+1. Ensure Vite is running:
+   ```bash
+   npm run dev
+   ```
+2. If Filament assets appear outdated or missing:
+   ```bash
+   php artisan filament:assets
+   ```
+3. Hard refresh your browser (cache can mask asset updates).
+
+### Database connection errors
+
+- Recheck `.env` values (`DB_HOST`, `DB_PORT`, credentials).
+- Ensure your DB server is running.
+- If using Docker/Sail, confirm containers are up and ports match.
+
+### Permissions issues (Linux/macOS)
+
+Make sure Laravel can write to `storage/` and `bootstrap/cache/`:
+
+```bash
+chmod -R 775 storage bootstrap/cache
+```
+
+If you’re using Docker, fix permissions via container user/group strategy (team-specific).
+
+### Livewire components not updating
+
+- Ensure unique `wire:key` values where lists/loops render dynamic components.
+- Clear caches:
+  ```bash
+  php artisan view:clear
+  php artisan cache:clear
+  ```
+
+---
+
+## Related Documentation / References
+
+- Filament Resources and UI behavior: `app/Filament/Resources`
+- Compiled Filament frontend assets:
+  - `public/js/filament/schemas`
+  - `public/js/filament/forms/components`
+  - `public/js/filament/tables/components/columns`
+
+If you need onboarding for a specific module (resources, roles/permissions, domain rules), document it as a separate page and link it from here.

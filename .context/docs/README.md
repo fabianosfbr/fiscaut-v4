@@ -1,129 +1,185 @@
-# Fiscaut v4.1 Technical Documentation
+# Fiscaut v4.1 — Documentação Técnica (Índice)
 
-Welcome to the technical documentation for **Fiscaut**, a proprietary fiscal and administrative management platform. This system is engineered to handle complex tax regulations, multi-tenant configurations, and fiscal automation using the TALL stack (Tailwind, Alpine.js, Laravel, Livewire).
+Bem-vindo(a) à documentação técnica do **Fiscaut**, uma plataforma proprietária de gestão fiscal e administrativa voltada a cenários complexos (regras tributárias, automações fiscais e multi-tenant), construída sobre a stack **TALL** (Tailwind, Alpine.js, Laravel, Livewire) com **FilamentPHP** como painel administrativo.
 
-## Project Overview
+Esta página funciona como **README central da pasta `docs/`**, apontando para os guias mais importantes, descrevendo a arquitetura em alto nível e estabelecendo convenções de navegação para desenvolvedores.
 
-Fiscaut is designed to bridge the gap between complex Brazilian fiscal legislation and automated business management. It serves as a centralized hub for managing issuers (Companies), subscribers (Tenants), and the intricate web of tax rules (CFOP, CNAE, Simples Nacional).
+---
 
+## Visão Geral do Projeto
+
+O Fiscaut busca reduzir o atrito entre a legislação fiscal brasileira e a operação diária de empresas e escritórios, oferecendo um hub para:
+
+- **Emissores (Companies / Issuers)**: entidades que emitem documentos fiscais
+- **Assinantes (Tenants / Subscribers)**: conta/cliente que gerencia um ou mais emissores
+- **Regras e Tabelas Fiscais**: CFOP, CNAE, Simples Nacional, alíquotas e relacionamentos
+
+### Stack e versões (referência do projeto)
 - **Backend:** Laravel 12 / PHP 8.2+
 - **Frontend:** Livewire 4 / Alpine.js / Tailwind CSS
 - **Admin Panel:** FilamentPHP v5
-- **Queue Monitor:** Laravel Horizon
-- **Database:** MySQL 8.0
+- **Filas/Monitoramento:** Laravel Horizon
+- **Banco de dados:** MySQL 8.0
 
 ---
 
-## Architecture & Tech Stack
+## Guias Principais
 
-### Framework & UI
-The application follows a **Modular Monolith** approach powered by Laravel and Filament. The UI is highly reactive, utilizing Livewire for server-side state management and Alpine.js for client-side interactions.
+Use a lista abaixo como ponto de partida. Quando for criar/alterar uma feature, procure primeiro o guia mais próximo do tema.
 
-### Component System
-The repository includes a deep integration with Filament components. Custom behaviors are often extended via JavaScript utilities:
-- **Rich Editors:** Custom handling for file uploads and validation messages (`vendor/filament/forms/resources/js/components/rich-editor.js`).
-- **Selects:** Advanced querying and filtering logic (`vendor/filament/support/resources/js/utilities/select.js`).
-- **Notifications:** A robust notification system for real-time user feedback (`vendor/filament/notifications/resources/js/Notification.js`).
-
-### Multi-Tenancy
-Fiscaut implements a multi-tenant architecture where data is scoped per **Tenant** (Subscriber). Each tenant can manage multiple **Issuers** (Companies).
-
----
-
-## Core Documentation Guides
-
-| Guide | Description |
+| Guia | Descrição |
 | :--- | :--- |
-| 📘 [Project Overview](./project-overview.md) | High-level roadmap and business goals. |
-| 🏗️ [Architecture Notes](./architecture.md) | Service boundaries, dependency graphs, and ADRs. |
-| 🧩 [Filament Admin](./filament-admin.md) | Inventário de Resources, Pages e Actions do painel. |
-| 🚀 [Development Workflow](./development-workflow.md) | Branching strategy, CI/CD, and setup instructions. |
-| 🧪 [Testing Strategy](./testing-strategy.md) | Protocols for Pest/PHPUnit and Browser testing. |
-| 📖 [Glossary & Domain](./glossary.md) | Business terminology and fiscal domain rules. |
-| 🛡️ [Security & Compliance](./security.md) | Authentication, secrets, and LGPD compliance. |
-| 🛠️ [Application Services](./services.md) | Documentation for core business logic and external integrations. |
-| ⚡ [Background Jobs](./jobs.md) | Guide to asynchronous queues, bulk actions, and SEFAZ pipelines. |
-| 🌅 [Horizon Ops](../../docs/horizon-producao.md) | Guia de operação e configuração do Laravel Horizon em produção. |
-| 🧾 [XmlReaderService](./xml-reader-service.md) | XML parsing conventions and migration to array-based access. |
+| [Project Overview](./project-overview.md) | Objetivos, roadmap e contexto do produto. |
+| [Architecture Notes](./architecture.md) | Arquitetura, módulos, dependências e ADRs. |
+| [Filament Admin](./filament-admin.md) | Inventário de Resources, Pages, Widgets e Actions do painel. |
+| [Development Workflow](./development-workflow.md) | Setup, branching, CI/CD e convenções. |
+| [Testing Strategy](./testing-strategy.md) | Padrões de testes (Pest/PHPUnit) e organização. |
+| [Glossary & Domain](./glossary.md) | Glossário do domínio fiscal e termos de negócio. |
+| [Security & Compliance](./security.md) | Autenticação, segredos e LGPD. |
+| [Application Services](./services.md) | Serviços centrais e integrações externas. |
+| [Background Jobs](./jobs.md) | Filas, processamento assíncrono e pipelines (ex.: SEFAZ). |
+| [Horizon Ops](../../docs/horizon-producao.md) | Operação e configuração do Horizon em produção. |
+| [XmlReaderService](./xml-reader-service.md) | Convenções de parsing XML e padrões de acesso por array. |
+
+> Observação: se um guia ainda não existir no repositório, crie-o seguindo as convenções de `docs/` e adicione aqui.
 
 ---
 
-## Admin Resources (Filament)
+## Arquitetura (alto nível)
 
-The administrative layer is organized into specific resources within `app/Filament/Resources/`.
-For an up-to-date inventory (resources/pages/actions), see [Filament Admin](./filament-admin.md).
+O projeto segue um modelo de **Monólito Modular** com Laravel + Filament. A interface administrativa é reativa usando **Livewire** (estado no servidor) e **Alpine.js** (interações locais).
 
-### 1. Entity Management
-- **Issuers (`IssuerResource`)**: Management of tax-issuing entities, their regimes, and metadata.
-- **Tenants (`TenantResource`)**: Administration of subscriber accounts and access levels.
-- **Category Tags (`CategoryTagResource`)**: Global tagging system for organizing records.
+### Componentização (Filament)
 
-### 2. Fiscal & Tax Configuration
-- **CFOP (`CfopResource`)**: Fiscal Operation and Installment codes used in tax documents.
-- **CNAE (`CnaeResource`)**: National Classification of Economic Activities mapping.
-- **Service Codes (`CodigoServicoResource`)**: Specific municipal codes for service taxation (ISS).
-- **Accumulators (`AcumuladoresResource`)**: Logic for aggregating fiscal data over specific periods.
+Há forte integração com componentes Filament e assets de UI (incluindo componentes compilados sob `public/js/filament/`). Isso afeta principalmente:
 
-### 3. Simples Nacional Module
-- **Annexes (`SimplesNacionalAnexoResource`)**: Management of the various tax "Annexes" of the Simples Nacional regime.
-- **Rates (`SimplesNacionalAliquotaResource`)**: Maintenance of progressive tax rates and brackets.
+- **Form components** (ex.: rich editor, textarea, tags input, key-value etc.)
+- **Table columns** (ex.: toggle, checkbox, text input etc.)
+- **Widgets** e esquemas de layout (tabs, wizard, stats overview)
+
+#### Convenção importante
+- **Fontes “originais”** normalmente vivem em `vendor/filament/...` ou no código do app (ex.: `app/Filament/...`).
+- **Assets compilados** (ex.: `public/js/filament/...`) são úteis para entender comportamento em runtime, mas **não devem ser tratados como fonte primária** para alterações (a menos que o projeto customize e compile deliberadamente esses assets).
 
 ---
 
-## Repository Structure
+## Multi-tenancy (conceito)
+
+O Fiscaut implementa multi-tenancy com escopo por **Tenant** (assinante). Em geral:
+
+- Um **Tenant** pode gerenciar múltiplos **Issuers**
+- Dados e permissões devem respeitar o escopo do tenant
+- Recursos administrativos (Filament Resources) costumam aplicar esse escopo automaticamente (via policies/guards/scopes definidos no app)
+
+Detalhes operacionais e padrões de implementação devem ser documentados em:
+- [`docs/architecture.md`](./architecture.md)
+- [`docs/security.md`](./security.md)
+- [`docs/filament-admin.md`](./filament-admin.md)
+
+---
+
+## Admin Resources (Filament) — visão geral
+
+Os recursos administrativos ficam em `app/Filament/Resources/`. Para um inventário atualizado, consulte:
+
+- **[Filament Admin](./filament-admin.md)**
+
+Categorias comuns de recursos:
+
+### 1) Gestão de Entidades
+- **Issuers (`IssuerResource`)**: emissores, regimes e metadados fiscais
+- **Tenants (`TenantResource`)**: assinantes, perfis, acesso e configuração
+- **Category Tags (`CategoryTagResource`)**: sistema global de tags
+
+### 2) Configuração Fiscal e Tributária
+- **CFOP (`CfopResource`)**
+- **CNAE (`CnaeResource`)**
+- **Códigos de Serviço / ISS (`CodigoServicoResource`)**
+- **Acumuladores (`AcumuladoresResource`)** (agregações por período/regras)
+
+### 3) Módulo Simples Nacional
+- **Anexos (`SimplesNacionalAnexoResource`)**
+- **Alíquotas (`SimplesNacionalAliquotaResource`)**
+
+---
+
+## Estrutura do Repositório (referência rápida)
 
 ```text
 ├── app/
-│   ├── Filament/       # Admin panel resources, widgets, and pages
-│   ├── Models/         # Eloquent models representing the fiscal domain
-│   └── Actions/        # Reusable business logic classes
-├── config/             # Application and third-party configurations
+│   ├── Filament/       # Resources, Pages, Widgets do admin
+│   ├── Models/         # Modelos Eloquent do domínio fiscal
+│   └── Actions/        # Casos de uso / lógica reutilizável
+├── config/             # Configurações da aplicação
 ├── database/
-│   ├── migrations/     # Database schema evolution
-│   └── seeders/        # Initial data for fiscal codes (CFOP, CNAE)
-├── docs/               # Technical documentation index
-├── public/js/filament/ # Compiled assets for the admin interface
+│   ├── migrations/     # Evolução do schema
+│   └── seeders/        # Seeds (ex.: CFOP, CNAE)
+├── docs/               # Índice e guias técnicos
+├── public/js/filament/ # Assets compilados do admin (runtime)
 ├── resources/
-│   ├── views/          # Blade templates and Livewire components
-│   └── lang/           # Localization (pt_BR)
-└── tests/              # Automated test suites (Pest)
+│   ├── views/          # Blade / Livewire views
+│   └── lang/           # Localização (pt_BR)
+└── tests/              # Testes automatizados (Pest)
 ```
 
 ---
 
-## Development Setup
+## Setup de Desenvolvimento (resumo)
 
-To get started with development, ensure you have **Docker** and **PHP 8.2+** installed.
+Pré-requisitos: **Docker** e/ou ambiente com **PHP 8.2+**, Node/NPM, Composer.
 
-1.  **Clone the repository:**
-    ```bash
-    git clone [repository-url]
-    cd fiscaut-v4.1
-    ```
+1) Clonar e instalar dependências:
+```bash
+git clone [repository-url]
+cd fiscaut-v4.1
+composer install
+npm install
+```
 
-2.  **Environment Setup:**
-    ```bash
-    cp .env.example .env
-    composer install
-    npm install && npm run dev
-    ```
+2) Configurar ambiente:
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-3.  **Database Migration:**
-    ```bash
-    php artisan migrate --seed
-    ```
+3) Build de assets:
+```bash
+npm run dev
+```
 
-4.  **Admin Access:**
-    Create a super-admin user to access the Filament dashboard:
-    ```bash
-    php artisan make:filament-user
-    ```
+4) Banco de dados:
+```bash
+php artisan migrate --seed
+```
+
+5) Criar usuário admin do Filament:
+```bash
+php artisan make:filament-user
+```
+
+> Para detalhes (Docker, seeds, serviços externos, ambientes), centralize em `docs/development-workflow.md`.
 
 ---
 
-## Security & Confidentiality
+## Confidencialidade e Segurança
 
-> [!WARNING]
-> **Confidentiality Notice:** Fiscaut is a proprietary commercial application. All source code, database schemas, and documentation are strictly confidential. Unauthorized sharing of credentials, client data, or architectural details is prohibited.
+> **AVISO (Proprietário e Confidencial):** O Fiscaut é um aplicativo comercial proprietário. Código-fonte, schemas, dados e documentação são confidenciais. É proibido compartilhar credenciais, dados de clientes ou detalhes sensíveis sem autorização.
 
-For security vulnerabilities or compliance issues (LGPD), please refer to the [Security & Compliance](./security.md) guide.
+Para vulnerabilidades e conformidade (LGPD), consulte:
+- **[Security & Compliance](./security.md)**
+
+---
+
+## Como contribuir com a documentação
+
+- Mantenha os guias em `docs/` **curtos e acionáveis**
+- Prefira seções do tipo:
+  - **O que é**
+  - **Quando usar**
+  - **Como funciona**
+  - **Exemplos**
+  - **Armadilhas / troubleshooting**
+- Ao criar um novo documento, **adicione-o na tabela “Guias Principais”** acima
+- Referencie arquivos e pastas reais do repositório (ex.: `app/Filament/...`, `tests/...`) para facilitar navegação
+
+---

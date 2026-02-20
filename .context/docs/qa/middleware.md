@@ -1,25 +1,53 @@
-# Middleware in Fiscaut v4.1
+# Middleware (QA) — Fiscaut v4.1 (Laravel + Filament)
 
-Middleware functions act as a bridge between a request and a response, primarily used for filtering and inspecting HTTP requests entering the application. In the Fiscaut v4.1 architecture (built on Laravel and Filament), middleware handles critical tasks such as authentication, authorization, localization, and state management for reactive components.
+Middleware é a “camada de passagem” entre **requisição** e **resposta**. No Fiscaut v4.1 (Laravel + Filament), ela é essencial para garantir **segurança**, **inicialização do painel**, **consistência de dados** e **controle de acesso** — principalmente no fluxo do **Admin Panel (Filament)**.
 
-## Core Middleware Roles
+Este documento descreve como o projeto organiza middleware, como registrar middleware no painel Filament e como validar/depurar em contexto de QA.
 
-In this project, middleware serves several primary functions:
-1.  **Authentication & Security**: Ensuring users are logged in and protecting against CSRF attacks.
-2.  **Panel Initialization**: Setting up the Filament environment and dispatching events that initialize the admin interface.
-3.  **Data Consistency**: Trimming strings and converting empty fields to null to maintain database integrity.
-4.  **Authorization**: Validating whether a user has the appropriate roles/permissions to access specific resources.
+---
 
-## Middleware Stacks
+## O que middleware faz neste projeto
 
-### 1. Global Middleware
-These run on every request to the application. They handle low-level infrastructure such as proxy handling and maintenance mode.
-- `TrustProxies`: Manages SSL termination and load balancer headers.
-- `ValidatePostSize`: Ensures file uploads do not exceed server limits.
-- `TrimStrings` / `ConvertEmptyStringsToNull`: Sanitizes input data before it reaches controllers or Livewire components.
+### 1) Autenticação e segurança
+- Garante que usuários estejam autenticados antes de acessar rotas protegidas.
+- Aplica proteções padrão do Laravel, como **CSRF**.
+- Pode impor regras adicionais (ex.: “perfil completo”, “papel X”, “permissão Y”).
 
-### 2. Filament Admin Stack
-Filament panels define their own middleware stack in the Panel Provider (e.g., `app/Providers/Filament/AdminPanelProvider.php`). This stack is essential for the dashboard to function correctly.
+### 2) Inicialização do Filament (Admin)
+O Filament precisa de um stack específico para:
+- Sessão e cookies
+- Disponibilização de erros de validação
+- Bindings de rotas
+- Disparo de eventos internos que registram assets e navegação (ex.: `DispatchServingFilamentEvent`)
+
+### 3) Consistência de dados
+Normalizações comuns:
+- `TrimStrings`: remove espaços em branco
+- `ConvertEmptyStringsToNull`: converte `""` em `null` antes de chegar no controller/Livewire
+
+### 4) Autorização (RBAC/Policies)
+Garante que o usuário tenha permissão para acessar determinados endpoints/recursos do painel.
+
+---
+
+## Stacks de middleware (visão geral)
+
+### A) Global Middleware (executa em todas as requisições)
+Configurado no `app/Http/Kernel.php` (padrão Laravel). Normalmente inclui:
+- `TrustProxies`: cabeçalhos de proxy / SSL termination
+- `ValidatePostSize`: limite para upload
+- `TrimStrings` e `ConvertEmptyStringsToNull`: sanitização de input
+
+Use este nível para regras **universais** (infra e higiene de dados).
+
+---
+
+### B) Stack do Filament Admin Panel
+O Filament define middleware do painel no **Panel Provider**, por exemplo:
+
+- `app/Providers/Filament/AdminPanelProvider.php`
+
+Um exemplo típico de stack do painel:
 
 ```php
 ->middleware([
@@ -31,26 +59,35 @@ Filament panels define their own middleware stack in the Panel Provider (e.g., `
     VerifyCsrfToken::class,
     SubstituteBindings::class,
     DisableBladeIconComponents::class,
-    DispatchServingFilamentEvent::class, // Vital for Filament UI components
+    DispatchServingFilamentEvent::class, // essencial no Filament
 ])
 ```
 
-### 3. Authentication Middleware
-Defined separately to handle redirection and protected routes:
-- `Authenticate`: Redirects guest users to the login page.
-- `Verified`: (Optional) Ensures the user has verified their email address.
+**Notas importantes:**
+- **Sessão** (`StartSession`) e **cookies** são críticos para autenticação, flashes e o funcionamento do Filament.
+- `DispatchServingFilamentEvent` é um dos “pontos vitais”: sem ele, o Filament pode não registrar corretamente scripts/estilos/navegação.
 
-## Custom Middleware Implementation
+---
 
-### Creation
-To create a middleware for specific business logic or QA validation:
+### C) Middleware de autenticação (rotas protegidas)
+Normalmente aplicado como “auth middleware” do painel:
 
+- `Authenticate`: redireciona visitantes (guest) para login
+- `Verified` (opcional): exige e-mail verificado
+
+No Filament, essa camada costuma ser aplicada via `->authMiddleware([...])`.
+
+---
+
+## Criando middleware customizado (ex.: validação QA)
+
+### 1) Gerar a classe
 ```bash
 php artisan make:middleware EnsureProfileIsComplete
 ```
 
-### Implementation Example
-In `app/Http/Middleware/EnsureProfileIsComplete.php`:
+### 2) Implementar a regra
+`app/Http/Middleware/EnsureProfileIsComplete.php`:
 
 ```php
 public function handle(Request $request, Closure $next): Response
@@ -64,8 +101,8 @@ public function handle(Request $request, Closure $next): Response
 }
 ```
 
-### Registration in Filament
-To apply this to the admin panel, add it to the `authMiddleware` array in your Panel Provider:
+### 3) Aplicar no Filament (Admin Panel)
+No `app/Providers/Filament/AdminPanelProvider.php`, adicione no `authMiddleware`:
 
 ```php
 public function panel(Panel $panel): Panel
@@ -79,17 +116,31 @@ public function panel(Panel $panel): Panel
 }
 ```
 
-## QA & Debugging Strategies
+**Quando usar `middleware()` vs `authMiddleware()` no Filament**
+- `middleware([...])`: stack geral do painel (sessão, CSRF, bindings, eventos do Filament).
+- `authMiddleware([...])`: regras de autenticação/autorização antes de entrar no painel (bloqueio/redirect).
 
-### Identifying Applied Middleware
-To verify which middleware are active for a specific route during debugging:
+---
+
+## QA: como identificar quais middleware estão ativos
+
+Para inspecionar o stack aplicado em rotas específicas (por exemplo, Admin):
+
 ```bash
 php artisan route:list --path=admin
 ```
-This identifies the full stack, including the `web` group and the Filament-specific layers.
 
-### Bypassing Middleware in Feature Tests
-When testing resource logic where middleware authentication is not the focus, use the `withoutMiddleware()` helper:
+Isso ajuda a confirmar:
+- se a rota está no grupo `web`
+- se o painel Filament anexou middleware próprios
+- se o `authMiddleware()` está sendo aplicado como esperado
+
+---
+
+## QA: estratégias de teste
+
+### A) Ignorar middleware em feature tests (quando não é o foco)
+Útil para testar lógica de recursos/controllers sem depender de autenticação/sessão:
 
 ```php
 public function test_can_view_dashboard_stats()
@@ -101,8 +152,17 @@ public function test_can_view_dashboard_stats()
 }
 ```
 
-### Testing Middleware Logic
-Create dedicated tests to ensure middleware correctly blocks or permits access:
+**Cuidado:** isso pode mascarar problemas reais de segurança/controle de acesso. Use apenas quando o objetivo do teste não for middleware.
+
+---
+
+### B) Testar a lógica do middleware (bloqueia/permite)
+Crie testes dedicados para confirmar:
+- redirecionamentos (302)
+- bloqueios (403)
+- permissões/roles/policies
+
+Exemplo:
 
 ```php
 public function test_unauthorized_user_is_blocked_from_qa_tools()
@@ -115,12 +175,23 @@ public function test_unauthorized_user_is_blocked_from_qa_tools()
 }
 ```
 
-## Essential Project Middleware Reference
+---
 
-| Middleware | Purpose |
-| :--- | :--- |
-| `DispatchServingFilamentEvent` | Dispatches the event that Filament uses to register scripts, styles, and navigation items. |
-| `SubstituteBindings` | Resolves Eloquent models from route parameters (e.g., `/users/{user}` becomes a `User` instance). |
-| `VerifyCsrfToken` | Protects the application from Cross-Site Request Forgery; excludes specific API or webhook routes if configured. |
-| `Authenticate` | The primary gatekeeper. In Fiscaut, it ensures that only users with the `canAccessPanel()` permission can enter the admin area. |
-| `ShareErrorsFromSession` | Ensures `$errors` variable is available in Blade views, allowing Filament forms to show validation failures. |
+## Referência rápida de middleware (relevantes no projeto)
+
+| Middleware | Para que serve | Observações |
+|---|---|---|
+| `DispatchServingFilamentEvent` | Dispara evento para o Filament registrar assets/navegação | Importante para o painel funcionar corretamente |
+| `SubstituteBindings` | Resolve models via route model binding | Ex.: `/users/{user}` vira `User $user` |
+| `VerifyCsrfToken` | Protege contra CSRF | Verifique exclusões (webhooks/APIs) se existirem |
+| `Authenticate` | Bloqueia guests e força login | No Filament, é a “porta de entrada” do Admin |
+| `ShareErrorsFromSession` | Disponibiliza `$errors` em views | Necessário para exibir validações em formulários |
+
+---
+
+## Arquivos relacionados (para consulta)
+- `app/Http/Kernel.php` — definição dos stacks globais e grupos (`web`, `api`)
+- `app/Providers/Filament/AdminPanelProvider.php` — middleware do painel Filament (`middleware()` e `authMiddleware()`)
+- `app/Http/Middleware/*` — middleware customizado do projeto
+
+---

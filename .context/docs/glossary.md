@@ -1,89 +1,268 @@
-# Glossary & Domain Concepts
+# Glossary (Fiscaut v4.1)
 
-This document defines the core terminology, domain concepts, and technical abstractions used within the Fiscaut v4.1 system. It serves as a single source of truth for developers and stakeholders to ensure consistent communication and implementation across the codebase.
+This glossary defines the core terminology, domain concepts, and technical abstractions used in **Fiscaut v4.1** (a Brazilian fiscal management system). Its goal is to keep language consistent across product, engineering, and operations—especially where Brazilian tax concepts meet implementation details.
 
-## Domain Terminology (Fiscal & Business)
+---
 
-Fiscaut is a fiscal management system tailored for the Brazilian market. Understanding these domain-specific terms is critical for working with the business logic.
+## Brazilian fiscal & business terminology
 
-### Brazilian Tax Concepts
+### CFOP (Código Fiscal de Operações e Prestações)
+A standardized **4-digit** code defined by the Brazilian government that identifies the nature of a transaction (movement of goods or provision of services).
 
-*   **CFOP (Código Fiscal de Operações e Prestações):** A standardized 4-digit code used by the Brazilian government to identify the nature of the circulation of goods or the provision of services. 
-    *   *Validation:* Must follow specific government patterns.
-    *   *Implementation:* Managed via `CfopResource`.
-*   **Simples Nacional:** A simplified tax regime for small and medium-sized enterprises (SMEs) in Brazil.
-*   **Anexo (Simples Nacional):** A specific category of business activity (e.g., commerce, industry, services) that dictates which tax table (Faixas) applies to a company's revenue.
-*   **Faixa (Simples Nacional):** A revenue bracket. Each "Anexo" has multiple brackets based on the accumulated gross revenue over the last 12 months.
-*   **Alíquota (Nominal):** The base percentage rate applied to a specific revenue bracket (Faixa).
-*   **Valor a Deduzir:** A fixed value subtracted from the tax calculation formula to determine the effective tax rate.
-*   **Percentuais de Distribuição:** The internal breakdown of the total tax paid, distributed among different taxes (IRPJ, CSLL, COFINS, PIS, CPP, ICMS, ISS, IPI) based on the current Faixa.
-*   **NFe (Nota Fiscal Eletrônica):** The digital document representing a commercial transaction in Brazil.
-*   **CTe (Conhecimento de Transporte Eletrônico):** The digital document representing a freight/transport service transaction in Brazil.
-*   **Distribuição DF-e (DistDFe):** SEFAZ service used to retrieve authorized documents and events by incremental NSU.
-*   **NSU:** "Número Sequencial Único" used by SEFAZ distribution services to paginate and checkpoint retrieval of documents/events.
-*   **docZip:** Base64-encoded, GZip-compressed XML payload returned by SEFAZ distribution services within `retDistDFeInt`.
-*   **Manifestação do destinatário:** SEFAZ events for recipient acknowledgement (ex.: "Ciência da Operação" 210210) usually tied to a document key (chave).
+- **Why it matters:** CFOP affects tax rules, reporting, and validation flows.
+- **Validation rule:** Must follow regulatory patterns; stored/handled as a strict 4-digit identifier.
+- **Implementation reference:** Typically managed via `CfopResource` (Filament Resource).
 
-### System Entities
+---
 
-*   **Issuer (Empresa):** The entity or company being operated within the system. In the UI, this is managed via `IssuerResource`. It serves as the primary scope for fiscal data.
-*   **Tenant (Assinante):** The top-level organization or client account. In this multi-tenant architecture, most resources are filtered by `tenant_id` to ensure data isolation.
-*   **Category Tag (Categoria de Etiqueta):** A classification system used to group "Tags". These are used for filtering, reporting, and applying business rules within the administration panel.
+### Simples Nacional
+A simplified tax regime for small and medium-sized enterprises (SMEs) in Brazil. Taxes are calculated based on gross revenue and activity category (Anexo), using bracket tables (Faixas).
 
-## System & Architecture Terms
+---
 
-Fiscaut is built on the **TALL Stack** (Tailwind, Alpine.js, Laravel, Livewire) and utilizes **FilamentPHP**.
+### Anexo (Simples Nacional)
+The activity category (e.g., commerce, industry, services) that determines which table of revenue brackets applies.
 
-### Core Abstractions
+- Each **Anexo** has multiple **Faixas** (brackets).
+- Each **Faixa** has an **Alíquota Nominal**, **Valor a Deduzir**, and **Percentuais de Distribuição**.
 
-*   **Resource:** A Filament-specific concept that bundles the Eloquent model with the UI logic for CRUD (Create, Read, Update, Delete) operations (e.g., `vendor/filament/schemas/resources/js`).
-*   **Schema:** Definitions that describe the structure and behavior of UI components, forms, and tables. 
-    *   Key exports include `tabsSchemaComponent` and `wizardSchemaComponent`.
-*   **Action:** Logic-driven buttons or triggers that perform specific tasks, such as running a fiscal calculation or sending a notification. Managed by the `Action` and `ActionGroup` classes.
-*   **Notification:** A real-time feedback system (managed via the `Notification` class) that informs users of process completions, errors, or alerts.
+---
 
-### UI Components
+### Faixa (Simples Nacional)
+A revenue bracket within an Anexo, based on accumulated **gross revenue over the last 12 months**.
 
-*   **Forms:** Components used for data entry.
-    *   `selectFormComponent`: Handles dropdown selections.
-    *   `richEditorFormComponent`: Provides WYSIWYG capabilities for documentation or notes.
-    *   `tagsInputFormComponent`: Manages collections of tags.
-*   **Tables:** Components for data listing and management.
-    *   `filamentTableColumnManager`: Handles visibility and ordering of columns.
-    *   `toggleTableColumn`: Provides a quick boolean switch within a list view.
-*   **Widgets:** Dashboard elements used to display KPIs.
-    *   `statsOverviewStatChart`: Used for displaying trends (e.g., revenue growth).
+- **Core invariant:** Within the same Anexo, Faixas must be **disjoint** (no overlaps).
+- **Range constraint:** `faixa_initial <= faixa_final`.
 
-## Personas & Actors
+---
 
-*   **Administrator:** A superuser with unrestricted access to system configurations, tenant management, and global fiscal rules.
-*   **Fiscal Analyst:** A domain expert responsible for managing CFOPs, tax rules, and validating fiscal documents. They handle the day-to-day accuracy of the tax engine.
-*   **Viewer:** A restricted role with read-only access, typically used for auditing or generating reports without the ability to modify data.
+### Alíquota (Nominal)
+The base percentage rate associated with a given Faixa before deductions and effective rate calculation.
 
-## Domain Rules & Invariants
+---
 
-To ensure data integrity, the following rules are enforced throughout the application:
+### Valor a Deduzir
+A fixed amount subtracted during the Simples Nacional formula to compute the **effective** tax burden for the bracket.
 
-1.  **CFOP Integrity:** Every CFOP code must strictly follow the 4-digit regulatory format.
-2.  **Simples Nacional Continuity:** Within the same "Anexo," revenue brackets ("Faixas") must be disjoint (no overlaps). The condition `faixa_initial <= faixa_final` must always be true.
-3.  **Tenant Isolation:** No data associated with a `tenant_id` should ever be accessible to a user belonging to a different tenant, regardless of their role. This is enforced at the query level.
-4.  **Fiscal Uniqueness:** Certain fiscal identifiers (like NFe numbers for a specific Issuer) must be unique per operation type to prevent duplicate tax filings.
+---
 
-## Acronyms & Abbreviations
+### Percentuais de Distribuição
+The internal breakdown of the total Simples Nacional tax amount across specific taxes, commonly including:
 
-| Acronym | Definition |
-| :--- | :--- |
-| **API** | Application Programming Interface |
-| **CRUD** | Create, Read, Update, Delete |
-| **MVC** | Model-View-Controller |
-| **ORM** | Object-Relational Mapping (Eloquent) |
-| **SPA** | Single Page Application (Simulated via Livewire/Filament) |
-| **TALL** | Tailwind, Alpine.js, Laravel, Livewire |
-| **UI/UX** | User Interface / User Experience |
+- IRPJ, CSLL, COFINS, PIS, CPP, ICMS, ISS, IPI
 
-## Cross-References
+These percentages vary by Faixa within an Anexo.
 
-*   **Technical Implementation:** See `docs/project-overview.md` for architectural details.
-*   **Data Models:** Refer to the Eloquent models located in `app/Models`.
-*   **Frontend Logic:** See the resources in `public/js/filament/` and `vendor/filament/`.
-*   **Authorization:** See Laravel Policies (e.g., `CfopPolicy`) for permission logic.
+---
+
+### NFe (Nota Fiscal Eletrônica)
+Electronic invoice representing a commercial transaction in Brazil, issued as an XML document and authorized by SEFAZ.
+
+---
+
+### CTe (Conhecimento de Transporte Eletrônico)
+Electronic document representing a freight/transport service transaction.
+
+---
+
+### Distribuição DF-e (DistDFe)
+A SEFAZ distribution service that allows retrieval of authorized fiscal documents and events incrementally.
+
+- Typically queried via SEFAZ’s `retDistDFeInt` responses.
+- Supports incremental pagination using **NSU**.
+
+---
+
+### NSU (Número Sequencial Único)
+A sequential identifier used by SEFAZ distribution APIs for:
+
+- Pagination of document retrieval
+- Checkpointing “last processed” position
+
+---
+
+### docZip
+A payload field returned by SEFAZ distribution services:
+
+- Base64-encoded
+- GZip-compressed
+- Contains XML (document/event)
+
+---
+
+### Manifestação do destinatário
+SEFAZ events by which the recipient acknowledges a document (linked to the document key / *chave*), e.g.:
+
+- “Ciência da Operação” (event code **210210**)
+
+---
+
+## System entities (business objects)
+
+### Issuer (Empresa)
+The company/entity being operated on within the system. It is the primary scope for fiscal data (documents, configurations, rules).
+
+- **UI management:** commonly via `IssuerResource` (Filament Resource).
+
+---
+
+### Tenant (Assinante)
+The top-level organization/client account in a **multi-tenant** architecture.
+
+- **Data isolation:** resources are typically filtered by `tenant_id`.
+
+---
+
+### Category Tag (Categoria de Etiqueta)
+A classification entity used to group “Tags” for:
+
+- filtering
+- reporting
+- applying business rules in the administration panel
+
+---
+
+## System & architecture terms
+
+Fiscaut is built on the **TALL Stack** (Tailwind, Alpine.js, Laravel, Livewire) and uses **FilamentPHP** for the admin/product UI.
+
+### Resource (Filament)
+A Filament concept that binds:
+
+- an Eloquent model
+- CRUD pages (list/create/edit/view)
+- forms and tables
+- actions, filters, and authorization boundaries
+
+Resources centralize how a domain model is managed in the UI.
+
+---
+
+### Schema
+A definition describing the structure and behavior of UI components (forms, tables, widgets).
+
+- In this codebase, schemas are present under `public/js/filament/schemas` and `public/js/filament/schemas/components`.
+- Common schema component patterns include **tabs** and **wizard** layouts (e.g., exports like `tabsSchemaComponent` / `wizardSchemaComponent` in the Filament JS bundle).
+
+---
+
+### Action / ActionGroup
+UI-triggered operations tied to business logic (e.g., run a fiscal calculation, sync documents, send notifications).
+
+- **ActionGroup** composes multiple actions into a grouped UI control.
+
+---
+
+### Notification
+A feedback mechanism shown to the user for:
+
+- success/failure messages
+- process completion
+- warnings and validation hints
+
+---
+
+## UI component glossary (Filament front-end bundles)
+
+> The following terms map to Filament UI building blocks and are often represented in the repository under:
+>
+> - `public/js/filament/forms/components`
+> - `public/js/filament/tables/components/columns`
+> - `public/js/filament/widgets/components`
+> - `public/js/filament/schemas/components`
+
+### Forms
+Components used for data input:
+
+- **Select**: dropdown selection controls (commonly referenced as `selectFormComponent` conceptually).
+- **Textarea**: multi-line text input (`public/js/filament/forms/components/textarea.js`).
+- **Tags Input**: manages a set/collection of tags (`public/js/filament/forms/components/tags-input.js`).
+- **Rich Editor**: WYSIWYG editing (`public/js/filament/forms/components/rich-editor.js`).
+- **Key-Value**: editor for structured pairs (`public/js/filament/forms/components/key-value.js`).
+- **Checkbox List**: list-based multi-select (`public/js/filament/forms/components/checkbox-list.js`).
+
+---
+
+### Tables
+Components for listing and managing datasets:
+
+- **Toggle Column**: inline boolean switch (`public/js/filament/tables/components/columns/toggle.js`).
+- **Text Input Column**: editable table cell input (`public/js/filament/tables/components/columns/text-input.js`).
+- **Checkbox Column**: boolean display/selection (`public/js/filament/tables/components/columns/checkbox.js`).
+
+---
+
+### Widgets
+Dashboard/KPI components:
+
+- **Stats Overview / Stat Chart**: small KPI cards and trends (see `public/js/filament/widgets/components/stats-overview/stat`).
+
+---
+
+## Personas & roles
+
+### Administrator
+Superuser with global access:
+
+- tenant management
+- system configuration
+- global fiscal rules
+
+---
+
+### Fiscal Analyst
+Domain specialist responsible for:
+
+- CFOP maintenance
+- tax rules
+- validating fiscal documents and operational accuracy
+
+---
+
+### Viewer
+Read-only role used for:
+
+- audits
+- reporting
+- monitoring without modification privileges
+
+---
+
+## Domain rules & invariants (data integrity)
+
+These are non-negotiable constraints enforced across the application:
+
+1. **CFOP integrity**  
+   CFOP must be a strictly valid 4-digit code according to regulatory formatting rules.
+
+2. **Simples Nacional continuity**  
+   Within a single Anexo, Faixas must not overlap; ranges must be valid (`faixa_initial <= faixa_final`).
+
+3. **Tenant isolation**  
+   Data from one `tenant_id` must never be accessible to users from another tenant. This is expected to be enforced at query boundaries and in authorization logic.
+
+4. **Fiscal uniqueness**  
+   Certain fiscal identifiers (e.g., NFe number under a specific Issuer and operation type) must be unique to avoid duplicate filings and inconsistent reporting.
+
+---
+
+## Acronyms & abbreviations
+
+| Acronym | Meaning |
+| --- | --- |
+| API | Application Programming Interface |
+| CRUD | Create, Read, Update, Delete |
+| MVC | Model-View-Controller |
+| ORM | Object-Relational Mapping (Eloquent) |
+| SPA | Single Page Application (simulated via Livewire/Filament) |
+| TALL | Tailwind, Alpine.js, Laravel, Livewire |
+| UI/UX | User Interface / User Experience |
+
+---
+
+## Cross-references
+
+- **Architecture overview:** `docs/project-overview.md`
+- **Data models:** `app/Models`
+- **Frontend/Filament bundles:** `public/js/filament/` (and vendor Filament assets where applicable)
+- **Authorization & policies:** Laravel Policies (e.g., `CfopPolicy`)
