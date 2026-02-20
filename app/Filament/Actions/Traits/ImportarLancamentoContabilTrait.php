@@ -91,6 +91,7 @@ trait ImportarLancamentoContabilTrait
                         'cod_historico' => $debito !== null && $credito !== null ? self::getCodigoHistorico($rowLine) : null,
                         'historico' => $debito !== null && $credito !== null ? self::getHistorico(self::getCodigoHistorico($rowLine), $issuer_id) : null,
                         'texto_linha' => $rowLine['texto_linha'].' ('.self::getCodigoHistorico($rowLine).')',
+                        'type' => 'geral',
                         'row' => $row,
                     ],
                 ];

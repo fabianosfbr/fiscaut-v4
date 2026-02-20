@@ -23,6 +23,7 @@ class ImportarLancamentoContabilGeralsTable
 
                 return $query->where('user_id', Auth::user()->id)
                     ->where('valor', '!=', 0)
+                    ->whereJsonContains('metadata->type', 'geral')
                     ->where('issuer_id', $user->currentIssuer->id);
             })
             ->columns([

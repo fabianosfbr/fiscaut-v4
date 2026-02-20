@@ -2,28 +2,23 @@
 
 namespace App\Filament\Actions;
 
-use App\Filament\Actions\Traits\ImportarLancamentoContabilTrait;
-use App\Imports\OptimizedExcelImport;
+use App\Imports\OptimizedExcelSuperLogicaImport;
 use App\Jobs\ImportarLancamentoContabilJob;
 use App\Models\ImportarLancamentoContabil;
 use App\Models\JobProgress;
-use App\Models\Layout;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-class ImportarLancamentoContabilGeralAction
+class ImportarLancamentoContabilSuperLogicaAction
 {
-    use ImportarLancamentoContabilTrait;
-
     public static function make(): Action
     {
-        return Action::make('importar-lancamento-contabil-geral')
+        return Action::make('importar-lancamento-contabil-super-logica')
             ->label('Importar Arquivo')
             ->modalHeading('Importar Arquivo Excel')
             ->modalSubmitActionLabel('Sim, importar arquivo')
@@ -31,11 +26,10 @@ class ImportarLancamentoContabilGeralAction
                 $user = Auth::user();
                 ImportarLancamentoContabil::where('issuer_id', $user->currentIssuer->id)
                     ->where('user_id', $user->id)
-                    ->where('metadata->type', 'geral')
+                    ->whereJsonContains('metadata->type', 'super_logica')
                     ->delete();
             })
             ->action(function (array $data, Action $action) {
-                $layout = Layout::find($data['layout_id']);
 
                 $relativePath = $data['excel_file'];
                 $filePath = Storage::disk('local')->path($relativePath);
@@ -51,37 +45,57 @@ class ImportarLancamentoContabilGeralAction
                 }
 
                 try {
-                    $fileReader = (new OptimizedExcelImport($layout, $filePath));
-                    $missingColumns = $fileReader->validateExcelColumns();
+                    $fileReader = (new OptimizedExcelSuperLogicaImport($filePath));
 
-                    if (! empty($missingColumns)) {
+                    $rows = $fileReader->import();
+
+                    if (empty($rows)) {
                         Notification::make()
-                            ->title('Colunas Ausentes')
-                            ->body('As seguintes colunas estão faltando no arquivo Excel: '.implode(', ', $missingColumns))
+                            ->title('Arquivo vazio')
+                            ->body('O arquivo Excel está vazio.')
                             ->danger()
-                            ->persistent()
                             ->send();
-
-                        Storage::disk('local')->delete($relativePath);
                         $action->halt();
                     }
 
-                    // Cria o registro de progresso
-                    $jobProgress = $jobProgress = JobProgress::create([
-                        'status' => 'pending',
-                        'progress' => 0,
-                        'message' => 'Aguardando início do processamento...',
-                    ]);
+                    $user = Auth::user();
+                    $issuer = $user->currentIssuer;
+                    foreach ($rows as $row) {
 
-                    session()->put('jobProgressId', $jobProgress->id);
+                        $import = new ImportarLancamentoContabil;
+                        $import->issuer_id = $issuer->id;
+                        $import->user_id = $user->id;
+                        $import->data = $row['credito'] ?? $row['liquidacao'];
+                        $import->valor = abs($row['valor']);
+                        $import->debito = $row['conta_debito'];
+                        $import->credito = $row['conta_credito'];
+                        $import->is_exist = true;
+                        $import->historico = $row['historico'] ?? null;
+                        $import->metadata = [
+                            'codigo_historico' => $row['codigo_historico'] ?? null,
+                            'row' => $row,
+                            'type' => 'super_logica',
+                        ];
 
-                    // Dispara o Job em background
-                    ImportarLancamentoContabilJob::dispatch(
-                        $layout->id,
-                        $relativePath,
-                        Auth::user()->id,
-                        $jobProgress->id
-                    );
+                        $import->saveQuietly();
+                    }
+
+                    // // Cria o registro de progresso
+                    // $jobProgress = $jobProgress = JobProgress::create([
+                    //     'status' => 'pending',
+                    //     'progress' => 0,
+                    //     'message' => 'Aguardando início do processamento...',
+                    // ]);
+
+                    // session()->put('jobProgressId', $jobProgress->id);
+
+                    // // Dispara o Job em background
+                    // ImportarLancamentoContabilJob::dispatch(
+                    //     $layout->id,
+                    //     $relativePath,
+                    //     Auth::user()->id,
+                    //     $jobProgress->id
+                    // );
 
                     Notification::make()
                         ->title('Importação Iniciada')
@@ -104,14 +118,6 @@ class ImportarLancamentoContabilGeralAction
                 }
             })
             ->schema([
-                Select::make('layout_id')
-                    ->label('Layout utilizado para importação')
-                    ->required()
-                    ->default(1)
-                    ->options(function () {
-                        return Layout::where('issuer_id', Auth::user()->currentIssuer->id)->pluck('name', 'id');
-                    }),
-
                 FileUpload::make('excel_file')
                     ->label('Arquivo Excel')
                     ->required()
