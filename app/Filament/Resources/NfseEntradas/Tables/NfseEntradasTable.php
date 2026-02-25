@@ -172,11 +172,11 @@ class NfseEntradasTable
                     }),
 
                 TernaryFilter::make('status_nota')
-                    ->label('Nota Ativa')
+                    ->label('Status da Nota')
                     ->columnSpan(1)
-                    ->placeholder('Todos')
-                    ->trueLabel('Sim')
-                    ->falseLabel('Não')
+                    ->placeholder('Todas')
+                    ->trueLabel('Ativa')
+                    ->falseLabel('Cancelada')
                     ->query(function (Builder $query, array $data): Builder {
                         if ($data['value'] === null) {
                             return $query;
