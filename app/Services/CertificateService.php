@@ -18,15 +18,18 @@ class CertificateService
      */
     public function validateAndExtractCertificateInfo(string $pfxContent, string $password): array
     {
+        // Tentar modernizar o certificado se for legado
+        $modernizedPfx = $this->modernizeCertificate($pfxContent, $password);
+        if ($modernizedPfx) {
+            $pfxContent = $modernizedPfx;
+        }
+
         // Validar certificado com OpenSSL
         $certInfo = [];
         $cert = openssl_pkcs12_read($pfxContent, $certInfo, $password);
 
         if (! $cert) {
-            // Tentar fallback via CLI para certificados legacy (OpenSSL 3+)
-            if (! $this->tryLegacyOpenSslImport($pfxContent, $password, $certInfo)) {
-                throw new Exception('Senha inválida ou arquivo de certificado corrompido. Verifique a senha e tente novamente.');
-            }
+            throw new Exception('Senha inválida ou arquivo de certificado corrompido. Verifique a senha e tente novamente.');
         }
 
         // Extrair informações do certificado X.509
@@ -238,57 +241,54 @@ class CertificateService
      * Tenta importar o certificado usando CLI OpenSSL com provider legacy
      * Necessário para certificados com algoritmos antigos em ambientes com OpenSSL 3+
      */
-    private function tryLegacyOpenSslImport(string $pfxContent, string $password, array &$certInfo): bool
+    private function modernizeCertificate(string $pfxContent, string $password): ?string
     {
-        $tempPfx = tempnam(sys_get_temp_dir(), 'pfx');
-        if ($tempPfx === false) {
-            return false;
-        }
-        file_put_contents($tempPfx, $pfxContent);
-
+        $tempPfx = tempnam(sys_get_temp_dir(), 'pfx_old');
         $tempPass = tempnam(sys_get_temp_dir(), 'pass');
-        if ($tempPass === false) {
-            unlink($tempPfx);
+        $tempPem = tempnam(sys_get_temp_dir(), 'pem');
+        $tempOut = tempnam(sys_get_temp_dir(), 'pfx_new');
 
-            return false;
+        if ($tempPfx === false || $tempPass === false || $tempPem === false || $tempOut === false) {
+            return null;
         }
-        file_put_contents($tempPass, $password);
 
-        // Command to read PKCS12 with legacy provider
-        // -nodes: Don't encrypt private key in output
-        // -legacy: Enable legacy provider (RC2, 3DES, etc)
-        $command = sprintf(
-            'openssl pkcs12 -in %s -nodes -passin file:%s -legacy',
-            escapeshellarg($tempPfx),
-            escapeshellarg($tempPass)
-        );
+        file_put_contents($tempPfx, $pfxContent);
+        file_put_contents($tempPass, $password);
 
         $output = [];
         $returnVar = 0;
-        exec($command.' 2>&1', $output, $returnVar);
 
-        // Cleanup
+        // Step 1: Extract to PEM using legacy provider
+        $cmd1 = sprintf(
+            'openssl pkcs12 -in %s -passin file:%s -nodes -legacy -out %s 2>/dev/null',
+            escapeshellarg($tempPfx),
+            escapeshellarg($tempPass),
+            escapeshellarg($tempPem)
+        );
+        exec($cmd1, $output, $returnVar);
+
+        if ($returnVar === 0) {
+            // Step 2: Export back to PKCS12 (modern)
+            $output = []; // Reset output for next command
+            $cmd2 = sprintf(
+                'openssl pkcs12 -export -in %s -out %s -passout file:%s 2>/dev/null',
+                escapeshellarg($tempPem),
+                escapeshellarg($tempOut),
+                escapeshellarg($tempPass)
+            );
+            exec($cmd2, $output, $returnVar);
+        }
+
+        $newPfxContent = null;
+        if ($returnVar === 0 && file_exists($tempOut) && filesize($tempOut) > 0) {
+            $newPfxContent = file_get_contents($tempOut);
+        }
+
         @unlink($tempPfx);
         @unlink($tempPass);
+        @unlink($tempPem);
+        @unlink($tempOut);
 
-        if ($returnVar !== 0) {
-            return false;
-        }
-
-        $fullOutput = implode("\n", $output);
-
-        // Extract Certificate
-        if (preg_match('/-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----/s', $fullOutput, $matches)) {
-            $certInfo['cert'] = $matches[0];
-        } else {
-            return false;
-        }
-
-        // Extract Private Key
-        if (preg_match('/-----BEGIN PRIVATE KEY-----.*?-----END PRIVATE KEY-----/s', $fullOutput, $matches)) {
-            $certInfo['pkey'] = $matches[0];
-        }
-
-        return true;
+        return $newPfxContent;
     }
 }
