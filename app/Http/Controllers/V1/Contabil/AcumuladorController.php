@@ -10,14 +10,12 @@ use Illuminate\Support\Facades\Auth;
 
 class AcumuladorController extends Controller
 {
-
-
     public function index(Request $request)
     {
         $clientes = Acumulador::paginate(5);
+
         return response()->json($clientes);
     }
-
 
     public function store(Request $request)
     {

@@ -9,18 +9,19 @@ use Illuminate\Support\Facades\Log;
 
 class XmlNfseReaderService
 {
-
     private $xml;
-    private $simpleXml;
-    private array $data = [];
-    private Issuer $issuer;
 
+    private $simpleXml;
+
+    private array $data = [];
+
+    private Issuer $issuer;
 
     /**
      * Carrega e valida o XML
      *
-     * @param string $xml String XML ou string compactada em gzip
-     * @return self
+     * @param  string  $xml  String XML ou string compactada em gzip
+     *
      * @throws Exception
      */
     public function loadXml(string $xml): self
@@ -40,7 +41,6 @@ class XmlNfseReaderService
                 throw new Exception('Falha ao carregar XML: XML mal formatado');
             }
 
-
             // Valida se é um XML de NFSe válido verificando a tag raiz
             if ($this->simpleXml->getName() !== 'CompNFe') {
                 throw new Exception('XML inválido: Tag CompNFe não encontrada');
@@ -48,7 +48,7 @@ class XmlNfseReaderService
 
             return $this;
         } catch (Exception $e) {
-            Log::error('Erro ao carregar XML: ' . $e->getMessage());
+            Log::error('Erro ao carregar XML: '.$e->getMessage());
             throw $e;
         }
     }
@@ -57,16 +57,16 @@ class XmlNfseReaderService
      * Extrai e mapeia os dados do XML para um array estruturado
      *
      * @return array
+     *
      * @throws Exception
      */
     public function parse(): self
     {
-        if (!$this->simpleXml) {
+        if (! $this->simpleXml) {
             throw new Exception('XML não foi carregado. Execute loadXml() primeiro.');
         }
 
         $nfe = $this->simpleXml->NFe;
-
 
         $this->data = [
             'numero' => (string) $nfe->NumeroNFe,
@@ -97,7 +97,7 @@ class XmlNfseReaderService
                     'municipio_id' => (string) $nfe->Prestador->MunicipioId,
                     'uf' => (string) $nfe->Prestador->UfSigla,
                     'cep' => (string) $nfe->Prestador->Cep,
-                ]
+                ],
             ],
 
             'tomador' => [
@@ -117,8 +117,7 @@ class XmlNfseReaderService
     /**
      * Salva ou atualiza os dados extraídos no banco de dados
      *
-     * @param array $data Dados opcionais para sobrescrever os dados do XML
-     * @return NotaFiscalServico
+     * @param  array  $data  Dados opcionais para sobrescrever os dados do XML
      */
     public function save(): NotaFiscalServico
     {
@@ -160,6 +159,7 @@ class XmlNfseReaderService
     public function setIssuer(Issuer $issuer): self
     {
         $this->issuer = $issuer;
+
         return $this;
     }
 }

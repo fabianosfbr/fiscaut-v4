@@ -13,7 +13,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-
 class AutenticidadeNfseJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -40,7 +39,6 @@ class AutenticidadeNfseJob implements ShouldQueue
             ->where('dh_evento', '>=', $endDate)
             ->distinct()
             ->get();
-
 
         foreach ($eventos as $evento) {
             $nfse = NotaFiscalServico::where('chave_acesso', $evento->chave_acesso)

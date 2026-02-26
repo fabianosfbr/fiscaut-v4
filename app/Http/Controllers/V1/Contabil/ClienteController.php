@@ -2,22 +2,20 @@
 
 namespace App\Http\Controllers\V1\Contabil;
 
-use App\Models\Issuer;
-use App\Models\Cliente;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Cliente;
+use App\Models\Issuer;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ClienteController extends Controller
 {
-
-
     public function index(Request $request)
     {
         $clientes = Cliente::paginate(5);
+
         return response()->json($clientes);
     }
-
 
     public function store(Request $request)
     {

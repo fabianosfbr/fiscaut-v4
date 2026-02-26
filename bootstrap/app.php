@@ -10,11 +10,11 @@ use Illuminate\Support\Str;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__ . '/../routes/web.php',
-        api: __DIR__ . '/../routes/api.php',
+        web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
         apiPrefix: 'api/v1/',
-        commands: __DIR__ . '/../routes/console.php',
-        channels: __DIR__ . '/../routes/channels.php',
+        commands: __DIR__.'/../routes/console.php',
+        channels: __DIR__.'/../routes/channels.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
@@ -44,12 +44,12 @@ return Application::configure(basePath: dirname(__DIR__))
                     $urlPath = $parts['path'] ?? null;
 
                     if (is_string($urlScheme) && is_string($urlHost) && is_string($urlPath)) {
-                        $sanitizedUrl = $urlScheme . '://' . $urlHost . ($urlPort ? ':' . $urlPort : '') . $urlPath;
+                        $sanitizedUrl = $urlScheme.'://'.$urlHost.($urlPort ? ':'.$urlPort : '').$urlPath;
                     }
                 }
             }
 
-            $rateKey = 'broadcast-exception:' . sha1(implode('|', [
+            $rateKey = 'broadcast-exception:'.sha1(implode('|', [
                 $urlScheme ?? 'unknown',
                 $urlHost ?? 'unknown',
                 (string) ($urlPort ?? ''),

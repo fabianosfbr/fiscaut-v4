@@ -8,7 +8,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         return $request->user();
     });
 
-
     Route::group(['middleware' => 'auth:sanctum'], function () {
 
         Route::get('up', function () {
@@ -21,13 +20,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/contabil/clientes', [\App\Http\Controllers\V1\Contabil\ClienteController::class, 'index'])
             ->name('contabil.clientes.index');
 
-
         Route::post('/contabil/fornecedores', [\App\Http\Controllers\V1\Contabil\FornecedorController::class, 'store'])
             ->name('contabil.fornecedores.store');
 
         Route::post('/contabil/plano-de-contas', [\App\Http\Controllers\V1\Contabil\PlanoDeContaController::class, 'store'])
             ->name('contabil.planodeconta.store');
-
 
         Route::post('/contabil/acumuladores', [\App\Http\Controllers\V1\Contabil\AcumuladorController::class, 'store'])
             ->name('contabil.acumulador.store');

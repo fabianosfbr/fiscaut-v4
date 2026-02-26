@@ -15,7 +15,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 class SefazNfseProcessDocumentJob implements ShouldQueue
 {
@@ -95,7 +94,6 @@ class SefazNfseProcessDocumentJob implements ShouldQueue
         }
         $numero = (int) ($xmlObj->infNFSe->nNFSe ?? 0);
         $prestador_cnpj = (string) ($xmlObj->infNFSe->emit->CNPJ ?? $xmlObj->infNFSe->emit->CPF ?? null);
-
 
         NotaFiscalServico::updateOrCreate([
             'numero' => $numero,

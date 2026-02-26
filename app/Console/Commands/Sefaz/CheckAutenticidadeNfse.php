@@ -5,13 +5,9 @@ namespace App\Console\Commands\Sefaz;
 use App\Jobs\Sefaz\AutenticidadeNfeJob;
 use App\Models\Issuer;
 use App\Models\LogSefazNfseEvent;
-use App\Models\NotaFiscalEletronica;
 use App\Models\NotaFiscalServico;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use NFePHP\NFe\Common\Standardize;
-use NFePHP\NFe\Complements;
 
 class CheckAutenticidadeNfse extends Command
 {
@@ -44,7 +40,7 @@ class CheckAutenticidadeNfse extends Command
             $nfse = NotaFiscalServico::where('chave_acesso', $chave)->where('cancelada', false)->first();
 
             $evento = LogSefazNfseEvent::where('x_desc', 'like', '%cancelamento%')
-                ->where('chave_acesso',  $chave)
+                ->where('chave_acesso', $chave)
                 ->first();
 
             if (isset($nfse) and isset($evento)) {
