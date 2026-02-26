@@ -93,17 +93,20 @@ class SefazNfseProcessDocumentJob implements ShouldQueue
         if ($dhEmi !== '') {
             $dataEmissao = Carbon::parse($dhEmi);
         }
+        $numero = (int) ($xmlObj->infNFSe->nNFSe ?? 0);
+        $prestador_cnpj = (string) ($xmlObj->infNFSe->emit->CNPJ ?? $xmlObj->infNFSe->emit->CPF ?? null);
+
 
         NotaFiscalServico::updateOrCreate([
-            'chave' => $chave,
+            'numero' => $numero,
+            'prestador_cnpj' => $prestador_cnpj,
         ], [
-            'numero' => (int) ($xmlObj->infNFSe->nNFSe ?? 0),
             'codigo_verificacao' => (string) ($xmlObj->infNFSe->DPS->infDPS->codVerif ?? null),
             'chave' => $chave,
+            'chave_acesso' => $chave,
             'origem' => $this->documento['origem'] ?? 'SEFAZ',
             'valor_servico' => (float) ($xmlObj->infNFSe->valores->vLiq ?? null),
             'data_emissao' => $dataEmissao,
-            'prestador_cnpj' => (string) ($xmlObj->infNFSe->emit->CNPJ ?? $xmlObj->infNFSe->emit->CPF ?? null),
             'prestador_servico' => (string) ($xmlObj->infNFSe->emit->xNome ?? null),
             'prestador_im' => (string) ($xmlObj->infNFSe->emit->IM ?? null),
             'tomador_cnpj' => (string) ($tomador->CNPJ ?? $tomador->CPF ?? null),
@@ -132,9 +135,6 @@ class SefazNfseProcessDocumentJob implements ShouldQueue
         if (! is_string($chave) || $chave === '') {
             $chave = $this->documento['chave'] ?? null;
         }
-        if (! is_string($chave) || $chave === '') {
-            $chave = Str::uuid()->toString();
-        }
 
         $dhEvento = null;
         $dataHoraGeracao = $this->documento['data_hora_geracao'] ?? null;
@@ -144,7 +144,8 @@ class SefazNfseProcessDocumentJob implements ShouldQueue
 
         $cMotivo = (string) ($xmlObj->infEvento->pedRegEvento->infPedReg->e105103->cMotivo ?? $xmlObj->infEvento->pedRegEvento->infPedReg->e105102->cMotivo ?? $xmlObj->infEvento->pedRegEvento->infPedReg->e101101->cMotivo ?? null);
         $log = LogSefazNfseEvent::updateOrCreate([
-            'chave' => $chave,
+            'chave_acesso' => $chave,
+            'issuer_id' => $this->issuer->id,
             'c_motivo' => $cMotivo !== '' ? $cMotivo : null,
         ], [
             'dh_evento' => $dhEvento ?? now(),
