@@ -55,7 +55,7 @@ class ExpiredCertificateNotificationJob implements ShouldQueue
                                 ->button()
                                 ->openUrlInNewTab()
                                 ->url(
-                                    route('filament.admin.resources.issuers.index', [
+                                    route('filament.app.resources.issuers.index', [
                                         'filters' => [
                                             'is_enabled' => ['value' => 'true'],
                                             'certificado_vencendo' => ['isActive' => 'false'],

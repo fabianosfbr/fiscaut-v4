@@ -19,7 +19,7 @@
                 <x-filament::dropdown.list>
                     <!-- Nova Empresa -->
                     <x-filament::dropdown.list.item icon="heroicon-m-plus" icon-color="success" tag="a"
-                        href="{{ route('filament.admin.resources.issuers.create') }}">
+                        href="{{ route('filament.app.resources.issuers.create') }}">
                         Nova Empresa
                     </x-filament::dropdown.list.item>
 
@@ -27,7 +27,7 @@
                     @if ($currentIssuer = Auth::user()->currentIssuer)
                         <x-filament::dropdown.list.item icon="heroicon-m-pencil-square" icon-color="primary"
                             tag="a"
-                            href="{{ route('filament.admin.resources.issuers.edit', ['record' => $currentIssuer->id]) }}">
+                            href="{{ route('filament.app.resources.issuers.edit', ['record' => $currentIssuer->id]) }}">
                             Editar {{ \Illuminate\Support\Str::limit($currentIssuer->razao_social, 25) }}
                         </x-filament::dropdown.list.item>
                     @else
@@ -41,7 +41,7 @@
                 <!-- Gerenciar Todas as Empresas -->
                 <x-filament::dropdown.list>
                     <x-filament::dropdown.list.item icon="heroicon-m-building-office" tag="a"
-                        href="{{ route('filament.admin.resources.issuers.index') }}">
+                        href="{{ route('filament.app.resources.issuers.index') }}">
                         Gerenciar Todas as Empresas
                     </x-filament::dropdown.list.item>
                 </x-filament::dropdown.list>

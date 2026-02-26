@@ -26,8 +26,8 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
-            ->id('admin')
-            ->path('admin')
+            ->id('app')
+            ->path('app')
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->profile(isSimple: false)
             ->sidebarWidth('w-1/4')
@@ -118,7 +118,7 @@ class AdminPanelProvider extends PanelProvider
                 Action::make('profile')
                     ->label('Meu Perfil')
                     ->icon('heroicon-o-user')
-                    ->url(fn (): string => Profile::getUrl()),
+                    ->url(fn(): string => Profile::getUrl()),
             ])
             ->plugin(
                 \Octopy\Filament\Palette\PaletteSwitcherPlugin::make()

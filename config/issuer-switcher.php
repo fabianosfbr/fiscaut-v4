@@ -12,8 +12,8 @@ return [
     |
     */
     'exclude_routes' => [
-        'filament.admin.resources.tenants.index',
-        'filament.admin.resources.tenants.create',
-        'filament.admin.resources.tenants.edit',
+        'filament.app.resources.tenants.index',
+        'filament.app.resources.tenants.create',
+        'filament.app.resources.tenants.edit',
     ],
 ];

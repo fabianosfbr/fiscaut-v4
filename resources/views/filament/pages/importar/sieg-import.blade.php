@@ -15,7 +15,7 @@
             </x-filament::button>
 
             <x-filament::button type="button" color="gray" tag="a"
-                href="{{ route('filament.admin.resources.xml-import-history.index') }}">
+                href="{{ route('filament.app.resources.xml-import-history.index') }}">
                 Ver Importações
             </x-filament::button>
         </div>
@@ -26,7 +26,7 @@
             Os arquivos XML são processados em segundo plano, permitindo que você continue usando o sistema enquanto o
             processamento ocorre.
             Você pode acompanhar o progresso das importações na página de <a
-                href="{{ route('filament.admin.resources.xml-import-history.index') }}"
+                href="{{ route('filament.app.resources.xml-import-history.index') }}"
                 class="text-primary-600 hover:text-primary-500 dark:text-primary-500 dark:hover:text-primary-400">Histórico
                 de Importações</a>.
         </p>
