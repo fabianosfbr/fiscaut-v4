@@ -9,6 +9,8 @@ class RelatorioEntradaSaidaChart extends ChartWidget
 {
     protected ?string $heading = 'Entrada vs Saída';
 
+    protected static ?int $sort = 2;
+
     protected function getData(): array
     {
         $issuer = Auth::user()?->currentIssuer;
@@ -45,12 +47,12 @@ class RelatorioEntradaSaidaChart extends ChartWidget
         $labels = array_keys($data);
 
         $entradas = array_map(
-            fn (array $value): float => (float) ($value['expense'] ?? 0.0),
+            fn(array $value): float => (float) ($value['expense'] ?? 0.0),
             $data,
         );
 
         $saidas = array_map(
-            fn (array $value): float => (float) ($value['income'] ?? 0.0),
+            fn(array $value): float => (float) ($value['income'] ?? 0.0),
             $data,
         );
 

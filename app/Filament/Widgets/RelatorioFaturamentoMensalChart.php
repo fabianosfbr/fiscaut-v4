@@ -9,6 +9,8 @@ class RelatorioFaturamentoMensalChart extends ChartWidget
 {
     protected ?string $heading = 'Faturamento Mensal';
 
+    protected static ?int $sort = 3;
+
     protected function getData(): array
     {
         $issuer = Auth::user()?->currentIssuer;
@@ -32,7 +34,7 @@ class RelatorioFaturamentoMensalChart extends ChartWidget
 
         $labels = array_keys($data);
         $faturamento = array_map(
-            fn (array $value): float => (float) ($value['income'] ?? 0.0),
+            fn(array $value): float => (float) ($value['income'] ?? 0.0),
             $data,
         );
 

@@ -9,7 +9,7 @@ class FiscalDashboardProdutoVendivoChart extends ChartWidget
 {
     protected ?string $heading = 'Produtos mais vendidos';
 
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 5;
 
     protected function getData(): array
     {
