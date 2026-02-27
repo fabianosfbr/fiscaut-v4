@@ -85,7 +85,7 @@ jobs:
           ACTIVE_RELEASE_PATH: /var/www/dev.fiscaut.com.br/current
           STORAGE_PATH: /home/fiscaut/project/dev/storage
           BASE_PATH: /home/fiscaut/project/dev
-          LARAVEL_ENV: ${{ secrets.DEV_LARAVEL_ENV_BRS }}
+          LARAVEL_ENV: ${{ secrets.PROD_ENV_BRS }}
         with:
           host: ${{ secrets.SSH_HOST_BRS }}
           username: ${{ secrets.SSH_USERNAME_BRS }}
@@ -125,8 +125,8 @@ jobs:
             npm run build
             php artisan migrate --force           
             php artisan optimize:clear
+            php artisan optimize
             php artisan clear-compiled           
-            php artisan queue:restart
             composer dump-autoload
             chown -R www-data:www-data /home/fiscaut/project/dev/releases
             chown -R www-data:www-data $STORAGE_PATH            
