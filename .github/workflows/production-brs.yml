@@ -1,0 +1,141 @@
+name: Deploy to Production - BRS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build artifact
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout
+
+      - name: Configure PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          extensions: mbstring, openssl, fileinfo, PDO, bcmath, tonkenizer, xml
+
+      - name: Generate deployment artifact
+        run: tar -czf ${{ github.sha }}.tar.gz --exclude=*.git --exclude=node_modules --exclude=tests --exclude=storage *
+
+      - name: Store artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-build
+          path: ${{ github.sha }}.tar.gz
+          retention-days: 1
+
+  prepare-release-on-server:
+    name: Prepare release on server
+    runs-on: ubuntu-latest
+    needs: [ build ]
+    steps:
+      - uses: actions/download-artifact@v4
+        name: Download artifact
+        with:
+          name: app-build
+
+      - name: Upload to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_BRS }}
+          username: ${{ secrets.SSH_USERNAME_BRS }}
+          port: ${{ secrets.SSH_PORT_BRS }}
+          key: ${{ secrets.SSH_PRIVATE_KEY_BRS }}
+          source: ${{ github.sha }}.tar.gz
+          target: /home/fiscaut/project/v4/artifacts
+
+      - name: Extract archive and config directories
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_BRS }}
+          username: ${{ secrets.SSH_USERNAME_BRS }}
+          port: ${{ secrets.SSH_PORT_BRS }}
+          key: ${{ secrets.SSH_PRIVATE_KEY_BRS }}
+          script: |
+            mkdir -p /home/fiscaut/project/v4/releases/${{ github.sha }}
+            tar -xzf /home/fiscaut/project/v4/artifacts/${{ github.sha }}.tar.gz -C /home/fiscaut/project/v4/releases/${{ github.sha }}
+            mkdir -p /home/fiscaut/project/v4/storage/{app,public,framework,logs}
+            mkdir -p /home/fiscaut/project/v4/storage/framework/{cache,sessions,testing,views}
+            mkdir -p /home/fiscaut/project/v4/releases/${{ github.sha }}/public/downloads
+
+
+  activate-release:
+    name: Activate release
+    runs-on: ubuntu-latest
+    needs: [ prepare-release-on-server ]
+    steps:
+      - name: Activate release
+        uses: appleboy/ssh-action@master
+        env:
+          RELEASE_PATH: /home/fiscaut/project/v4/releases/${{ github.sha }}
+          ACTIVE_RELEASE_PATH: /var/www/fiscaut.com.br/v4
+          STORAGE_PATH: /home/fiscaut/project/v4/storage
+          BASE_PATH: /home/fiscaut/project/v4
+          LARAVEL_ENV: ${{ secrets.PROD_LARAVEL_ENV_BRS }}
+        with:
+          host: ${{ secrets.SSH_HOST_BRS }}
+          username: ${{ secrets.SSH_USERNAME_BRS }}
+          port: ${{ secrets.SSH_PORT_BRS }}
+          key: ${{ secrets.SSH_PRIVATE_KEY_BRS }}
+          envs: RELEASE_PATH,ACTIVE_RELEASE_PATH,STORAGE_PATH,BASE_PATH,LARAVEL_ENV
+          script: |
+            cd $ACTIVE_RELEASE_PATH
+            printf "%s" "$LARAVEL_ENV" > ${BASE_PATH}/.env
+            cp -r /home/fiscaut/project/v4/releases/${{ github.sha }}/* $ACTIVE_RELEASE_PATH
+            ln -s -n -f $STORAGE_PATH storage
+            ln -s -n -f $BASE_PATH/.env .env
+
+
+
+  after-hooks:
+    name: Run post scripts
+    runs-on: ubuntu-latest
+    needs: [ activate-release ]
+    steps:
+      - name: Run scripts
+        uses: appleboy/ssh-action@master
+        env:
+          ACTIVE_RELEASE_PATH: /var/www/fiscaut.com.br/v4
+          STORAGE_PATH: /home/fiscaut/project/v4/storage
+
+        with:
+          host: ${{ secrets.SSH_HOST_BRS }}
+          username: ${{ secrets.SSH_USERNAME_BRS }}
+          port: ${{ secrets.SSH_POR_BRST }}
+          key: ${{ secrets.SSH_PRIVATE_KEY_BRS }}
+          envs: ACTIVE_RELEASE_PATH, STORAGE_PATH
+          script: |
+            cd $ACTIVE_RELEASE_PATH
+            composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+            php artisan migrate --force
+            php artisan optimize:clear
+            php artisan clear-compiled
+            php artisan optimize
+            php artisan queue:restart
+            composer dump-autoload
+            chown -R www-data:www-data /home/fiscaut/project/v4/releases
+            chown -R www-data:www-data $STORAGE_PATH
+            echo "Deployed!"
+
+  clean-up:
+    name: Clean up release files
+    runs-on: ubuntu-latest
+    needs: [ activate-release ]
+    steps:
+      - name: Clean directories
+        uses: appleboy/ssh-action@master
+        env:
+          RELEASE_PATH: /home/fiscaut/project/v4/releases
+          ARTIFACT_PATH: /home/fiscaut/project/v4/artifacts
+        with:
+          host: ${{ secrets.SSH_HOST_BRS }}
+          username: ${{ secrets.SSH_USERNAME_BRS }}
+          port: ${{ secrets.SSH_PORT_BRS }}
+          key: ${{ secrets.SSH_PRIVATE_KEY_BRS }}
+          envs: RELEASE_PATH,ARTIFACT_PATH
+          script: |
+            cd $RELEASES_PATH && ls -t -1 | tail -n +3 | xargs rm -rf
+            cd $ARTIFACTS_PATH && ls -t -1 | tail -n +3 | xargs rm -rf
