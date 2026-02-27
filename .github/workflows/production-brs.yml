@@ -81,7 +81,7 @@ jobs:
         uses: appleboy/ssh-action@master
         env:
           RELEASE_PATH: /home/fiscaut/project/v4/releases/${{ github.sha }}
-          ACTIVE_RELEASE_PATH: /var/www/fiscaut.com.br/v4
+          ACTIVE_RELEASE_PATH: /var/www/v4
           STORAGE_PATH: /home/fiscaut/project/v4/storage
           BASE_PATH: /home/fiscaut/project/v4
           LARAVEL_ENV: ${{ secrets.PROD_LARAVEL_ENV_BRS }}
