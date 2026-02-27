@@ -1,4 +1,4 @@
-name: Deploy to Dev - BRS
+name: Deploy to Production - BRS
 
 on:
   push:
@@ -25,7 +25,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.4
-          extensions: mbstring, openssl, fileinfo, PDO, bcmath, tokenizer, xml
+          extensions: mbstring, openssl, fileinfo, PDO, bcmath, tonkenizer, xml
 
       - name: Generate deployment artifact
         run: tar -czf ${{ github.sha }}.tar.gz --exclude=*.git --exclude=node_modules --exclude=tests --exclude=storage *
@@ -55,7 +55,7 @@ jobs:
           port: ${{ secrets.SSH_PORT_BRS }}
           key: ${{ secrets.SSH_PRIVATE_KEY_BRS }}
           source: ${{ github.sha }}.tar.gz
-          target: /home/fiscaut/project/dev/artifacts
+          target: /home/fiscaut/project/v4/artifacts
 
       - name: Extract archive and config directories
         uses: appleboy/ssh-action@master
@@ -65,12 +65,11 @@ jobs:
           port: ${{ secrets.SSH_PORT_BRS }}
           key: ${{ secrets.SSH_PRIVATE_KEY_BRS }}
           script: |
-
-            mkdir -p /home/fiscaut/project/dev/releases/${{ github.sha }}
-            tar -xzf /home/fiscaut/project/dev/artifacts/${{ github.sha }}.tar.gz -C /home/fiscaut/project/dev/releases/${{ github.sha }}
-            mkdir -p /home/fiscaut/project/dev/storage/{app,public,framework,logs}
-            mkdir -p /home/fiscaut/project/dev/storage/framework/{cache,sessions,testing,views}
-            mkdir -p /home/fiscaut/project/dev/releases/${{ github.sha }}/public/downloads
+            mkdir -p /home/fiscaut/project/v4/releases/${{ github.sha }}
+            tar -xzf /home/fiscaut/project/v4/artifacts/${{ github.sha }}.tar.gz -C /home/fiscaut/project/v4/releases/${{ github.sha }}
+            mkdir -p /home/fiscaut/project/v4/storage/{app,public,framework,logs}
+            mkdir -p /home/fiscaut/project/v4/storage/framework/{cache,sessions,testing,views}
+            mkdir -p /home/fiscaut/project/v4/releases/${{ github.sha }}/public/downloads
 
 
   activate-release:
@@ -81,10 +80,10 @@ jobs:
       - name: Activate release
         uses: appleboy/ssh-action@master
         env:
-          RELEASE_PATH: /home/fiscaut/project/dev/releases/${{ github.sha }}
-          ACTIVE_RELEASE_PATH: /var/www/dev.fiscaut.com.br/current
-          STORAGE_PATH: /home/fiscaut/project/dev/storage
-          BASE_PATH: /home/fiscaut/project/dev
+          RELEASE_PATH: /home/fiscaut/project/v4/releases/${{ github.sha }}
+          ACTIVE_RELEASE_PATH: /var/www/v4.fiscaut.com.br/current
+          STORAGE_PATH: /home/fiscaut/project/v4/storage
+          BASE_PATH: /home/fiscaut/project/v4
           LARAVEL_ENV: ${{ secrets.PROD_ENV_BRS }}
         with:
           host: ${{ secrets.SSH_HOST_BRS }}
@@ -93,10 +92,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY_BRS }}
           envs: RELEASE_PATH,ACTIVE_RELEASE_PATH,STORAGE_PATH,BASE_PATH,LARAVEL_ENV
           script: |
-            php artisan down
-            printf "%s" "$LARAVEL_ENV" > ${BASE_PATH}/.env
-            cp -r /home/fiscaut/project/dev/releases/${{ github.sha }}/* $ACTIVE_RELEASE_PATH
             cd $ACTIVE_RELEASE_PATH
+            printf "%s" "$LARAVEL_ENV" > ${BASE_PATH}/.env
+            cp -r /home/fiscaut/project/v4/releases/${{ github.sha }}/* $ACTIVE_RELEASE_PATH
             ln -s -n -f $STORAGE_PATH storage
             ln -s -n -f $BASE_PATH/.env .env
 
@@ -110,8 +108,8 @@ jobs:
       - name: Run scripts
         uses: appleboy/ssh-action@master
         env:
-          ACTIVE_RELEASE_PATH: /var/www/dev.fiscaut.com.br/current
-          STORAGE_PATH: /home/fiscaut/project/dev/storage
+          ACTIVE_RELEASE_PATH: /var/www/v4.fiscaut.com.br/current
+          STORAGE_PATH: /home/fiscaut/project/v4/storage
 
         with:
           host: ${{ secrets.SSH_HOST_BRS }}
@@ -121,15 +119,14 @@ jobs:
           envs: ACTIVE_RELEASE_PATH, STORAGE_PATH
           script: |
             cd $ACTIVE_RELEASE_PATH
-            composer install --prefer-dist --no-dev -o
-            npm run build
-            php artisan migrate --force           
+            composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+            php artisan migrate --force
             php artisan optimize:clear
+            php artisan clear-compiled
             php artisan optimize
-            php artisan clear-compiled           
             composer dump-autoload
-            chown -R www-data:www-data /home/fiscaut/project/dev/releases
-            chown -R www-data:www-data $STORAGE_PATH            
+            chown -R www-data:www-data /home/fiscaut/project/v4/releases
+            chown -R www-data:www-data $STORAGE_PATH
             echo "Deployed!"
 
 
