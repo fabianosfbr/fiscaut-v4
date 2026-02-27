@@ -108,7 +108,7 @@ jobs:
       - name: Run scripts
         uses: appleboy/ssh-action@master
         env:
-          ACTIVE_RELEASE_PATH: /var/www/fiscaut.com.br/v4
+          ACTIVE_RELEASE_PATH: /var/www/v4
           STORAGE_PATH: /home/fiscaut/project/v4/storage
 
         with:
