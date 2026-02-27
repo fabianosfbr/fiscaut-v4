@@ -81,7 +81,7 @@ jobs:
         uses: appleboy/ssh-action@master
         env:
           RELEASE_PATH: /home/fiscaut/project/v4/releases/${{ github.sha }}
-          ACTIVE_RELEASE_PATH: /var/www/v4
+          ACTIVE_RELEASE_PATH: /home/fiscaut/project/v4/current
           STORAGE_PATH: /home/fiscaut/project/v4/storage
           BASE_PATH: /home/fiscaut/project/v4
           LARAVEL_ENV: ${{ secrets.PROD_LARAVEL_ENV_BRS }}
@@ -93,10 +93,10 @@ jobs:
           envs: RELEASE_PATH,ACTIVE_RELEASE_PATH,STORAGE_PATH,BASE_PATH,LARAVEL_ENV
           script: |
             printf "%s" "$LARAVEL_ENV" > ${BASE_PATH}/.env
-            sudo cp -a ${RELEASE_PATH}/. ${ACTIVE_RELEASE_PATH}/
-            sudo rm -rf ${ACTIVE_RELEASE_PATH}/storage
-            sudo ln -s -n -f $STORAGE_PATH ${ACTIVE_RELEASE_PATH}/storage
-            sudo ln -s -n -f $BASE_PATH/.env ${ACTIVE_RELEASE_PATH}/.env
+            rm -rf ${RELEASE_PATH}/storage
+            ln -s -n -f $STORAGE_PATH ${RELEASE_PATH}/storage
+            ln -s -n -f $BASE_PATH/.env ${RELEASE_PATH}/.env
+            ln -s -n -f $RELEASE_PATH ${ACTIVE_RELEASE_PATH}
 
 
 
@@ -108,7 +108,7 @@ jobs:
       - name: Run scripts
         uses: appleboy/ssh-action@master
         env:
-          ACTIVE_RELEASE_PATH: /var/www/v4
+          ACTIVE_RELEASE_PATH: /home/fiscaut/project/v4/current
           STORAGE_PATH: /home/fiscaut/project/v4/storage
 
         with:
@@ -119,14 +119,11 @@ jobs:
           envs: ACTIVE_RELEASE_PATH, STORAGE_PATH
           script: |
             cd $ACTIVE_RELEASE_PATH
-            sudo composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
-            sudo php artisan migrate --force
-            sudo php artisan optimize:clear
-            sudo php artisan clear-compiled
-            sudo php artisan optimize
-            sudo php artisan queue:restart
-            sudo composer dump-autoload
-            sudo chown -R www-data:www-data /home/fiscaut/project/v4/releases
-            sudo chown -R www-data:www-data $STORAGE_PATH
+            composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+            php artisan migrate --force
+            php artisan optimize:clear
+            php artisan clear-compiled
+            php artisan optimize
+            php artisan queue:restart
+            composer dump-autoload
             echo "Deployed!"
-
