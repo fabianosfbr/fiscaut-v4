@@ -14,8 +14,11 @@ return new class extends Migration
     public function up()
     {
         Schema::table('nfes', function (Blueprint $table) {
+            try {
+                $table->dropIndex(['aut_xml']);
+            } catch (\Throwable) {
+            }
 
-            $table->dropIndex(['aut_xml']);
             $table->dropColumn('aut_xml');
             //  $table->json('aut_xml')->after('transportador_razao_social')->nullable();
         });

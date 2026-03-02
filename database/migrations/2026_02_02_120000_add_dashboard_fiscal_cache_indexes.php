@@ -2,7 +2,9 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+
 
 return new class extends Migration
 {
@@ -86,17 +88,43 @@ return new class extends Migration
 
     public function down(): void
     {
-        if (Schema::hasTable('statistic_issuers')) {
-            Schema::table('statistic_issuers', function (Blueprint $table) {
-                $table->dropUnique('uq_statistic_issuers_cache_key');
-                $table->dropIndex('idx_statistic_issuers_tenant_issuer_data');
+        $driver = DB::getDriverName();
 
-                if (Schema::hasColumn('statistic_issuers', 'data_ref')) {
-                    $table->dropIndex('idx_statistic_issuers_tenant_issuer_data_ref');
+        if (Schema::hasTable('statistic_issuers')) {
+            try {
+                if ($driver === 'mysql') {
+                    DB::statement('DROP INDEX uq_statistic_issuers_cache_key ON statistic_issuers');
+                } elseif ($driver === 'pgsql') {
+                    DB::statement('DROP INDEX IF EXISTS uq_statistic_issuers_cache_key');
+                } elseif ($driver === 'sqlite') {
+                    DB::statement('DROP INDEX IF EXISTS uq_statistic_issuers_cache_key');
                 }
-            });
+            } catch (\Throwable) {
+            }
+
+            try {
+                if ($driver === 'mysql') {
+                    DB::statement('DROP INDEX idx_statistic_issuers_tenant_issuer_data ON statistic_issuers');
+                } elseif ($driver === 'pgsql') {
+                    DB::statement('DROP INDEX IF EXISTS idx_statistic_issuers_tenant_issuer_data');
+                } elseif ($driver === 'sqlite') {
+                    DB::statement('DROP INDEX IF EXISTS idx_statistic_issuers_tenant_issuer_data');
+                }
+            } catch (\Throwable) {
+            }
 
             if (Schema::hasColumn('statistic_issuers', 'data_ref')) {
+                try {
+                    if ($driver === 'mysql') {
+                        DB::statement('DROP INDEX idx_statistic_issuers_tenant_issuer_data_ref ON statistic_issuers');
+                    } elseif ($driver === 'pgsql') {
+                        DB::statement('DROP INDEX IF EXISTS idx_statistic_issuers_tenant_issuer_data_ref');
+                    } elseif ($driver === 'sqlite') {
+                        DB::statement('DROP INDEX IF EXISTS idx_statistic_issuers_tenant_issuer_data_ref');
+                    }
+                } catch (\Throwable) {
+                }
+
                 Schema::table('statistic_issuers', function (Blueprint $table) {
                     $table->dropColumn('data_ref');
                 });
@@ -104,27 +132,108 @@ return new class extends Migration
         }
 
         if (Schema::hasTable('nfes')) {
-            Schema::table('nfes', function (Blueprint $table) {
-                $table->dropIndex('idx_nfes_tenant_emitente_data_emissao');
-                $table->dropIndex('idx_nfes_tenant_destinatario_data_entrada');
-                $table->dropIndex('idx_nfes_tenant_destinatario_data_emissao');
-            });
+            try {
+                if ($driver === 'mysql') {
+                    DB::statement('DROP INDEX idx_nfes_tenant_emitente_data_emissao ON nfes');
+                } elseif ($driver === 'pgsql') {
+                    DB::statement('DROP INDEX IF EXISTS idx_nfes_tenant_emitente_data_emissao');
+                } elseif ($driver === 'sqlite') {
+                    DB::statement('DROP INDEX IF EXISTS idx_nfes_tenant_emitente_data_emissao');
+                }
+            } catch (\Throwable) {
+            }
+
+            try {
+                if ($driver === 'mysql') {
+                    DB::statement('DROP INDEX idx_nfes_tenant_destinatario_data_entrada ON nfes');
+                } elseif ($driver === 'pgsql') {
+                    DB::statement('DROP INDEX IF EXISTS idx_nfes_tenant_destinatario_data_entrada');
+                } elseif ($driver === 'sqlite') {
+                    DB::statement('DROP INDEX IF EXISTS idx_nfes_tenant_destinatario_data_entrada');
+                }
+            } catch (\Throwable) {
+            }
+
+            try {
+                if ($driver === 'mysql') {
+                    DB::statement('DROP INDEX idx_nfes_tenant_destinatario_data_emissao ON nfes');
+                } elseif ($driver === 'pgsql') {
+                    DB::statement('DROP INDEX IF EXISTS idx_nfes_tenant_destinatario_data_emissao');
+                } elseif ($driver === 'sqlite') {
+                    DB::statement('DROP INDEX IF EXISTS idx_nfes_tenant_destinatario_data_emissao');
+                }
+            } catch (\Throwable) {
+            }
         }
 
         if (Schema::hasTable('ctes')) {
-            Schema::table('ctes', function (Blueprint $table) {
-                $table->dropIndex('idx_ctes_tenant_emitente_data_emissao');
-                $table->dropIndex('idx_ctes_tenant_destinatario_data_entrada');
-                $table->dropIndex('idx_ctes_tenant_destinatario_data_emissao');
-            });
+            try {
+                if ($driver === 'mysql') {
+                    DB::statement('DROP INDEX idx_ctes_tenant_emitente_data_emissao ON ctes');
+                } elseif ($driver === 'pgsql') {
+                    DB::statement('DROP INDEX IF EXISTS idx_ctes_tenant_emitente_data_emissao');
+                } elseif ($driver === 'sqlite') {
+                    DB::statement('DROP INDEX IF EXISTS idx_ctes_tenant_emitente_data_emissao');
+                }
+            } catch (\Throwable) {
+            }
+
+            try {
+                if ($driver === 'mysql') {
+                    DB::statement('DROP INDEX idx_ctes_tenant_destinatario_data_entrada ON ctes');
+                } elseif ($driver === 'pgsql') {
+                    DB::statement('DROP INDEX IF EXISTS idx_ctes_tenant_destinatario_data_entrada');
+                } elseif ($driver === 'sqlite') {
+                    DB::statement('DROP INDEX IF EXISTS idx_ctes_tenant_destinatario_data_entrada');
+                }
+            } catch (\Throwable) {
+            }
+
+            try {
+                if ($driver === 'mysql') {
+                    DB::statement('DROP INDEX idx_ctes_tenant_destinatario_data_emissao ON ctes');
+                } elseif ($driver === 'pgsql') {
+                    DB::statement('DROP INDEX IF EXISTS idx_ctes_tenant_destinatario_data_emissao');
+                } elseif ($driver === 'sqlite') {
+                    DB::statement('DROP INDEX IF EXISTS idx_ctes_tenant_destinatario_data_emissao');
+                }
+            } catch (\Throwable) {
+            }
         }
 
         if (Schema::hasTable('nfses')) {
-            Schema::table('nfses', function (Blueprint $table) {
-                $table->dropIndex('idx_nfses_tenant_tomador_data_entrada');
-                $table->dropIndex('idx_nfses_tenant_tomador_data_emissao');
-                $table->dropIndex('idx_nfses_tenant_tomador_cancelada');
-            });
+            try {
+                if ($driver === 'mysql') {
+                    DB::statement('DROP INDEX idx_nfses_tenant_tomador_data_entrada ON nfses');
+                } elseif ($driver === 'pgsql') {
+                    DB::statement('DROP INDEX IF EXISTS idx_nfses_tenant_tomador_data_entrada');
+                } elseif ($driver === 'sqlite') {
+                    DB::statement('DROP INDEX IF EXISTS idx_nfses_tenant_tomador_data_entrada');
+                }
+            } catch (\Throwable) {
+            }
+
+            try {
+                if ($driver === 'mysql') {
+                    DB::statement('DROP INDEX idx_nfses_tenant_tomador_data_emissao ON nfses');
+                } elseif ($driver === 'pgsql') {
+                    DB::statement('DROP INDEX IF EXISTS idx_nfses_tenant_tomador_data_emissao');
+                } elseif ($driver === 'sqlite') {
+                    DB::statement('DROP INDEX IF EXISTS idx_nfses_tenant_tomador_data_emissao');
+                }
+            } catch (\Throwable) {
+            }
+
+            try {
+                if ($driver === 'mysql') {
+                    DB::statement('DROP INDEX idx_nfses_tenant_tomador_cancelada ON nfses');
+                } elseif ($driver === 'pgsql') {
+                    DB::statement('DROP INDEX IF EXISTS idx_nfses_tenant_tomador_cancelada');
+                } elseif ($driver === 'sqlite') {
+                    DB::statement('DROP INDEX IF EXISTS idx_nfses_tenant_tomador_cancelada');
+                }
+            } catch (\Throwable) {
+            }
         }
     }
 };

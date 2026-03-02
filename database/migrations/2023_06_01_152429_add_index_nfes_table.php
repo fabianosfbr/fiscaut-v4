@@ -29,10 +29,25 @@ return new class extends Migration
     public function down()
     {
         Schema::table('nfes', function (Blueprint $table) {
-            $table->dropIndex('emitente_cnpj');
-            $table->dropIndex('destinatario_cnpj');
-            $table->dropIndex('transportador_cnpj');
-            $table->dropIndex('aut_xml');
+            try {
+                $table->dropIndex('emitente_cnpj');
+            } catch (\Throwable) {
+            }
+
+            try {
+                $table->dropIndex('destinatario_cnpj');
+            } catch (\Throwable) {
+            }
+
+            try {
+                $table->dropIndex('transportador_cnpj');
+            } catch (\Throwable) {
+            }
+
+            try {
+                $table->dropIndex('aut_xml');
+            } catch (\Throwable) {
+            }
         });
     }
 };

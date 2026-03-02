@@ -12,7 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('ctes', function (Blueprint $table) {
-            $table->dropIndex('ctes_nfe_chave_index');
+            try {
+                $table->dropIndex('ctes_nfe_chave_index');
+            } catch (\Throwable) {
+            }
             //  $table->json('nfe_chave')->nullable()->change();
         });
     }

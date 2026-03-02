@@ -75,6 +75,29 @@ return new class extends Migration
         } catch (\Throwable) {
         }
 
+        // Drop orphaned indexes from previous migration
+        try {
+            if ($driver === 'mysql') {
+                DB::statement('DROP INDEX IF EXISTS idx_statistic_issuers_tenant_issuer_data ON statistic_issuers');
+            } elseif ($driver === 'pgsql') {
+                DB::statement('DROP INDEX IF EXISTS idx_statistic_issuers_tenant_issuer_data');
+            } elseif ($driver === 'sqlite') {
+                DB::statement('DROP INDEX IF EXISTS idx_statistic_issuers_tenant_issuer_data');
+            }
+        } catch (\Throwable) {
+        }
+
+        try {
+            if ($driver === 'mysql') {
+                DB::statement('DROP INDEX IF EXISTS idx_statistic_issuers_tenant_issuer_data_ref ON statistic_issuers');
+            } elseif ($driver === 'pgsql') {
+                DB::statement('DROP INDEX IF EXISTS idx_statistic_issuers_tenant_issuer_data_ref');
+            } elseif ($driver === 'sqlite') {
+                DB::statement('DROP INDEX IF EXISTS idx_statistic_issuers_tenant_issuer_data_ref');
+            }
+        } catch (\Throwable) {
+        }
+
         Schema::table('statistic_issuers', function (Blueprint $table) {
             $table->unique(
                 ['tenant_id', 'issuer', 'periodo', 'doc_tipo', 'tipo', 'data'],

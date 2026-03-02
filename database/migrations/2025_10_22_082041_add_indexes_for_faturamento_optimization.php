@@ -59,26 +59,66 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('nfe_products', function (Blueprint $table) {
-            $table->dropIndex('idx_nfe_products_nfe_cfop');
-            $table->dropIndex('idx_nfe_products_cfop');
-            $table->dropIndex('idx_nfe_products_valor_total');
+            try {
+                $table->dropIndex('idx_nfe_products_nfe_cfop');
+            } catch (\Throwable) {
+            }
+
+            try {
+                $table->dropIndex('idx_nfe_products_cfop');
+            } catch (\Throwable) {
+            }
+
+            try {
+                $table->dropIndex('idx_nfe_products_valor_total');
+            } catch (\Throwable) {
+            }
         });
 
         Schema::table('nfes', function (Blueprint $table) {
-            $table->dropIndex('idx_nfes_emitente_cnpj_data');
-            $table->dropIndex('idx_nfes_emitente_cnpj_tipo_data');
-            $table->dropIndex('idx_nfes_destinatario_cnpj_data');
-            $table->dropIndex('idx_nfes_destinatario_cnpj_tipo_data');
+            try {
+                $table->dropIndex('idx_nfes_emitente_cnpj_data');
+            } catch (\Throwable) {
+            }
+
+            try {
+                $table->dropIndex('idx_nfes_emitente_cnpj_tipo_data');
+            } catch (\Throwable) {
+            }
+
+            try {
+                $table->dropIndex('idx_nfes_destinatario_cnpj_data');
+            } catch (\Throwable) {
+            }
+
+            try {
+                $table->dropIndex('idx_nfes_destinatario_cnpj_tipo_data');
+            } catch (\Throwable) {
+            }
 
             if (Schema::hasColumn('nfes', 'tenant_id')) {
-                $table->dropIndex('idx_nfes_tenant_id');
+                try {
+                    $table->dropIndex('idx_nfes_tenant_id');
+                } catch (\Throwable) {
+                }
             }
         });
 
         Schema::table('cfops', function (Blueprint $table) {
-            $table->dropIndex('idx_cfops_codigo');
-            $table->dropIndex('idx_cfops_is_faturamento');
-            $table->dropIndex('idx_cfops_faturamento_anexo');
+            try {
+                $table->dropIndex('idx_cfops_codigo');
+            } catch (\Throwable) {
+            }
+
+            try {
+                $table->dropIndex('idx_cfops_is_faturamento');
+            } catch (\Throwable) {
+            }
+
+            try {
+                $table->dropIndex('idx_cfops_faturamento_anexo');
+            } catch (\Throwable) {
+            }
         });
     }
 };

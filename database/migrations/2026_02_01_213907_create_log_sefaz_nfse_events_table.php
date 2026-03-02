@@ -11,17 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('log_sefaz_nfse_events', function (Blueprint $table) {
-            $table->id();
-            $table->string('chave')->index();
-            $table->datetime('dh_evento');
-            $table->string('x_desc')->nullable();
-            $table->string('c_motivo')->nullable();
-            $table->string('x_motivo')->nullable();
-            $table->string('ch_substituta')->nullable();
-            $table->longText('xml');
-            $table->timestamps();
-        });
+        if (! Schema::hasTable('log_sefaz_nfse_events')) {
+            Schema::create('log_sefaz_nfse_events', function (Blueprint $table) {
+                $table->id();
+                $table->string('chave')->index();
+                $table->datetime('dh_evento');
+                $table->string('x_desc')->nullable();
+                $table->string('c_motivo')->nullable();
+                $table->string('x_motivo')->nullable();
+                $table->string('ch_substituta')->nullable();
+                $table->longText('xml');
+                $table->timestamps();
+            });
+        }
     }
 
     /**

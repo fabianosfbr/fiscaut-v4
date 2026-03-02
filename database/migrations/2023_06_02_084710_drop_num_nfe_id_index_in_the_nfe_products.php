@@ -14,7 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::table('nfe_products', function (Blueprint $table) {
-            $table->dropUnique(['num_nfe']);
+            try {
+                $table->dropUnique(['num_nfe']);
+            } catch (\Throwable) {
+            }
         });
     }
 
