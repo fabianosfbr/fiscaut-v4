@@ -10,7 +10,6 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Auth;
 
 class ParametroSuperLogicaForm
 {
@@ -46,7 +45,7 @@ class ParametroSuperLogicaForm
                             ->label('Cód. Histórico')
                             ->required()
                             ->options(function () {
-                                $values = HistoricoContabil::where('issuer_id', Auth::user()->currentIssuer->id)
+                                $values = HistoricoContabil::where('issuer_id', currentIssuer()->id)
                                     ->orderBy('codigo', 'asc')
                                     ->get()
                                     ->map(function ($item) {

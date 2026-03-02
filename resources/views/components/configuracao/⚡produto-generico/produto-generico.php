@@ -12,7 +12,6 @@ use Filament\Notifications\Notification;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -42,7 +41,7 @@ new class extends Component implements HasActions, HasSchemas
 
     protected function loadCurrentSettings(): void
     {
-        $currentIssuer = Auth::user()->currentIssuer;
+        $currentIssuer = currentIssuer();
 
         if (! $currentIssuer) {
             $this->form->fill([]);
@@ -109,7 +108,7 @@ new class extends Component implements HasActions, HasSchemas
                             ->columnSpan(1)
                             ->required()
                             ->options(function () {
-                                return CategoryTag::getAllEnabled(Auth::user()->currentIssuer->id);
+                                return CategoryTag::getAllEnabled(currentIssuer()->id);
                             }),
 
                         Repeater::make('produtos')
@@ -156,7 +155,7 @@ new class extends Component implements HasActions, HasSchemas
 
         try {
             $this->isLoading = true;
-            $currentIssuer = Auth::user()->currentIssuer;
+            $currentIssuer = currentIssuer();
 
             if (! $currentIssuer) {
                 throw new \Exception('Nenhum emissor selecionado.');

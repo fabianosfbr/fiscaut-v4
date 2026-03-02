@@ -1,7 +1,10 @@
 <?php
 
+use App\Models\Issuer;
+use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 if (! function_exists('getMesesAnterioresEPosteriores')) {
     function getMesesAnterioresEPosteriores()
@@ -33,6 +36,58 @@ if (! function_exists('getMesesAnterioresEPosteriores')) {
         $meses = array_reverse($meses);
 
         return $meses;
+    }
+}
+
+if (! function_exists('currentIssuerCacheKey')) {
+    function currentIssuerCacheKey(int $userId, int $issuerId): string
+    {
+        return "current_issuer:{$userId}:{$issuerId}";
+    }
+}
+
+if (! function_exists('forgetCurrentIssuerCache')) {
+    function forgetCurrentIssuerCache(int $userId, int $issuerId): void
+    {
+        Cache::forget(currentIssuerCacheKey($userId, $issuerId));
+    }
+}
+
+if (! function_exists('currentIssuer')) {
+    function currentIssuer(?User $user = null): ?Issuer
+    {
+        $user ??= Auth::user();
+        
+        if (! $user) {
+            return null;
+        }
+
+        $issuerId = (int) ($user->issuer_id ?? 0);
+
+        if ($issuerId <= 0) {
+            return null;
+        }
+
+        if ($user->relationLoaded('currentIssuer')) {            
+            return $user->currentIssuer;
+        }
+
+        static $memo = [];
+        $memoKey = $user->id.':'.$issuerId;
+
+        if (array_key_exists($memoKey, $memo)) {
+            return $memo[$memoKey];
+        }
+
+        $issuer = Cache::remember(
+            currentIssuerCacheKey((int) $user->id, $issuerId),
+            now()->addMinutes(10),
+            fn () => Issuer::query()->find($issuerId),
+        );
+
+        $memo[$memoKey] = $issuer;
+
+        return $issuer;
     }
 }
 

@@ -5,7 +5,6 @@ namespace App\Filament\Actions;
 use Filament\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 
 class ToggleEscrituacaoEmLoteAction
 {
@@ -22,7 +21,7 @@ class ToggleEscrituacaoEmLoteAction
             ->closeModalByEscaping(false)
             ->modalSubmitActionLabel('Sim, alternar')
             ->action(function (Collection $records) {
-                $issuer = Auth::user()->currentIssuer;
+                $issuer = currentIssuer();
                 $records->each(function (Model $record) use ($issuer) {
                     $record->toggleApuracao($issuer);
                 });

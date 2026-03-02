@@ -70,10 +70,20 @@ new class extends Component implements HasSchemas
                         $user = Auth::user();
 
                         if ($user && $state) {
+                            $oldIssuerId = (int) ($user->issuer_id ?? 0);
+
                             // Atualiza a empresa atual do usuário
                             $user->update([
                                 'issuer_id' => $state,
                             ]);
+
+                            $user->unsetRelation('currentIssuer');
+
+                            if ($oldIssuerId > 0) {
+                                forgetCurrentIssuerCache((int) $user->id, $oldIssuerId);
+                            }
+
+                            forgetCurrentIssuerCache((int) $user->id, (int) $state);
 
                             // Feedback visual
                             Notification::make()

@@ -30,7 +30,7 @@ class UploadFileManagerForm
                     ->schema([
                         TextEntry::make('empresa')
                             ->label('Empresa')
-                            ->state(fn () => Auth::user()->currentIssuer->razao_social)
+                            ->state(fn () => currentIssuer()->razao_social)
                             ->columnSpanFull(),
                         Select::make('doc_type')
                             ->label('Tipo de documento')
@@ -91,7 +91,7 @@ class UploadFileManagerForm
                                     ->columnSpan(1)
                                     ->multiple(false)
                                     ->required()
-                                    ->options(CategoryTag::getAllEnabled(Auth::user()->currentIssuer->id)),
+                                    ->options(CategoryTag::getAllEnabled(currentIssuer()->id)),
                                 TextInput::make('valor')
                                     ->prefix('R$')
                                     ->live(onBlur: true)
@@ -114,7 +114,7 @@ class UploadFileManagerForm
                             ->visibility('private')
                             ->maxSize(51200)
                             ->directory(function ($get) {
-                                $currentIssuer = Auth::user()->currentIssuer;
+                                $currentIssuer = currentIssuer();
                                 $periodo = explode('-', $get('periodo_exercicio'));
 
                                 if (! $currentIssuer || ! $get('periodo_exercicio')) {

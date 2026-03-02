@@ -25,15 +25,15 @@ class ToggleEscrituracaoAction
                     && $user->hasPermission('marcar-documento-como-apurado');
             })
             ->requiresConfirmation()
-            ->modalHeading(fn ($record) => $record->isApuradaParaEmpresa(Auth::user()->currentIssuer) ? 'Marcar nota como não apurada?' : 'Marcar nota como apurada?')
-            ->modalDescription(fn ($record) => $record->isApuradaParaEmpresa(Auth::user()->currentIssuer)
+            ->modalHeading(fn ($record) => $record->isApuradaParaEmpresa(currentIssuer()) ? 'Marcar nota como não apurada?' : 'Marcar nota como apurada?')
+            ->modalDescription(fn ($record) => $record->isApuradaParaEmpresa(currentIssuer())
                 ? 'Tem certeza que deseja marcar esta nota fiscal como não apurada?'
                 : 'Tem certeza que deseja marcar esta nota fiscal como apurada?')
             ->modalSubmitActionLabel('Confirmar')
             ->modalCancelActionLabel('Cancelar')
             ->action(function (Model $record) {
 
-                $issuer = Auth::user()->currentIssuer;
+                $issuer = currentIssuer();
                 if (! method_exists($record, 'toggleApuracao') || ! method_exists($record, 'isApuradaParaEmpresa')) {
                     Notification::make()
                         ->title('Ação indisponível para este registro')

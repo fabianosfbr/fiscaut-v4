@@ -6,7 +6,6 @@ use App\Filament\Widgets\StatisticData;
 use App\Models\Issuer;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 class Faturamento extends Page
@@ -33,7 +32,7 @@ class Faturamento extends Page
 
     public function mount(): void
     {
-        $this->issuer = Auth::user()?->currentIssuer;
+        $this->issuer = currentIssuer();
         $this->generateData($this->issuer);
     }
 

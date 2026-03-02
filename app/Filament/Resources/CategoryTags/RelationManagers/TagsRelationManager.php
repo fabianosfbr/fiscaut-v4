@@ -45,7 +45,7 @@ class TagsRelationManager extends RelationManager
                                 table: Tag::class,
                                 column: 'code',
                                 ignoreRecord: true,
-                                modifyRuleUsing: fn ($rule) => $rule->where('issuer_id', Auth::user()->currentIssuer->id)
+                                modifyRuleUsing: fn ($rule) => $rule->where('issuer_id', currentIssuer()->id)
                             )
                             ->columnSpan(2),
 
@@ -111,10 +111,11 @@ class TagsRelationManager extends RelationManager
 
                         // Preenche campos de controle automaticamente
                         $user = Auth::user();
+                        $issuer = currentIssuer($user);
 
-                        if ($user && $user->tenant_id && $user->currentIssuer) {
+                        if ($user && $user->tenant_id && $issuer) {
                             $data['tenant_id'] = $user->tenant_id;
-                            $data['issuer_id'] = $user->currentIssuer->id;
+                            $data['issuer_id'] = $issuer->id;
                             $data['category_id'] = $this->getOwnerRecord()->id;
                         } else {
                             throw new \Exception('Usuário não autenticado ou empresa não selecionada');
@@ -128,7 +129,7 @@ class TagsRelationManager extends RelationManager
                         return $data;
                     })
                     ->after(function (CreateAction $action, array $data) {
-                        Cache::forget('category_tag_.'.Auth::user()->currentIssuer->id.'._all');
+                        Cache::forget('category_tag_.'.currentIssuer()->id.'._all');
                     }),
             ])
             ->recordActions([
@@ -146,10 +147,11 @@ class TagsRelationManager extends RelationManager
             ->modifyQueryUsing(function (Builder $query): Builder {
                 // Aplica filtros de segurança apenas se o usuário estiver autenticado
                 $user = Auth::user();
+                $issuer = currentIssuer($user);
 
-                if ($user && $user->tenant_id && $user->currentIssuer) {
+                if ($user && $user->tenant_id && $issuer) {
                     $query->where('tenant_id', $user->tenant_id)
-                        ->where('issuer_id', $user->currentIssuer->id);
+                        ->where('issuer_id', $issuer->id);
                 }
 
                 return $query;

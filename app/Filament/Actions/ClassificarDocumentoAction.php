@@ -11,7 +11,6 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 class ClassificarDocumentoAction
@@ -37,7 +36,7 @@ class ClassificarDocumentoAction
                     ->default(now())
                     ->displayFormat('d/m/Y')
                     ->visible(function () {
-                        $issuerId = Auth::user()->currentIssuer->id;
+                        $issuerId = currentIssuer()->id;
 
                         return GeneralSetting::getValue(
                             name: 'configuracoes_gerais',
@@ -51,7 +50,7 @@ class ClassificarDocumentoAction
                     ->label('Etiqueta')
                     ->multiple(false)
                     ->required()
-                    ->options(CategoryTag::getAllEnabled(Auth::user()->currentIssuer->id)),
+                    ->options(CategoryTag::getAllEnabled(currentIssuer()->id)),
             ])
             ->action(function (array $data, Model $record) {
                 $record->retag($data['tag_id']);
@@ -64,7 +63,7 @@ class ClassificarDocumentoAction
                     ]);
                 }
 
-                Cache::forget('tags_used_in_nfe_'.Auth::user()->currentIssuer->id);
+                Cache::forget('tags_used_in_nfe_'.currentIssuer()->id);
 
                 Notification::make()
                     ->success()
@@ -81,7 +80,7 @@ class ClassificarDocumentoAction
             name: 'configuracoes_gerais',
             key: 'isClassificarCteVinculadoANfe',
             default: false,
-            issuerId: Auth::user()->currentIssuer->id
+            issuerId: currentIssuer()->id
         );
 
         if ($isClassificarCteVinculadoANfe && $record instanceof NotaFiscalEletronica) {
@@ -104,7 +103,7 @@ class ClassificarDocumentoAction
                 }
             }
 
-            Cache::forget('tags_used_in_cte_'.Auth::user()->currentIssuer->id);
+            Cache::forget('tags_used_in_cte_'.currentIssuer()->id);
         }
     }
 }

@@ -9,7 +9,6 @@ use Filament\Actions\BulkAction;
 use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 
 class ClassificarDocumentoEmLoteAction
 {
@@ -34,7 +33,7 @@ class ClassificarDocumentoEmLoteAction
                     ->default(now())
                     ->displayFormat('d/m/Y')
                     ->visible(function () {
-                        $issuerId = Auth::user()->currentIssuer->id;
+                        $issuerId = currentIssuer()->id;
 
                         return GeneralSetting::getValue(
                             name: 'configuracoes_gerais',
@@ -47,7 +46,7 @@ class ClassificarDocumentoEmLoteAction
                     ->label('Etiqueta')
                     ->multiple(false)
                     ->required()
-                    ->options(CategoryTag::getAllEnabled(Auth::user()->currentIssuer->id)),
+                    ->options(CategoryTag::getAllEnabled(currentIssuer()->id)),
             ])
             ->closeModalByClickingAway(false)
             ->closeModalByEscaping(false)

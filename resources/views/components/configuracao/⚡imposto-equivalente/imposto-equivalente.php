@@ -32,7 +32,7 @@ new class extends Component implements HasActions, HasSchemas, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn (): Builder => EntradasImpostosEquivalente::query()->where('issuer_id', Auth::user()->currentIssuer->id))
+            ->query(fn (): Builder => EntradasImpostosEquivalente::query()->where('issuer_id', currentIssuer()->id))
             ->defaultSort('created_at', 'desc')
             ->searchDebounce(750)
             ->columns([
@@ -107,7 +107,7 @@ new class extends Component implements HasActions, HasSchemas, HasTable
             SelectTagGrouped::make('tag')
                 ->label('Etiqueta')
                 ->multiple(false)
-                ->options(CategoryTag::getAllEnabled(Auth::user()->currentIssuer->id)),
+                ->options(CategoryTag::getAllEnabled(currentIssuer()->id)),
 
         ];
     }
@@ -128,7 +128,7 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                 'description' => 'Zera tag de IPI e/ou ICMS da Nfe',
                 'status_icms' => $data['status_icms'],
                 'status_ipi' => $data['status_ipi'],
-                'issuer_id' => Auth::user()->currentIssuer->id,
+                'issuer_id' => currentIssuer()->id,
                 'tenant_id' => Auth::user()->tenant_id,
             ]
         );

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\PlanoDeConta;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class PlanoDeContaSelectController extends Controller
 {
@@ -12,7 +11,7 @@ class PlanoDeContaSelectController extends Controller
     {
         $params = $request->get('query');
 
-        $issuerId = Auth::user()->currentIssuer->id;
+        $issuerId = currentIssuer()->id;
 
         // Verifica se o termo de busca foi passado
         if (! $params) {

@@ -11,7 +11,6 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 
 class ParametroSuperLogicasTable
 {
@@ -19,7 +18,7 @@ class ParametroSuperLogicasTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                return $query->where('issuer_id', Auth::user()->currentIssuer->id);
+                return $query->where('issuer_id', currentIssuer()->id);
             })
             ->columns([
                 TextColumn::make('params')

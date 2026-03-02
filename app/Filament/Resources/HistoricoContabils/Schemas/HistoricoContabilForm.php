@@ -5,7 +5,6 @@ namespace App\Filament\Resources\HistoricoContabils\Schemas;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Unique;
 
 class HistoricoContabilForm
@@ -20,7 +19,7 @@ class HistoricoContabilForm
                             ->label('Código')
                             ->unique(modifyRuleUsing: function (Unique $rule, callable $get) {
                                 return $rule
-                                    ->where('issuer_id', Auth::user()->currentIssuer->id);
+                                    ->where('issuer_id', currentIssuer()->id);
                             }, ignoreRecord: true)
                             ->validationMessages([
                                 'unique' => 'Código já cadastrado',

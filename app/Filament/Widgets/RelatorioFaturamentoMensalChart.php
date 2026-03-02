@@ -3,7 +3,6 @@
 namespace App\Filament\Widgets;
 
 use Filament\Widgets\ChartWidget;
-use Illuminate\Support\Facades\Auth;
 
 class RelatorioFaturamentoMensalChart extends ChartWidget
 {
@@ -13,7 +12,7 @@ class RelatorioFaturamentoMensalChart extends ChartWidget
 
     protected function getData(): array
     {
-        $issuer = Auth::user()?->currentIssuer;
+        $issuer = currentIssuer();
 
         if ($issuer === null) {
             return [

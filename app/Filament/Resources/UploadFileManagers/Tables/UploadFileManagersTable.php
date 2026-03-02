@@ -35,7 +35,7 @@ class UploadFileManagersTable
         return $table
             ->paginated([10, 25, 50, 100])
             ->modifyQueryUsing(function ($query) {
-                $query->where('issuer_id', Auth::user()->currentIssuer->id);
+                $query->where('issuer_id', currentIssuer()->id);
             })
             ->recordUrl(null)
             ->columns([
@@ -66,7 +66,7 @@ class UploadFileManagersTable
                 TagDocsColumn::make('tagged')
                     ->label('Etiqueta')
                     ->showTagCode(function () {
-                        $currentIssuerId = Auth::user()->currentIssuer->id;
+                        $currentIssuerId = currentIssuer()->id;
 
                         return GeneralSetting::getValue(
                             name: 'configuracoes_gerais',

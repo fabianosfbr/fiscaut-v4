@@ -14,7 +14,6 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
 use UnitEnum;
 
@@ -39,7 +38,7 @@ class RelatorioResumoEtiquetaNfse extends Page implements HasActions, HasSchemas
         return $table
             ->recordUrl(null)
             ->query(function () {
-                $issuer = Auth::user()->currentIssuer;
+                $issuer = currentIssuer();
 
                 return NfseTagAgregadorView::query()
                     ->where('issuer_id', $issuer->id)

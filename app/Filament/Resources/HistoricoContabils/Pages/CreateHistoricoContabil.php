@@ -4,7 +4,6 @@ namespace App\Filament\Resources\HistoricoContabils\Pages;
 
 use App\Filament\Resources\HistoricoContabils\HistoricoContabilResource;
 use Filament\Resources\Pages\CreateRecord;
-use Illuminate\Support\Facades\Auth;
 
 class CreateHistoricoContabil extends CreateRecord
 {
@@ -12,7 +11,7 @@ class CreateHistoricoContabil extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['issuer_id'] = Auth::user()->currentIssuer->id;
+        $data['issuer_id'] = currentIssuer()->id;
 
         return $data;
     }

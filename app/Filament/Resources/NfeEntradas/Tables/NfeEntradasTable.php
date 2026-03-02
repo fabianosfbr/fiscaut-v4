@@ -37,7 +37,6 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 class NfeEntradasTable
@@ -104,7 +103,7 @@ class NfeEntradasTable
                     ->alignCenter()
                     ->emptyText('')
                     ->showTagCode(function () {
-                        $issuerId = Auth::user()->currentIssuer->id;
+                        $issuerId = currentIssuer()->id;
 
                         return GeneralSetting::getValue(
                             name: 'configuracoes_gerais',
@@ -385,7 +384,7 @@ class NfeEntradasTable
                     DownloadXmlPdfNfeEmLoteAction::make(),
                     ClassificarDocumentoEmLoteAction::make()
                         ->after(function () {
-                            Cache::forget('tags_used_in_nfe_'.Auth::user()->currentIssuer->id);
+                            Cache::forget('tags_used_in_nfe_'.currentIssuer()->id);
 
                             Notification::make()
                                 ->title('Etiquetas aplicadas com sucesso')

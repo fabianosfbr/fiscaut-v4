@@ -7,7 +7,6 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 
 class HistoricoContabilsTable
 {
@@ -15,7 +14,7 @@ class HistoricoContabilsTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                $query->where('issuer_id', Auth::user()->currentIssuer->id);
+                $query->where('issuer_id', currentIssuer()->id);
             })
             ->columns([
                 TextColumn::make('codigo')

@@ -6,13 +6,12 @@ use App\Models\LogSefazCteContent;
 use Carbon\Carbon;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use Illuminate\Support\Facades\Auth;
 
 class MinMaxNsuCteOverview extends StatsOverviewWidget
 {
     protected function getStats(): array
     {
-        $currentIssuer = Auth::user()->currentIssuer;
+        $currentIssuer = currentIssuer();
 
         $max = LogSefazCteContent::where('issuer_id', $currentIssuer->id)
             ->whereDate('created_at', '>=', Carbon::now()->subDays(30))

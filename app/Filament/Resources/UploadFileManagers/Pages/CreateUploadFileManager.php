@@ -22,7 +22,7 @@ class CreateUploadFileManager extends CreateRecord
         $data['doc_value'] = str_replace(',', '.', str_replace('.', '', $data['doc_value']));
         $data['user_id'] = $user->id;
         $data['tenant_id'] = $user->tenant_id;
-        $data['issuer_id'] = $user->currentIssuer->id;
+        $data['issuer_id'] = currentIssuer($user)->id;
 
         if (isset($data['arquivo'])) {
             $data['path'] = $data['arquivo'];
@@ -49,7 +49,7 @@ class CreateUploadFileManager extends CreateRecord
             $record->tag($tag->id, $tag_apply['valor']);
 
         }
-        Cache::forget('tags_used_in_upload_file_'.Auth::user()->currentIssuer->id);
+        Cache::forget('tags_used_in_upload_file_'.currentIssuer()->id);
     }
 
     protected function getCreateFormAction(): Action

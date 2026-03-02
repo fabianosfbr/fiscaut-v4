@@ -14,7 +14,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Grid;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 
 class ClassificarDocumentoNfeAvancadoAction
 {
@@ -101,7 +100,7 @@ class ClassificarDocumentoNfeAvancadoAction
                     DatePicker::make('data_entrada')
                         ->label('Data Entrada')
                         ->visible(function () {
-                            $issuerId = Auth::user()->currentIssuer->id;
+                            $issuerId = currentIssuer()->id;
 
                             return GeneralSetting::getValue(
                                 name: 'configuracoes_gerais',
@@ -120,7 +119,7 @@ class ClassificarDocumentoNfeAvancadoAction
                                 ->label('Etiqueta')
                                 ->multiple(false)
                                 ->required()
-                                ->options(CategoryTag::getAllEnabled(Auth::user()->currentIssuer->id)),
+                                ->options(CategoryTag::getAllEnabled(currentIssuer()->id)),
 
                             TextInput::make('valor')
                                 ->prefix('R$')

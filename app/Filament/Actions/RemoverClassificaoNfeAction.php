@@ -8,7 +8,6 @@ use App\Models\NotaFiscalEletronica;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 class RemoverClassificaoNfeAction
@@ -31,7 +30,7 @@ class RemoverClassificaoNfeAction
                     'data_entrada' => null,
                 ]);
 
-                Cache::forget('tags_used_in_nfe_'.Auth::user()->currentIssuer->id);
+                Cache::forget('tags_used_in_nfe_'.currentIssuer()->id);
 
                 Notification::make()
                     ->success()
@@ -48,7 +47,7 @@ class RemoverClassificaoNfeAction
             name: 'configuracoes_gerais',
             key: 'isClassificarCteVinculadoANfe',
             default: false,
-            issuerId: Auth::user()->currentIssuer->id
+            issuerId: currentIssuer()->id
         );
 
         if ($isClassificarCteVinculadoANfe && $record instanceof NotaFiscalEletronica) {
@@ -67,7 +66,7 @@ class RemoverClassificaoNfeAction
                 }
             }
 
-            Cache::forget('tags_used_in_cte_'.Auth::user()->currentIssuer->id);
+            Cache::forget('tags_used_in_cte_'.currentIssuer()->id);
         }
     }
 }

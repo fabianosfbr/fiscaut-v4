@@ -24,7 +24,7 @@
                     </x-filament::dropdown.list.item>
 
                     <!-- Editar Empresa Atual -->
-                    @if ($currentIssuer = Auth::user()->currentIssuer)
+                    @if ($currentIssuer = currentIssuer())
                         <x-filament::dropdown.list.item icon="heroicon-m-pencil-square" icon-color="primary"
                             tag="a"
                             href="{{ route('filament.app.resources.issuers.edit', ['record' => $currentIssuer->id]) }}">

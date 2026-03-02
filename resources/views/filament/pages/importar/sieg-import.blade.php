@@ -3,7 +3,7 @@
         {{ $this->form }}
 
         <div style="margin-top: 16px;" class="flex items-center gap-4">
-            <x-filament::button type="submit" wire:loading.attr="disabled" wire:target="save" :disabled="!Auth::user()->currentIssuer || $isLoading">
+            <x-filament::button type="submit" wire:loading.attr="disabled" wire:target="save" :disabled="!currentIssuer() || $isLoading">
 
                 <span wire:loading.remove wire:target="save">
                     {{ $isLoading ? 'Importando...' : 'Importar documentos' }}

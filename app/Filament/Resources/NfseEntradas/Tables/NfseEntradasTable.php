@@ -22,7 +22,6 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 
 class NfseEntradasTable
 {
@@ -31,7 +30,7 @@ class NfseEntradasTable
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 return $query->distinct()
-                    ->where('tomador_cnpj', Auth::user()->currentIssuer->cnpj);
+                    ->where('tomador_cnpj', currentIssuer()->cnpj);
             })
             ->defaultSort('data_emissao', 'desc')
             ->columns([
@@ -81,7 +80,7 @@ class NfseEntradasTable
                     ->alignCenter()
                     ->emptyText('')
                     ->showTagCode(function () {
-                        $issuerId = Auth::user()->currentIssuer->id;
+                        $issuerId = currentIssuer()->id;
 
                         return GeneralSetting::getValue(
                             name: 'configuracoes_gerais',

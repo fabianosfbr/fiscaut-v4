@@ -5,7 +5,6 @@ namespace App\Filament\Pages\Relatorio;
 use App\Filament\Widgets\StatisticData;
 use App\Models\Issuer;
 use Filament\Pages\Page;
-use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 class EntradaVsImposto extends Page
@@ -26,7 +25,7 @@ class EntradaVsImposto extends Page
 
     public function mount(): void
     {
-        $this->issuer = Auth::user()?->currentIssuer;
+        $this->issuer = currentIssuer();
         $this->generateData($this->issuer);
     }
 

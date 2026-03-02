@@ -10,7 +10,6 @@ use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Auth;
 
 class ParametroGeralForm
 {
@@ -46,7 +45,7 @@ class ParametroGeralForm
                             ->label('Cód. Histórico')
                             ->required()
                             ->options(function () {
-                                $values = HistoricoContabil::where('issuer_id', Auth::user()->currentIssuer->id)
+                                $values = HistoricoContabil::where('issuer_id', currentIssuer()->id)
                                     ->orderBy('codigo', 'asc')
                                     ->get()
                                     ->map(function ($item) {

@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Fornecedors\Pages;
 
 use App\Filament\Resources\Fornecedors\FornecedorResource;
 use Filament\Resources\Pages\CreateRecord;
-use Illuminate\Support\Facades\Auth;
 
 class CreateFornecedor extends CreateRecord
 {
@@ -12,7 +11,7 @@ class CreateFornecedor extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['issuer_id'] = Auth::user()->currentIssuer->id;
+        $data['issuer_id'] = currentIssuer()->id;
 
         return $data;
     }

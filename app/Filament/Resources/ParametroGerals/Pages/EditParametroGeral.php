@@ -6,7 +6,6 @@ use App\Filament\Resources\ParametroGerals\ParametroGeralResource;
 use App\Models\HistoricoContabil;
 use App\Models\PlanoDeConta;
 use Filament\Resources\Pages\EditRecord;
-use Illuminate\Support\Facades\Auth;
 
 class EditParametroGeral extends EditRecord
 {
@@ -29,7 +28,7 @@ class EditParametroGeral extends EditRecord
 
     public function mutateFormDataBeforeSave(array $data): array
     {
-        $issuerId = Auth::user()->currentIssuer->id;
+        $issuerId = currentIssuer()->id;
 
         $conta_contabil = PlanoDeConta::where('codigo', $data['conta_contabil'])->where('issuer_id', $issuerId)->first();
 

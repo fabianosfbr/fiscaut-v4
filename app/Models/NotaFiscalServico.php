@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Models\Traits\HasTags;
 use App\Services\Xml\XmlReaderService;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 use Throwable;
 
 class NotaFiscalServico extends Model
@@ -55,7 +54,7 @@ class NotaFiscalServico extends Model
 
     public function apurada()
     {
-        return $this->hasOne(NfseApurada::class, 'nfse_id')->where('issuer_id', Auth::user()->currentIssuer->id);
+        return $this->hasOne(NfseApurada::class, 'nfse_id')->where('issuer_id', currentIssuer()->id);
     }
 
     public function isApuradaParaEmpresa(Issuer $issuer): bool

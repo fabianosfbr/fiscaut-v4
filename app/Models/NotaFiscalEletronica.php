@@ -7,7 +7,6 @@ use App\Enums\StatusNfeEnum;
 use App\Models\Traits\HasTags;
 use App\Services\Xml\XmlReaderService;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 
 class NotaFiscalEletronica extends Model
@@ -38,7 +37,7 @@ class NotaFiscalEletronica extends Model
 
     public function apurada()
     {
-        return $this->hasOne(NfeApurada::class, 'nfe_id')->where('issuer_id', Auth::user()->currentIssuer->id);
+        return $this->hasOne(NfeApurada::class, 'nfe_id')->where('issuer_id', currentIssuer()->id);
     }
 
     public function isApuradaParaEmpresa(Issuer $issuer): bool
@@ -82,7 +81,7 @@ class NotaFiscalEletronica extends Model
 
     public function scopeEntradasTerceiros($query, $issuer = null)
     {
-        $issuer = $issuer ?? Auth::user()->currentIssuer;
+        $issuer = $issuer ?? currentIssuer();
 
         return $query->where('destinatario_cnpj', $issuer->cnpj)
             ->where('emitente_cnpj', '<>', $issuer->cnpj)
@@ -91,7 +90,7 @@ class NotaFiscalEletronica extends Model
 
     public function scopeEntradasProprias($query, $issuer = null)
     {
-        $issuer = $issuer ?? Auth::user()->currentIssuer;
+        $issuer = $issuer ?? currentIssuer();
 
         return $query->where('emitente_cnpj', $issuer->cnpj)
             ->where('tpNf', '0');
@@ -99,7 +98,7 @@ class NotaFiscalEletronica extends Model
 
     public function scopeEntradasPropriasTerceiros($query, $issuer = null)
     {
-        $issuer = $issuer ?? Auth::user()->currentIssuer;
+        $issuer = $issuer ?? currentIssuer();
 
         return $query->where('destinatario_cnpj', $issuer->cnpj)
             ->where('emitente_cnpj', '<>', $issuer->cnpj)

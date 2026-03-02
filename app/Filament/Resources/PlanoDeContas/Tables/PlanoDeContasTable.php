@@ -9,7 +9,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 
 class PlanoDeContasTable
 {
@@ -17,7 +16,7 @@ class PlanoDeContasTable
     {
         return $table
             ->modifyQueryUsing(function ($query) {
-                $query->where('issuer_id', Auth::user()->currentIssuer->id);
+                $query->where('issuer_id', currentIssuer()->id);
             })
             ->recordUrl(null)
             ->defaultSort('classificacao', 'asc')

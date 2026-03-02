@@ -17,7 +17,7 @@ class GerarEtiquetaAction
             ->label('Gerar Etiquetas')
             ->requiresConfirmation()
             ->modalDescription('Esta ação irá gerar as etiquetas padrão para a empresa atual. Deseja continuar?')
-            ->visible(fn () => Auth::user()->currentIssuer->categoryTags()->count() === 0)
+            ->visible(fn () => currentIssuer()->categoryTags()->count() === 0)
             ->action(function () {
 
                 $categoryData = config('tags.default');
@@ -28,7 +28,7 @@ class GerarEtiquetaAction
                     $category->order = $cat['order'];
                     $category->name = $cat['name'];
                     $category->color = $cat['color'];
-                    $category->issuer_id = Auth::user()->currentIssuer->id;
+                    $category->issuer_id = currentIssuer()->id;
                     $category->tenant_id = Auth::user()->tenant_id;
 
                     $category->saveQuietly();
@@ -45,7 +45,7 @@ class GerarEtiquetaAction
                     }
                 }
 
-                $issuerId = Auth::user()->currentIssuer->id;
+                $issuerId = currentIssuer()->id;
                 Cache::forget("category_tag_{$issuerId}_all");
 
                 Notification::make()

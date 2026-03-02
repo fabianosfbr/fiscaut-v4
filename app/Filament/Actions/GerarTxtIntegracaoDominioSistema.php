@@ -15,7 +15,6 @@ use App\Models\Issuer;
 use App\Models\NotaFiscalEletronica;
 use Filament\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
 
 class GerarTxtIntegracaoDominioSistema
 {
@@ -33,7 +32,7 @@ class GerarTxtIntegracaoDominioSistema
             ->modalSubmitActionLabel('Sim, gerar arquivo')
             ->action(function (Collection $records) {
 
-                $issuer = Auth::user()->currentIssuer;
+                $issuer = currentIssuer();
                 $inscricaoEmpresa = $issuer->cnpj;
 
                 $service = new DominioSistemasService;

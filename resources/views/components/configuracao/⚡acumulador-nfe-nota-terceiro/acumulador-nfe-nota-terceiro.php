@@ -12,7 +12,6 @@ use Filament\Notifications\Notification;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
@@ -37,7 +36,7 @@ new class extends Component implements HasActions, HasSchemas
 
     protected function loadCurrentSettings(): void
     {
-        $currentIssuer = Auth::user()->currentIssuer;
+        $currentIssuer = currentIssuer();
 
         if (! $currentIssuer) {
             $this->form->fill([]);
@@ -95,7 +94,7 @@ new class extends Component implements HasActions, HasSchemas
                             ->columnSpan(5)
                             ->multiple(false)
                             ->options(function () {
-                                $issuer = Auth::user()->currentIssuer;
+                                $issuer = currentIssuer();
                                 if (! $issuer) {
                                     return \Illuminate\Database\Eloquent\Collection::make();
                                 }
@@ -122,7 +121,7 @@ new class extends Component implements HasActions, HasSchemas
                         SelectTagGrouped::make('valores')
                             ->label('Etiqueta')
                             ->multiple(true)
-                            ->options(CategoryTag::getAllEnabled(Auth::user()->currentIssuer->id))
+                            ->options(CategoryTag::getAllEnabled(currentIssuer()->id))
                             ->columnSpan(5),
 
                         TagsInput::make('cfops')
@@ -156,7 +155,7 @@ new class extends Component implements HasActions, HasSchemas
 
         try {
             $this->isLoading = true;
-            $currentIssuer = Auth::user()->currentIssuer;
+            $currentIssuer = currentIssuer();
 
             if (! $currentIssuer) {
                 throw new \Exception('Nenhum emissor selecionado.');

@@ -27,7 +27,6 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 class NfeSaidasTable
@@ -36,7 +35,7 @@ class NfeSaidasTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                $issuer = Auth::user()->currentIssuer;
+                $issuer = currentIssuer();
 
                 return $query->where('emitente_cnpj', $issuer->cnpj);
             })
@@ -224,7 +223,7 @@ class NfeSaidasTable
                             return $query;
                         }
 
-                        $issuer = Auth::user()->currentIssuer;
+                        $issuer = currentIssuer();
 
                         return $data['value']
                             ? $query->whereHas('apuracoes', function ($query) use ($issuer) {
@@ -269,7 +268,7 @@ class NfeSaidasTable
                     DownloadXmlPdfNfeEmLoteAction::make(),
                     ClassificarDocumentoEmLoteAction::make()
                         ->after(function () {
-                            Cache::forget('tags_used_in_nfe_'.Auth::user()->currentIssuer->id);
+                            Cache::forget('tags_used_in_nfe_'.currentIssuer()->id);
 
                             Notification::make()
                                 ->title('Etiquetas aplicadas com sucesso')

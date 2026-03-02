@@ -10,7 +10,7 @@
 
 
                     <x-filament::button type="submit" icon="heroicon-m-check" wire:loading.attr="disabled"
-                        wire:target="save" :disabled="!Auth::user()->currentIssuer || $isLoading" color="{{ $hasChanges ? 'primary' : 'success' }}">
+                        wire:target="save" :disabled="!currentIssuer() || $isLoading" color="{{ $hasChanges ? 'primary' : 'success' }}">
 
                         <span wire:loading.remove wire:target="save">
                             {{ $hasChanges ? 'Salvar Configurações' : 'Salvo' }}

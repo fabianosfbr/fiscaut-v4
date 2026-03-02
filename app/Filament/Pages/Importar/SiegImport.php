@@ -147,7 +147,7 @@ class SiegImport extends Page
 
         try {
             // Validar se o emissor atual está configurado
-            if (! Auth::user()->currentIssuer) {
+            if (! currentIssuer()) {
                 Notification::make()
                     ->title('Erro')
                     ->body('Empresa atual não configurada. Por favor, selecione uma empresa.')
@@ -158,14 +158,15 @@ class SiegImport extends Page
             }
 
             $user = Auth::user();
-            $importJob = $this->createImportJob($user->currentIssuer, $user);
+            $issuer = currentIssuer($user);
+            $importJob = $this->createImportJob($issuer, $user);
             // Dispatch o job para processar a conexão com a API SIEG de forma assíncrona
             SiegConnect::dispatch(
                 (int) $data['tipoDocumento'],
                 $this->tipoCnpj,
                 $data['dataInicial'],
                 $data['dataFinal'],
-                $user->currentIssuer->id,
+                $issuer->id,
                 $importJob->id,
             );
 

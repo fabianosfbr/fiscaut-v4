@@ -6,7 +6,6 @@ use App\Filament\Resources\ParametroGerals\ParametroGeralResource;
 use App\Models\HistoricoContabil;
 use App\Models\PlanoDeConta;
 use Filament\Resources\Pages\CreateRecord;
-use Illuminate\Support\Facades\Auth;
 
 class CreateParametroGeral extends CreateRecord
 {
@@ -14,7 +13,7 @@ class CreateParametroGeral extends CreateRecord
 
     public function mutateFormDataBeforeCreate(array $data): array
     {
-        $issuerId = Auth::user()->currentIssuer->id;
+        $issuerId = currentIssuer()->id;
         $conta_contabil = PlanoDeConta::where('codigo', $data['conta_contabil'])->where('issuer_id', $issuerId)->first();
 
         $historico = HistoricoContabil::where('codigo', $data['codigo_historico'])->where('issuer_id', $issuerId)->first();

@@ -10,7 +10,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 
 class ManifestarNfeAction
 {
@@ -58,7 +57,7 @@ class ManifestarNfeAction
                 }
                 $justificativa = array_key_exists('justificativa', $data) ? $data['justificativa'] : '';
 
-                $issuer = Auth::user()->currentIssuer;
+                $issuer = currentIssuer();
                 $service = new SefazNfeDownloadService($issuer);
 
                 $manifestado = $service->sefazManifesta($record->chave, $data['status_manifestacao'], $justificativa);

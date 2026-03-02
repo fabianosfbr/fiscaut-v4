@@ -5,7 +5,6 @@ namespace App\Filament\Resources\LogSefazCteContents\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Auth;
 
 class LogSefazCteContentsTable
 {
@@ -13,7 +12,7 @@ class LogSefazCteContentsTable
     {
         return $table
             ->recordUrl(null)
-            ->modifyQueryUsing(fn ($query) => $query->where('issuer_id', Auth::user()->currentIssuer->id))
+            ->modifyQueryUsing(fn ($query) => $query->where('issuer_id', currentIssuer()->id))
             ->columns([
                 TextColumn::make('nsu')
                     ->label('NSU')

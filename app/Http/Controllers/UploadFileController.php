@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\UploadFile;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -13,7 +12,7 @@ class UploadFileController extends Controller
     {
 
         $file = UploadFile::whereId($id)
-            ->where('issuer_id', Auth::user()?->currentIssuer?->id)
+            ->where('issuer_id', currentIssuer()?->id)
             ->firstOrFail();
 
         $fileContent = Storage::get($file->path);

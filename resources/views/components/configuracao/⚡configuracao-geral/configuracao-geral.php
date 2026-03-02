@@ -38,7 +38,7 @@ new class extends Component implements HasSchemas
 
     protected function loadCurrentSettings(): void
     {
-        $currentIssuer = Auth::user()->currentIssuer;
+        $currentIssuer = currentIssuer();
 
         if (! $currentIssuer) {
             $this->form->fill([]);
@@ -107,7 +107,7 @@ new class extends Component implements HasSchemas
                                 SelectTagGrouped::make('tagsCreditoIcms')
                                     ->label('Notas com as etiquetas abaixo serão consideradas como credito de ICMS')
                                     ->multiple(true)
-                                    ->options(CategoryTag::getAllEnabled(Auth::user()->currentIssuer->id))
+                                    ->options(CategoryTag::getAllEnabled(currentIssuer()->id))
                                     ->required(function ($get) {
 
                                         return $get('isNfeTomaCreditoIcms');
@@ -138,7 +138,7 @@ new class extends Component implements HasSchemas
      */
     public function save(): void
     {
-        $currentIssuer = Auth::user()->currentIssuer;
+        $currentIssuer = currentIssuer();
 
         if (! $currentIssuer) {
             Notification::make()

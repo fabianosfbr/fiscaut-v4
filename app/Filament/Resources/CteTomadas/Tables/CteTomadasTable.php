@@ -28,7 +28,6 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
 
 class CteTomadasTable
 {
@@ -38,7 +37,7 @@ class CteTomadasTable
             ->recordUrl(null)
             ->defaultSort('data_emissao', 'desc')
             ->modifyQueryUsing(function (Builder $query) {
-                $issuer = Auth::user()->currentIssuer;
+                $issuer = currentIssuer();
                 $query->with('tagged')
                     ->with('apurada')
                     ->where('ctes.tomador_cnpj', $issuer->cnpj)
@@ -114,7 +113,7 @@ class CteTomadasTable
                     ->alignCenter()
                     ->emptyText('')
                     ->showTagCode(function () {
-                        $issuerId = Auth::user()->currentIssuer->id;
+                        $issuerId = currentIssuer()->id;
 
                         return GeneralSetting::getValue(
                             name: 'configuracoes_gerais',

@@ -11,7 +11,6 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Auth;
 
 class LayoutRuleSchema
 {
@@ -207,7 +206,7 @@ class LayoutRuleSchema
                     ->required()
                     ->options(function () {
 
-                        $values = HistoricoContabil::where('issuer_id', Auth::user()->currentIssuer->id)
+                        $values = HistoricoContabil::where('issuer_id', currentIssuer()->id)
                             ->orderBy('codigo', 'asc')
                             ->get()
                             ->map(function ($item) {

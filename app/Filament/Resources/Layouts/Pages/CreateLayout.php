@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Layouts\Pages;
 
 use App\Filament\Resources\Layouts\LayoutResource;
 use Filament\Resources\Pages\CreateRecord;
-use Illuminate\Support\Facades\Auth;
 
 class CreateLayout extends CreateRecord
 {
@@ -12,7 +11,7 @@ class CreateLayout extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['issuer_id'] = Auth::user()->currentIssuer->id;
+        $data['issuer_id'] = currentIssuer()->id;
 
         return $data;
     }

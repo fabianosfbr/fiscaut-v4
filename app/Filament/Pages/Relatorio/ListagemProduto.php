@@ -15,7 +15,6 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use UnitEnum;
 
@@ -46,7 +45,7 @@ class ListagemProduto extends Page implements HasActions, HasSchemas, HasTable
                 int $page,
                 int|string $recordsPerPage,
             ): LengthAwarePaginator {
-                $issuer = Auth::user()->currentIssuer;
+                $issuer = currentIssuer();
 
                 $accumulator = [];
 

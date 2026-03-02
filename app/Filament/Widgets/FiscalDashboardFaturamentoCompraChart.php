@@ -3,7 +3,6 @@
 namespace App\Filament\Widgets;
 
 use Filament\Widgets\ChartWidget;
-use Illuminate\Support\Facades\Auth;
 
 class FiscalDashboardFaturamentoCompraChart extends ChartWidget
 {
@@ -13,7 +12,7 @@ class FiscalDashboardFaturamentoCompraChart extends ChartWidget
 
     protected function getData(): array
     {
-        $issuer = Auth::user()->currentIssuer;
+        $issuer = currentIssuer();
         $data = StatisticData::faturamentoMensal($issuer);
 
         $data = array_reverse($data);

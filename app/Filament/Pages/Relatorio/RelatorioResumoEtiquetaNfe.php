@@ -18,7 +18,6 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
 use UnitEnum;
 
@@ -43,7 +42,7 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
         return $table
             ->recordUrl(null)
             ->query(function () {
-                $issuer = Auth::user()->currentIssuer;
+                $issuer = currentIssuer();
 
                 return NfeTagAgregadorView::query()
                     ->where('issuer_id', $issuer->id)

@@ -7,7 +7,6 @@ use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 
 class ListCteTomadas extends ListRecords
 {
@@ -30,7 +29,7 @@ class ListCteTomadas extends ListRecords
 
     public function getTabs(): array
     {
-        $issuer = Auth::user()->currentIssuer;
+        $issuer = currentIssuer();
 
         return [
             'entrada' => Tab::make()

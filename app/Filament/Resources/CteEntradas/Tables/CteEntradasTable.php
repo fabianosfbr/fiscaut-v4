@@ -17,7 +17,6 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 
 class CteEntradasTable
 {
@@ -27,7 +26,7 @@ class CteEntradasTable
             ->recordUrl(null)
             ->defaultSort('data_emissao', 'desc')
             ->modifyQueryUsing(function (Builder $query) {
-                $issuer = Auth::user()->currentIssuer;
+                $issuer = currentIssuer();
                 $query->where('destinatario_cnpj', $issuer->cnpj);
             })
             ->columns([

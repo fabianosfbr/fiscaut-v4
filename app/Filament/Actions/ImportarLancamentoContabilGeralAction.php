@@ -29,7 +29,7 @@ class ImportarLancamentoContabilGeralAction
             ->modalSubmitActionLabel('Sim, importar arquivo')
             ->before(function () {
                 $user = Auth::user();
-                ImportarLancamentoContabil::where('issuer_id', $user->currentIssuer->id)
+                ImportarLancamentoContabil::where('issuer_id', currentIssuer($user)->id)
                     ->where('user_id', $user->id)
                     ->where('metadata->type', 'geral')
                     ->delete();
@@ -109,7 +109,7 @@ class ImportarLancamentoContabilGeralAction
                     ->required()
                     ->default(1)
                     ->options(function () {
-                        return Layout::where('issuer_id', Auth::user()->currentIssuer->id)->pluck('name', 'id');
+                        return Layout::where('issuer_id', currentIssuer()->id)->pluck('name', 'id');
                     }),
 
                 FileUpload::make('excel_file')

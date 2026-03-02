@@ -52,7 +52,7 @@ class GerarArquivoTxtLancamentoContabilGeral
                             ->required()
                             ->options(function () {
 
-                                $values = HistoricoContabil::where('issuer_id', Auth::user()->currentIssuer->id)
+                                $values = HistoricoContabil::where('issuer_id', currentIssuer()->id)
                                     ->orderBy('codigo', 'asc')
                                     ->get()
                                     ->map(function ($item) {
@@ -71,7 +71,8 @@ class GerarArquivoTxtLancamentoContabilGeral
             ])
             ->action(function (array $data, $action) {
                 $user = Auth::user();
-                $lancamentos = ImportarLancamentoContabil::where('issuer_id', $user->currentIssuer->id)
+                $issuerId = currentIssuer($user)->id;
+                $lancamentos = ImportarLancamentoContabil::where('issuer_id', $issuerId)
                     ->where('user_id', $user->id)
                     ->where('valor', '!=', 0)
                     ->when($data['is_exist'], fn ($query) => $query->where('is_exist', $data['is_exist'])) // Aplica o filtro apenas se is_exist for true
@@ -92,7 +93,7 @@ class GerarArquivoTxtLancamentoContabilGeral
                 $filename = now()->format('m-Y').'/'.Str::random(8).'.txt';
 
                 if (isset($data['conta_contabil'])) {
-                    $conta_contabil = PlanoDeConta::where('issuer_id', $user->currentIssuer->id)
+                    $conta_contabil = PlanoDeConta::where('issuer_id', $issuerId)
                         ->where('codigo', $data['conta_contabil'])->first();
 
                     $data['descricao_conta_contabil'] = $conta_contabil?->nome;
@@ -111,7 +112,7 @@ class GerarArquivoTxtLancamentoContabilGeral
                     ->send();
 
                 if ($data['limpar_lancamentos']) {
-                    ImportarLancamentoContabil::where('issuer_id', $user->currentIssuer->id)
+                    ImportarLancamentoContabil::where('issuer_id', $issuerId)
                         ->where('user_id', $user->id)
                         ->delete();
                 }

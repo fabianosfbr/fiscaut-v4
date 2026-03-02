@@ -5,7 +5,6 @@ namespace App\Filament\Resources\ParametroSuperLogicas\Pages;
 use App\Filament\Resources\ParametroSuperLogicas\ParametroSuperLogicaResource;
 use App\Models\PlanoDeConta;
 use Filament\Resources\Pages\EditRecord;
-use Illuminate\Support\Facades\Auth;
 
 class EditParametroSuperLogica extends EditRecord
 {
@@ -18,7 +17,7 @@ class EditParametroSuperLogica extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        $issuerId = Auth::user()->currentIssuer->id;
+        $issuerId = currentIssuer()->id;
         $data['issuer_id'] = $issuerId;
         $data['conta_credito'] = PlanoDeConta::where('issuer_id', $issuerId)
             ->where('codigo', $data['conta_credito'])

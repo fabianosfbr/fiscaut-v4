@@ -12,7 +12,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 class ListagemFornecedor extends Page implements HasActions, HasSchemas, HasTable
@@ -36,7 +35,7 @@ class ListagemFornecedor extends Page implements HasActions, HasSchemas, HasTabl
         return $table
             ->recordUrl(null)
             ->query(function () {
-                $issuer = Auth::user()->currentIssuer;
+                $issuer = currentIssuer();
                 $baseQuery = NotaFiscalEletronica::query()
                     ->selectRaw('MIN(id) as id')
                     ->selectRaw('SUM(vNfe) as total')

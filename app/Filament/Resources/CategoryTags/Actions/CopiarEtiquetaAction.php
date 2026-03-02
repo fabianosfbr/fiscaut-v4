@@ -22,7 +22,7 @@ class CopiarEtiquetaAction
             ->label('Copiar Etiquetas')
             ->modalWidth(Width::Large)
             ->icon('heroicon-o-clipboard-document-list')
-            ->visible(fn () => Auth::user()->currentIssuer->categoryTags()->count() === 0)
+            ->visible(fn () => currentIssuer()->categoryTags()->count() === 0)
             ->modalSubmitActionLabel('Sim, copiar etiquetas')
             ->modalCancelActionLabel('Cancelar')
             ->modalHeading('Copiar Etiquetas de Outra Empresa')
@@ -40,7 +40,7 @@ class CopiarEtiquetaAction
             Select::make('issuer_id')
                 ->label('Selecionar Empresa')
                 ->options(function () {
-                    return Issuer::where('id', '!=', Auth::user()->currentIssuer->id)
+                    return Issuer::where('id', '!=', currentIssuer()->id)
                         ->where('tenant_id', Auth::user()->tenant_id)
                         ->pluck('razao_social', 'id')
                         ->toArray();
@@ -54,7 +54,7 @@ class CopiarEtiquetaAction
 
     protected static function getModalDescription()
     {
-        $razao_social = explode(':', Auth::user()->currentIssuer->razao_social)[0];
+        $razao_social = explode(':', currentIssuer()->razao_social)[0];
         $message = 'Este processo irá remover todas as etiquetas da <b>'.$razao_social.'</b> e novas etiquetas serão criadas. ';
         $message .= '<br/><br/>Cuidado! Esta ação não poderá ser desfeita. ';
 
@@ -63,7 +63,7 @@ class CopiarEtiquetaAction
 
     protected static function executeCopyTags(array $data)
     {
-        $currentCategorys = CategoryTag::with('tags')->where('issuer_id', Auth::user()->currentIssuer->id)->get();
+        $currentCategorys = CategoryTag::with('tags')->where('issuer_id', currentIssuer()->id)->get();
 
         foreach ($currentCategorys as $key => $category) {
             $category->tags()->delete();
@@ -99,7 +99,7 @@ class CopiarEtiquetaAction
             }
         }
 
-        $issuerId = Auth::user()->currentIssuer->id;
+        $issuerId = currentIssuer()->id;
         Cache::forget("category_tag_{$issuerId}_all");
 
         Notification::make()

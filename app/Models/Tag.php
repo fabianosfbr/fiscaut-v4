@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 class Tag extends Model
@@ -28,11 +27,13 @@ class Tag extends Model
 
     public static function getTagsUsedInUploadFile(): array
     {
-        if (! Auth::check() || ! Auth::user()->currentIssuer) {
+        $issuer = currentIssuer();
+
+        if (! $issuer) {
             return [];
         }
 
-        $issuerId = Auth::user()->currentIssuer->id;
+        $issuerId = $issuer->id;
         $cacheKey = 'tags_used_in_upload_file_'.$issuerId;
 
         return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
@@ -57,11 +58,13 @@ class Tag extends Model
 
     public static function getTagsUsedInNfe(): array
     {
-        if (! Auth::check() || ! Auth::user()->currentIssuer) {
+        $issuer = currentIssuer();
+
+        if (! $issuer) {
             return [];
         }
 
-        $issuerId = Auth::user()->currentIssuer->id;
+        $issuerId = $issuer->id;
         $cacheKey = 'tags_used_in_nfe_'.$issuerId;
 
         return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
@@ -86,11 +89,13 @@ class Tag extends Model
 
     public static function getTagsUsedInCte(): array
     {
-        if (! Auth::check() || ! Auth::user()->currentIssuer) {
+        $issuer = currentIssuer();
+
+        if (! $issuer) {
             return [];
         }
 
-        $issuerId = Auth::user()->currentIssuer->id;
+        $issuerId = $issuer->id;
         $cacheKey = 'tags_used_in_cte_'.$issuerId;
 
         return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {

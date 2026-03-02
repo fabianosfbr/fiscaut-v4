@@ -5,7 +5,6 @@ namespace App\Filament\Resources\ParametroSuperLogicas\Pages;
 use App\Filament\Resources\ParametroSuperLogicas\ParametroSuperLogicaResource;
 use App\Models\PlanoDeConta;
 use Filament\Resources\Pages\CreateRecord;
-use Illuminate\Support\Facades\Auth;
 
 class CreateParametroSuperLogica extends CreateRecord
 {
@@ -14,7 +13,7 @@ class CreateParametroSuperLogica extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
 
-        $issuerId = Auth::user()->currentIssuer->id;
+        $issuerId = currentIssuer()->id;
         $data['issuer_id'] = $issuerId;
         $data['conta_credito'] = PlanoDeConta::where('issuer_id', $issuerId)
             ->where('codigo', $data['conta_credito'])
