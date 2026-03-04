@@ -4,6 +4,7 @@ namespace App\Filament\Resources\NfseEntradas\Tables;
 
 use App\Filament\Actions\ClassificarDocumentoAction;
 use App\Filament\Actions\ClassificarDocumentoEmLoteAction;
+use App\Filament\Actions\DownloadPdfNfseAction;
 use App\Filament\Actions\RemoverClassificaoNfeAction;
 use App\Filament\Actions\ToggleEscrituacaoEmLoteAction;
 use App\Filament\Actions\ToggleEscrituracaoAction;
@@ -193,6 +194,7 @@ class NfseEntradasTable
                 ActionGroup::make([
                     ViewAction::make()
                         ->label('Detalhes'),
+                    DownloadPdfNfseAction::make(),
                     ToggleEscrituracaoAction::make(),
                     ClassificarDocumentoAction::make(),
                     RemoverClassificaoNfeAction::make(),
