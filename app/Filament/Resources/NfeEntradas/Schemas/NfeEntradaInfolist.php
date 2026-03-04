@@ -47,12 +47,12 @@ class NfeEntradaInfolist
                                     ]),
 
                                 Section::make('Etiquetas')
-                                    ->hidden(fn ($record) => empty($record->tagNamesWithCodeAndValue()))
+                                    ->hidden(fn($record) => empty($record->tagNamesWithCodeAndValue()))
                                     ->schema([
                                         TextEntry::make('tags')
                                             ->hiddenLabel()
                                             ->live()
-                                            ->state(fn ($record) => collect($record->tagNamesWithCodeAndValue())->map(fn ($tag) => "<li>{$tag}</li>")->implode(''))
+                                            ->state(fn($record) => collect($record->tagNamesWithCodeAndValue())->map(fn($tag) => "<li>{$tag}</li>")->implode(''))
                                             ->columnSpanFull()
                                             ->html(),
                                     ]),
@@ -69,7 +69,7 @@ class NfeEntradaInfolist
 
                                                 TextEntry::make('apurada.status')
                                                     ->label('Apurada')
-                                                    ->state(fn ($record) => $record->apurada?->status ? 'Sim' : 'Não')
+                                                    ->state(fn($record) => $record->apurada?->status ? 'Sim' : 'Não')
                                                     ->badge()
                                                     ->columnSpan(1),
 
@@ -98,7 +98,7 @@ class NfeEntradaInfolist
 
                                                 TextEntry::make('emitente_cnpj')
                                                     ->label('CNPJ Emitente')
-                                                    ->formatStateUsing(fn (string $state): string => formatar_cnpj_cpf($state)),
+                                                    ->formatStateUsing(fn(string $state): string => formatar_cnpj_cpf($state)),
 
                                                 TextEntry::make('vNfe')
                                                     ->label('Valor')
@@ -124,7 +124,7 @@ class NfeEntradaInfolist
                                                     ->label('Razão Social'),
                                                 TextEntry::make('destinatario_cnpj')
                                                     ->label('CNPJ')
-                                                    ->formatStateUsing(fn (string $state): string => formatar_cnpj_cpf($state)),
+                                                    ->formatStateUsing(fn(string $state): string => formatar_cnpj_cpf($state)),
                                                 TextEntry::make('destinatario_fone')
                                                     ->label('Telefone contato'),
                                                 TextEntry::make('endereco_destinatario_completo')
@@ -215,10 +215,34 @@ class NfeEntradaInfolist
                                         TextEntry::make('vICMSUFDest')
                                             ->label('Total DIFAL')
                                             ->money('BRL')
-                                            ->visible(fn ($record) => $record->vICMSUFDest > 0)
+                                            ->visible(fn($record) => $record->vICMSUFDest > 0)
                                             ->weight('bold'),
                                         DifalEntry::make('difals')
                                             ->hiddenLabel(),
+
+                                    ]),
+                            ]),
+
+                        Tabs\Tab::make('XML da Nota')
+                            ->id('xml-da-nota')
+                            ->schema([
+                                Section::make()                                    
+                                    ->schema([
+                                        TextEntry::make('xml_extraido')
+                                            ->hiddenLabel()
+                                            ->copyable()
+                                            ->state(function ($record): ?string {
+                                                $xml = gzuncompress($record->xml);
+
+                                                if (! is_string($xml) || trim($xml) === '') {
+                                                    return null;
+                                                }
+                                                return '<div style="max-width: 100%; min-width: 0; overflow-x: auto;"><pre style="white-space: pre-wrap; word-break: break-all; overflow-wrap: anywhere; max-width: 100%; box-sizing: border-box; margin: 0; line-height: 1.15;">'.prettyPrintXmlToBrowser($xml).'</pre></div>';
+                                            })
+                                            ->html()
+                                            ->placeholder('Não informado')
+                                            ->copyable()
+                                            ->columnSpanFull(),
 
                                     ]),
                             ]),

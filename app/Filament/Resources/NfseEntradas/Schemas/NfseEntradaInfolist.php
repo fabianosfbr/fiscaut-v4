@@ -375,7 +375,7 @@ class NfseEntradaInfolist
                                                     return null;
                                                 }
 
-                                                return '<pre style="white-space: pre-wrap; word-break: break-word;">'.prettyPrintXmlToBrowser($xml).'</pre>';
+                                                return '<div style="max-width: 100%; min-width: 0; overflow-x: auto;"><pre style="white-space: pre-wrap; word-break: break-all; overflow-wrap: anywhere; max-width: 100%; box-sizing: border-box; margin: 0; line-height: 1.15;">'.prettyPrintXmlToBrowser($xml).'</pre></div>';
                                             })
                                             ->html()
                                             ->placeholder('Não informado')

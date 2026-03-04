@@ -224,6 +224,7 @@ if (! function_exists('prettyPrintXmlToBrowser')) {
         $domXml->formatOutput = true;
         $domXml->loadXML($xml->asXML());
         $xmlString = $domXml->saveXML();
-        echo nl2br(str_replace(' ', '&nbsp;', htmlspecialchars($xmlString)));
+
+        return htmlspecialchars($xmlString);
     }
 }
