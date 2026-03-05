@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace App\Neuron\Agents;
+
 
 use NeuronAI\Agent\Agent;
 use NeuronAI\Agent\SystemPrompt;
@@ -11,7 +12,7 @@ use NeuronAI\Providers\OpenAILike;
 use NeuronAI\Tools\ToolInterface;
 use NeuronAI\Tools\Toolkits\ToolkitInterface;
 
-class AppNeuronFiscautAgent extends Agent
+class FiscautAgent extends Agent
 {
     protected function provider(): AIProviderInterface
     {

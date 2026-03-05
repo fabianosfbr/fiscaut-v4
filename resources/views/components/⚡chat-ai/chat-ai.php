@@ -1,6 +1,7 @@
 <?php
 
-use App\AppNeuronFiscautAgent;
+
+use App\Neuron\Agents\FiscautAgent;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use NeuronAI\Chat\History\EloquentChatHistory;
@@ -88,7 +89,7 @@ new class extends Component
                 modelClass: ChatMessage::class,
             );
 
-            $agent = new AppNeuronFiscautAgent;
+            $agent = new FiscautAgent;
             $agent->setChatHistory($chatHistory);
 
             $response = $agent->chat(new UserMessage($text))->getMessage()->getContent();
