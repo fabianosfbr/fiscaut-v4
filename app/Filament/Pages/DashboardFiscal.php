@@ -2,7 +2,6 @@
 
 namespace App\Filament\Pages;
 
-use Filament\Pages\Page;
 use Filament\Pages\Dashboard as BaseDashboard;
 
 class DashboardFiscal extends BaseDashboard

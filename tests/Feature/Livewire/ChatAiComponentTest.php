@@ -43,4 +43,3 @@ class ChatAiComponentTest extends TestCase
         $this->assertSame('/erro', $messages[count($messages) - 1]['content'] ?? null);
     }
 }
-

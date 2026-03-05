@@ -46,7 +46,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\Filament\Clusters')
             ->pages([
-                //Dashboard::class,
+                // Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([])
@@ -118,7 +118,7 @@ class AdminPanelProvider extends PanelProvider
                 Action::make('profile')
                     ->label('Meu Perfil')
                     ->icon('heroicon-o-user')
-                    ->url(fn(): string => Profile::getUrl()),
+                    ->url(fn (): string => Profile::getUrl()),
             ])
             ->plugin(
                 \Octopy\Filament\Palette\PaletteSwitcherPlugin::make()

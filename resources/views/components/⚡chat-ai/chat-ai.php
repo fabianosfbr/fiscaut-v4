@@ -26,11 +26,6 @@ new class extends Component
         ];
     }
 
-    public function render()
-    {
-        return view('components.⚡chat-ai.chat-ai');
-    }
-
     public function open(): void
     {
         $this->isOpen = true;

@@ -2,8 +2,8 @@
 
 namespace App\Filament\Actions;
 
-use App\Models\GeneralSetting;
 use App\Models\ConhecimentoTransporteEletronico;
+use App\Models\GeneralSetting;
 use App\Models\NotaFiscalEletronica;
 use App\Models\NotaFiscalServico;
 use App\Services\Tagging\TagSuggestionService;
@@ -20,10 +20,10 @@ class ClassificarDocumentoMaisAplicadaEmLoteAction
     public static function make(): BulkAction
     {
         return BulkAction::make('classificar-mais-aplicada-em-lote')
-            ->label('Classificar por ocorrência')
+            ->label('Classificar Por Ocorrência')
             ->requiresConfirmation()
             ->icon('heroicon-o-tag')
-            ->modalHeading('Classificar por ocorrência')
+            ->modalHeading('Classificar Por Ocorrência')
             ->modalWidth('lg')
             ->modalDescription('Aplica automaticamente, para cada CNPJ emitente, a etiqueta mais utilizada no histórico. Documentos sem histórico serão ignorados.')
             ->closeModalByClickingAway(false)
@@ -145,12 +145,14 @@ class ClassificarDocumentoMaisAplicadaEmLoteAction
                     $cnpj = trim((string) ($cnpj ?? ''));
                     if ($cnpj === '') {
                         $skipped++;
+
                         return;
                     }
 
                     $tagId = $tagIdByCnpj[$cnpj] ?? null;
                     if (! $tagId) {
                         $skipped++;
+
                         return;
                     }
 
@@ -184,6 +186,7 @@ class ClassificarDocumentoMaisAplicadaEmLoteAction
                         ->body("Total selecionado: {$total}. Ignorados: {$skipped}.")
                         ->warning()
                         ->send();
+
                     return;
                 }
 

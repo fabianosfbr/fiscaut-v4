@@ -2,9 +2,9 @@
 
 namespace App\Services\Tagging;
 
+use App\Models\ConhecimentoTransporteEletronico;
 use App\Models\NotaFiscalEletronica;
 use App\Models\NotaFiscalServico;
-use App\Models\ConhecimentoTransporteEletronico;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 

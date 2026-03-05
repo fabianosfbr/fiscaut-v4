@@ -57,7 +57,7 @@ if (! function_exists('currentIssuer')) {
     function currentIssuer(?User $user = null): ?Issuer
     {
         $user ??= Auth::user();
-        
+
         if (! $user) {
             return null;
         }
@@ -68,7 +68,7 @@ if (! function_exists('currentIssuer')) {
             return null;
         }
 
-        if ($user->relationLoaded('currentIssuer')) {            
+        if ($user->relationLoaded('currentIssuer')) {
             return $user->currentIssuer;
         }
 

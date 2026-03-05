@@ -10,10 +10,13 @@ use Rap2hpoutre\FastExcel\FastExcel;
 class OptimizedExcelSuperLogicaImport
 {
     private string $file;
+
     private array $headers = [];
+
     private array $columnMap = [];
 
     private const SECTION_RECEITAS = 'receitas';
+
     private const SECTION_DESPESAS = 'despesas';
 
     public function __construct(string $file)
@@ -27,11 +30,12 @@ class OptimizedExcelSuperLogicaImport
     {
         $rows = (new FastExcel)->withoutHeaders()->import($this->file);
         foreach ($rows as $index => $row) {
-            $norm = array_map(fn($v) => is_string($v) ? $this->normalize($v) : '', $row);
+            $norm = array_map(fn ($v) => is_string($v) ? $this->normalize($v) : '', $row);
             if ($this->isHeaderRow($norm)) {
-                return array_map(fn($v) => is_string($v) ? $v : '', $row);
+                return array_map(fn ($v) => is_string($v) ? $v : '', $row);
             }
         }
+
         return [];
     }
 
@@ -42,6 +46,7 @@ class OptimizedExcelSuperLogicaImport
         $value = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value);
         $value = preg_replace('/\s+/u', ' ', $value);
         $value = str_replace(' ', '_', $value);
+
         return $value;
     }
 
@@ -59,6 +64,7 @@ class OptimizedExcelSuperLogicaImport
                 $leftFound++;
             }
         }
+
         return $rightFound >= 3 || $leftFound >= 4;
     }
 
@@ -66,7 +72,7 @@ class OptimizedExcelSuperLogicaImport
     {
         $normalizedIndex = [];
         foreach ($headers as $pos => $original) {
-            $normalizedIndex[$this->normalize((string)$original)] = $pos;
+            $normalizedIndex[$this->normalize((string) $original)] = $pos;
         }
 
         $targets = [
@@ -171,10 +177,11 @@ class OptimizedExcelSuperLogicaImport
         if (substr_count($s, '.') > 1) {
             $parts = explode('.', $s);
             $decimal = array_pop($parts);
-            $s = implode('', $parts) . '.' . $decimal;
+            $s = implode('', $parts).'.'.$decimal;
         }
 
         $n = is_numeric($s) ? (float) $s : 0.0;
+
         return $negative ? -$n : $n;
     }
 
@@ -235,6 +242,7 @@ class OptimizedExcelSuperLogicaImport
                 }
 
                 $tz = config('app.timezone') ?: null;
+
                 return Carbon::create(1899, 12, 31, 0, 0, 0, $tz)
                     ->addDays($days)
                     ->addSeconds($seconds);
@@ -269,17 +277,18 @@ class OptimizedExcelSuperLogicaImport
         $currentCategory = null;
         $currentSection = null;
         foreach ($collection as $row) {
-            $norm = array_map(fn($v) => is_string($v) ? $this->normalize($v) : '', $row);
+            $norm = array_map(fn ($v) => is_string($v) ? $this->normalize($v) : '', $row);
 
             if ($this->isHeaderRow($norm)) {
                 $started = true;
                 $this->columnMap = $this->detectColumns($row);
                 $currentCategory = null;
                 $currentSection = $this->detectSectionFromHeader($norm) ?? $currentSection;
+
                 continue;
             }
 
-            if (!$started) {
+            if (! $started) {
                 continue;
             }
 
@@ -288,14 +297,14 @@ class OptimizedExcelSuperLogicaImport
             $liquidacaoVal = $this->getString($this->valueByPos($row, 'liquidacao'));
             $creditoLeftVal = $this->getString($this->valueByPos($row, 'credito'));
             $valorLeftVal = $this->getString($this->valueByPos($row, 'valor'));
-            if ($leftTitle && !$competenciaVal && !$liquidacaoVal && !$creditoLeftVal && !$valorLeftVal) {
+            if ($leftTitle && ! $competenciaVal && ! $liquidacaoVal && ! $creditoLeftVal && ! $valorLeftVal) {
                 if (preg_match('/^\\s*total\\b/i', $leftTitle) !== 1) {
                     $title = preg_replace('/\\s*\\([^)]+\\)\\s*$/', '', $leftTitle);
                     $currentCategory = $this->toUpperAscii($title);
                 }
+
                 continue;
             }
-
 
             $item = [
                 'data_credito' => $this->parseDate($this->valueByPos($row, 'data_credito')),
@@ -327,9 +336,9 @@ class OptimizedExcelSuperLogicaImport
                 if ($f === 'valor') {
                     $hasAll = $hasAll && ($v !== 0.0);
                 } else {
-                    $hasAll = $hasAll && !is_null($v) && $v !== '';
+                    $hasAll = $hasAll && ! is_null($v) && $v !== '';
                 }
-                if (!$hasAll) {
+                if (! $hasAll) {
                     break;
                 }
             }
@@ -353,13 +362,12 @@ class OptimizedExcelSuperLogicaImport
         return $result;
     }
 
-    public function prepareData(array $rows,  $issuerId): array
+    public function prepareData(array $rows, $issuerId): array
     {
         $parametros = ParametroSuperLogica::where('issuer_id', $issuerId)
             ->with(['contaCredito', 'contaDebito'])
             ->orderBy('id')
             ->get();
-
 
         $historicos = HistoricoContabil::where('issuer_id', $issuerId)
             ->get()
@@ -368,7 +376,7 @@ class OptimizedExcelSuperLogicaImport
         $cache = [];
         foreach ($parametros as $p) {
             $terms = is_array($p->params) ? $p->params : [];
-            $normTerms = array_values(array_filter(array_map(fn($t) => $this->toUpperAscii((string) $t), $terms), fn($t) => $t !== ''));
+            $normTerms = array_values(array_filter(array_map(fn ($t) => $this->toUpperAscii((string) $t), $terms), fn ($t) => $t !== ''));
 
             foreach ($normTerms as $t) {
                 $cache[$t] = [
@@ -381,8 +389,6 @@ class OptimizedExcelSuperLogicaImport
                 ];
             }
         }
-
-
 
         foreach ($rows as $i => &$row) {
 
@@ -420,7 +426,6 @@ class OptimizedExcelSuperLogicaImport
 
             $historico = $historicos->where('codigo', $codigo)->first();
 
-
             if ($historico) {
                 $template = $historico?->descricao ?? '';
                 if ($template !== '') {
@@ -432,14 +437,13 @@ class OptimizedExcelSuperLogicaImport
         return $rows;
     }
 
-
     private function buildHistoricoFromTemplate(string $template, array $row): string
     {
         $map = [];
         foreach ($row as $key => $value) {
             $token = strtoupper(str_replace('-', '_', $key));
             if (in_array($token, ['LIQUIDACAO', 'CREDITO', 'DATA_CREDITO', 'DATA'], true)) {
-                if (!empty($value)) {
+                if (! empty($value)) {
                     try {
                         $value = Carbon::parse((string) $value)->format('d/m/Y');
                     } catch (\Throwable $e) {
@@ -451,12 +455,14 @@ class OptimizedExcelSuperLogicaImport
 
         return strtr($template, $map);
     }
+
     private function valueByPos(array $row, string $field)
     {
-        if (!array_key_exists($field, $this->columnMap)) {
+        if (! array_key_exists($field, $this->columnMap)) {
             return null;
         }
         $pos = $this->columnMap[$field];
+
         return $row[$pos] ?? null;
     }
 
@@ -466,6 +472,7 @@ class OptimizedExcelSuperLogicaImport
             return null;
         }
         $s = trim((string) $value);
+
         return $s === '' ? null : $s;
     }
 
@@ -474,6 +481,7 @@ class OptimizedExcelSuperLogicaImport
         $s = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value);
         $s = strtoupper($s);
         $s = preg_replace('/\\s+/', ' ', $s);
+
         return trim($s);
     }
 
@@ -485,6 +493,7 @@ class OptimizedExcelSuperLogicaImport
         if (in_array(self::SECTION_DESPESAS, $normalizedHeaderRow, true)) {
             return self::SECTION_DESPESAS;
         }
+
         return null;
     }
 }

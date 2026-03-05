@@ -73,7 +73,6 @@ class AppServiceProvider extends ServiceProvider
             fn (): string => Blade::render('@livewire(\'job-progress-super-logica\')'),
             scopes: \App\Filament\Resources\ImportarLancamentoContabilSuperLogicas\Pages\ListImportarLancamentoContabilSuperLogicas::class,
         );
-
     }
 
     public function formatter(): void

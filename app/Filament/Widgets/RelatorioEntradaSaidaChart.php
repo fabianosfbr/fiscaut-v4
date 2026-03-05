@@ -46,12 +46,12 @@ class RelatorioEntradaSaidaChart extends ChartWidget
         $labels = array_keys($data);
 
         $entradas = array_map(
-            fn(array $value): float => (float) ($value['expense'] ?? 0.0),
+            fn (array $value): float => (float) ($value['expense'] ?? 0.0),
             $data,
         );
 
         $saidas = array_map(
-            fn(array $value): float => (float) ($value['income'] ?? 0.0),
+            fn (array $value): float => (float) ($value['income'] ?? 0.0),
             $data,
         );
 

@@ -74,7 +74,7 @@ class SiegConnect implements ShouldQueue
             $tenant = $issuer->tenant;
 
             if (! isset($tenant->sieg_key)) {
-                throw new Exception('Chave de API SIEG não configurada para o tenant ' . $tenant->name);
+                throw new Exception('Chave de API SIEG não configurada para o tenant '.$tenant->name);
             }
             $cnpj = $issuer->cnpj;
 
@@ -114,7 +114,7 @@ class SiegConnect implements ShouldQueue
                 $response = Http::withHeaders([
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
-                ])->post($this->apiUrl . '?api_key=' . $tenant->sieg_key, $payload);
+                ])->post($this->apiUrl.'?api_key='.$tenant->sieg_key, $payload);
 
                 // Verificar se a requisição foi bem-sucedida
                 if ($response->successful()) {
@@ -171,18 +171,18 @@ class SiegConnect implements ShouldQueue
                 usleep(300000); // 300ms
             } while ($temMaisResultados);
 
-            Log::info('Importação SIEG concluída. Total de documentos: ' . $totalDocumentos);
+            Log::info('Importação SIEG concluída. Total de documentos: '.$totalDocumentos);
         } catch (Exception $e) {
-            Log::error('Erro na importação SIEG: ' . $e->getMessage());
+            Log::error('Erro na importação SIEG: '.$e->getMessage());
 
             if (isset($this->importJob)) {
-                $this->importJob->addError('Erro na importação: ' . $e->getMessage());
+                $this->importJob->addError('Erro na importação: '.$e->getMessage());
                 $this->importJob->updateQuietly(['status' => XmlImportJob::STATUS_FAILED]);
             }
 
             $this->enviarNotificacao(
                 'Erro',
-                'Ocorreu um erro ao processar a requisição: ' . $e->getMessage(),
+                'Ocorreu um erro ao processar a requisição: '.$e->getMessage(),
                 'danger'
             );
         }
@@ -208,7 +208,7 @@ class SiegConnect implements ShouldQueue
         ProcessXmlSiegBatch::dispatch($xmls, $importJob, $issuer);
 
         // Registra no log o início do processamento
-        Log::info('Iniciado processamento em lote de ' . count($xmls) . ' documentos XML do SIEG');
+        Log::info('Iniciado processamento em lote de '.count($xmls).' documentos XML do SIEG');
     }
 
     /**

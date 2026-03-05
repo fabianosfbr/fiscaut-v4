@@ -33,7 +33,7 @@ class RelatorioFaturamentoMensalChart extends ChartWidget
 
         $labels = array_keys($data);
         $faturamento = array_map(
-            fn(array $value): float => (float) ($value['income'] ?? 0.0),
+            fn (array $value): float => (float) ($value['income'] ?? 0.0),
             $data,
         );
 
