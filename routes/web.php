@@ -6,8 +6,8 @@ use App\Http\Controllers\UploadFileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    return redirect(route('filament.app.auth.login'));
+})->name('home.index');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/download/{uuid}', [SecureDownloadController::class, 'download'])
