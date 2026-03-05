@@ -1,12 +1,11 @@
 ---
-type: skill
 name: Commit Message
 description: Generate commit messages following conventional commits with scope detection
-skillSlug: commit-message
 phases: [E, C]
-generated: 2026-01-23
-status: filled
-scaffoldVersion: "2.0.0"
+source_tool: codex
+source_path: .codex/skills/commit-message/SKILL.md
+imported_at: 2026-03-05T10:14:51.979Z
+ai_context_version: 0.7.1
 ---
 
 # Commit Message

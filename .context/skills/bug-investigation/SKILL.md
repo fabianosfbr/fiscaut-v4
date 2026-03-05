@@ -1,12 +1,11 @@
 ---
-type: skill
 name: Bug Investigation
 description: Systematic bug investigation and root cause analysis
-skillSlug: bug-investigation
 phases: [E, V]
-generated: 2026-01-23
-status: filled
-scaffoldVersion: "2.0.0"
+source_tool: codex
+source_path: .codex/skills/bug-investigation/SKILL.md
+imported_at: 2026-03-05T10:14:51.963Z
+ai_context_version: 0.7.1
 ---
 
 # Bug Investigation

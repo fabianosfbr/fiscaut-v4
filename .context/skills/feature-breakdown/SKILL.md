@@ -1,12 +1,11 @@
 ---
-type: skill
 name: Feature Breakdown
 description: Break down features into implementable tasks
-skillSlug: feature-breakdown
 phases: [P]
-generated: 2026-01-23
-status: filled
-scaffoldVersion: "2.0.0"
+source_tool: codex
+source_path: .codex/skills/feature-breakdown/SKILL.md
+imported_at: 2026-03-05T10:14:51.994Z
+ai_context_version: 0.7.1
 ---
 
 # Feature Breakdown

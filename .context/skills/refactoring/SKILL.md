@@ -1,12 +1,11 @@
 ---
-type: skill
 name: Refactoring
 description: Safe code refactoring with step-by-step approach
-skillSlug: refactoring
 phases: [E]
-generated: 2026-01-23
-status: filled
-scaffoldVersion: "2.0.0"
+source_tool: codex
+source_path: .codex/skills/refactoring/SKILL.md
+imported_at: 2026-03-05T10:14:52.008Z
+ai_context_version: 0.7.1
 ---
 
 # Refactoring

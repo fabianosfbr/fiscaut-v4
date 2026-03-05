@@ -1,12 +1,11 @@
 ---
-type: skill
 name: Test Generation
 description: Generate comprehensive test cases for code
-skillSlug: test-generation
 phases: [E, V]
-generated: 2026-01-23
-status: filled
-scaffoldVersion: "2.0.0"
+source_tool: codex
+source_path: .codex/skills/test-generation/SKILL.md
+imported_at: 2026-03-05T10:14:52.027Z
+ai_context_version: 0.7.1
 ---
 
 # Test Generation

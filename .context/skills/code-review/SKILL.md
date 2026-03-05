@@ -1,12 +1,11 @@
 ---
-type: skill
 name: Code Review
 description: Review code quality, patterns, and best practices
-skillSlug: code-review
 phases: [R, V]
-generated: 2026-01-23
-status: filled
-scaffoldVersion: "2.0.0"
+source_tool: codex
+source_path: .codex/skills/code-review/SKILL.md
+imported_at: 2026-03-05T10:14:51.972Z
+ai_context_version: 0.7.1
 ---
 
 # Code Review
