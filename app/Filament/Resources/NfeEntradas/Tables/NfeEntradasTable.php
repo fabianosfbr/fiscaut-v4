@@ -6,6 +6,7 @@ use App\Enums\StatusManifestacaoNfeEnum;
 use App\Enums\StatusNfeEnum;
 use App\Filament\Actions\ClassificarDocumentoAction;
 use App\Filament\Actions\ClassificarDocumentoEmLoteAction;
+use App\Filament\Actions\ClassificarDocumentoMaisAplicadaEmLoteAction;
 use App\Filament\Actions\DownloadPdfNfeAction;
 use App\Filament\Actions\DownloadXmlAction;
 use App\Filament\Actions\DownloadXmlPdfNfeEmLoteAction;
@@ -391,6 +392,7 @@ class NfeEntradasTable
                                 ->success()
                                 ->send();
                         }),
+                    ClassificarDocumentoMaisAplicadaEmLoteAction::make(),
                     GerarTxtIntegracaoDominioSistema::make(),
                 ]),
             ]);

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\CteTomadas\Tables;
 
 use App\Filament\Actions\ClassificarDocumentoAction;
+use App\Filament\Actions\ClassificarDocumentoMaisAplicadaEmLoteAction;
 use App\Filament\Actions\DownloadPdfCteAction;
 use App\Filament\Actions\DownloadXmlAction;
 use App\Filament\Actions\DownloadXmlPdfCteEmLoteAction;
@@ -258,6 +259,7 @@ class CteTomadasTable
                             });
                         }),
                     DownloadXmlPdfCteEmLoteAction::make(),
+                    ClassificarDocumentoMaisAplicadaEmLoteAction::make(),
                 ]),
             ]);
     }

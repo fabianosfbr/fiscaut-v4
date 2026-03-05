@@ -4,6 +4,7 @@ namespace App\Filament\Resources\NfseEntradas\Tables;
 
 use App\Filament\Actions\ClassificarDocumentoAction;
 use App\Filament\Actions\ClassificarDocumentoEmLoteAction;
+use App\Filament\Actions\ClassificarDocumentoMaisAplicadaEmLoteAction;
 use App\Filament\Actions\DownloadPdfNfseAction;
 use App\Filament\Actions\RemoverClassificaoNfeAction;
 use App\Filament\Actions\ToggleEscrituacaoEmLoteAction;
@@ -213,6 +214,7 @@ class NfseEntradasTable
                                 ->success()
                                 ->send();
                         }),
+                    ClassificarDocumentoMaisAplicadaEmLoteAction::make(),
                 ]),
             ]);
     }
