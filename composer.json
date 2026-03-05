@@ -20,6 +20,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "marcelweidum/filament-expiration-notice": "^1.0",
+        "neuron-core/neuron-laravel": "^1.0",
         "nfephp-org/sped-cte": "dev-master",
         "nfephp-org/sped-da": "dev-master",
         "nfephp-org/sped-nfe": "^5.2",

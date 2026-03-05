@@ -1,7 +1,11 @@
 <?php
 
-use Illuminate\Support\Str;
+use App\AppNeuronFiscautAgent;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use NeuronAI\Chat\History\EloquentChatHistory;
+use NeuronAI\Chat\Messages\UserMessage;
+use NeuronAI\Laravel\Models\ChatMessage;
 
 new class extends Component
 {
@@ -17,13 +21,7 @@ new class extends Component
 
     public function mount(): void
     {
-        $this->messages = [
-            [
-                'role' => 'assistant',
-                'content' => 'Olá! Eu sou o assistente do Fiscaut. Por enquanto, minhas respostas são simuladas.',
-                'at' => now()->toIso8601String(),
-            ],
-        ];
+        $this->loadHistory();
     }
 
     public function open(): void
@@ -46,13 +44,16 @@ new class extends Component
         $this->error = null;
         $this->input = '';
 
-        $this->messages = [
-            [
-                'role' => 'assistant',
-                'content' => 'Conversa reiniciada. Me diga como posso ajudar.',
-                'at' => now()->toIso8601String(),
-            ],
-        ];
+        ChatMessage::where('thread_id', $this->getThreadId())->delete();
+        $this->messages = [$this->defaultAssistantMessage()];
+    }
+
+    protected function getThreadId(): string
+    {
+        $issuerId = Auth::user()?->currentIssuer?->id ?? 'no_issuer';
+        $userId = Auth::id() ?? 'guest';
+
+        return "issuer_{$issuerId}_user_{$userId}";
     }
 
     public function send(): void
@@ -63,13 +64,13 @@ new class extends Component
 
         $this->error = null;
 
-        $message = Str::of($this->input)->trim()->toString();
+        $text = trim($this->input);
 
-        if ($message === '') {
+        if ($text === '') {
             return;
         }
 
-        if (mb_strlen($message) > 2000) {
+        if (mb_strlen($text) > 2000) {
             $this->error = 'Sua mensagem é muito longa.';
 
             return;
@@ -77,15 +78,28 @@ new class extends Component
 
         $this->isSending = true;
 
-        $this->appendMessage('user', $message);
+        $this->appendMessage('user', $text);
 
         $this->input = '';
 
         try {
-            $assistant = $this->mockAssistantResponse($message);
-            $this->appendMessage('assistant', $assistant);
-        } catch (Throwable $e) {
-            $this->error = 'Não foi possível gerar uma resposta agora. Tente novamente.';
+            $chatHistory = new EloquentChatHistory(
+                threadId: $this->getThreadId(),
+                modelClass: ChatMessage::class,
+            );
+
+            $agent = new AppNeuronFiscautAgent();
+            $agent->setChatHistory($chatHistory);
+
+            $response = $agent->chat(new UserMessage($text))->getMessage()->getContent();
+
+            $this->appendMessage('assistant', $this->normalizeMessageContent($response));
+            
+        } catch (\Throwable) {
+            $this->appendMessage(
+                'assistant',
+                'Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente.'
+            );
         } finally {
             $this->isSending = false;
         }
@@ -100,32 +114,79 @@ new class extends Component
         ];
     }
 
-    private function mockAssistantResponse(string $userMessage): string
+    protected function loadHistory(): void
     {
-        if (Str::startsWith($userMessage, '/erro')) {
-            throw new RuntimeException('Mock error');
+        $records = ChatMessage::where('thread_id', $this->getThreadId())
+            ->whereIn('role', ['user', 'assistant'])
+            ->orderBy('id')
+            ->get(['role', 'content', 'created_at']);
+
+        if ($records->isEmpty()) {
+            $this->messages = [$this->defaultAssistantMessage()];
+
+            return;
         }
 
-        usleep(random_int(300_000, 900_000));
+        $this->messages = $records->map(function (ChatMessage $record) {
+            return [
+                'role' => $record->role,
+                'content' => $this->extractTextContent($record->content),
+                'at' => $record->created_at?->toIso8601String(),
+            ];
+        })->all();
+    }
 
-        $responses = [
-            'Certo. Posso ajudar com isso. O que você já tentou?',
-            'Entendi. Quer que eu detalhe o passo a passo?',
-            'Boa pergunta. Você pode me dizer em qual tela isso acontece?',
-            'Ok. Qual é o objetivo final (relatório, cadastro, importação, etc.)?',
-            'Anotado. Se você me passar um exemplo, consigo orientar melhor.',
-            'Vamos por partes. Qual é a regra fiscal envolvida?',
-            'Entendi: “%s”. Se quiser, posso sugerir uma validação para isso.',
-            'Perfeito. Você quer que eu explique em termos técnicos ou de negócio?',
-            'Posso te ajudar a depurar isso. Há alguma mensagem de erro?',
+    private function extractTextContent(mixed $content): string
+    {
+        return $this->normalizeMessageContent($content);
+    }
+
+    private function normalizeMessageContent(mixed $content): string
+    {
+        if (is_string($content)) {
+            $decoded = json_decode($content, true);
+
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                return $this->normalizeMessageContent($decoded);
+            }
+
+            return $content;
+        }
+
+        if (! is_array($content)) {
+            return (string) $content;
+        }
+
+        // Format: ['type' => 'text', 'content' => '...']
+        if (($content['type'] ?? null) === 'text' && isset($content['content'])) {
+            return (string) $content['content'];
+        }
+
+        // Format: ['content' => [ ...blocks... ]]
+        if (isset($content['content']) && is_array($content['content'])) {
+            return $this->normalizeMessageContent($content['content']);
+        }
+
+        $texts = collect($content)
+            ->filter(fn (mixed $block): bool => is_array($block) && ($block['type'] ?? null) === 'text')
+            ->map(fn (array $block): string => (string) ($block['content'] ?? ''))
+            ->filter()
+            ->values()
+            ->all();
+
+        if ($texts !== []) {
+            return implode("\n", $texts);
+        }
+
+        return json_encode($content, JSON_UNESCAPED_UNICODE) ?: '';
+    }
+
+    private function defaultAssistantMessage(): array
+    {
+        return [
+            'role' => 'assistant',
+            'content' => 'Olá! Eu sou o assistente do Fiscaut. Como posso te ajudar hoje?',
+            'at' => now()->toIso8601String(),
         ];
-
-        $pick = $responses[random_int(0, count($responses) - 1)];
-
-        if (str_contains($pick, '%s')) {
-            return sprintf($pick, $userMessage);
-        }
-
-        return $pick;
     }
 };

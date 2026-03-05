@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3c627c69b55d6df42a869d21396e4de8",
+    "content-hash": "6426ad1f486adcaa68a19cab737cc7bc",
     "packages": [
         {
             "name": "akaunting/laravel-money",
@@ -2497,6 +2497,68 @@
             "time": "2025-08-22T14:27:06+00:00"
         },
         {
+            "name": "inspector-apm/inspector-php",
+            "version": "3.16.15",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/inspector-apm/inspector-php.git",
+                "reference": "38e76f5f6883745094d641f86a09001a1d7b5eea"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/inspector-apm/inspector-php/zipball/38e76f5f6883745094d641f86a09001a1d7b5eea",
+                "reference": "38e76f5f6883745094d641f86a09001a1d7b5eea",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "ext-curl": "*",
+                "friendsofphp/php-cs-fixer": "^3.75",
+                "neuron-core/neuron-ai": "^2.8",
+                "phpstan/phpstan": "^2.1",
+                "phpunit/phpunit": "^9.0",
+                "rector/rector": "^2.2",
+                "tomasvotruba/type-coverage": "^2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.16.x-dev",
+                    "dev-develop": "3.16.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Inspector\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valerio Barbera",
+                    "email": "valerio@inspector.dev"
+                }
+            ],
+            "description": "Inspector monitoring for PHP applications.",
+            "keywords": [
+                "inspector",
+                "monitoring",
+                "observability",
+                "php",
+                "telemetry"
+            ],
+            "support": {
+                "issues": "https://github.com/inspector-apm/inspector-php/issues",
+                "source": "https://github.com/inspector-apm/inspector-php/tree/3.16.15"
+            },
+            "time": "2026-02-26T11:18:52+00:00"
+        },
+        {
             "name": "justinrainbow/json-schema",
             "version": "5.3.1",
             "source": {
@@ -4782,6 +4844,151 @@
                 "source": "https://github.com/nette/utils/tree/v4.1.2"
             },
             "time": "2026-02-03T17:21:09+00:00"
+        },
+        {
+            "name": "neuron-core/neuron-ai",
+            "version": "3.0.10",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/neuron-core/neuron-ai.git",
+                "reference": "4ce74d0a0f0b9e9f95a3875519fb600275f3561a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/neuron-core/neuron-ai/zipball/4ce74d0a0f0b9e9f95a3875519fb600275f3561a",
+                "reference": "4ce74d0a0f0b9e9f95a3875519fb600275f3561a",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.9",
+                "inspector-apm/inspector-php": "^3.16.12",
+                "php": "^8.1",
+                "psr/http-message": "^1.0|^2.0"
+            },
+            "require-dev": {
+                "amphp/amp": "^3.1.1",
+                "amphp/http-client": "^5.3",
+                "aws/aws-sdk-php": "^3.209",
+                "elasticsearch/elasticsearch": "^8.0",
+                "ext-pdo": "*",
+                "friendsofphp/php-cs-fixer": "^3.75",
+                "google/auth": "^1.49",
+                "html2text/html2text": "^4.3",
+                "illuminate/database": "^10.0|^11.0|^12.0",
+                "laudis/neo4j-php-client": "^3.4",
+                "opensearch-project/opensearch-php": "^2.5",
+                "phpstan/phpstan": "^2.1",
+                "phpunit/phpunit": "^9.0",
+                "rector/rector": "^2.0",
+                "spatie/fork": "^1.2",
+                "tomasvotruba/type-coverage": "^2.0",
+                "typesense/typesense-php": "^5.0",
+                "vlucas/phpdotenv": "^5.6"
+            },
+            "bin": [
+                "bin/neuron"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NeuronAI\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valerio Barbera",
+                    "email": "valerio@inspector.dev"
+                }
+            ],
+            "description": "The PHP Agentic Framework.",
+            "support": {
+                "issues": "https://github.com/neuron-core/neuron-ai/issues",
+                "source": "https://github.com/neuron-core/neuron-ai/tree/3.0.10"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/neuron-core",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-03-03T17:34:35+00:00"
+        },
+        {
+            "name": "neuron-core/neuron-laravel",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/neuron-core/neuron-laravel.git",
+                "reference": "9a6f684683bc9795e356e3b0feb1194c72cebc25"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/neuron-core/neuron-laravel/zipball/9a6f684683bc9795e356e3b0feb1194c72cebc25",
+                "reference": "9a6f684683bc9795e356e3b0feb1194c72cebc25",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": "^10.0|^11.0|^12.0",
+                "illuminate/contracts": "^10.0|^11.0|^12.0",
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "neuron-core/neuron-ai": "^3.0",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.75",
+                "larastan/larastan": "^3.0",
+                "livewire/livewire": "^3.7",
+                "orchestra/testbench": "^10.0",
+                "rector/rector": "^2.2",
+                "tomasvotruba/type-coverage": "^2.0"
+            },
+            "suggest": {
+                "inspector-apm/inspector-laravel": "^4.18.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "AIProvider": "NeuronAI\\Laravel\\Facades\\AIProvider",
+                        "VectorStore": "NeuronAI\\Laravel\\Facades\\VectorStore",
+                        "EmbeddingProvider": "NeuronAI\\Laravel\\Facades\\EmbeddingProvider"
+                    },
+                    "providers": [
+                        "NeuronAI\\Laravel\\NeuronAIServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NeuronAI\\Laravel\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valerio Barbera",
+                    "email": "valerio@inspector.dev"
+                }
+            ],
+            "description": "Official Neuron AI Laravel SDK.",
+            "keywords": [
+                "ai",
+                "ai-agent",
+                "laravel",
+                "llm"
+            ],
+            "support": {
+                "issues": "https://github.com/neuron-core/neuron-laravel/issues",
+                "source": "https://github.com/neuron-core/neuron-laravel/tree/1.0.2"
+            },
+            "time": "2026-03-03T16:55:38+00:00"
         },
         {
             "name": "nfephp-org/sped-common",
