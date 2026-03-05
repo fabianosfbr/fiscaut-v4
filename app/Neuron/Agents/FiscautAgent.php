@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Neuron\Agents;
 
 
+use App\Neuron\Tools\ConsultaNfeEntradaTool;
+use App\Neuron\Tools\ConsultaNfeSaidaTool;
 use NeuronAI\Agent\Agent;
 use NeuronAI\Agent\SystemPrompt;
 use NeuronAI\Providers\AIProviderInterface;
@@ -56,8 +58,9 @@ class FiscautAgent extends Agent
             ],
             toolsUsage: [
                 '1. Use as ferramentas para TODA operação de dados. Nunca invente ou suponha dados.',
-                '2. Ferramentas: consulta_nfe, consulta_cte, difal, etiquetas_aplicadas',
+                '2. Ferramentas: consulta_nfe_entrada, consulta_nfe_saida',
                 '3. Sempre consulte antes de responder sobre dados. Nunca responda de memória.',
+                '3.1. Na consulta de NF-e de entrada, considere e informe também as etiquetas aplicadas quando isso for relevante para a pergunta.',
                 '4. Para criar ou editar, se faltar informação obrigatória, pergunte de forma natural e amigável dentro da conversa.',
                 '5. Se o usuário pedir algo que nenhuma ferramenta atende (ex: deletar, exportar), avise de forma leve que ainda não dá pra fazer isso.',
                 '6. NUNCA execute criação ou edição sem que o usuário tenha pedido ou confirmado.',
@@ -71,7 +74,10 @@ class FiscautAgent extends Agent
      */
     protected function tools(): array
     {
-        return [];
+        return [
+            new ConsultaNfeEntradaTool(),
+            new ConsultaNfeSaidaTool(),
+        ];
     }
 
     /**

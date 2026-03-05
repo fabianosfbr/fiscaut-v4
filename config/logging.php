@@ -60,8 +60,8 @@ return [
         ],
 
         'stack' => [
-            'driver' => 'stack',
-            'channels' => explode(',', (string) env('LOG_STACK', 'single')),
+            'driver' => 'daily',
+            'channels' => explode(',', (string) env('LOG_STACK', 'single')),            
             'ignore_exceptions' => false,
         ],
 
