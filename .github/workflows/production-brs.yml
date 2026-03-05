@@ -121,6 +121,7 @@ jobs:
             cd $ACTIVE_RELEASE_PATH
             /usr/bin/php8.4 composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
             /usr/bin/php8.4 artisan migrate --force
+            npm run build
             /usr/bin/php8.4 artisan optimize:clear
             /usr/bin/php8.4 artisan clear-compiled
             /usr/bin/php8.4 artisan optimize
