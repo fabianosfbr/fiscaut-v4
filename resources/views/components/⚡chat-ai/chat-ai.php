@@ -88,13 +88,13 @@ new class extends Component
                 modelClass: ChatMessage::class,
             );
 
-            $agent = new AppNeuronFiscautAgent();
+            $agent = new AppNeuronFiscautAgent;
             $agent->setChatHistory($chatHistory);
 
             $response = $agent->chat(new UserMessage($text))->getMessage()->getContent();
 
             $this->appendMessage('assistant', $this->normalizeMessageContent($response));
-            
+
         } catch (\Throwable) {
             $this->appendMessage(
                 'assistant',
