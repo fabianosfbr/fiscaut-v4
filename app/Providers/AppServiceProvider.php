@@ -98,7 +98,10 @@ class AppServiceProvider extends ServiceProvider
                     return ['app', 'condominio'];
                 })
                 ->iconSize(16)
-
+                ->icons([
+                    'app' => 'heroicon-o-currency-dollar',
+                    'condominio' => 'heroicon-o-building-office',
+                ])
                 ->simple()
                 // ->renderHook('panels::sidebar.nav.start')
                 ->labels([

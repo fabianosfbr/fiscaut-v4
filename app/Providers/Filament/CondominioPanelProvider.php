@@ -43,9 +43,7 @@ class CondominioPanelProvider extends PanelProvider
             ])
             ->discoverResources(in: app_path('Filament/Condominio/Resources'), for: 'App\Filament\Condominio\Resources')
             ->discoverPages(in: app_path('Filament/Condominio/Pages'), for: 'App\Filament\Condominio\Pages')
-            ->pages([
-                Dashboard::class,
-            ])
+            ->pages([])
             ->discoverWidgets(in: app_path('Filament/Condominio/Widgets'), for: 'App\Filament\Condominio\Widgets')
             ->widgets([
                 AccountWidget::class,
