@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\IssuerTypeEnum;
 use Illuminate\Database\Eloquent\Model;
 
 class Issuer extends Model
@@ -34,6 +35,7 @@ class Issuer extends Model
         'data_abertura' => 'date',
         'data_situacao_cadastral' => 'date',
         'atividade' => 'array',
+        'issuer_type' => IssuerTypeEnum::class,
     ];
 
     public function tenant()

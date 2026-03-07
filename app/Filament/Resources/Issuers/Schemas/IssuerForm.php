@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Issuers\Schemas;
 
 use App\Enums\AtividadesEmpresariaisEnum;
+use App\Enums\IssuerTypeEnum;
 use App\Enums\RegimesEmpresariaisEnum;
 use App\Models\Municipio;
 use App\Services\CertificateService;
@@ -96,6 +97,14 @@ class IssuerForm
                                             ->required()
                                             ->options(RegimesEmpresariaisEnum::class)
                                             ->columnSpan(2),
+
+                                        Select::make('issuer_type')
+                                            ->label('Tipo da Empresa')
+                                            ->required()
+                                            ->default(IssuerTypeEnum::PADRAO->value)
+                                            ->options(IssuerTypeEnum::class)
+                                            ->columnSpan(2),
+
                                         Select::make('atividade')
                                             ->label('Atividade')
                                             ->required()
