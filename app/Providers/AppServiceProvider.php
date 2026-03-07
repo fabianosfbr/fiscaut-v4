@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Akaunting\Money;
+use BezhanSalleh\PanelSwitch\PanelSwitch;
 use Filament\Actions\BulkAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Support\Assets\Css;
@@ -31,6 +32,8 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->formatter();
 
+        $this->configurePanelSwitch();
+
         FilamentAsset::register([
             Js::make('tom-select', 'https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js'),
         ]);
@@ -49,30 +52,60 @@ class AppServiceProvider extends ServiceProvider
 
         FilamentView::registerRenderHook(
             TablesRenderHook::SELECTION_INDICATOR_ACTIONS_BEFORE,
-            fn (): string => Blade::render('@livewire(\'keep-rows-selected-table\')'),
+            fn(): string => Blade::render('@livewire(\'keep-rows-selected-table\')'),
         );
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::CONTENT_START,
-            fn (): string => Blade::render('@livewire(\'issuer-switcher\')'),
+            fn(): string => Blade::render('@livewire(\'issuer-switcher\')'),
         );
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::BODY_END,
-            fn (): string => Blade::render('@livewire(\'chat-ai\')'),
+            fn(): string => Blade::render('@livewire(\'chat-ai\')'),
         );
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::PAGE_HEADER_WIDGETS_START,
-            fn (): string => Blade::render('@livewire(\'job-progress\')'),
+            fn(): string => Blade::render('@livewire(\'job-progress\')'),
             scopes: \App\Filament\Resources\ImportarLancamentoContabilGerals\Pages\ListImportarLancamentoContabilGerals::class,
         );
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::PAGE_START,
-            fn (): string => Blade::render('@livewire(\'job-progress-super-logica\')'),
+            fn(): string => Blade::render('@livewire(\'job-progress-super-logica\')'),
             scopes: \App\Filament\Resources\ImportarLancamentoContabilSuperLogicas\Pages\ListImportarLancamentoContabilSuperLogicas::class,
         );
+    }
+
+    protected function configurePanelSwitch(): void
+    {
+        PanelSwitch::configureUsing(function (PanelSwitch $panelSwitch) {
+            $panelSwitch
+                ->modalHeading('Escolha o módulo')
+                ->modalWidth('md')
+                ->panels(function () {
+
+                    // $user = Auth::user();
+
+                    // if ($user?->last_organization_id) {
+
+                    //     $panels = UserPanelPermission::getUserPanels(Auth::user(), getOrganizationCached());
+
+                    //     return array_values($panels ?? []);
+                    // }
+
+                    return ['app', 'condominio'];
+                })
+                ->iconSize(16)
+
+                ->simple()
+                // ->renderHook('panels::sidebar.nav.start')
+                ->labels([
+                    'app' => __('Fiscal'),
+                    'condominio' => __('Condominio'),
+                ]);
+        });
     }
 
     public function formatter(): void
