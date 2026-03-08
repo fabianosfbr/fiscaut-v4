@@ -8,6 +8,7 @@ use App\Models\IssuerUserPermission;
 use App\Models\User;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
@@ -37,6 +38,8 @@ class CreateIssuer extends CreateRecord
         unset($data['data_inicio_certificado']);
 
         $data['cnpj'] = sanitize($data['cnpj']);
+        $data['data_abertura'] = $this->normalizeDateToDatabase($data['data_abertura'] ?? null);
+        $data['data_situacao_cadastral'] = $this->normalizeDateToDatabase($data['data_situacao_cadastral'] ?? null);
 
         return $data;
     }
@@ -68,5 +71,22 @@ class CreateIssuer extends CreateRecord
 
             return $issuer;
         });
+    }
+
+    private function normalizeDateToDatabase(?string $value): ?string
+    {
+        if (! filled($value)) {
+            return null;
+        }
+
+        try {
+            if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $value) === 1) {
+                return Carbon::createFromFormat('d/m/Y', $value)->format('Y-m-d');
+            }
+
+            return Carbon::parse($value)->format('Y-m-d');
+        } catch (\Throwable) {
+            return null;
+        }
     }
 }

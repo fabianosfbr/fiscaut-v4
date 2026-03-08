@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Issuers\Pages;
 use App\Filament\Resources\Issuers\IssuerResource;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 
 class EditIssuer extends EditRecord
@@ -45,6 +46,8 @@ class EditIssuer extends EditRecord
         unset($data['data_inicio_certificado']);
 
         $data['cnpj'] = sanitize($data['cnpj']);
+        $data['data_abertura'] = $this->normalizeDateToDatabase($data['data_abertura'] ?? null);
+        $data['data_situacao_cadastral'] = $this->normalizeDateToDatabase($data['data_situacao_cadastral'] ?? null);
 
         return $data;
     }
@@ -80,5 +83,22 @@ class EditIssuer extends EditRecord
             ->modalDescription('Deseja realmente salvar as alterações feitas nesta empresa?')
             ->modalSubmitActionLabel('Sim, Salvar')
             ->modalCancelActionLabel('Cancelar');
+    }
+
+    private function normalizeDateToDatabase(?string $value): ?string
+    {
+        if (! filled($value)) {
+            return null;
+        }
+
+        try {
+            if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $value) === 1) {
+                return Carbon::createFromFormat('d/m/Y', $value)->format('Y-m-d');
+            }
+
+            return Carbon::parse($value)->format('Y-m-d');
+        } catch (\Throwable) {
+            return null;
+        }
     }
 }

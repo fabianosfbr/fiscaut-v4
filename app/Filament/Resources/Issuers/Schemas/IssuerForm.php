@@ -153,6 +153,7 @@ class IssuerForm
                                         TextInput::make('data_abertura')
                                             ->label('Data de Abertura')
                                             ->mask('99/99/9999')
+                                            ->formatStateUsing(fn($state) => static::formatDateForDisplay($state))
                                             ->disabled()
                                             ->placeholder('DD/MM/AAAA')
                                             ->columnSpan(3),
@@ -225,7 +226,7 @@ class IssuerForm
                                         TextInput::make('data_situacao_cadastral')
                                             ->label('Data da Situação Cadastral')
                                             ->mask('99/99/9999')
-                                            ->formatStateUsing(fn($state) => $state ? Carbon::parse($state)->format('d/m/Y') : null)
+                                            ->formatStateUsing(fn($state) => static::formatDateForDisplay($state))
                                             ->disabled()
                                             ->placeholder('DD/MM/AAAA')
                                             ->columnSpan(2),
@@ -728,7 +729,7 @@ class IssuerForm
         $set('razao_social', data_get($cnpjDetails, 'company.name'));
         $set('inscricao_estadual', data_get($cnpjDetails, 'registrations.0.number'));
         $set('inscricao_municipal', data_get($cnpjDetails, 'municipalRegistration'));
-        $set('data_abertura', data_get($cnpjDetails, 'founded'));
+        $set('data_abertura', static::formatDateForDisplay(data_get($cnpjDetails, 'founded')));
         $set('email', data_get($cnpjDetails, 'emails.0.address'));
         $set('telefone', $phoneArea . $phoneNumber);
         $set('logradouro', data_get($cnpjDetails, 'address.street'));
@@ -739,7 +740,7 @@ class IssuerForm
         $set('uf', $uf);
         $set('cep', data_get($cnpjDetails, 'address.zip'));
         $set('situacao_cadastral', data_get($cnpjDetails, 'status.text'));
-        $set('data_situacao_cadastral', data_get($cnpjDetails, 'statusDate'));
+        $set('data_situacao_cadastral', static::formatDateForDisplay(data_get($cnpjDetails, 'statusDate')));
         $naturezaOperacaoId = (string) data_get($cnpjDetails, 'company.nature.id', '');
         $set('natureza_operacao_id', $naturezaOperacaoId !== '' ? (int) $naturezaOperacaoId : null);
         $set('natureza_operacao', data_get($cnpjDetails, 'company.nature.text'));
@@ -774,5 +775,18 @@ class IssuerForm
             ->whereRaw('LOWER(nome) = ?', [mb_strtolower($cidade)])
             ->where('uf', mb_strtoupper($uf))
             ->value('id');
+    }
+
+    private static function formatDateForDisplay(mixed $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        try {
+            return Carbon::parse((string) $value)->format('d/m/Y');
+        } catch (Exception) {
+            return null;
+        }
     }
 }
