@@ -3,9 +3,6 @@
 namespace App\Filament\Resources\Issuers\Pages;
 
 use App\Filament\Resources\Issuers\IssuerResource;
-use App\Services\CnpjJaService;
-use Exception;
-use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt;
@@ -54,36 +51,6 @@ class EditIssuer extends EditRecord
 
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
-        $cnpjDetails = [];
-        try {
-            $cnpjDetails = CnpjJaService::getCnpjDetails($record->cnpj);
-        } catch (Exception $e) {
-            Notification::make()
-                ->title('Erro')
-                ->body($e->getMessage())
-                ->danger()
-                ->send();
-        }
-
-        if (! empty($cnpjDetails)) {
-            $data['data_abertura'] = $cnpjDetails['founded'] ?? null;
-            $data['email'] = $cnpjDetails['emails'][0]['address'] ?? null;
-            $data['telefone'] = $cnpjDetails['phones'][0]['area'].$cnpjDetails['phones'][0]['number'] ?? null;
-            $data['logradouro'] = $cnpjDetails['address']['street'] ?? null;
-            $data['numero'] = $cnpjDetails['address']['number'] ?? null;
-            $data['complemento'] = $cnpjDetails['address']['details'] ?? null;
-            $data['bairro'] = $cnpjDetails['address']['district'] ?? null;
-            $data['cidade'] = $cnpjDetails['address']['city'] ?? null;
-            $data['uf'] = $cnpjDetails['address']['state'] ?? null;
-            $data['cep'] = $cnpjDetails['address']['zip'] ?? null;
-
-            $data['situacao_cadastral'] = $cnpjDetails['status']['text'] ?? null;
-            $data['data_situacao_cadastral'] = $cnpjDetails['statusDate'] ?? null;
-
-            $data['main_activity'] = $cnpjDetails['mainActivity'] ?? null;
-            $data['side_activities'] = $cnpjDetails['sideActivities'] ?? null;
-        }
-
         $record->update($data);
 
         return $record;

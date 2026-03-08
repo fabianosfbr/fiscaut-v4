@@ -7,6 +7,7 @@ use App\Enums\IssuerTypeEnum;
 use App\Enums\RegimesEmpresariaisEnum;
 use App\Models\Municipio;
 use App\Services\CertificateService;
+use App\Services\CnpjJaService;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
@@ -19,6 +20,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -54,6 +56,14 @@ class IssuerForm
                                             ->mask('99.999.999/9999-99')
                                             ->required()
                                             ->unique(ignoreRecord: true)
+                                            ->suffixAction(
+                                                Action::make('buscar_cnpj')
+                                                    ->label('Buscar CNPJ')
+                                                    ->icon('heroicon-m-magnifying-glass')
+                                                    ->action(function (Get $get, Set $set): void {
+                                                        static::fillCompanyDataFromCnpj($get, $set);
+                                                    })
+                                            )
                                             ->validationMessages([
                                                 'required' => 'O CNPJ é obrigatório',
                                                 'unique' => 'Este CNPJ já está cadastrado',
@@ -82,7 +92,7 @@ class IssuerForm
 
                                                     $municipios = Municipio::get()
                                                         ->map(function ($municipio) {
-                                                            $municipio->nome = $municipio->nome.' | '.$municipio->sigla;
+                                                            $municipio->nome = $municipio->nome . ' | ' . $municipio->sigla;
 
                                                             return $municipio;
                                                         })
@@ -181,15 +191,22 @@ class IssuerForm
                                             ->label('Complemento')
                                             ->maxLength(255)
                                             ->disabled()
-                                            ->columnSpan(3)
+                                            ->columnSpan(2)
                                             ->placeholder('Complemento (opcional)'),
 
                                         TextInput::make('bairro')
                                             ->label('Bairro')
                                             ->maxLength(255)
                                             ->disabled()
-                                            ->columnSpan(3)
+                                            ->columnSpan(2)
                                             ->placeholder('Bairro'),
+
+                                        TextInput::make('cidade')
+                                            ->label('Cidade')
+                                            ->maxLength(255)
+                                            ->disabled()
+                                            ->columnSpan(2)
+                                            ->placeholder('Digite a cidade'),
 
                                         TextInput::make('cep')
                                             ->label('CEP')
@@ -208,9 +225,24 @@ class IssuerForm
                                         TextInput::make('data_situacao_cadastral')
                                             ->label('Data da Situação Cadastral')
                                             ->mask('99/99/9999')
+                                            ->formatStateUsing(fn($state) => $state ? Carbon::parse($state)->format('d/m/Y') : null)
                                             ->disabled()
                                             ->placeholder('DD/MM/AAAA')
                                             ->columnSpan(2),
+
+                                        TextInput::make('natureza_operacao_id')
+                                            ->label('ID Natureza Operação')
+                                            ->maxLength(50)
+                                            ->disabled()
+                                            ->columnSpan(2),
+
+                                        TextInput::make('natureza_operacao')
+                                            ->label('Natureza Operação')
+                                            ->maxLength(50)
+                                            ->disabled()
+                                            ->columnSpan(2),
+
+
 
                                         Section::make('Atividades Econômicas')
                                             ->schema([
@@ -233,9 +265,8 @@ class IssuerForm
                                                     ->collapsible(),
 
                                                 Section::make('Atividades Secundárias')
-                                                    ->visible(function ($record) {
-
-                                                        return count($record?->side_activities ?? []) > 0;
+                                                    ->visible(function ($record, Get $get) {
+                                                        return count($record?->side_activities ?? $get('side_activities') ?? []) > 0;
                                                     })
                                                     ->schema([
                                                         Repeater::make('side_activities')
@@ -262,7 +293,7 @@ class IssuerForm
                                                             ->columns(6)
                                                             ->collapsible()
                                                             ->itemLabel(
-                                                                fn (array $state): ?string => isset($state['id'], $state['text'])
+                                                                fn(array $state): ?string => isset($state['id'], $state['text'])
                                                                     ? "#{$state['id']} - {$state['text']}"
                                                                     : null
                                                             ),
@@ -305,19 +336,19 @@ class IssuerForm
                                                         $diasVencidos = abs($diasRestantes);
                                                         $corSituacao = '#dc2626';
                                                         $iconeSituacao = '❌';
-                                                        $textoSituacao = "Vencido há {$diasVencidos} ".($diasVencidos === 1 ? 'dia' : 'dias');
+                                                        $textoSituacao = "Vencido há {$diasVencidos} " . ($diasVencidos === 1 ? 'dia' : 'dias');
                                                         $corBorda = '#dc2626';
                                                         $corFundo = '#fef2f2';
                                                     } elseif ($diasRestantes <= 30) {
                                                         $corSituacao = '#f59e0b';
                                                         $iconeSituacao = '⚠️';
-                                                        $textoSituacao = "Vence em {$diasRestantes} ".($diasRestantes === 1 ? 'dia' : 'dias');
+                                                        $textoSituacao = "Vence em {$diasRestantes} " . ($diasRestantes === 1 ? 'dia' : 'dias');
                                                         $corBorda = '#f59e0b';
                                                         $corFundo = '#fffbeb';
                                                     } else {
                                                         $corSituacao = '#059669';
                                                         $iconeSituacao = '✅';
-                                                        $textoSituacao = "Válido por mais {$diasRestantes} ".($diasRestantes === 1 ? 'dia' : 'dias');
+                                                        $textoSituacao = "Válido por mais {$diasRestantes} " . ($diasRestantes === 1 ? 'dia' : 'dias');
                                                         $corBorda = '#059669';
                                                         $corFundo = '#f0fdf4';
                                                     }
@@ -350,7 +381,7 @@ class IssuerForm
                                             
                                             <div style='background-color: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;'>
                                                 <label style='display: block; font-size: 12px; color: #64748b; font-weight: 500; margin-bottom: 4px;'>EMPRESA VINCULADA</label>
-                                                <div style='font-size: 14px; color: #1e293b; font-weight: 500;'>".htmlspecialchars($razaoSocial ?? 'Não informado')."</div>
+                                                <div style='font-size: 14px; color: #1e293b; font-weight: 500;'>" . htmlspecialchars($razaoSocial ?? 'Não informado') . "</div>
                                             </div>
                                             
                                             <div style='margin-top: 16px; padding: 12px; background-color: rgba(255,255,255,0.7); border-radius: 8px; border: 1px dashed {$corBorda};'>
@@ -363,12 +394,12 @@ class IssuerForm
                                                 } catch (Exception $e) {
                                                     return new HtmlString('
                                         <div style="padding: 16px; border: 1px solid #f87171; background-color: #fef2f2; color: #dc2626; border-radius: 8px; margin-bottom: 16px;">
-                                            <strong>❌ Erro ao processar certificado atual:</strong> '.htmlspecialchars($e->getMessage()).'
+                                            <strong>❌ Erro ao processar certificado atual:</strong> ' . htmlspecialchars($e->getMessage()) . '
                                         </div>
                                     ');
                                                 }
                                             })
-                                            ->visible(fn (Get $get): bool => filled($get('validade_certificado')))
+                                            ->visible(fn(Get $get): bool => filled($get('validade_certificado')))
                                             ->columnSpanFull(),
 
                                         TextEntry::make('certificado_info_upload')
@@ -431,8 +462,8 @@ class IssuerForm
                                             ->label('Senha do Certificado')
                                             ->password()
                                             ->revealable()
-                                            ->required(fn (Get $get): bool => filled($get('path_certificado')))
-                                            ->visible(fn (Get $get): bool => filled($get('path_certificado')))
+                                            ->required(fn(Get $get): bool => filled($get('path_certificado')))
+                                            ->visible(fn(Get $get): bool => filled($get('path_certificado')))
                                             ->helperText('Digite a senha e clique no ícone de validação para confirmar.')
                                             ->prefixAction(
                                                 Action::make('validar_certificado')
@@ -576,15 +607,15 @@ class IssuerForm
                                                         $diasVencidos = abs($diasRestantes);
                                                         $corSituacao = '#dc2626';
                                                         $iconeSituacao = '❌';
-                                                        $textoSituacao = "Vencido há {$diasVencidos} ".($diasVencidos === 1 ? 'dia' : 'dias');
+                                                        $textoSituacao = "Vencido há {$diasVencidos} " . ($diasVencidos === 1 ? 'dia' : 'dias');
                                                     } elseif ($diasRestantes <= 30) {
                                                         $corSituacao = '#f59e0b';
                                                         $iconeSituacao = '⚠️';
-                                                        $textoSituacao = "Vence em {$diasRestantes} ".($diasRestantes === 1 ? 'dia' : 'dias');
+                                                        $textoSituacao = "Vence em {$diasRestantes} " . ($diasRestantes === 1 ? 'dia' : 'dias');
                                                     } else {
                                                         $corSituacao = '#059669';
                                                         $iconeSituacao = '✅';
-                                                        $textoSituacao = "Válido por mais {$diasRestantes} ".($diasRestantes === 1 ? 'dia' : 'dias');
+                                                        $textoSituacao = "Válido por mais {$diasRestantes} " . ($diasRestantes === 1 ? 'dia' : 'dias');
                                                     }
 
                                                     return new HtmlString("
@@ -619,7 +650,7 @@ class IssuerForm
                                             
                                             <div style='background-color: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;'>
                                                 <label style='display: block; font-size: 12px; color: #64748b; font-weight: 500; margin-bottom: 4px;'>RAZÃO SOCIAL</label>
-                                                <div style='font-size: 14px; color: #1e293b; font-weight: 500;'>".htmlspecialchars($razaoSocialCertificado).'</div>
+                                                <div style='font-size: 14px; color: #1e293b; font-weight: 500;'>" . htmlspecialchars($razaoSocialCertificado) . '</div>
                                             </div>
                                         </div>
                                     ');
@@ -632,12 +663,12 @@ class IssuerForm
                                                 } catch (Exception $e) {
                                                     return new HtmlString('
                                         <div style="padding: 16px; border: 1px solid #f87171; background-color: #fef2f2; color: #dc2626; border-radius: 8px;">
-                                            <strong>❌ Erro inesperado:</strong> '.htmlspecialchars($e->getMessage()).'
+                                            <strong>❌ Erro inesperado:</strong> ' . htmlspecialchars($e->getMessage()) . '
                                         </div>
                                     ');
                                                 }
                                             })
-                                            ->visible(fn (Get $get): bool => filled($get('path_certificado')))
+                                            ->visible(fn(Get $get): bool => filled($get('path_certificado')))
                                             ->columnSpanFull(),
 
                                         // Campos ocultos para armazenar dados do certificado
@@ -651,5 +682,97 @@ class IssuerForm
                     ])->columnSpanFull(),
 
             ]);
+    }
+
+    private static function fillCompanyDataFromCnpj(Get $get, Set $set): void
+    {
+        $cnpj = sanitize((string) $get('cnpj'));
+
+        if (strlen($cnpj) !== 14) {
+            Notification::make()
+                ->title('CNPJ inválido')
+                ->body('Informe um CNPJ com 14 dígitos para realizar a busca.')
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        try {
+            $cnpjDetails = CnpjJaService::getCnpjDetails($cnpj);
+        } catch (Exception $e) {
+            Notification::make()
+                ->title('Erro ao consultar CNPJ')
+                ->body($e->getMessage())
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        if ($cnpjDetails === []) {
+            Notification::make()
+                ->title('Nenhum dado encontrado')
+                ->body('Não foi possível obter dados para este CNPJ.')
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        $phoneArea = (string) data_get($cnpjDetails, 'phones.0.area', '');
+        $phoneNumber = (string) data_get($cnpjDetails, 'phones.0.number', '');
+        $cidade = (string) data_get($cnpjDetails, 'address.city', '');
+        $uf = (string) data_get($cnpjDetails, 'address.state', '');
+
+        $set('razao_social', data_get($cnpjDetails, 'company.name'));
+        $set('inscricao_estadual', data_get($cnpjDetails, 'registrations.0.number'));
+        $set('inscricao_municipal', data_get($cnpjDetails, 'municipalRegistration'));
+        $set('data_abertura', data_get($cnpjDetails, 'founded'));
+        $set('email', data_get($cnpjDetails, 'emails.0.address'));
+        $set('telefone', $phoneArea . $phoneNumber);
+        $set('logradouro', data_get($cnpjDetails, 'address.street'));
+        $set('numero', data_get($cnpjDetails, 'address.number'));
+        $set('complemento', data_get($cnpjDetails, 'address.details'));
+        $set('bairro', data_get($cnpjDetails, 'address.district'));
+        $set('cidade', $cidade);
+        $set('uf', $uf);
+        $set('cep', data_get($cnpjDetails, 'address.zip'));
+        $set('situacao_cadastral', data_get($cnpjDetails, 'status.text'));
+        $set('data_situacao_cadastral', data_get($cnpjDetails, 'statusDate'));
+        $naturezaOperacaoId = (string) data_get($cnpjDetails, 'company.nature.id', '');
+        $set('natureza_operacao_id', $naturezaOperacaoId !== '' ? (int) $naturezaOperacaoId : null);
+        $set('natureza_operacao', data_get($cnpjDetails, 'company.nature.text'));
+        $set('main_activity', data_get($cnpjDetails, 'mainActivity'));
+        $set('side_activities', data_get($cnpjDetails, 'sideActivities', []));
+
+        if ($naturezaOperacaoId === '3085') {
+            $set('issuer_type', IssuerTypeEnum::CONDOMINIO->value);
+        } elseif ($naturezaOperacaoId === '3999') {
+            $set('issuer_type', IssuerTypeEnum::ASSOCIACAO->value);
+        }
+
+        $municipioId = static::resolveMunicipioId($cidade, $uf);
+        if ($municipioId !== null) {
+            $set('cod_municipio_ibge', $municipioId);
+        }
+
+        Notification::make()
+            ->title('Dados preenchidos')
+            ->body('Dados da empresa carregados a partir do CNPJ.')
+            ->success()
+            ->send();
+    }
+
+    private static function resolveMunicipioId(string $cidade, string $uf): ?int
+    {
+        if ($cidade === '' || $uf === '') {
+            return null;
+        }
+
+        return Municipio::query()
+            ->whereRaw('LOWER(nome) = ?', [mb_strtolower($cidade)])
+            ->where('uf', mb_strtoupper($uf))
+            ->value('id');
     }
 }

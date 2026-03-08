@@ -7,6 +7,7 @@
         </form>
     </div>
 
+    
     @if (canManageIssuers())
 
         <div style="flex-shrink: 0;">
@@ -19,7 +20,7 @@
                 <x-filament::dropdown.list>
                     <!-- Nova Empresa -->
                     <x-filament::dropdown.list.item icon="heroicon-m-plus" icon-color="success" tag="a"
-                        href="{{ route('filament.app.resources.issuers.create') }}">
+                        href="{{ route('filament.' . getCurrentPanel() . '.resources.issuers.create') }}">
                         Nova Empresa
                     </x-filament::dropdown.list.item>
 
@@ -27,7 +28,7 @@
                     @if ($currentIssuer = currentIssuer())
                         <x-filament::dropdown.list.item icon="heroicon-m-pencil-square" icon-color="primary"
                             tag="a"
-                            href="{{ route('filament.app.resources.issuers.edit', ['record' => $currentIssuer->id]) }}">
+                            href="{{ route('filament.' . getCurrentPanel() . '.resources.issuers.edit', ['record' => $currentIssuer->id]) }}">
                             Editar {{ \Illuminate\Support\Str::limit($currentIssuer->razao_social, 25) }}
                         </x-filament::dropdown.list.item>
                     @else
@@ -41,7 +42,7 @@
                 <!-- Gerenciar Todas as Empresas -->
                 <x-filament::dropdown.list>
                     <x-filament::dropdown.list.item icon="heroicon-m-building-office" tag="a"
-                        href="{{ route('filament.app.resources.issuers.index') }}">
+                        href="{{ route('filament.' . getCurrentPanel() . '.resources.issuers.index') }}">
                         Gerenciar Todas as Empresas
                     </x-filament::dropdown.list.item>
                 </x-filament::dropdown.list>
