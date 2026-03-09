@@ -65,6 +65,11 @@ class Issuer extends Model
         return $this->hasMany(IssuerContact::class);
     }
 
+    public function areaResponsibles()
+    {
+        return $this->hasMany(IssuerAreaResponsible::class);
+    }
+
     public function municipio()
     {
         return $this->hasOne(Municipio::class, 'id', 'cod_municipio_ibge');
