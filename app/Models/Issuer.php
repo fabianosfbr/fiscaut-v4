@@ -60,6 +60,11 @@ class Issuer extends Model
         return $this->hasMany(CategoryTag::class);
     }
 
+    public function contacts()
+    {
+        return $this->hasMany(IssuerContact::class);
+    }
+
     public function municipio()
     {
         return $this->hasOne(Municipio::class, 'id', 'cod_municipio_ibge');
