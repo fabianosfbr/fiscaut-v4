@@ -2,6 +2,7 @@
 
 namespace App\Filament\Condominio\Resources\IssuerAreaResponsibles\Tables;
 
+use App\Enums\AreaAtendimentoEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -30,6 +31,7 @@ class IssuerAreaResponsiblesTable
                 TextColumn::make('area')
                     ->label('Área de Atendimento')
                     ->badge()
+                    ->formatStateUsing(fn ($state): ?string => AreaAtendimentoEnum::tryFrom($state)?->getLabel() ?? $state)
                     ->sortable(),
             ])
             ->filters([

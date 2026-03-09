@@ -25,6 +25,7 @@ class IssuerAreaResponsibleForm
                             ->required(),
                         Select::make('area')
                             ->label('Área de Atendimento')
+                            ->multiple()
                             ->options(AreaAtendimentoEnum::class)
                             ->required(),
                     ])

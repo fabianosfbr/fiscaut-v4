@@ -12,5 +12,11 @@ class EditIssuerAreaResponsible extends EditRecord
 
     protected static ?string $title = 'Editar';
 
+    protected function getRedirectUrl(): string
+    {
+        // Redirecionar para a listagem de empresas
+        return $this->getResource()::getUrl('index');
+    }
+
 
 }

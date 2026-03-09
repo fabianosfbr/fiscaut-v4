@@ -18,7 +18,7 @@ class IssuerAreaResponsible extends Model
     protected function casts(): array
     {
         return [
-            'area' => AreaAtendimentoEnum::class,
+            'area' => 'array',
         ];
     }
 
