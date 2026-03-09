@@ -16,7 +16,7 @@ class AcumuladoresTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                return $query->where('issuer_id', Auth::user()->issuer_id);
+                return $query->where('issuer_id', currentIssuer()->id);
             })
             ->columns([
                 TextColumn::make('codi_acu')

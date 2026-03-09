@@ -8,14 +8,17 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class IssuerAreaResponsiblesTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                return $query->where('issuer_id', currentIssuer()->id);
+            })
             ->columns([
-
                 TextColumn::make('user.name')
                     ->label('Nome')
                     ->searchable()

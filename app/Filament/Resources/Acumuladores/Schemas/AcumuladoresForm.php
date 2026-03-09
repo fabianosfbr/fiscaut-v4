@@ -23,7 +23,7 @@ class AcumuladoresForm
                                 table: Acumulador::class,
                                 column: 'codi_acu',
                                 ignoreRecord: true,
-                                modifyRuleUsing: fn ($rule) => $rule->where('issuer_id', Auth::user()->issuer_id)
+                                modifyRuleUsing: fn ($rule) => $rule->where('issuer_id', currentIssuer()->id)
                             )
                             ->validationMessages([
                                 'unique' => 'O código acumulador já está em uso.',

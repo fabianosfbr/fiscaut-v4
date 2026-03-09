@@ -8,12 +8,16 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class IssuerContactsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                return $query->where('issuer_id', currentIssuer()->id);
+            })
             ->columns([
                 TextColumn::make('nome')
                     ->label('Nome')
@@ -24,7 +28,7 @@ class IssuerContactsTable
                     ->sortable(),
                 TextColumn::make('cpf')
                     ->label('CPF')
-                    ->formatStateUsing(fn ($state) => formatar_cnpj_cpf($state)), 
+                    ->formatStateUsing(fn($state) => formatar_cnpj_cpf($state)),
                 TextColumn::make('email')
                     ->label('E-mail'),
                 TextColumn::make('telefone_whatsapp')
@@ -40,11 +44,11 @@ class IssuerContactsTable
                         return $state;
                     }),
                 TextColumn::make('unidade')
-                    ->label('Unidade'), 
+                    ->label('Unidade'),
                 TextColumn::make('tipo_relacao')
                     ->label('Tipo de Relação')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
                         'isencao' => 'Isenção',
                         'remuneracao' => 'Remuneração',
                         default => $state,
