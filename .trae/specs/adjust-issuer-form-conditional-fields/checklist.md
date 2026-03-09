@@ -1,0 +1,6 @@
+- [x] O campo "Atividade" é exibido apenas quando o "Tipo da Empresa" é "Padrão".
+- [x] O campo "Atividade" é obrigatório apenas quando o "Tipo da Empresa" é "Padrão".
+- [x] O campo "Contribuinte ICMS?" é exibido apenas quando o "Tipo da Empresa" é "Padrão".
+- [x] O campo "Contribuinte ICMS?" é obrigatório apenas quando o "Tipo da Empresa" é "Padrão".
+- [x] Ao mudar o "Tipo da Empresa" de "Padrão" para outro, os campos desaparecem imediatamente (devido ao `live()`).
+- [x] O formulário pode ser salvo sem preencher esses campos se o tipo de empresa não for "Padrão".

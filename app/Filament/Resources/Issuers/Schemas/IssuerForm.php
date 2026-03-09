@@ -149,13 +149,16 @@ class IssuerForm
 
                                         Select::make('atividade')
                                             ->label('Atividade')
-                                            ->required()
+                                            ->required(fn(Get $get): bool => ($get('issuer_type')?->value ?? $get('issuer_type')) === IssuerTypeEnum::PADRAO->value)
+                                            ->visible(fn(Get $get): bool => ($get('issuer_type')?->value ?? $get('issuer_type')) === IssuerTypeEnum::PADRAO->value)
                                             ->multiple()
                                             ->options(AtividadesEmpresariaisEnum::class)
                                             ->columnSpan(3),
 
                                         Radio::make('contribuinte_icms')
                                             ->label('Contribuinte ICMS?')
+                                            ->required(fn(Get $get): bool => ($get('issuer_type')?->value ?? $get('issuer_type')) === IssuerTypeEnum::PADRAO->value)
+                                            ->visible(fn(Get $get): bool => ($get('issuer_type')?->value ?? $get('issuer_type')) === IssuerTypeEnum::PADRAO->value)
                                             ->boolean(trueLabel: 'Sim', falseLabel: 'Não')
                                             ->default(false)
                                             ->columnSpan(3),

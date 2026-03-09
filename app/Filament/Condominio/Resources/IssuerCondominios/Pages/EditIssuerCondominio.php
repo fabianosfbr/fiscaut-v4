@@ -3,13 +3,16 @@
 namespace App\Filament\Condominio\Resources\IssuerCondominios\Pages;
 
 use App\Filament\Condominio\Resources\IssuerCondominios\IssuerCondominioResource;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Resources\Issuers\Pages\EditIssuer;
 
-class EditIssuerCondominio extends EditRecord
+
+class EditIssuerCondominio extends EditIssuer
 {
     protected static string $resource = IssuerCondominioResource::class;
 
     protected static ?string $title = 'Editar';
+
+
 
    
 }

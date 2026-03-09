@@ -30,7 +30,7 @@ class CreateIssuer extends CreateRecord
         $data['ambiente'] = 2; // Ambiente de homologação por padrão
 
         // Criptografar apenas a senha (certificado_content já vem criptografado do CertificateService)
-        if (! empty($data['senha_certificado'])) {
+        if (!empty($data['senha_certificado'])) {
             $data['senha_certificado'] = Crypt::encrypt($data['senha_certificado']);
         }
 
@@ -43,7 +43,7 @@ class CreateIssuer extends CreateRecord
         $data['data_situacao_cadastral'] = $this->normalizeDateToDatabase($data['data_situacao_cadastral'] ?? null);
         $data['contract_start_date'] = $this->normalizeDateToDatabase($data['contract_start_date'] ?? null);
 
-        if (! in_array($data['issuer_type'] ?? null, [IssuerTypeEnum::CONDOMINIO->value, IssuerTypeEnum::ASSOCIACAO->value], true)) {
+        if (!in_array($data['issuer_type'] ?? null, [IssuerTypeEnum::CONDOMINIO->value, IssuerTypeEnum::ASSOCIACAO->value], true)) {
             $data['contract_number'] = null;
             $data['contract_start_date'] = null;
         }
@@ -61,7 +61,7 @@ class CreateIssuer extends CreateRecord
      */
     protected function handleRecordCreation(array $data): Model
     {
-        
+
         return DB::transaction(function () use ($data) {
             $user = Auth::user();
 
@@ -88,7 +88,7 @@ class CreateIssuer extends CreateRecord
 
     private function normalizeDateToDatabase(?string $value): ?string
     {
-        if (! filled($value)) {
+        if (!filled($value)) {
             return null;
         }
 
@@ -101,5 +101,11 @@ class CreateIssuer extends CreateRecord
         } catch (\Throwable) {
             return null;
         }
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        // Redirecionar para a listagem de empresas
+        return $this->getResource()::getUrl('index');
     }
 }
