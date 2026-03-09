@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Issuers\Schemas;
 
 use App\Enums\AtividadesEmpresariaisEnum;
+use App\Enums\CondominiumTypeEnum;
 use App\Enums\IssuerTypeEnum;
 use App\Enums\RegimesEmpresariaisEnum;
 use App\Models\Municipio;
@@ -20,7 +21,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
-use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -106,7 +106,7 @@ class IssuerForm
                                         Select::make('regime')
                                             ->required()
                                             ->options(RegimesEmpresariaisEnum::class)
-                                            ->columnSpan(1),
+                                            ->columnSpan(2),
 
                                         Select::make('issuer_type')
                                             ->label('Tipo da Empresa')
@@ -114,7 +114,7 @@ class IssuerForm
                                             ->live()
                                             ->default(IssuerTypeEnum::PADRAO->value)
                                             ->options(IssuerTypeEnum::class)
-                                            ->columnSpan(1),
+                                            ->columnSpan(2),
 
                                         Select::make('classificacao_tributaria')
                                             ->label('Classificação Tributária')
@@ -141,50 +141,7 @@ class IssuerForm
                                                 '85' => '85 - Ente Federativo, Órgãos da União, Autarquias e Fundações Públicas',
                                                 '99' => '99 - Pessoas Jurídicas em Geral',
                                             ])
-                                            ->columnSpan(2),
-
-                                        Fieldset::make('Contrato / Detalhes Adicionais')
-                                            ->visible(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
-                                                IssuerTypeEnum::CONDOMINIO->value,
-                                                IssuerTypeEnum::ASSOCIACAO->value,
-                                            ]))
-                                            ->columns([
-                                                'default' => 1,
-                                                'md' => 2,
-                                                'xl' => 3,
-                                            ])                                            
-                                            ->schema([
-                                                TextInput::make('contract_number')
-                                                    ->label('Número do Contrato')
-                                                    ->required()
-                                                    ->maxLength(255)
-                                                    ->visible(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
-                                                        IssuerTypeEnum::CONDOMINIO->value,
-                                                        IssuerTypeEnum::ASSOCIACAO->value,
-                                                    ]))
-                                                    ->columnSpan(1)
-                                                    ->placeholder('Digite o número do contrato'),
-
-                                                TextInput::make('contract_start_date')
-                                                    ->label('Data de Início do Contrato')
-                                                    ->required()
-                                                    ->mask('99/99/9999')
-                                                    ->formatStateUsing(fn($state) => static::formatDateForDisplay($state))
-                                                    ->visible(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
-                                                        IssuerTypeEnum::CONDOMINIO->value,
-                                                        IssuerTypeEnum::ASSOCIACAO->value,
-                                                    ]))
-                                                    ->rules([
-                                                        'date_format:d/m/Y',
-                                                        'before_or_equal:today',
-                                                    ])
-                                                    ->validationMessages([
-                                                        'before_or_equal' => 'A data de início do contrato não pode ser futura.',
-                                                    ])
-                                                    ->columnSpan(1)
-                                                    ->placeholder('DD/MM/AAAA'),
-                                            ])
-                                            ->columnSpan(4),
+                                            ->columnSpan(6),
 
 
 
@@ -195,13 +152,13 @@ class IssuerForm
                                             ->required()
                                             ->multiple()
                                             ->options(AtividadesEmpresariaisEnum::class)
-                                            ->columnSpan(2),
+                                            ->columnSpan(3),
 
                                         Radio::make('contribuinte_icms')
                                             ->label('Contribuinte ICMS?')
                                             ->boolean(trueLabel: 'Sim', falseLabel: 'Não')
                                             ->default(false)
-                                            ->columnSpan(2),
+                                            ->columnSpan(3),
 
                                         TextEntry::make('placeholder_is_enabled')
                                             ->label('Status no sistema')
@@ -217,9 +174,98 @@ class IssuerForm
                                             ->live()
                                             ->default(true)
                                             ->columnSpanFull(),
-                                     
+
                                     ])
                                     ->columnSpanFull()
+                                    ->columns(6),
+                            ]),
+                        Tab::make('Condomínio/Associação')
+                            ->visible(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                IssuerTypeEnum::CONDOMINIO->value,
+                                IssuerTypeEnum::ASSOCIACAO->value,
+                            ]))
+                            ->schema([
+                                Section::make('Dados específicos')
+                                    ->description('Informações adicionais para condomínio e associação.')
+                                    ->schema([
+                                        TextInput::make('contract_number')
+                                            ->label('Número do Contrato')
+                                            ->required(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                                IssuerTypeEnum::CONDOMINIO->value,
+                                                IssuerTypeEnum::ASSOCIACAO->value,
+                                            ]))
+                                            ->maxLength(255)
+                                            ->placeholder('Digite o número do contrato')
+                                            ->columnSpan(3)
+                                            ->dehydrated(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                                IssuerTypeEnum::CONDOMINIO->value,
+                                                IssuerTypeEnum::ASSOCIACAO->value,
+                                            ])),
+
+                                        TextInput::make('contract_start_date')
+                                            ->label('Data de Início do Contrato')
+                                            ->required(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                                IssuerTypeEnum::CONDOMINIO->value,
+                                                IssuerTypeEnum::ASSOCIACAO->value,
+                                            ]))
+                                            ->mask('99/99/9999')
+                                            ->formatStateUsing(fn($state) => static::formatDateForDisplay($state))
+                                            ->rules([
+                                                'date_format:d/m/Y',
+                                                'before_or_equal:today',
+                                            ])
+                                            ->validationMessages([
+                                                'before_or_equal' => 'A data de início do contrato não pode ser futura.',
+                                            ])
+                                            ->placeholder('DD/MM/AAAA')
+                                            ->columnSpan(3)
+                                            ->dehydrated(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                                IssuerTypeEnum::CONDOMINIO->value,
+                                                IssuerTypeEnum::ASSOCIACAO->value,
+                                            ])),
+
+                                        Select::make('condominium_type')
+                                            ->label('Tipo do Condomínio')
+                                            ->options(CondominiumTypeEnum::class)
+                                            ->required(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                                IssuerTypeEnum::CONDOMINIO->value,
+                                                IssuerTypeEnum::ASSOCIACAO->value,
+                                            ]))
+                                            ->visible(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                                IssuerTypeEnum::CONDOMINIO->value,
+                                                IssuerTypeEnum::ASSOCIACAO->value,
+                                            ]))
+                                            ->dehydrated(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                                IssuerTypeEnum::CONDOMINIO->value,
+                                                IssuerTypeEnum::ASSOCIACAO->value,
+                                            ]))
+                                            ->placeholder('Selecione o tipo do condomínio')
+                                            ->columnSpan(3),
+
+                                        TextInput::make('units_count')
+                                            ->label('Quantidade de Unidades')
+                                            ->numeric()
+                                            ->inputMode('numeric')
+                                            ->rules(['nullable', 'integer', 'min:1'])
+                                            ->validationMessages([
+                                                'integer' => 'A quantidade de unidades deve ser um número inteiro.',
+                                                'min' => 'A quantidade de unidades deve ser maior que zero.',
+                                            ])
+                                            ->required(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                                IssuerTypeEnum::CONDOMINIO->value,
+                                                IssuerTypeEnum::ASSOCIACAO->value,
+                                            ]))
+                                            ->visible(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                                IssuerTypeEnum::CONDOMINIO->value,
+                                                IssuerTypeEnum::ASSOCIACAO->value,
+                                            ]))
+                                            ->dehydrated(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                                IssuerTypeEnum::CONDOMINIO->value,
+                                                IssuerTypeEnum::ASSOCIACAO->value,
+                                            ]))
+                                            ->placeholder('Ex: 120')
+                                            ->columnSpan(3),
+                                    ])
                                     ->columns(6),
                             ]),
                         Tab::make('Detalhes da Empresa')
@@ -370,8 +416,8 @@ class IssuerForm
                                                             ->collapsible()
                                                             ->itemLabel(
                                                                 fn(array $state): ?string => isset($state['id'], $state['text'])
-                                                                    ? "#{$state['id']} - {$state['text']}"
-                                                                    : null
+                                                                ? "#{$state['id']} - {$state['text']}"
+                                                                : null
                                                             ),
                                                     ])
                                                     ->columnSpanFull()
@@ -389,18 +435,18 @@ class IssuerForm
                                 Section::make('Certificado Digital A1')
                                     ->description('Upload e validação do certificado digital para emissão de documentos fiscais')
                                     ->schema([
-                     
+
                                         // Mostrar certificado atual quando em edição
                                         TextEntry::make('certificado_atual_info')
                                             ->label('Certificado Digital Atual')
                                             ->state(function (Get $get, $record): ?HtmlString {
                                                 // Verificar se estamos editando (tem validade_certificado preenchida)
-
+                                    
                                                 $validadeCertificado = $record->validade_certificado;
                                                 $contentCertificado = $record->certificado_content;
                                                 $razaoSocial = $record->razao_social;
 
-                                                if (! $validadeCertificado && !$contentCertificado) {
+                                                if (!$validadeCertificado && !$contentCertificado) {
                                                     return null; // Não mostrar se não tem certificado
                                                 }
 
@@ -410,7 +456,7 @@ class IssuerForm
                                                     $hoje = Carbon::now();
                                                     $diasRestantes = (int) $hoje->diffInDays($dataVencimento, false);
 
-                                               
+
                                                     // Determinar cor e ícone baseado na validade
                                                     if ($diasRestantes < 0) {
                                                         $diasVencidos = abs($diasRestantes);
@@ -479,12 +525,12 @@ class IssuerForm
                                     ');
                                                 }
                                             })
-                                            ->visible(function($record){
+                                            ->visible(function ($record) {
 
 
                                                 return isset($record->validade_certificado) && isset($record->certificado_content);
                                             })
-                                            ->columnSpanFull(),                                            
+                                            ->columnSpanFull(),
 
                                         TextEntry::make('certificado_info_upload')
                                             ->hiddenLabel()
@@ -561,7 +607,7 @@ class IssuerForm
                                                         $password = $get('senha_certificado');
                                                         $certificadoPathArray = $get('path_certificado');
 
-                                                        if (! $password || ! $certificadoPathArray) {
+                                                        if (!$password || !$certificadoPathArray) {
                                                             $set('data_inicio_certificado', null);
                                                             $set('validade_certificado', null);
                                                             $set('certificado_content', null);
@@ -591,7 +637,7 @@ class IssuerForm
                                                                 $pfx = $certificadoPathArray->get();
                                                             }
 
-                                                            if (! $pfx) {
+                                                            if (!$pfx) {
                                                                 Notification::make()
                                                                     ->title('Erro ao ler arquivo')
                                                                     ->body('O arquivo do certificado não foi encontrado ou está inválido.')
@@ -662,7 +708,7 @@ class IssuerForm
                                                 $dataFimStr = $get('validade_certificado');
                                                 $verificado = $get('certificado_verificado');
 
-                                                if (! $verificado || ! $dataInicioStr || ! $dataFimStr) {
+                                                if (!$verificado || !$dataInicioStr || !$dataFimStr) {
                                                     return new HtmlString('
                                         <div style="padding: 16px; border: 2px dashed #d1d5db; background-color: #f9f9f9; border-radius: 8px; text-align: center;">
                                             <div style="color: #6b7280; font-size: 14px;">

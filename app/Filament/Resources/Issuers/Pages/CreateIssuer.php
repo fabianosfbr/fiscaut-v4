@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Issuers\Pages;
 
+use App\Enums\IssuerTypeEnum;
 use App\Filament\Resources\Issuers\IssuerResource;
 use App\Models\Issuer;
 use App\Models\IssuerUserPermission;
@@ -41,6 +42,16 @@ class CreateIssuer extends CreateRecord
         $data['data_abertura'] = $this->normalizeDateToDatabase($data['data_abertura'] ?? null);
         $data['data_situacao_cadastral'] = $this->normalizeDateToDatabase($data['data_situacao_cadastral'] ?? null);
         $data['contract_start_date'] = $this->normalizeDateToDatabase($data['contract_start_date'] ?? null);
+
+        if (! in_array($data['issuer_type'] ?? null, [IssuerTypeEnum::CONDOMINIO->value, IssuerTypeEnum::ASSOCIACAO->value], true)) {
+            $data['contract_number'] = null;
+            $data['contract_start_date'] = null;
+        }
+
+        if (($data['issuer_type'] ?? null) !== IssuerTypeEnum::CONDOMINIO->value) {
+            $data['condominium_type'] = null;
+            $data['units_count'] = null;
+        }
 
         return $data;
     }
