@@ -106,7 +106,7 @@ class IssuerForm
                                         Select::make('regime')
                                             ->required()
                                             ->options(RegimesEmpresariaisEnum::class)
-                                            ->columnSpan(2),
+                                            ->columnSpan(1),
 
                                         Select::make('issuer_type')
                                             ->label('Tipo da Empresa')
@@ -114,6 +114,33 @@ class IssuerForm
                                             ->live()
                                             ->default(IssuerTypeEnum::PADRAO->value)
                                             ->options(IssuerTypeEnum::class)
+                                            ->columnSpan(1),
+
+                                        Select::make('classificacao_tributaria')
+                                            ->label('Classificação Tributária')
+                                            ->required()
+                                            ->default('99')
+                                            ->options([
+                                                '01' => '01 - Empresa enquadrada no regime de tributação Simples Nacional com tributação previdenciária substituída',
+                                                '02' => '02 - Empresa enquadrada no regime de tributação Simples Nacional com tributação previdenciária não substituída',
+                                                '03' => '03 - Empresa enquadrada no regime de tributação Simples Nacional com tributação previdenciária substituída e não substituída',
+                                                '04' => '04 - MEI - Micro Empreendedor Individual',
+                                                '06' => '06 - Agroindústria',
+                                                '07' => '07 - Produtor Rural Pessoa Jurídica',
+                                                '08' => '08 - Consórcio Simplificado de Produtores Rurais',
+                                                '09' => '09 - Órgão Gestor de Mão de Obra',
+                                                '10' => '10 - Entidade Sindical a que se refere a Lei 12.023/2009',
+                                                '11' => '11 - Associação Desportiva que mantém Clube de Futebol Profissional',
+                                                '13' => '13 - Banco, caixa econômica, sociedade de crédito, financiamento e investimento e demais empresas relacionadas no parágrafo 1º do art. 22 da Lei 8.212./91',
+                                                '14' => '14 - Sindicatos em geral, exceto aquele classificado no código [10]',
+                                                '21' => '21 - Pessoa Física, exceto Segurado Especial',
+                                                '22' => '22 - Segurado Especial',
+                                                '60' => '60 - Missão Diplomática ou Repartição Consular de carreira estrangeira',
+                                                '70' => '70 - Empresa de que trata o Decreto 5.436/2005',
+                                                '80' => '80 - Entidade Beneficente de Assistência Social isenta de contribuições sociais',
+                                                '85' => '85 - Ente Federativo, Órgãos da União, Autarquias e Fundações Públicas',
+                                                '99' => '99 - Pessoas Jurídicas em Geral',
+                                            ])
                                             ->columnSpan(2),
 
                                         Fieldset::make('Contrato / Detalhes Adicionais')
@@ -757,6 +784,8 @@ class IssuerForm
 
         try {
             $cnpjDetails = CnpjJaService::getCnpjDetails($cnpj);
+
+            ds($cnpjDetails);
         } catch (Exception $e) {
             Notification::make()
                 ->title('Erro ao consultar CNPJ')
