@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Issuers\Tables;
 
 use App\Filament\Resources\Issuers\Actions\DownloadCertificadoAction;
 use App\Filament\Resources\Issuers\Actions\GerenciarServicoAction;
+use App\Filament\Resources\Issuers\Actions\RemoveCertificadoAction;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
@@ -163,6 +164,8 @@ class IssuersTable
                 DownloadCertificadoAction::make(),
 
                 GerenciarServicoAction::make(),
+
+                RemoveCertificadoAction::make(),
             ]),
         ];
     }

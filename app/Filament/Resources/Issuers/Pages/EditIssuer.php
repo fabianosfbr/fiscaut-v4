@@ -31,7 +31,7 @@ class EditIssuer extends EditRecord
      * Mutate form data before saving the record.
      */
     protected function mutateFormDataBeforeSave(array $data): array
-    {
+    {       
         // Criptografar apenas a senha (certificado_content já vem criptografado do CertificateService)
         if (! empty($data['senha_certificado']) && $data['certificado_verificado'] === true) {
             $data['senha_certificado'] = Crypt::encrypt($data['senha_certificado']);
@@ -44,10 +44,11 @@ class EditIssuer extends EditRecord
         // Remover campos temporários que não devem ser salvos na tabela
         unset($data['certificado_verificado']);
         unset($data['data_inicio_certificado']);
-
+        
         $data['cnpj'] = sanitize($data['cnpj']);
         $data['data_abertura'] = $this->normalizeDateToDatabase($data['data_abertura'] ?? null);
         $data['data_situacao_cadastral'] = $this->normalizeDateToDatabase($data['data_situacao_cadastral'] ?? null);
+        $data['contract_start_date'] = $this->normalizeDateToDatabase($data['contract_start_date'] ?? null);
 
         return $data;
     }

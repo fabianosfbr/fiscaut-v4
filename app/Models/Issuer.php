@@ -34,6 +34,7 @@ class Issuer extends Model
         'unecont_unregistered_at' => 'datetime',
         'data_abertura' => 'date',
         'data_situacao_cadastral' => 'date',
+        'contract_start_date' => 'date',
         'atividade' => 'array',
         'issuer_type' => IssuerTypeEnum::class,
     ];

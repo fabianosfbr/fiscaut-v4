@@ -40,6 +40,7 @@ class CreateIssuer extends CreateRecord
         $data['cnpj'] = sanitize($data['cnpj']);
         $data['data_abertura'] = $this->normalizeDateToDatabase($data['data_abertura'] ?? null);
         $data['data_situacao_cadastral'] = $this->normalizeDateToDatabase($data['data_situacao_cadastral'] ?? null);
+        $data['contract_start_date'] = $this->normalizeDateToDatabase($data['contract_start_date'] ?? null);
 
         return $data;
     }
@@ -49,6 +50,7 @@ class CreateIssuer extends CreateRecord
      */
     protected function handleRecordCreation(array $data): Model
     {
+        
         return DB::transaction(function () use ($data) {
             $user = Auth::user();
 

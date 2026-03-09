@@ -111,9 +111,57 @@ class IssuerForm
                                         Select::make('issuer_type')
                                             ->label('Tipo da Empresa')
                                             ->required()
+                                            ->live()
                                             ->default(IssuerTypeEnum::PADRAO->value)
                                             ->options(IssuerTypeEnum::class)
                                             ->columnSpan(2),
+
+                                        Fieldset::make('Contrato / Detalhes Adicionais')
+                                            ->visible(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                                IssuerTypeEnum::CONDOMINIO->value,
+                                                IssuerTypeEnum::ASSOCIACAO->value,
+                                            ]))
+                                            ->columns([
+                                                'default' => 1,
+                                                'md' => 2,
+                                                'xl' => 3,
+                                            ])                                            
+                                            ->schema([
+                                                TextInput::make('contract_number')
+                                                    ->label('Número do Contrato')
+                                                    ->required()
+                                                    ->maxLength(255)
+                                                    ->visible(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                                        IssuerTypeEnum::CONDOMINIO->value,
+                                                        IssuerTypeEnum::ASSOCIACAO->value,
+                                                    ]))
+                                                    ->columnSpan(1)
+                                                    ->placeholder('Digite o número do contrato'),
+
+                                                TextInput::make('contract_start_date')
+                                                    ->label('Data de Início do Contrato')
+                                                    ->required()
+                                                    ->mask('99/99/9999')
+                                                    ->formatStateUsing(fn($state) => static::formatDateForDisplay($state))
+                                                    ->visible(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                                        IssuerTypeEnum::CONDOMINIO->value,
+                                                        IssuerTypeEnum::ASSOCIACAO->value,
+                                                    ]))
+                                                    ->rules([
+                                                        'date_format:d/m/Y',
+                                                        'before_or_equal:today',
+                                                    ])
+                                                    ->validationMessages([
+                                                        'before_or_equal' => 'A data de início do contrato não pode ser futura.',
+                                                    ])
+                                                    ->columnSpan(1)
+                                                    ->placeholder('DD/MM/AAAA'),
+                                            ])
+                                            ->columnSpan(4),
+
+
+
+
 
                                         Select::make('atividade')
                                             ->label('Atividade')
@@ -142,6 +190,7 @@ class IssuerForm
                                             ->live()
                                             ->default(true)
                                             ->columnSpanFull(),
+                                     
                                     ])
                                     ->columnSpanFull()
                                     ->columns(6),
@@ -154,14 +203,14 @@ class IssuerForm
                                             ->label('Data de Abertura')
                                             ->mask('99/99/9999')
                                             ->formatStateUsing(fn($state) => static::formatDateForDisplay($state))
-                                            ->disabled()
+                                            ->readOnly()
                                             ->placeholder('DD/MM/AAAA')
                                             ->columnSpan(3),
 
                                         TextInput::make('telefone')
                                             ->label('Telefone')
                                             ->tel()
-                                            ->disabled()
+                                            ->readOnly()
                                             ->mask('(99) 9999-9999')
                                             ->columnSpan(3)
                                             ->placeholder('(00) 0000-0000'),
@@ -170,56 +219,56 @@ class IssuerForm
                                             ->label('E-mail')
                                             ->email()
                                             ->maxLength(255)
-                                            ->disabled()
+                                            ->readOnly()
                                             ->columnSpan(3)
                                             ->placeholder('email@empresa.com.br'),
 
                                         TextInput::make('logradouro')
                                             ->label('Logradouro')
                                             ->maxLength(255)
-                                            ->disabled()
+                                            ->readOnly()
                                             ->columnSpan(4)
                                             ->placeholder('Rua, Avenida, etc.'),
 
                                         TextInput::make('numero')
                                             ->label('Número')
                                             ->maxLength(20)
-                                            ->disabled()
+                                            ->readOnly()
                                             ->columnSpan(2)
                                             ->placeholder('Número'),
 
                                         TextInput::make('complemento')
                                             ->label('Complemento')
                                             ->maxLength(255)
-                                            ->disabled()
+                                            ->readOnly()
                                             ->columnSpan(2)
                                             ->placeholder('Complemento (opcional)'),
 
                                         TextInput::make('bairro')
                                             ->label('Bairro')
                                             ->maxLength(255)
-                                            ->disabled()
+                                            ->readOnly()
                                             ->columnSpan(2)
                                             ->placeholder('Bairro'),
 
                                         TextInput::make('cidade')
                                             ->label('Cidade')
                                             ->maxLength(255)
-                                            ->disabled()
+                                            ->readOnly()
                                             ->columnSpan(2)
                                             ->placeholder('Digite a cidade'),
 
                                         TextInput::make('cep')
                                             ->label('CEP')
                                             ->mask('99999-999')
-                                            ->disabled()
+                                            ->readOnly()
                                             ->columnSpan(2)
                                             ->placeholder('00000-000'),
 
                                         TextInput::make('situacao_cadastral')
                                             ->label('Situação Cadastral')
                                             ->maxLength(50)
-                                            ->disabled()
+                                            ->readOnly()
                                             ->columnSpan(2)
                                             ->placeholder('Ex: ATIVA'),
 
@@ -227,22 +276,21 @@ class IssuerForm
                                             ->label('Data da Situação Cadastral')
                                             ->mask('99/99/9999')
                                             ->formatStateUsing(fn($state) => static::formatDateForDisplay($state))
-                                            ->disabled()
+                                            ->readOnly()
                                             ->placeholder('DD/MM/AAAA')
                                             ->columnSpan(2),
 
                                         TextInput::make('natureza_operacao_id')
                                             ->label('ID Natureza Operação')
                                             ->maxLength(50)
-                                            ->disabled()
+                                            ->readOnly()
                                             ->columnSpan(2),
 
                                         TextInput::make('natureza_operacao')
                                             ->label('Natureza Operação')
                                             ->maxLength(50)
-                                            ->disabled()
+                                            ->readOnly()
                                             ->columnSpan(2),
-
 
 
                                         Section::make('Atividades Econômicas')
@@ -252,13 +300,13 @@ class IssuerForm
                                                         TextInput::make('main_activity.id')
                                                             ->label('Código')
                                                             ->numeric()
-                                                            ->disabled()
+                                                            ->readOnly()
                                                             ->columnSpan(2),
 
                                                         TextInput::make('main_activity.text')
                                                             ->label('Descrição')
                                                             ->maxLength(255)
-                                                            ->disabled()
+                                                            ->readOnly()
                                                             ->columnSpan(4),
                                                     ])
                                                     ->columns(6)
@@ -314,15 +362,18 @@ class IssuerForm
                                 Section::make('Certificado Digital A1')
                                     ->description('Upload e validação do certificado digital para emissão de documentos fiscais')
                                     ->schema([
+                     
                                         // Mostrar certificado atual quando em edição
                                         TextEntry::make('certificado_atual_info')
                                             ->label('Certificado Digital Atual')
-                                            ->state(function (Get $get): ?HtmlString {
+                                            ->state(function (Get $get, $record): ?HtmlString {
                                                 // Verificar se estamos editando (tem validade_certificado preenchida)
-                                                $validadeCertificado = $get('validade_certificado');
-                                                $razaoSocial = $get('razao_social');
 
-                                                if (! $validadeCertificado) {
+                                                $validadeCertificado = $record->validade_certificado;
+                                                $contentCertificado = $record->certificado_content;
+                                                $razaoSocial = $record->razao_social;
+
+                                                if (! $validadeCertificado && !$contentCertificado) {
                                                     return null; // Não mostrar se não tem certificado
                                                 }
 
@@ -332,6 +383,7 @@ class IssuerForm
                                                     $hoje = Carbon::now();
                                                     $diasRestantes = (int) $hoje->diffInDays($dataVencimento, false);
 
+                                               
                                                     // Determinar cor e ícone baseado na validade
                                                     if ($diasRestantes < 0) {
                                                         $diasVencidos = abs($diasRestantes);
@@ -400,8 +452,12 @@ class IssuerForm
                                     ');
                                                 }
                                             })
-                                            ->visible(fn(Get $get): bool => filled($get('validade_certificado')))
-                                            ->columnSpanFull(),
+                                            ->visible(function($record){
+
+
+                                                return isset($record->validade_certificado) && isset($record->certificado_content);
+                                            })
+                                            ->columnSpanFull(),                                            
 
                                         TextEntry::make('certificado_info_upload')
                                             ->hiddenLabel()
