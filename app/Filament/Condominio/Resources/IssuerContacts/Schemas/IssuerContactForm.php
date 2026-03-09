@@ -2,6 +2,7 @@
 
 namespace App\Filament\Condominio\Resources\IssuerContacts\Schemas;
 
+use App\Enums\IssuerContactRoleEnum;
 use App\Rules\CpfRule;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -35,6 +36,18 @@ class IssuerContactForm
                             ->maxLength(20),
                         TextInput::make('unidade')
                             ->maxLength(255),
+                        Select::make('funcao')
+                            ->label('Função')
+                            ->options(function () {
+                                $issuer = currentIssuer();
+
+                                if (!$issuer) {
+                                    return [];
+                                }
+
+                                return IssuerContactRoleEnum::getOptions($issuer->issuer_type);
+                            })
+                            ->required(),
                         Select::make('tipo_relacao')
                             ->label('Tipo de Relação')
                             ->options([
@@ -45,9 +58,6 @@ class IssuerContactForm
                     ])
                     ->columns(2)
                     ->columnSpanFull(),
-
-
-
             ]);
     }
 }

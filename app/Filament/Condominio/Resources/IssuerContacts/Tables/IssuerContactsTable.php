@@ -16,7 +16,12 @@ class IssuerContactsTable
         return $table
             ->columns([
                 TextColumn::make('nome')
-                    ->label('Nome'),
+                    ->label('Nome')
+                    ->searchable(),
+                TextColumn::make('funcao')
+                    ->label('Função')
+                    ->badge()
+                    ->sortable(),
                 TextColumn::make('cpf')
                     ->label('CPF')
                     ->formatStateUsing(fn ($state) => formatar_cnpj_cpf($state)), 
