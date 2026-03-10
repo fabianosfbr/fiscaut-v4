@@ -38,7 +38,7 @@ class IssuerDocumentForm
                             return null;
                         }
 
-                        return 'rag/'.$issuer->tenant_id.'/'.$issuer->cnpj.'/documents';
+                        return 'rag/'.$issuer->tenant_id.'/'.sanitize($issuer->cnpj).'/documents';
                     })
                     ->visibility('private')
                     ->acceptedFileTypes([
