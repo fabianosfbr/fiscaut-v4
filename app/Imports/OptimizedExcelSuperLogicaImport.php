@@ -94,7 +94,7 @@ class OptimizedExcelSuperLogicaImport
         }
 
         // Left-side headers logic (Receitas/Despesas)
-        foreach (['credito', 'liquidacao', 'receitas', 'despesas', 'competencia'] as $alias) {
+        foreach (['credito', 'liquidacao', 'receitas', 'despesas', 'competencia', 'documento'] as $alias) {
             $key = $this->normalize($alias);
             if (array_key_exists($key, $normalizedIndex)) {
                 if ($alias === 'credito') {
