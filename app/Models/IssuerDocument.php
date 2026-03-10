@@ -1,0 +1,49 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class IssuerDocument extends Model
+{
+    use SoftDeletes;
+
+    protected $guarded = ['id'];
+
+    protected $casts = [
+        'file_size' => 'integer',
+        'is_active' => 'boolean',
+        'deleted_at' => 'datetime',
+    ];
+
+    protected $appends = ['file_url'];
+
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class);
+    }
+
+    public function issuer()
+    {
+        return $this->belongsTo(Issuer::class);
+    }
+
+    public function getFileUrlAttribute()
+    {
+        return $this->file_path ? storage_path('app/private/' . $this->file_path) : null;
+    }
+
+    public function getFormattedFileSizeAttribute()
+    {
+        $size = $this->file_size;
+        
+        if ($size >= 1048576) {
+            return number_format($size / 1048576, 2) . ' MB';
+        } elseif ($size >= 1024) {
+            return number_format($size / 1024, 2) . ' KB';
+        } else {
+            return $size . ' bytes';
+        }
+    }
+}

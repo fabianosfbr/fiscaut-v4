@@ -74,4 +74,9 @@ class Issuer extends Model
     {
         return $this->hasOne(Municipio::class, 'id', 'cod_municipio_ibge');
     }
+
+    public function documents()
+    {
+        return $this->hasMany(IssuerDocument::class);
+    }
 }

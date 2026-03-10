@@ -6,6 +6,7 @@ use App\Filament\Resources\Issuers\Pages\CreateIssuer;
 use App\Filament\Resources\Issuers\Pages\EditIssuer;
 use App\Filament\Resources\Issuers\Pages\ListIssuers;
 use App\Filament\Resources\Issuers\RelationManagers\ContactsRelationManager;
+use App\Filament\Resources\Issuers\RelationManagers\IssuerDocumentsRelationManager;
 use App\Filament\Resources\Issuers\RelationManagers\UsersRelationManager;
 use App\Filament\Resources\Issuers\Schemas\IssuerForm;
 use App\Filament\Resources\Issuers\Tables\IssuersTable;
@@ -40,6 +41,7 @@ class IssuerResource extends Resource
         return [
             UsersRelationManager::class,
             ContactsRelationManager::class,
+            IssuerDocumentsRelationManager::class,
         ];
     }
 
