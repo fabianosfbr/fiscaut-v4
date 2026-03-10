@@ -5,7 +5,6 @@ namespace App\Filament\Condominio\Resources\IssuerAreaResponsibles\Tables;
 use App\Enums\AreaAtendimentoEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;

@@ -9,7 +9,7 @@ class CreateIssuerContact extends CreateRecord
 {
     protected static string $resource = IssuerContactResource::class;
 
-     protected static ?string $title = 'Adicionar Novo';
+    protected static ?string $title = 'Adicionar Novo';
 
     public function mutateFormDataBeforeCreate(array $data): array
     {

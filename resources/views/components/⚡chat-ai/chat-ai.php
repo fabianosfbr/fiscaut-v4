@@ -1,6 +1,5 @@
 <?php
 
-
 use App\Neuron\Agents\FiscautAgent;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;

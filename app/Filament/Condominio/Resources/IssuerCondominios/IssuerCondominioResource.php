@@ -5,8 +5,6 @@ namespace App\Filament\Condominio\Resources\IssuerCondominios;
 use App\Filament\Condominio\Resources\IssuerCondominios\Pages\CreateIssuerCondominio;
 use App\Filament\Condominio\Resources\IssuerCondominios\Pages\EditIssuerCondominio;
 use App\Filament\Condominio\Resources\IssuerCondominios\Pages\ListIssuerCondominios;
-use App\Filament\Condominio\Resources\IssuerCondominios\Schemas\IssuerCondominioForm;
-use App\Filament\Condominio\Resources\IssuerCondominios\Tables\IssuerCondominiosTable;
 use App\Filament\Resources\Issuers\Schemas\IssuerForm;
 use App\Filament\Resources\Issuers\Tables\IssuersTable;
 use App\Models\Issuer;

@@ -3,7 +3,6 @@
 namespace App\Filament\Condominio\Resources\IssuerAreaResponsibles\Pages;
 
 use App\Filament\Condominio\Resources\IssuerAreaResponsibles\IssuerAreaResponsibleResource;
-use App\Models\Issuer;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateIssuerAreaResponsible extends CreateRecord

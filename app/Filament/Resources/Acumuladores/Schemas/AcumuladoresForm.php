@@ -6,7 +6,6 @@ use App\Models\Acumulador;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Auth;
 
 class AcumuladoresForm
 {

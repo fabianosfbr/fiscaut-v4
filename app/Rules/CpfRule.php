@@ -18,6 +18,7 @@ class CpfRule implements ValidationRule
 
         if (strlen($cpf) != 11 || preg_match('/([0-9])\1{10}/', $cpf)) {
             $fail('O CPF informado é inválido.');
+
             return;
         }
 
@@ -28,6 +29,7 @@ class CpfRule implements ValidationRule
             $d = ((10 * $d) % 11) % 10;
             if ($cpf[$c] != $d) {
                 $fail('O CPF informado é inválido.');
+
                 return;
             }
         }

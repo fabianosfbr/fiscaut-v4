@@ -176,4 +176,3 @@ final class ConsultaNfeSaidaTool extends Tool
         return ($value === null || $value === '') ? null : $value;
     }
 }
-

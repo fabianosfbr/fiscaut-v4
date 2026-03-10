@@ -8,16 +8,16 @@ use App\Filament\Condominio\Resources\IssuerContacts\Pages\ListIssuerContacts;
 use App\Filament\Condominio\Resources\IssuerContacts\Schemas\IssuerContactForm;
 use App\Filament\Condominio\Resources\IssuerContacts\Tables\IssuerContactsTable;
 use App\Models\IssuerContact;
-use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class IssuerContactResource extends Resource
 {
     protected static ?string $model = IssuerContact::class;
 
-     protected static ?string $modelLabel = 'Contato';
+    protected static ?string $modelLabel = 'Contato';
 
     protected static ?string $pluralModelLabel = 'Contatos';
 

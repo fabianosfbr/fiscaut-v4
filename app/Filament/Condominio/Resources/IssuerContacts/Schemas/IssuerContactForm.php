@@ -41,7 +41,7 @@ class IssuerContactForm
                             ->options(function () {
                                 $issuer = currentIssuer();
 
-                                if (!$issuer) {
+                                if (! $issuer) {
                                     return [];
                                 }
 

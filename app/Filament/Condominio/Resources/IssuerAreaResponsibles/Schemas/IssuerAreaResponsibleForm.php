@@ -14,7 +14,7 @@ class IssuerAreaResponsibleForm
         return $schema
             ->components([
                 Section::make()
-                    ->schema([                        
+                    ->schema([
                         Select::make('user_id')
                             ->label('Usuário')
                             ->relationship('user', 'name', function ($query) {

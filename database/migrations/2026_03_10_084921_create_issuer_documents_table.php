@@ -11,13 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('issuer_area_responsibles', function (Blueprint $table) {
+        Schema::create('issuer_documents', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tenant_id')->constrained()->cascadeOnDelete();
             $table->foreignId('issuer_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->json('area');
+            $table->string('document_type');
+            $table->string('original_name');
+            $table->string('user_name');
+            $table->string('extension');
+            $table->string('file_path');
+            $table->integer('file_size');
             $table->timestamps();
+
+            $table->index(['tenant_id', 'issuer_id']);
+            $table->index('document_type');
         });
     }
 
@@ -26,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('issuer_area_responsibles');
+        Schema::dropIfExists('issuer_documents');
     }
 };

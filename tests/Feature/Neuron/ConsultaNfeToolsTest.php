@@ -45,12 +45,12 @@ class ConsultaNfeToolsTest extends TestCase
 
     public function test_consulta_nfe_entrada_filtra_por_tipo_entrada(): void
     {
-        $issuer = new Issuer();
+        $issuer = new Issuer;
         $issuer->id = 1;
         $issuer->tenant_id = 10;
         $issuer->cnpj = '11111111000191';
 
-        $user = new User();
+        $user = new User;
         $user->id = 99;
         $user->issuer_id = $issuer->id;
         $user->setRelation('currentIssuer', $issuer);
@@ -122,7 +122,7 @@ class ConsultaNfeToolsTest extends TestCase
             'tpNf' => '1',
         ]);
 
-        $tool = new ConsultaNfeEntradaTool();
+        $tool = new ConsultaNfeEntradaTool;
 
         $result = $tool(
             'terceiros',
@@ -147,12 +147,12 @@ class ConsultaNfeToolsTest extends TestCase
 
     public function test_consulta_nfe_saida_restringe_por_emitente_do_issuer(): void
     {
-        $issuer = new Issuer();
+        $issuer = new Issuer;
         $issuer->id = 2;
         $issuer->tenant_id = 20;
         $issuer->cnpj = '99999999000191';
 
-        $user = new User();
+        $user = new User;
         $user->id = 100;
         $user->issuer_id = $issuer->id;
         $user->setRelation('currentIssuer', $issuer);
@@ -193,7 +193,7 @@ class ConsultaNfeToolsTest extends TestCase
             'emitente_cnpj' => $issuer->cnpj,
         ]);
 
-        $tool = new ConsultaNfeSaidaTool();
+        $tool = new ConsultaNfeSaidaTool;
 
         $result = $tool(
             null,
@@ -214,12 +214,12 @@ class ConsultaNfeToolsTest extends TestCase
 
     public function test_consulta_nfe_entrada_so_inclui_itens_em_modo_detalhe(): void
     {
-        $issuer = new Issuer();
+        $issuer = new Issuer;
         $issuer->id = 3;
         $issuer->tenant_id = 30;
         $issuer->cnpj = '12345678000199';
 
-        $user = new User();
+        $user = new User;
         $user->id = 101;
         $user->issuer_id = $issuer->id;
         $user->setRelation('currentIssuer', $issuer);
@@ -247,7 +247,7 @@ class ConsultaNfeToolsTest extends TestCase
             'xml' => gzcompress($xml),
         ]);
 
-        $tool = new ConsultaNfeEntradaTool();
+        $tool = new ConsultaNfeEntradaTool;
 
         $list = $tool(
             null,

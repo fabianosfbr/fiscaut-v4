@@ -14,6 +14,7 @@ class EditIssuerContact extends EditRecord
     public function mutateFormDataBeforeSave(array $data): array
     {
         $data['cpf'] = sanitize($data['cpf']);
+
         return $data;
     }
 }

@@ -11,6 +11,7 @@ class ListIssuerContacts extends ListRecords
     protected static string $resource = IssuerContactResource::class;
 
     protected static ?string $title = 'Contatos';
+
     protected function getHeaderActions(): array
     {
         return [

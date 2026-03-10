@@ -80,7 +80,7 @@ if (! function_exists('currentIssuer')) {
         }
 
         static $memo = [];
-        $memoKey = $user->id . ':' . $issuerId;
+        $memoKey = $user->id.':'.$issuerId;
 
         if (array_key_exists($memoKey, $memo)) {
             return $memo[$memoKey];
@@ -89,7 +89,7 @@ if (! function_exists('currentIssuer')) {
         $issuer = Cache::remember(
             currentIssuerCacheKey((int) $user->id, $issuerId),
             now()->addMinutes(10),
-            fn() => Issuer::query()->find($issuerId),
+            fn () => Issuer::query()->find($issuerId),
         );
 
         $memo[$memoKey] = $issuer;
@@ -109,7 +109,7 @@ if (! function_exists('getLabelTag')) {
         foreach ($words as $w) {
             $acronym .= substr($w, 0, 1);
         }
-        $word = $word . $acronym;
+        $word = $word.$acronym;
 
         return strtoupper($word);
     }
@@ -125,7 +125,7 @@ if (! function_exists('formatar_moeda')) {
 if (! function_exists('formatar_cep')) {
     function formatar_cep($value)
     {
-        return substr($value, 0, 5) . '-' . substr($value, 5, 3);
+        return substr($value, 0, 5).'-'.substr($value, 5, 3);
     }
 }
 

@@ -4,7 +4,6 @@ namespace App\Filament\Condominio\Resources\IssuerContacts\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -18,6 +17,7 @@ class IssuerContactsTable
             ->modifyQueryUsing(function (Builder $query) {
                 return $query->where('issuer_id', currentIssuer()->id);
             })
+            ->recordUrl(null)
             ->columns([
                 TextColumn::make('nome')
                     ->label('Nome')
@@ -28,7 +28,7 @@ class IssuerContactsTable
                     ->sortable(),
                 TextColumn::make('cpf')
                     ->label('CPF')
-                    ->formatStateUsing(fn($state) => formatar_cnpj_cpf($state)),
+                    ->formatStateUsing(fn ($state) => formatar_cnpj_cpf($state)),
                 TextColumn::make('email')
                     ->label('E-mail'),
                 TextColumn::make('telefone_whatsapp')
@@ -41,6 +41,7 @@ class IssuerContactsTable
                         if (strlen($phone) === 10) {
                             return preg_replace('/(\d{2})(\d{4})(\d{4})/', '($1) $2-$3', $phone);
                         }
+
                         return $state;
                     }),
                 TextColumn::make('unidade')
@@ -48,7 +49,7 @@ class IssuerContactsTable
                 TextColumn::make('tipo_relacao')
                     ->label('Tipo de Relação')
                     ->badge()
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         'isencao' => 'Isenção',
                         'remuneracao' => 'Remuneração',
                         default => $state,

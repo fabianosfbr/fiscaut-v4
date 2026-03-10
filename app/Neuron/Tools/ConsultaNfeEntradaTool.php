@@ -74,14 +74,17 @@ final class ConsultaNfeEntradaTool extends Tool
             ->where(function (Builder $q) use ($issuer, $tipo_entrada): void {
                 if ($tipo_entrada === 'terceiros') {
                     $this->applyEntradaTerceiros($q, $issuer->cnpj);
+
                     return;
                 }
                 if ($tipo_entrada === 'propria') {
                     $this->applyEntradaPropria($q, $issuer->cnpj);
+
                     return;
                 }
                 if ($tipo_entrada === 'propria_terceiros') {
                     $this->applyEntradaPropriaTerceiros($q, $issuer->cnpj);
+
                     return;
                 }
 

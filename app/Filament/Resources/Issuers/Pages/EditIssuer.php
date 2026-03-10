@@ -34,7 +34,7 @@ class EditIssuer extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         // Criptografar apenas a senha (certificado_content já vem criptografado do CertificateService)
-        if (!empty($data['senha_certificado']) && $data['certificado_verificado'] === true) {
+        if (! empty($data['senha_certificado']) && $data['certificado_verificado'] === true) {
             $data['senha_certificado'] = Crypt::encrypt($data['senha_certificado']);
         } else {
 
@@ -50,15 +50,14 @@ class EditIssuer extends EditRecord
         $data['data_abertura'] = $this->normalizeDateToDatabase($data['data_abertura'] ?? null);
         $data['data_situacao_cadastral'] = $this->normalizeDateToDatabase($data['data_situacao_cadastral'] ?? null);
         $data['contract_start_date'] = $this->normalizeDateToDatabase($data['contract_start_date'] ?? null);
-       
-        if (!in_array($data['issuer_type']->value ?? null, [IssuerTypeEnum::CONDOMINIO->value, IssuerTypeEnum::ASSOCIACAO->value], true)) {
+
+        if (! in_array($data['issuer_type']->value ?? null, [IssuerTypeEnum::CONDOMINIO->value, IssuerTypeEnum::ASSOCIACAO->value], true)) {
             $data['contract_number'] = null;
             $data['contract_start_date'] = null;
 
             $data['condominium_type'] = null;
             $data['units_count'] = null;
         }
-
 
         return $data;
     }
@@ -98,7 +97,7 @@ class EditIssuer extends EditRecord
 
     private function normalizeDateToDatabase(?string $value): ?string
     {
-        if (!filled($value)) {
+        if (! filled($value)) {
             return null;
         }
 

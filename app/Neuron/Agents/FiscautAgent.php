@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Neuron\Agents;
 
-
 use App\Neuron\Tools\ConsultaNfeEntradaTool;
 use App\Neuron\Tools\ConsultaNfeSaidaTool;
 use NeuronAI\Agent\Agent;
@@ -76,8 +75,8 @@ class FiscautAgent extends Agent
     protected function tools(): array
     {
         return [
-            new ConsultaNfeEntradaTool(),
-            new ConsultaNfeSaidaTool(),
+            new ConsultaNfeEntradaTool,
+            new ConsultaNfeSaidaTool,
         ];
     }
 
