@@ -61,6 +61,9 @@ class CondominioPanelProvider extends PanelProvider
                 NavigationGroup::make()
                     ->label('Documentos')
                     ->icon('heroicon-o-document-text'),
+                NavigationGroup::make()
+                    ->label('AGE/AGO')
+                    ->icon('heroicon-o-document-text'),
 
             ])
             ->middleware([

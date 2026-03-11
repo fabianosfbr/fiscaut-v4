@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\IssuerAgeDocumentController;
 use App\Http\Controllers\PlanoDeContaSelectController;
 use App\Http\Controllers\SecureDownloadController;
 use App\Http\Controllers\UploadFileController;
@@ -15,6 +16,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/upload-file/{id}', [UploadFileController::class, 'preview'])
         ->name('upload-file.preview');
+
+    Route::get('/issuer-age/document/{record}', [IssuerAgeDocumentController::class, 'show'])
+        ->name('issuer-age.document.show');
 
     Route::get('filament/remote-select/search', [PlanoDeContaSelectController::class, 'search'])
         ->name('filament.remote-select.search');

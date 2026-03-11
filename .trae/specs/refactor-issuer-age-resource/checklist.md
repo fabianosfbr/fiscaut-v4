@@ -1,0 +1,8 @@
+- [x] User can select "AGO" or "AGE" type when creating/editing an assembly.
+- [x] Fields for "Data limite da AGO", "Prazo de mandato", etc. are visible only when AGO is selected.
+- [x] Fields for "Boleto Configuration" are visible only when AGO is selected.
+- [x] Fields for "Isenção ou Remuneração" are visible only when AGO is selected.
+- [x] "Quem recebe" options correctly reflect the Issuer Type (Condomínio vs Associação).
+- [x] Existing AGE records are accessible and editable without errors.
+- [x] New AGO records can be created and saved successfully.
+- [x] Document upload works for both types.
