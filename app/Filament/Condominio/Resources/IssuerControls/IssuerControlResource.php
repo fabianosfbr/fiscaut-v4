@@ -2,8 +2,7 @@
 
 namespace App\Filament\Condominio\Resources\IssuerControls;
 
-use App\Filament\Condominio\Resources\IssuerControls\Pages\CreateIssuerControl;
-use App\Filament\Condominio\Resources\IssuerControls\Pages\EditIssuerControl;
+use App\Filament\Condominio\Resources\IssuerControls\Pages\EditIssuerControlGroup;
 use App\Filament\Condominio\Resources\IssuerControls\Pages\ListIssuerControls;
 use App\Filament\Condominio\Resources\IssuerControls\Pages\ManageIssuerControls;
 use App\Filament\Condominio\Resources\IssuerControls\Schemas\IssuerControlForm;
@@ -45,9 +44,8 @@ class IssuerControlResource extends Resource
     {
         return [
             'index' => ListIssuerControls::route('/'),
-            'create' => CreateIssuerControl::route('/create'),
-            'edit' => EditIssuerControl::route('/{record}/edit'),
             'manage' => ManageIssuerControls::route('/manage'),
+            'edit-group' => EditIssuerControlGroup::route('/group/{groupId}'),
         ];
     }
 }
