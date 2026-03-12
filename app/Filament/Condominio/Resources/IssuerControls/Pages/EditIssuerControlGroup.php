@@ -5,8 +5,6 @@ namespace App\Filament\Condominio\Resources\IssuerControls\Pages;
 use App\Filament\Condominio\Resources\IssuerControls\IssuerControlResource;
 use App\Models\IssuerGroupControl;
 use Filament\Actions\Action;
-use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Pages\Page;
 use Filament\Schemas\Components\Livewire;
@@ -18,7 +16,6 @@ class EditIssuerControlGroup extends Page
     protected static string $resource = IssuerControlResource::class;
 
     protected string $view = 'filament.condominio.resources.issuer-controls.pages.edit-issuer-control-group';
-
 
     public int $groupId;
 
@@ -34,13 +31,13 @@ class EditIssuerControlGroup extends Page
             ->first();
 
         if ($this->group) {
-            static::$title = 'Editar Grupo: ' . $this->group->name;
+            static::$title = 'Editar Grupo: '.$this->group->name;
         }
     }
 
     public function form(Schema $schema): Schema
     {
-        if (!$this->group) {
+        if (! $this->group) {
             return $schema->components([
                 Section::make('Grupo não encontrado')
                     ->schema([
@@ -48,6 +45,7 @@ class EditIssuerControlGroup extends Page
                     ]),
             ]);
         }
+
         return $schema->components([
             Section::make($this->group->name)
                 ->description($this->group->description ?: null)

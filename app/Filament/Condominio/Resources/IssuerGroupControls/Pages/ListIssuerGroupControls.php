@@ -10,16 +10,13 @@ class ListIssuerGroupControls extends ListRecords
 {
     protected static string $resource = IssuerGroupControlResource::class;
 
-
     protected static ?string $title = 'Grupos de Controle';
 
     protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()
-                ->label("Adicionar Novo"),
+                ->label('Adicionar Novo'),
         ];
     }
-
-    
 }

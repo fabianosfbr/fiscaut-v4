@@ -12,7 +12,7 @@ class ListIssuerControls extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [            
+        return [
             Action::make('manage')
                 ->label('Gerenciar Controles')
                 ->url(fn () => ManageIssuerControls::getUrl()),

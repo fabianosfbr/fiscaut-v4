@@ -2,7 +2,4 @@
 
 namespace App\Services\Filament\Contracts;
 
-interface HasCombinedAttributesInterface
-{
-
-}
+interface HasCombinedAttributesInterface {}

@@ -2,13 +2,12 @@
 
 namespace App\Services\Filament\Contracts;
 
+use App\Enums\FieldAttributesEnum;
+use App\Enums\FieldTypesEnum;
 use Closure;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use App\Enums\FieldAttributesEnum;
-use App\Enums\FieldTypesEnum;
-
 
 interface FormFieldInterface
 {
@@ -52,4 +51,3 @@ interface FormFieldInterface
      */
     public function options(): Collection|Closure|HasMany|HasManyThrough|array;
 }
-

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Services\Filament\Concerns;
+
 use Closure;
 use Filament\Schemas\Components\Component;
 
@@ -33,7 +34,7 @@ trait InteractsWithContainers
         $reflection = new \ReflectionClass($container);
 
         if ($reflection->isInstantiable() && $reflection->isSubclassOf(Component::class)) {
-            $formContainer = new $container();
+            $formContainer = new $container;
         }
 
         if (! in_array(\Filament\Support\Concerns\CanBeContained::class, class_uses($formContainer))) { // @phpstan-ignore-line

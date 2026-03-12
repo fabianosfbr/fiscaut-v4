@@ -4,7 +4,6 @@ namespace App\Services\Filament;
 
 use App\Services\Filament\Contracts\FormFieldInterface;
 use App\Services\Filament\Fields\FieldGeneratorService;
-use App\Services\Filament\FormBuilder;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Placeholder;
 use Filament\Schemas\Components\Component;
@@ -16,7 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class FormGeneratorService
 {
-/**
+    /**
      * The filament fields.
      */
     protected static array $fields = [];

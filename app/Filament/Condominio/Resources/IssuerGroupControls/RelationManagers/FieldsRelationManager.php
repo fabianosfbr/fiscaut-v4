@@ -51,10 +51,9 @@ class FieldsRelationManager extends RelationManager
 
                 Select::make('attribute')
                     ->label('Atributo')
-                    ->options(fn($get) => FieldTypesEnum::tryFrom($get('type'))?->attributes() ?? [])
+                    ->options(fn ($get) => FieldTypesEnum::tryFrom($get('type'))?->attributes() ?? [])
                     ->reactive()
                     ->searchable(),
-
 
                 TextInput::make('order')
                     ->label('Ordem')
@@ -63,38 +62,38 @@ class FieldsRelationManager extends RelationManager
 
                 TextInput::make('input_placeholder')
                     ->label('Placeholder')
-                    ->visible(fn($get) => $get('type') === FieldTypesEnum::Input->value && $get('attribute') !== FieldAttributesEnum::Checkbox->value && $get('attribute') !== FieldAttributesEnum::File->value),
+                    ->visible(fn ($get) => $get('type') === FieldTypesEnum::Input->value && $get('attribute') !== FieldAttributesEnum::Checkbox->value && $get('attribute') !== FieldAttributesEnum::File->value),
 
                 TextInput::make('input_mask')
                     ->label('Máscara')
                     ->placeholder('99.999.999/9999-99')
-                    ->visible(fn($get) => $get('type') === FieldTypesEnum::Input->value && $get('attribute') !== FieldAttributesEnum::Checkbox->value && $get('attribute') !== FieldAttributesEnum::File->value),
+                    ->visible(fn ($get) => $get('type') === FieldTypesEnum::Input->value && $get('attribute') !== FieldAttributesEnum::Checkbox->value && $get('attribute') !== FieldAttributesEnum::File->value),
 
                 TagsInput::make('accepted_types')
                     ->label('Tipos de arquivo aceitos (MIME)')
                     ->placeholder('application/pdf')
-                    ->visible(fn($get) => $get('attribute') === FieldAttributesEnum::File->value),
+                    ->visible(fn ($get) => $get('attribute') === FieldAttributesEnum::File->value),
 
                 TextInput::make('file_directory')
                     ->label('Diretório do arquivo')
                     ->placeholder('issuer/controls')
-                    ->visible(fn($get) => $get('attribute') === FieldAttributesEnum::File->value),
+                    ->visible(fn ($get) => $get('attribute') === FieldAttributesEnum::File->value),
 
                 TextInput::make('file_disk')
                     ->label('Disco de armazenamento')
                     ->placeholder('local')
-                    ->visible(fn($get) => $get('attribute') === FieldAttributesEnum::File->value),
+                    ->visible(fn ($get) => $get('attribute') === FieldAttributesEnum::File->value),
 
                 TextInput::make('file_max_size')
                     ->label('Tamanho máximo (KB)')
                     ->numeric()
-                    ->visible(fn($get) => $get('attribute') === FieldAttributesEnum::File->value),
+                    ->visible(fn ($get) => $get('attribute') === FieldAttributesEnum::File->value),
 
                 Toggle::make('preserve_filenames')
                     ->label('Preservar nome do arquivo')
                     ->default(false)
                     ->columnSpanFull()
-                    ->visible(fn($get) => $get('attribute') === FieldAttributesEnum::File->value),
+                    ->visible(fn ($get) => $get('attribute') === FieldAttributesEnum::File->value),
 
                 Repeater::make('options')
                     ->label('Opções')
@@ -113,14 +112,14 @@ class FieldsRelationManager extends RelationManager
                             ->maxLength(255),
                     ])
                     ->afterStateHydrated(function (Repeater $component, $state): void {
-                        if (!is_array($state) || empty($state)) {
+                        if (! is_array($state) || empty($state)) {
                             return;
                         }
 
                         if (Arr::isAssoc($state)) {
                             $component->state(
                                 collect($state)
-                                    ->map(fn($label, $value) => [
+                                    ->map(fn ($label, $value) => [
                                         'label' => $label,
                                         'value' => $value,
                                     ])
@@ -130,16 +129,16 @@ class FieldsRelationManager extends RelationManager
                         }
                     })
                     ->dehydrateStateUsing(function ($state): array {
-                        if (!is_array($state)) {
+                        if (! is_array($state)) {
                             return [];
                         }
 
                         return collect($state)
-                            ->filter(fn($row) => is_array($row) && filled($row['value'] ?? null))
-                            ->mapWithKeys(fn($row) => [$row['value'] => $row['label'] ?? $row['value']])
+                            ->filter(fn ($row) => is_array($row) && filled($row['value'] ?? null))
+                            ->mapWithKeys(fn ($row) => [$row['value'] => $row['label'] ?? $row['value']])
                             ->toArray();
                     })
-                    ->visible(fn($get) => $get('type') === FieldTypesEnum::Select->value)
+                    ->visible(fn ($get) => $get('type') === FieldTypesEnum::Select->value)
                     ->columnSpanFull(),
 
                 Toggle::make('required')

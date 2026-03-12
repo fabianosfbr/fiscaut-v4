@@ -18,15 +18,16 @@ enum FieldTypesEnum: string implements HasLabel
         };
     }
 
-
     public static function toArray()
     {
         $statuses = [];
         foreach (self::cases() as $status) {
             $statuses[$status->value] = $status->getLabel();
         }
+
         return $statuses;
     }
+
     public function attributes()
     {
         return match ($this) {
@@ -42,6 +43,4 @@ enum FieldTypesEnum: string implements HasLabel
             ],
         };
     }
-
-
 }

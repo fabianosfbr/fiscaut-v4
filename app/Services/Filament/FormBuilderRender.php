@@ -7,11 +7,11 @@ use Filament\Schemas\Components\Component;
 
 class FormBuilderRender
 {
- protected FormBuilder $formBuilder;
+    protected FormBuilder $formBuilder;
 
     public static function make(): self
     {
-        return new self();
+        return new self;
     }
 
     public function form($type): self

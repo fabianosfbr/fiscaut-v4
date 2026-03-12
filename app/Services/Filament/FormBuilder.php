@@ -72,7 +72,7 @@ class FormBuilder
      */
     public static function make(): static
     {
-        return new self();
+        return new self;
     }
 
     /**
@@ -86,8 +86,8 @@ class FormBuilder
             $queryModel = $model;
         }
 
-        if (new $model() instanceof FormFieldInterface) {
-            $queryModel = new $model();
+        if (new $model instanceof FormFieldInterface) {
+            $queryModel = new $model;
         }
 
         if ($queryModel instanceof Model) {
@@ -153,4 +153,3 @@ class FormBuilder
         return false;
     }
 }
-

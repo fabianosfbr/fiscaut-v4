@@ -8,9 +8,9 @@ use App\Services\Filament\Contracts\CanDehydrateState;
 use App\Services\Filament\Contracts\CanHandleFieldState;
 use App\Services\Filament\Contracts\FormFieldInterface;
 use App\Services\Filament\Contracts\HasAcceptedFileTypes;
+use App\Services\Filament\Contracts\HasDependantFields;
 use App\Services\Filament\Contracts\HasFileUploadOptions;
 use App\Services\Filament\Contracts\HasInputOptions;
-use App\Services\Filament\Contracts\HasDependantFields;
 use App\Services\Filament\Contracts\HasOptions;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\FileUpload;
@@ -216,11 +216,11 @@ class FieldGeneratorService
      */
     protected static function mountSelectField(FormFieldInterface $field): Field
     {
-        if (!$field instanceof HasOptions) {
+        if (! $field instanceof HasOptions) {
             throw new \Exception('The field must implement the HasOptions interface.');
         }
 
-        $options = collect($field->getOptions())->filter(fn($option) => $option)->toArray();
+        $options = collect($field->getOptions())->filter(fn ($option) => $option)->toArray();
         $label = $field->getLabel();
         $name = $field->getName();
         $fieldAttribute = $field->getFieldAttribute();

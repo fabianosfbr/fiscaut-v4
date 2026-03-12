@@ -5,9 +5,9 @@ namespace App\Filament\Condominio\Resources\IssuerControls\Pages;
 use App\Filament\Condominio\Resources\IssuerControls\IssuerControlResource;
 use App\Models\IssuerGroupControl;
 use Filament\Actions\Action;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Pages\Page;
 use Filament\Schemas\Components\Livewire;
-use Filament\Schemas\Components\Placeholder;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -33,7 +33,7 @@ class ManageIssuerControls extends Page
                 ->components([
                     Section::make('Sem grupos')
                         ->schema([
-                            Placeholder::make('Nenhum grupo foi encontrado'),
+                            TextEntry::make('Nenhum grupo foi encontrado'),
                         ]),
                 ])
                 ->statePath('data');

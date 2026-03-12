@@ -9,12 +9,12 @@ use App\Services\Filament\Contracts\HasAcceptedFileTypes;
 use App\Services\Filament\Contracts\HasFileUploadOptions;
 use App\Services\Filament\Contracts\HasInputOptions;
 use App\Services\Filament\Contracts\HasOptions;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class IssuerControlField extends Model implements FormFieldInterface, HasOptions, HasAcceptedFileTypes, HasFileUploadOptions, HasInputOptions
+class IssuerControlField extends Model implements FormFieldInterface, HasAcceptedFileTypes, HasFileUploadOptions, HasInputOptions, HasOptions
 {
     protected $guarded = ['id'];
 

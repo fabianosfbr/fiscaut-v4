@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Services\Filament\Concerns;
+
 use Filament\Schemas\Components\Wizard\Step;
 use ReflectionClass;
 
@@ -91,4 +92,3 @@ trait InteractsWithSteps
         return $this->stepClass;
     }
 }
-

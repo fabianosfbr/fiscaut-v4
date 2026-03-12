@@ -4,10 +4,8 @@ namespace App\Filament\Condominio\Resources\IssuerAges\Schemas;
 
 use App\Enums\IssuerAgeTypeEnum;
 use App\Enums\IssuerTypeEnum;
-use App\Models\Issuer;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -17,7 +15,6 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
-
 
 class IssuerAgeForm
 {
@@ -34,27 +31,27 @@ class IssuerAgeForm
                     ->columnSpanFull(),
 
                 FileUpload::make('document_path')
-                    ->label(fn(Get $get) => ($get('type')?->value ?? $get('type')) === IssuerAgeTypeEnum::AGO->value ? 'Documento da AGO' : 'Documento da AGE')
+                    ->label(fn (Get $get) => ($get('type')?->value ?? $get('type')) === IssuerAgeTypeEnum::AGO->value ? 'Documento da AGO' : 'Documento da AGE')
                     ->required()
                     ->directory(function ($get) {
                         $issuer = currentIssuer();
-                        if (!$issuer) {
+                        if (! $issuer) {
                             return null;
                         }
 
-                        return 'rag/' . $issuer->tenant_id . '/' . sanitize($issuer->cnpj) . '/documents';
+                        return 'rag/'.$issuer->tenant_id.'/'.sanitize($issuer->cnpj).'/documents';
                     })
                     ->acceptedFileTypes([
-                        'application/pdf'
+                        'application/pdf',
                     ])
                     ->storeFileNamesIn('original_name')
                     ->maxSize(10240) // 10MB in KB
                     ->preserveFilenames()
                     ->columnSpanFull(),
 
-                // AGE Fields Group   
+                // AGE Fields Group
                 Fieldset::make('Dados da Assembleia Geral Extraordinária')
-                    ->visible(fn(Get $get) => ($get('type')?->value ?? $get('type')) !== IssuerAgeTypeEnum::AGO->value)
+                    ->visible(fn (Get $get) => ($get('type')?->value ?? $get('type')) !== IssuerAgeTypeEnum::AGO->value)
                     ->schema([
                         DatePicker::make('vigencia_date')
                             ->label('Data de Vigência')
@@ -70,14 +67,13 @@ class IssuerAgeForm
                             ->label('Prazo Técnico')
                             ->columnSpan(1),
 
-
                     ])
                     ->columns(3)
                     ->columnSpanFull(),
 
                 // AGO Fields
                 Section::make('Informações da AGO')
-                    ->visible(fn(Get $get) => ($get('type')?->value ?? $get('type')) === IssuerAgeTypeEnum::AGO->value)
+                    ->visible(fn (Get $get) => ($get('type')?->value ?? $get('type')) === IssuerAgeTypeEnum::AGO->value)
                     ->collapsible()
                     ->collapsed()
                     ->schema([
@@ -129,11 +125,10 @@ class IssuerAgeForm
                     ])->columns(2)
                     ->columnSpanFull(),
 
-
                 Section::make('Configuração de Boleto')
                     ->collapsible()
                     ->collapsed()
-                    ->visible(fn(Get $get) => ($get('type')?->value ?? $get('type')) === IssuerAgeTypeEnum::AGO->value)
+                    ->visible(fn (Get $get) => ($get('type')?->value ?? $get('type')) === IssuerAgeTypeEnum::AGO->value)
                     ->schema([
                         TextInput::make('boleto_dia_vencimento')
                             ->label('Dia do Vencimento')
@@ -164,7 +159,7 @@ class IssuerAgeForm
                     ->columns(2),
 
                 Section::make('Isenção ou Remuneração')
-                    ->visible(fn(Get $get) => ($get('type')?->value ?? $get('type')) === IssuerAgeTypeEnum::AGO->value)
+                    ->visible(fn (Get $get) => ($get('type')?->value ?? $get('type')) === IssuerAgeTypeEnum::AGO->value)
                     ->collapsible()
                     ->collapsed()
                     ->schema([
@@ -177,7 +172,7 @@ class IssuerAgeForm
                         Select::make('quem_recebe_isencao')
                             ->label('Quem recebe?')
                             ->multiple()
-                            ->visible(fn(Get $get) => $get('tem_isencao_remuneracao'))
+                            ->visible(fn (Get $get) => $get('tem_isencao_remuneracao'))
                             ->options(function () {
                                 $issuer = currentIssuer();
                                 if ($issuer && $issuer->issuer_type === IssuerTypeEnum::ASSOCIACAO) {
@@ -188,6 +183,7 @@ class IssuerAgeForm
                                         'administrador' => 'Administrador',
                                     ];
                                 }
+
                                 return [
                                     'síndico' => 'Síndico',
                                     'sub-síndico' => 'Sub-Síndico',
@@ -200,7 +196,7 @@ class IssuerAgeForm
                             ->currencyMask(thousandSeparator: '.', decimalSeparator: ',', precision: 2)
                             ->numeric()
                             ->prefix('R$')
-                            ->visible(fn(Get $get) => $get('tem_isencao_remuneracao')),
+                            ->visible(fn (Get $get) => $get('tem_isencao_remuneracao')),
                     ])
                     ->columnSpanFull()
                     ->columns(2),
@@ -213,7 +209,6 @@ class IssuerAgeForm
                 Grid::make(3)
 
                     ->schema([
-
 
                     ])->columnSpanFull(),
 

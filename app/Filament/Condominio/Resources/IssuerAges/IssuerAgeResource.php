@@ -62,8 +62,9 @@ class IssuerAgeResource extends Resource
     {
         $type = $data['type'] ?? null;
 
-        if (!$type)
+        if (! $type) {
             return $data;
+        }
 
         if ($type instanceof IssuerAgeTypeEnum) {
             $type = $type->value;

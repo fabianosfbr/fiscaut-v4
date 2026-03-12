@@ -2,7 +2,6 @@
 
 namespace App\Filament\Condominio\Resources\IssuerGroupControls\Tables;
 
-
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -17,16 +16,16 @@ class IssuerGroupControlsTable
             ->defaultSort('order', 'asc')
             ->reorderable('order')
             ->columns([
-                TextColumn::make("order")
-                    ->label("Ordem")
+                TextColumn::make('order')
+                    ->label('Ordem')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make("name")
-                    ->label("Nome")
+                TextColumn::make('name')
+                    ->label('Nome')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make("description")
-                    ->label("Descrição")
+                TextColumn::make('description')
+                    ->label('Descrição')
                     ->searchable()
                     ->sortable(),
             ])

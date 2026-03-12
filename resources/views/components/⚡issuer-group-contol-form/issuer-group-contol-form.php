@@ -10,7 +10,8 @@ use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
 use Livewire\Component;
 
-new class extends Component implements HasSchemas {
+new class extends Component implements HasSchemas
+{
     use InteractsWithSchemas;
 
     public int $groupId;
@@ -25,7 +26,7 @@ new class extends Component implements HasSchemas {
 
         $controls = IssuerControl::query()
             ->where('issuer_id', $issuerId)
-            ->whereHas('field', fn($query) => $query->where('issuer_group_control_id', $groupId))
+            ->whereHas('field', fn ($query) => $query->where('issuer_group_control_id', $groupId))
             ->get(['issuer_control_field_id', 'value'])
             ->keyBy('issuer_control_field_id');
 
@@ -55,7 +56,7 @@ new class extends Component implements HasSchemas {
                     ->where('issuer_control_fields.issuer_group_control_id', $this->groupId)
                     ->orderBy('issuer_control_fields.order');
             })
-            ->requiredCondition(fn($field) => $field->getRequired())
+            ->requiredCondition(fn ($field) => $field->getRequired())
             ->render();
 
         return $schema
@@ -76,7 +77,7 @@ new class extends Component implements HasSchemas {
         $data = $this->form->getState();
 
         foreach ($fields as $field) {
-            if (!array_key_exists($field->key, $data)) {
+            if (! array_key_exists($field->key, $data)) {
                 continue;
             }
 
@@ -99,5 +100,4 @@ new class extends Component implements HasSchemas {
             ->success()
             ->send();
     }
-
 };

@@ -9,13 +9,10 @@ class CreateIssuerGroupControl extends CreateRecord
 {
     protected static string $resource = IssuerGroupControlResource::class;
 
-
     public function mutateFormDataBeforeCreate(array $data): array
     {
         $data['issuer_id'] = currentIssuer()->id;
 
         return $data;
     }
-
-
 }

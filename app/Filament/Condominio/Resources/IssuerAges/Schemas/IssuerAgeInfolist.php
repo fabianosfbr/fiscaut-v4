@@ -23,7 +23,7 @@ class IssuerAgeInfolist
                                 TextEntry::make('type')
                                     ->label('Tipo de Assembleia')
                                     ->badge()
-                                    ->color(fn(IssuerAgeTypeEnum $state): string => match ($state) {
+                                    ->color(fn (IssuerAgeTypeEnum $state): string => match ($state) {
                                         IssuerAgeTypeEnum::AGO => 'success',
                                         IssuerAgeTypeEnum::AGE => 'warning',
                                     }),
@@ -41,7 +41,7 @@ class IssuerAgeInfolist
                                     TextEntry::make('vigencia_date')
                                         ->label('Data de Vigência')
                                         ->date('d/m/Y')
-                                        ->visible(fn($record) => $record->type === IssuerAgeTypeEnum::AGE)
+                                        ->visible(fn ($record) => $record->type === IssuerAgeTypeEnum::AGE)
                                         ->icon('heroicon-m-calendar'),
 
                                     TextEntry::make('data_limite_edital')
@@ -51,7 +51,7 @@ class IssuerAgeInfolist
                                     TextEntry::make('prazo_tecnico')
                                         ->label('Prazo Técnico (Edital)')
                                         ->placeholder('Não definido')
-                                        ->visible(fn($record) => $record->type === IssuerAgeTypeEnum::AGE),
+                                        ->visible(fn ($record) => $record->type === IssuerAgeTypeEnum::AGE),
 
                                     TextEntry::make('prazo_tecnico_edital')
                                         ->label('Prazo Técnico (Edital)')
@@ -99,7 +99,7 @@ class IssuerAgeInfolist
                     ->collapsible(),
 
                 Section::make('Financeiro e Isenções')
-                    ->visible(fn($record) => $record->type === IssuerAgeTypeEnum::AGO)
+                    ->visible(fn ($record) => $record->type === IssuerAgeTypeEnum::AGO)
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -110,21 +110,21 @@ class IssuerAgeInfolist
 
                                     TextEntry::make('boleto_tipo_prazo')
                                         ->label('Tipo de Prazo')
-                                        ->formatStateUsing(fn($state) => match ($state) {
+                                        ->formatStateUsing(fn ($state) => match ($state) {
                                             'uteis' => 'Dias Úteis',
                                             'corridos' => 'Dias Corridos',
                                         }),
 
                                     TextEntry::make('boleto_gerado_por')
                                         ->label('Boleto Gerado Por')
-                                        ->formatStateUsing(fn($state) => match ($state) {
+                                        ->formatStateUsing(fn ($state) => match ($state) {
                                             'administradora' => 'Administradora',
                                             'garantidora' => 'Garantidora',
                                         }),
 
                                     TextEntry::make('boleto_forma_rateio')
                                         ->label('Forma de Rateio')
-                                        ->formatStateUsing(fn($state) => match ($state) {
+                                        ->formatStateUsing(fn ($state) => match ($state) {
                                             'ideal' => 'Rateio Ideal',
                                             'unidade' => 'Unidade',
                                             'm2' => 'Por m²',
@@ -139,13 +139,13 @@ class IssuerAgeInfolist
                                     TextEntry::make('valor_isencao_remuneracao')
                                         ->label('Valor da Isenção')
                                         ->money('BRL')
-                                        ->visible(fn($record) => $record->tem_isencao_remuneracao),
+                                        ->visible(fn ($record) => $record->tem_isencao_remuneracao),
 
                                     TextEntry::make('quem_recebe_isencao')
                                         ->label('Beneficiários da Isenção')
                                         ->listWithLineBreaks()
                                         ->bulleted()
-                                        ->visible(fn($record) => $record->tem_isencao_remuneracao),
+                                        ->visible(fn ($record) => $record->tem_isencao_remuneracao),
                                 ])->columnSpan(1),
                             ]),
                     ])
@@ -158,11 +158,11 @@ class IssuerAgeInfolist
                             ->schema([
                                 TextEntry::make('document_path')
                                     ->label('Documento Anexo')
-                                    ->formatStateUsing(fn($state) => 'Visualizar Documento')
-                                    ->url(fn($record) => route('issuer-age.document.show', $record), true)
+                                    ->formatStateUsing(fn ($state) => 'Visualizar Documento')
+                                    ->url(fn ($record) => route('issuer-age.document.show', $record), true)
                                     ->icon('heroicon-m-document-arrow-down')
                                     ->color('primary')
-                                    ->visible(fn($record) => !empty($record->document_path)),
+                                    ->visible(fn ($record) => ! empty($record->document_path)),
 
                                 TextEntry::make('observacoes')
                                     ->label('Observações Gerais')

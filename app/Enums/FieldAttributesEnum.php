@@ -3,6 +3,7 @@
 namespace App\Enums;
 
 use Filament\Support\Contracts\HasLabel;
+
 enum FieldAttributesEnum: string implements HasLabel
 {
     case Text = 'text';
@@ -13,7 +14,6 @@ enum FieldAttributesEnum: string implements HasLabel
     case Radio = 'radio';
 
     case Multiple = 'multiple';
-
 
     public function getLabel(): ?string
     {
@@ -33,9 +33,7 @@ enum FieldAttributesEnum: string implements HasLabel
         foreach (self::cases() as $status) {
             $statuses[$status->value] = $status->getLabel();
         }
+
         return $statuses;
     }
-
-
-
 }

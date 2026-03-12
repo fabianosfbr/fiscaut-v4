@@ -29,18 +29,15 @@ class ListIssuerAges extends ListRecords
         ];
     }
 
-
     public function getTabs(): array
     {
         return [
             'age' => Tab::make()
                 ->label('AGE')
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('type', IssuerAgeTypeEnum::AGE)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('type', IssuerAgeTypeEnum::AGE)),
             'ago' => Tab::make()
                 ->label('AGO')
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('type', IssuerAgeTypeEnum::AGO)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('type', IssuerAgeTypeEnum::AGO)),
         ];
     }
-
-
 }
