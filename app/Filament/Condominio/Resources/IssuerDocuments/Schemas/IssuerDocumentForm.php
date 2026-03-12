@@ -25,8 +25,15 @@ class IssuerDocumentForm
                     ->label('Tipo de Documento')
                     ->required()
                     ->options(IssuerDocumentTypeEnum::getDocumentTypes())
-                    ->columnSpanFull()
+                    ->columnSpan(1)
                     ->searchable(),
+
+                TextInput::make('validate_at')
+                    ->label('Válido até')
+                    ->mask('99/99/9999')
+                    ->maxLength(255)
+                    ->helperText('Data de validade do documento (ex: 31/12/2024)    ')
+                    ->columnSpan(1),
 
                 FileUpload::make('file_path')
                     ->label('Arquivo do Documento')
@@ -34,11 +41,11 @@ class IssuerDocumentForm
                     ->disk('local')
                     ->directory(function ($get) {
                         $issuer = currentIssuer();
-                        if (! $issuer) {
+                        if (!$issuer) {
                             return null;
                         }
 
-                        return 'rag/'.$issuer->tenant_id.'/'.sanitize($issuer->cnpj).'/documents';
+                        return 'rag/' . $issuer->tenant_id . '/' . sanitize($issuer->cnpj) . '/documents';
                     })
                     ->visibility('private')
                     ->acceptedFileTypes([
@@ -51,6 +58,7 @@ class IssuerDocumentForm
                     ->preserveFilenames()
                     ->helperText('Formatos permitidos: PDF, DOC, DOCX. Tamanho máximo: 10MB')
                     ->columnSpanFull(),
+
 
             ]);
     }

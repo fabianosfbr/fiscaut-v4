@@ -15,6 +15,7 @@ class IssuerDocument extends Model
         'file_size' => 'integer',
         'is_active' => 'boolean',
         'deleted_at' => 'datetime',
+        'validate' => 'date',
     ];
 
     public function issuer(): BelongsTo

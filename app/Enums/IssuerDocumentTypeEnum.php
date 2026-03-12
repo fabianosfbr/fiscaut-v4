@@ -9,6 +9,7 @@ enum IssuerDocumentTypeEnum: string implements HasColor, HasLabel
 {
     case REGULAMENTO_INTERNO = 'regulamento_interno';
     case CONVENCAO = 'convencao';
+    case CND = 'cnd';
     case ESTATUTO = 'estatuto';
     case CODIGO_OBRAS = 'codigo_obras';
     case PLANTA_ELETRICA = 'planta_eletrica';
@@ -21,6 +22,7 @@ enum IssuerDocumentTypeEnum: string implements HasColor, HasLabel
         return match ($this) {
             self::REGULAMENTO_INTERNO => 'Regulamento Interno',
             self::CONVENCAO => 'Convenção',
+            self::CND => 'CND',
             self::ESTATUTO => 'Estatuto',
             self::CODIGO_OBRAS => 'Código de Obras',
             self::PLANTA_ELETRICA => 'Planta Elétrica',
