@@ -70,6 +70,21 @@ class Issuer extends Model
         return $this->hasMany(IssuerAreaResponsible::class);
     }
 
+    public function groupControls()
+    {
+        return $this->hasMany(IssuerGroupControl::class);
+    }
+
+    public function controlFields()
+    {
+        return $this->hasMany(IssuerControlField::class);
+    }
+
+    public function controls()
+    {
+        return $this->hasMany(IssuerControl::class);
+    }
+
     public function municipio()
     {
         return $this->hasOne(Municipio::class, 'id', 'cod_municipio_ibge');
