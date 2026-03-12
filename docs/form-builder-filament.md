@@ -39,6 +39,7 @@ Interfaces opcionais que ativam comportamentos extras:
 - `HasAcceptedFileTypes`: permite definir `acceptedFileTypes()` para `FileUpload`.
 - `HasFileUploadOptions`: permite configurar `directory()`, `disk()`, `maxSize()` e `preserveFilenames()` para `FileUpload`. `directory()` aceita `string` ou `Closure`.
 - `HasInputOptions`: permite configurar `placeholder()` e `mask()` para `TextInput`.
+- `HasRepeaterSchema`: permite definir a `schema` do `Repeater` via JSON.
 - `HasDependantFields`: permite campos dependentes (container + lista de fields).
 - `CanHandleFieldState`: fornece `afterStateUpdated()`.
 - `CanDehydrateState`: fornece `dehydrateStateUsing()`.
@@ -49,6 +50,7 @@ Tipos (`FieldTypesEnum`):
 
 - `Input`
 - `Select`
+- `Repeater`
 
 Atributos (`FieldAttributesEnum`) usados no mapeamento:
 
@@ -184,6 +186,7 @@ FormBuilderRender::make()
 - Se o modelo implementar `HasAcceptedFileTypes`, o serviço aplica `acceptedFileTypes($accepted_types)`.
 - Se o modelo implementar `HasFileUploadOptions`, o serviço aplica `directory()`, `disk()`, `maxSize()` e `preserveFilenames()`. O `directory()` pode ser uma `Closure` para diretórios dinâmicos.
 - Se o modelo implementar `HasInputOptions`, o serviço aplica `placeholder()` e `mask()` ao `TextInput`.
+- Se o modelo implementar `HasRepeaterSchema`, o serviço renderiza um `Repeater` com a `schema` definida.
 
 Exemplo de `directory()` dinâmico:
 
@@ -264,6 +267,7 @@ Schema::create('issuer_control_fields', function (Blueprint $table) {
     $table->boolean('preserve_filenames')->default(false);
     $table->string('input_placeholder')->nullable();
     $table->string('input_mask')->nullable();
+    $table->json('repeater_schema')->nullable();
 
     $table->timestamps();
 
@@ -282,9 +286,10 @@ use App\\Services\\Filament\\Contracts\\HasAcceptedFileTypes;
 use App\\Services\\Filament\\Contracts\\HasFileUploadOptions;
 use App\\Services\\Filament\\Contracts\\HasInputOptions;
 use App\\Services\\Filament\\Contracts\\HasOptions;
+use App\\Services\\Filament\\Contracts\\HasRepeaterSchema;
 use Illuminate\\Database\\Eloquent\\Relations\\BelongsTo;
 
-class IssuerControlField extends Model implements FormFieldInterface, HasOptions, HasAcceptedFileTypes, HasFileUploadOptions, HasInputOptions
+class IssuerControlField extends Model implements FormFieldInterface, HasOptions, HasAcceptedFileTypes, HasFileUploadOptions, HasInputOptions, HasRepeaterSchema
 {
     protected $casts = [
         'options' => 'array',
@@ -382,6 +387,11 @@ class IssuerControlField extends Model implements FormFieldInterface, HasOptions
     {
         return $this->input_placeholder ?: null;
     }
+
+    public function getRepeaterSchema(): array
+    {
+        return $this->repeater_schema ?? [];
+    }
 }
 ```
 
@@ -416,10 +426,71 @@ IssuerControlField::insert([
 ]);
 ```
 
+### Exemplo de `repeater_schema` (manutenções programadas)
+
+```php
+IssuerControlField::insert([
+    [
+        'issuer_id' => 1,
+        'issuer_group_control_id' => 4,
+        'key' => 'manutencoes_programadas',
+        'label' => 'Manutenções programadas',
+        'type' => 'repeater',
+        'required' => false,
+        'order' => 1,
+        'repeater_schema' => [
+            [
+                'name' => 'tipo',
+                'label' => 'Tipo de manutenção',
+                'type' => 'select',
+                'required' => true,
+                'options' => [
+                    "Caixa d'água" => "Caixa d'água",
+                    'Extintor' => 'Extintor',
+                    'Pressurização' => 'Pressurização',
+                    'Caixa de gordura' => 'Caixa de gordura',
+                    'Dedetização' => 'Dedetização',
+                    'Teste de Mangueiras de incêndio' => 'Teste de Mangueiras de incêndio',
+                    'Pluvial' => 'Pluvial',
+                    'Calhas' => 'Calhas',
+                    'Gerador' => 'Gerador',
+                    'Teste de água (ph, etc)' => 'Teste de água (ph, etc)',
+                    'Iluminação de emergência' => 'Iluminação de emergência',
+                    'Teste alarme de incêndio / sprinter' => 'Teste alarme de incêndio / sprinter',
+                    'Vistoria playground' => 'Vistoria playground',
+                    'Manutenção periódica Elevador' => 'Manutenção periódica Elevador',
+                    'Aquecedores' => 'Aquecedores',
+                    'Manutenção de ar condicionado' => 'Manutenção de ar condicionado',
+                    'Pintura fachada' => 'Pintura fachada',
+                    'Hidrantes' => 'Hidrantes',
+                    'Inventário – Ativo imobilizado' => 'Inventário – Ativo imobilizado',
+                    'Outro' => 'Outro',
+                ],
+            ],
+            [
+                'name' => 'outro',
+                'label' => 'Outro (se aplicável)',
+                'type' => 'text',
+                'required' => false,
+                'placeholder' => 'Descreva a manutenção',
+            ],
+            [
+                'name' => 'data_programada',
+                'label' => 'Data de programação',
+                'type' => 'text',
+                'required' => false,
+                'mask' => '99/99/9999',
+                'placeholder' => 'DD/MM/AAAA',
+            ],
+        ],
+    ],
+]);
+```
+
 Exemplo de diretório dinâmico **via código** (não via banco):
 
 ```php
-class IssuerControlField extends Model implements FormFieldInterface, HasOptions, HasAcceptedFileTypes, HasFileUploadOptions
+class IssuerControlField extends Model implements FormFieldInterface, HasOptions, HasAcceptedFileTypes, HasFileUploadOptions, HasInputOptions, HasRepeaterSchema
 {
     public function getFileDirectory(): string|Closure|null
     {
@@ -448,6 +519,7 @@ class IssuerControlField extends Model implements FormFieldInterface, HasOptions
 - `app/Services/Filament/Contracts/HasAcceptedFileTypes.php`
 - `app/Services/Filament/Contracts/HasFileUploadOptions.php`
 - `app/Services/Filament/Contracts/HasInputOptions.php`
+- `app/Services/Filament/Contracts/HasRepeaterSchema.php`
 - `app/Enums/FieldTypesEnum.php`
 - `app/Enums/FieldAttributesEnum.php`
 - `app/Models/IssuerGroupControl.php`

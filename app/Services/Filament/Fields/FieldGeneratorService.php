@@ -12,9 +12,11 @@ use App\Services\Filament\Contracts\HasDependantFields;
 use App\Services\Filament\Contracts\HasFileUploadOptions;
 use App\Services\Filament\Contracts\HasInputOptions;
 use App\Services\Filament\Contracts\HasOptions;
+use App\Services\Filament\Contracts\HasRepeaterSchema;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -55,6 +57,7 @@ class FieldGeneratorService
         return match ($field->getType()) { // @phpstan-ignore-line
             FieldTypesEnum::Input => self::mountInputField($field),
             FieldTypesEnum::Select => self::mountSelectField($field),
+            FieldTypesEnum::Repeater => self::mountRepeaterField($field),
         };
     }
 
@@ -254,6 +257,67 @@ class FieldGeneratorService
                 ->options($options)
                 ->preload(),
         };
+
+        return $component;
+    }
+
+    protected static function mountRepeaterField(FormFieldInterface $field): Field
+    {
+        if (! $field instanceof HasRepeaterSchema) {
+            throw new \Exception('The field must implement the HasRepeaterSchema interface.');
+        }
+
+        $schema = $field->getRepeaterSchema();
+
+        $components = collect($schema)
+            ->filter(fn ($item) => is_array($item))
+            ->map(fn ($item) => self::buildRepeaterComponent($item))
+            ->filter()
+            ->values()
+            ->all();
+
+        return Repeater::make($field->getName())
+            ->label($field->getLabel())
+            ->schema($components);
+    }
+
+    protected static function buildRepeaterComponent(array $item): ?Field
+    {
+        $type = $item['type'] ?? 'text';
+        $name = $item['name'] ?? null;
+        $label = $item['label'] ?? null;
+
+        if (! $name) {
+            return null;
+        }
+
+        $required = (bool) ($item['required'] ?? false);
+        $placeholder = $item['placeholder'] ?? null;
+        $mask = $item['mask'] ?? null;
+        $options = $item['options'] ?? [];
+
+        $component = match ($type) {
+            'select' => Select::make($name)
+                ->label($label)
+                ->options(is_array($options) ? $options : []),
+            'toggle' => Toggle::make($name)
+                ->label($label),
+            default => TextInput::make($name)
+                ->label($label),
+        };
+
+        if ($required) {
+            $component->required();
+        }
+
+        if ($component instanceof TextInput) {
+            if ($placeholder) {
+                $component->placeholder($placeholder);
+            }
+            if ($mask) {
+                $component->mask($mask);
+            }
+        }
 
         return $component;
     }

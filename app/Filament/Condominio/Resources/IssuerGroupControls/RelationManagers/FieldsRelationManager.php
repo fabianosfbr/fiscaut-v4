@@ -53,7 +53,8 @@ class FieldsRelationManager extends RelationManager
                     ->label('Atributo')
                     ->options(fn ($get) => FieldTypesEnum::tryFrom($get('type'))?->attributes() ?? [])
                     ->reactive()
-                    ->searchable(),
+                    ->searchable()
+                    ->visible(fn ($get) => $get('type') !== FieldTypesEnum::Repeater->value),
 
                 TextInput::make('order')
                     ->label('Ordem')
@@ -68,6 +69,29 @@ class FieldsRelationManager extends RelationManager
                     ->label('Máscara')
                     ->placeholder('99.999.999/9999-99')
                     ->visible(fn ($get) => $get('type') === FieldTypesEnum::Input->value && $get('attribute') !== FieldAttributesEnum::Checkbox->value && $get('attribute') !== FieldAttributesEnum::File->value),
+
+                Textarea::make('repeater_schema')
+                    ->label('Schema do Repeater (JSON)')
+                    ->rows(6)
+                    ->helperText('Ex.: [{\"name\":\"tipo\",\"label\":\"Tipo\",\"type\":\"select\",\"options\":{\"A\":\"A\"}},{\"name\":\"data\",\"label\":\"Data\",\"type\":\"text\",\"mask\":\"99/99/9999\"}]')
+                    ->visible(fn ($get) => $get('type') === FieldTypesEnum::Repeater->value)
+                    ->columnSpanFull()
+                    ->dehydrateStateUsing(function ($state) {
+                        if (is_array($state)) {
+                            return $state;
+                        }
+
+                        $decoded = json_decode($state, true);
+
+                        return is_array($decoded) ? $decoded : [];
+                    })
+                    ->formatStateUsing(function ($state) {
+                        if (is_string($state)) {
+                            return $state;
+                        }
+
+                        return ! empty($state) ? json_encode($state, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) : '';
+                    }),
 
                 TagsInput::make('accepted_types')
                     ->label('Tipos de arquivo aceitos (MIME)')

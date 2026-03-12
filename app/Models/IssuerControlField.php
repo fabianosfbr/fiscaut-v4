@@ -9,12 +9,13 @@ use App\Services\Filament\Contracts\HasAcceptedFileTypes;
 use App\Services\Filament\Contracts\HasFileUploadOptions;
 use App\Services\Filament\Contracts\HasInputOptions;
 use App\Services\Filament\Contracts\HasOptions;
+use App\Services\Filament\Contracts\HasRepeaterSchema;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class IssuerControlField extends Model implements FormFieldInterface, HasAcceptedFileTypes, HasFileUploadOptions, HasInputOptions, HasOptions
+class IssuerControlField extends Model implements FormFieldInterface, HasAcceptedFileTypes, HasFileUploadOptions, HasInputOptions, HasOptions, HasRepeaterSchema
 {
     protected $guarded = ['id'];
 
@@ -24,6 +25,7 @@ class IssuerControlField extends Model implements FormFieldInterface, HasAccepte
         'required' => 'boolean',
         'order' => 'integer',
         'preserve_filenames' => 'boolean',
+        'repeater_schema' => 'array',
     ];
 
     public function issuer(): BelongsTo
@@ -95,7 +97,7 @@ class IssuerControlField extends Model implements FormFieldInterface, HasAccepte
         return $this->accepted_types ?? null;
     }
 
-    public function getFileDirectory(): ?string
+    public function getFileDirectory(): string|\Closure|null
     {
         return $this->file_directory ?: null;
     }
@@ -123,5 +125,10 @@ class IssuerControlField extends Model implements FormFieldInterface, HasAccepte
     public function getInputPlaceholder(): ?string
     {
         return $this->input_placeholder ?: null;
+    }
+
+    public function getRepeaterSchema(): array
+    {
+        return $this->repeater_schema ?? [];
     }
 }

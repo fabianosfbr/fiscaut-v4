@@ -10,11 +10,14 @@ enum FieldTypesEnum: string implements HasLabel
 
     case Select = 'select';
 
+    case Repeater = 'repeater';
+
     public function getLabel(): ?string
     {
         return match ($this) {
             self::Input => 'Input',
             self::Select => 'Select',
+            self::Repeater => 'Repeater',
         };
     }
 
@@ -41,6 +44,7 @@ enum FieldTypesEnum: string implements HasLabel
                 FieldAttributesEnum::Radio->value => FieldAttributesEnum::Radio->getLabel(),
                 FieldAttributesEnum::Multiple->value => FieldAttributesEnum::Multiple->getLabel(),
             ],
+            self::Repeater => [],
         };
     }
 }
