@@ -188,6 +188,8 @@ FormBuilderRender::make()
 - Se o modelo implementar `HasInputOptions`, o serviço aplica `placeholder()` e `mask()` ao `TextInput`.
 - Se o modelo implementar `HasRepeaterSchema`, o serviço renderiza um `Repeater` com a `schema` definida.
 
+O `Repeater` é renderizado no formato de **tabela** (Table Repeater), com colunas derivadas de `label`/`name` dos itens da `schema`. citeturn1open0
+
 Exemplo de `directory()` dinâmico:
 
 ```php
@@ -485,6 +487,15 @@ IssuerControlField::insert([
         ],
     ],
 ]);
+```
+
+Exemplo mínimo de `repeater_schema` em formato de tabela:
+
+```json
+[
+  {"name":"tipo","label":"Tipo de manutenção","type":"select","required":true,"options":{"A":"A","B":"B"}},
+  {"name":"data_programada","label":"Data","type":"text","mask":"99/99/9999","placeholder":"DD/MM/AAAA"}
+]
 ```
 
 Exemplo de diretório dinâmico **via código** (não via banco):

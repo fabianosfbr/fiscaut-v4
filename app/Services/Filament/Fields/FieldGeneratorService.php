@@ -17,6 +17,7 @@ use Filament\Forms\Components\Field;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -276,8 +277,20 @@ class FieldGeneratorService
             ->values()
             ->all();
 
+        $columns = collect($schema)
+            ->filter(fn ($item) => is_array($item))
+            ->map(function ($item) {
+                $label = $item['label'] ?? $item['name'] ?? 'Coluna';
+
+                return TableColumn::make($label);
+            })
+            ->values()
+            ->all();
+
         return Repeater::make($field->getName())
             ->label($field->getLabel())
+            ->table($columns)
+            ->compact()
             ->schema($components);
     }
 
