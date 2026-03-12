@@ -3,7 +3,7 @@
 namespace App\Filament\Condominio\Resources\IssuerControls\Pages;
 
 use App\Filament\Condominio\Resources\IssuerControls\IssuerControlResource;
-use Filament\Actions\CreateAction;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\ListRecords;
 
 class ListIssuerControls extends ListRecords
@@ -12,8 +12,10 @@ class ListIssuerControls extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            CreateAction::make(),
+        return [            
+            Action::make('manage')
+                ->label('Gerenciar Controles')
+                ->url(fn () => ManageIssuerControls::getUrl()),
         ];
     }
 }

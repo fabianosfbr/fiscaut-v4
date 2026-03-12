@@ -5,13 +5,14 @@ namespace App\Filament\Condominio\Resources\IssuerControls;
 use App\Filament\Condominio\Resources\IssuerControls\Pages\CreateIssuerControl;
 use App\Filament\Condominio\Resources\IssuerControls\Pages\EditIssuerControl;
 use App\Filament\Condominio\Resources\IssuerControls\Pages\ListIssuerControls;
+use App\Filament\Condominio\Resources\IssuerControls\Pages\ManageIssuerControls;
 use App\Filament\Condominio\Resources\IssuerControls\Schemas\IssuerControlForm;
 use App\Filament\Condominio\Resources\IssuerControls\Tables\IssuerControlsTable;
 use App\Models\IssuerControl;
-use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class IssuerControlResource extends Resource
 {
@@ -46,6 +47,7 @@ class IssuerControlResource extends Resource
             'index' => ListIssuerControls::route('/'),
             'create' => CreateIssuerControl::route('/create'),
             'edit' => EditIssuerControl::route('/{record}/edit'),
+            'manage' => ManageIssuerControls::route('/manage'),
         ];
     }
 }

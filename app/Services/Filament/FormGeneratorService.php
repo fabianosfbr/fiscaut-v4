@@ -147,7 +147,7 @@ class FormGeneratorService
 
             $sections = [];
             foreach ($fieldsPerGroup as $key => $fields) {
-                $sections[] = Section::make($key)->schema($fields)->columnSpanFull();
+                $sections[] = Section::make($key)->schema($fields)->collapsible()->columnSpanFull();
             }
 
             return $sections;
