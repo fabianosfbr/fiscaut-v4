@@ -7,6 +7,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class IssuerGroupControlsTable
 {
@@ -15,6 +16,9 @@ class IssuerGroupControlsTable
         return $table
             ->defaultSort('order', 'asc')
             ->reorderable('order')
+            ->modifyQueryUsing(function (Builder $query) {
+                return $query->where('issuer_id', currentIssuer()->id);
+            })
             ->columns([
                 TextColumn::make('order')
                     ->label('Ordem')
