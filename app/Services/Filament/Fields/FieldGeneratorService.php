@@ -8,6 +8,8 @@ use App\Services\Filament\Contracts\CanDehydrateState;
 use App\Services\Filament\Contracts\CanHandleFieldState;
 use App\Services\Filament\Contracts\FormFieldInterface;
 use App\Services\Filament\Contracts\HasAcceptedFileTypes;
+use App\Services\Filament\Contracts\HasFileUploadOptions;
+use App\Services\Filament\Contracts\HasInputOptions;
 use App\Services\Filament\Contracts\HasDependantFields;
 use App\Services\Filament\Contracts\HasOptions;
 use Filament\Forms\Components\Field;
@@ -132,6 +134,18 @@ class FieldGeneratorService
             $component->dehydrateStateUsing($field->dehydrateStateUsing());
         }
 
+        if ($component instanceof TextInput && $field instanceof HasInputOptions) {
+            $placeholder = $field->getInputPlaceholder();
+            if ($placeholder) {
+                $component->placeholder($placeholder);
+            }
+
+            $mask = $field->getInputMask();
+            if ($mask) {
+                $component->mask($mask);
+            }
+        }
+
         return $component;
     }
 
@@ -149,7 +163,52 @@ class FieldGeneratorService
             }
         }
 
+        if ($field instanceof HasFileUploadOptions) {
+            $directory = $field->getFileDirectory();
+            if ($directory instanceof \Closure) {
+                $directory = $directory();
+            }
+
+            if (is_string($directory)) {
+                $directory = self::resolveDirectoryPlaceholders($directory);
+            }
+
+            if ($directory) {
+                $component->directory($directory);
+            }
+
+            if ($field->getFileDisk()) {
+                $component->disk($field->getFileDisk());
+            }
+
+            if ($field->getFileMaxSize()) {
+                $component->maxSize($field->getFileMaxSize());
+            }
+
+            if ($field->shouldPreserveFilenames()) {
+                $component->preserveFilenames();
+            }
+        }
+
         return $component;
+    }
+
+    protected static function resolveDirectoryPlaceholders(string $directory): string
+    {
+        $issuer = currentIssuer();
+
+        if (! $issuer) {
+            return $directory;
+        }
+
+        $replacements = [
+            '{tenant_id}' => (string) $issuer->tenant_id,
+            '{issuer_id}' => (string) $issuer->id,
+            '{cnpj}' => (string) $issuer->cnpj,
+            '{cnpj_sanitized}' => (string) sanitize($issuer->cnpj),
+        ];
+
+        return strtr($directory, $replacements);
     }
 
     /**

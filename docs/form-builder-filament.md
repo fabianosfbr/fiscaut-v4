@@ -37,6 +37,8 @@ Interfaces opcionais que ativam comportamentos extras:
 
 - `HasOptions`: obrigatório para campos do tipo `Select`.
 - `HasAcceptedFileTypes`: permite definir `acceptedFileTypes()` para `FileUpload`.
+- `HasFileUploadOptions`: permite configurar `directory()`, `disk()`, `maxSize()` e `preserveFilenames()` para `FileUpload`. `directory()` aceita `string` ou `Closure`.
+- `HasInputOptions`: permite configurar `placeholder()` e `mask()` para `TextInput`.
 - `HasDependantFields`: permite campos dependentes (container + lista de fields).
 - `CanHandleFieldState`: fornece `afterStateUpdated()`.
 - `CanDehydrateState`: fornece `dehydrateStateUsing()`.
@@ -180,6 +182,45 @@ FormBuilderRender::make()
 - O agrupamento determina os steps quando `container()` é usado.
 - `attribute = file` renderiza `FileUpload` com configuração padrão.
 - Se o modelo implementar `HasAcceptedFileTypes`, o serviço aplica `acceptedFileTypes($accepted_types)`.
+- Se o modelo implementar `HasFileUploadOptions`, o serviço aplica `directory()`, `disk()`, `maxSize()` e `preserveFilenames()`. O `directory()` pode ser uma `Closure` para diretórios dinâmicos.
+- Se o modelo implementar `HasInputOptions`, o serviço aplica `placeholder()` e `mask()` ao `TextInput`.
+
+Exemplo de `directory()` dinâmico:
+
+```php
+public function getFileDirectory(): string|Closure|null
+{
+    return function () {
+        $issuer = currentIssuer();
+        if (! $issuer) {
+            return null;
+        }
+
+        return 'rag/' . $issuer->tenant_id . '/' . sanitize($issuer->cnpj) . '/documents';
+    };
+}
+```
+
+Observação sobre o formulário do `FieldsRelationManager`:
+o campo **Diretório do arquivo** salva apenas **string** no banco.
+Closures **não** podem ser persistidas via form. Para diretório dinâmico:
+1) implemente `getFileDirectory()` no model retornando uma `Closure`, ou
+2) use um template de string no banco e resolva via código (ex.: `{tenant_id}`).
+
+### Resolver de placeholders (FileUpload)
+
+Quando `file_directory` é uma string, o serviço substitui placeholders automaticamente:
+
+- `{tenant_id}`: ID do tenant atual.
+- `{issuer_id}`: ID do issuer atual.
+- `{cnpj}`: CNPJ original do issuer.
+- `{cnpj_sanitized}`: CNPJ do issuer sanitizado.
+
+Exemplo:
+
+```text
+rag/{tenant_id}/{cnpj_sanitized}/documents
+```
 
 ## Modelo de dados real (implementado)
 
@@ -216,6 +257,13 @@ Schema::create('issuer_control_fields', function (Blueprint $table) {
     $table->json('options')->nullable();
     // MIME types aceitos para FileUpload
     $table->json('accepted_types')->nullable();
+    // Opções adicionais de FileUpload
+    $table->string('file_directory')->nullable();
+    $table->string('file_disk')->nullable();
+    $table->unsignedInteger('file_max_size')->nullable();
+    $table->boolean('preserve_filenames')->default(false);
+    $table->string('input_placeholder')->nullable();
+    $table->string('input_mask')->nullable();
 
     $table->timestamps();
 
@@ -231,14 +279,17 @@ use App\\Enums\\FieldAttributesEnum;
 use App\\Enums\\FieldTypesEnum;
 use App\\Services\\Filament\\Contracts\\FormFieldInterface;
 use App\\Services\\Filament\\Contracts\\HasAcceptedFileTypes;
+use App\\Services\\Filament\\Contracts\\HasFileUploadOptions;
+use App\\Services\\Filament\\Contracts\\HasInputOptions;
 use App\\Services\\Filament\\Contracts\\HasOptions;
 use Illuminate\\Database\\Eloquent\\Relations\\BelongsTo;
 
-class IssuerControlField extends Model implements FormFieldInterface, HasOptions, HasAcceptedFileTypes
+class IssuerControlField extends Model implements FormFieldInterface, HasOptions, HasAcceptedFileTypes, HasFileUploadOptions, HasInputOptions
 {
     protected $casts = [
         'options' => 'array',
         'accepted_types' => 'array',
+        'preserve_filenames' => 'boolean',
         'required' => 'boolean',
     ];
 
@@ -301,6 +352,36 @@ class IssuerControlField extends Model implements FormFieldInterface, HasOptions
     {
         return $this->accepted_types ?? null;
     }
+
+    public function getFileDirectory(): string|Closure|null
+    {
+        return $this->file_directory ?: null;
+    }
+
+    public function getFileMaxSize(): ?int
+    {
+        return $this->file_max_size ?: null;
+    }
+
+    public function getFileDisk(): ?string
+    {
+        return $this->file_disk ?: null;
+    }
+
+    public function shouldPreserveFilenames(): bool
+    {
+        return (bool) ($this->preserve_filenames ?? false);
+    }
+
+    public function getInputMask(): ?string
+    {
+        return $this->input_mask ?: null;
+    }
+
+    public function getInputPlaceholder(): ?string
+    {
+        return $this->input_placeholder ?: null;
+    }
 }
 ```
 
@@ -315,15 +396,15 @@ IssuerGroupControl::insert([
 
 IssuerControlField::insert([
     // Seguro
-    ['issuer_id' => 1, 'issuer_group_control_id' => 1, 'key' => 'numero_apolice', 'label' => 'Número da apólice', 'type' => 'input', 'attribute' => 'text', 'required' => true, 'order' => 1],
+    ['issuer_id' => 1, 'issuer_group_control_id' => 1, 'key' => 'numero_apolice', 'label' => 'Número da apólice', 'type' => 'input', 'attribute' => 'text', 'required' => true, 'order' => 1, 'input_placeholder' => 'Digite o número da apólice'],
     ['issuer_id' => 1, 'issuer_group_control_id' => 1, 'key' => 'nome_seguradora', 'label' => 'Seguradora', 'type' => 'input', 'attribute' => 'text', 'required' => true, 'order' => 2],
     ['issuer_id' => 1, 'issuer_group_control_id' => 1, 'key' => 'bonus', 'label' => 'Bônus', 'type' => 'input', 'attribute' => 'text', 'required' => false, 'order' => 3],
     ['issuer_id' => 1, 'issuer_group_control_id' => 1, 'key' => 'nome_corretora', 'label' => 'Corretora', 'type' => 'input', 'attribute' => 'text', 'required' => false, 'order' => 4],
-    ['issuer_id' => 1, 'issuer_group_control_id' => 1, 'key' => 'vigencia', 'label' => 'Vigência', 'type' => 'input', 'attribute' => 'text', 'required' => true, 'order' => 5],
+    ['issuer_id' => 1, 'issuer_group_control_id' => 1, 'key' => 'vigencia', 'label' => 'Vigência', 'type' => 'input', 'attribute' => 'text', 'required' => true, 'order' => 5, 'input_mask' => '99/99/9999', 'input_placeholder' => 'DD/MM/AAAA'],
     ['issuer_id' => 1, 'issuer_group_control_id' => 1, 'key' => 'valor_premio', 'label' => 'Valor do prêmio', 'type' => 'input', 'attribute' => 'number', 'required' => false, 'order' => 6],
 
     // AVCB
-    ['issuer_id' => 1, 'issuer_group_control_id' => 2, 'key' => 'documento_avcb', 'label' => 'Documento', 'type' => 'input', 'attribute' => 'file', 'required' => true, 'order' => 1, 'accepted_types' => ['application/pdf']],
+    ['issuer_id' => 1, 'issuer_group_control_id' => 2, 'key' => 'documento_avcb', 'label' => 'Documento', 'type' => 'input', 'attribute' => 'file', 'required' => true, 'order' => 1, 'accepted_types' => ['application/pdf'], 'file_directory' => 'issuer/controls'],
     ['issuer_id' => 1, 'issuer_group_control_id' => 2, 'key' => 'vigencia_avcb', 'label' => 'Vigência', 'type' => 'input', 'attribute' => 'text', 'required' => true, 'order' => 2],
     ['issuer_id' => 1, 'issuer_group_control_id' => 2, 'key' => 'projeto_avcb', 'label' => 'Projeto', 'type' => 'input', 'attribute' => 'text', 'required' => false, 'order' => 3],
     ['issuer_id' => 1, 'issuer_group_control_id' => 2, 'key' => 'responsavel_avcb', 'label' => 'Responsável', 'type' => 'input', 'attribute' => 'text', 'required' => false, 'order' => 4],
@@ -334,6 +415,29 @@ IssuerControlField::insert([
     ['issuer_id' => 1, 'issuer_group_control_id' => 3, 'key' => 'responsavel_pararaios', 'label' => 'Responsável', 'type' => 'input', 'attribute' => 'text', 'required' => false, 'order' => 3],
 ]);
 ```
+
+Exemplo de diretório dinâmico **via código** (não via banco):
+
+```php
+class IssuerControlField extends Model implements FormFieldInterface, HasOptions, HasAcceptedFileTypes, HasFileUploadOptions
+{
+    public function getFileDirectory(): string|Closure|null
+    {
+        if ($this->attribute !== 'file') {
+            return $this->file_directory ?: null;
+        }
+
+        return function () {
+            $issuer = currentIssuer();
+            if (! $issuer) {
+                return null;
+            }
+
+            return 'rag/' . $issuer->tenant_id . '/' . sanitize($issuer->cnpj) . '/documents';
+        };
+    }
+}
+```
 ## Arquivos relacionados
 
 - `app/Services/Filament/FormBuilderRender.php`
@@ -342,6 +446,8 @@ IssuerControlField::insert([
 - `app/Services/Filament/Fields/FieldGeneratorService.php`
 - `app/Services/Filament/Contracts/*.php`
 - `app/Services/Filament/Contracts/HasAcceptedFileTypes.php`
+- `app/Services/Filament/Contracts/HasFileUploadOptions.php`
+- `app/Services/Filament/Contracts/HasInputOptions.php`
 - `app/Enums/FieldTypesEnum.php`
 - `app/Enums/FieldAttributesEnum.php`
 - `app/Models/IssuerGroupControl.php`

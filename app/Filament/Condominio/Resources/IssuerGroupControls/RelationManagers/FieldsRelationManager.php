@@ -55,20 +55,46 @@ class FieldsRelationManager extends RelationManager
                     ->reactive()
                     ->searchable(),
 
-                Toggle::make('required')
-                    ->label('Obrigatório')
-                    ->default(false),
 
                 TextInput::make('order')
                     ->label('Ordem')
                     ->numeric()
                     ->default(0),
 
+                TextInput::make('input_placeholder')
+                    ->label('Placeholder')
+                    ->visible(fn($get) => $get('type') === FieldTypesEnum::Input->value && $get('attribute') !== FieldAttributesEnum::Checkbox->value && $get('attribute') !== FieldAttributesEnum::File->value),
+
+                TextInput::make('input_mask')
+                    ->label('Máscara')
+                    ->placeholder('99.999.999/9999-99')
+                    ->visible(fn($get) => $get('type') === FieldTypesEnum::Input->value && $get('attribute') !== FieldAttributesEnum::Checkbox->value && $get('attribute') !== FieldAttributesEnum::File->value),
+
                 TagsInput::make('accepted_types')
                     ->label('Tipos de arquivo aceitos (MIME)')
                     ->placeholder('application/pdf')
-                    ->visible(fn($get) => $get('attribute') === FieldAttributesEnum::File->value)
-                    ->columnSpanFull(),
+                    ->visible(fn($get) => $get('attribute') === FieldAttributesEnum::File->value),
+
+                TextInput::make('file_directory')
+                    ->label('Diretório do arquivo')
+                    ->placeholder('issuer/controls')
+                    ->visible(fn($get) => $get('attribute') === FieldAttributesEnum::File->value),
+
+                TextInput::make('file_disk')
+                    ->label('Disco de armazenamento')
+                    ->placeholder('local')
+                    ->visible(fn($get) => $get('attribute') === FieldAttributesEnum::File->value),
+
+                TextInput::make('file_max_size')
+                    ->label('Tamanho máximo (KB)')
+                    ->numeric()
+                    ->visible(fn($get) => $get('attribute') === FieldAttributesEnum::File->value),
+
+                Toggle::make('preserve_filenames')
+                    ->label('Preservar nome do arquivo')
+                    ->default(false)
+                    ->columnSpanFull()
+                    ->visible(fn($get) => $get('attribute') === FieldAttributesEnum::File->value),
 
                 Repeater::make('options')
                     ->label('Opções')
@@ -115,6 +141,11 @@ class FieldsRelationManager extends RelationManager
                     })
                     ->visible(fn($get) => $get('type') === FieldTypesEnum::Select->value)
                     ->columnSpanFull(),
+
+                Toggle::make('required')
+                    ->label('Obrigatório')
+                    ->columnSpanFull()
+                    ->default(false),
 
                 Textarea::make('description')
                     ->label('Descrição')

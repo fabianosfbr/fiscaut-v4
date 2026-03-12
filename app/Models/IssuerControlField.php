@@ -6,13 +6,15 @@ use App\Enums\FieldAttributesEnum;
 use App\Enums\FieldTypesEnum;
 use App\Services\Filament\Contracts\FormFieldInterface;
 use App\Services\Filament\Contracts\HasAcceptedFileTypes;
+use App\Services\Filament\Contracts\HasFileUploadOptions;
+use App\Services\Filament\Contracts\HasInputOptions;
 use App\Services\Filament\Contracts\HasOptions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class IssuerControlField extends Model implements FormFieldInterface, HasOptions, HasAcceptedFileTypes
+class IssuerControlField extends Model implements FormFieldInterface, HasOptions, HasAcceptedFileTypes, HasFileUploadOptions, HasInputOptions
 {
     protected $guarded = ['id'];
 
@@ -21,6 +23,7 @@ class IssuerControlField extends Model implements FormFieldInterface, HasOptions
         'accepted_types' => 'array',
         'required' => 'boolean',
         'order' => 'integer',
+        'preserve_filenames' => 'boolean',
     ];
 
     public function issuer(): BelongsTo
@@ -90,5 +93,35 @@ class IssuerControlField extends Model implements FormFieldInterface, HasOptions
     public function getAcceptedFileTypes(): ?array
     {
         return $this->accepted_types ?? null;
+    }
+
+    public function getFileDirectory(): ?string
+    {
+        return $this->file_directory ?: null;
+    }
+
+    public function getFileMaxSize(): ?int
+    {
+        return $this->file_max_size ?: null;
+    }
+
+    public function getFileDisk(): ?string
+    {
+        return $this->file_disk ?: null;
+    }
+
+    public function shouldPreserveFilenames(): bool
+    {
+        return (bool) ($this->preserve_filenames ?? false);
+    }
+
+    public function getInputMask(): ?string
+    {
+        return $this->input_mask ?: null;
+    }
+
+    public function getInputPlaceholder(): ?string
+    {
+        return $this->input_placeholder ?: null;
     }
 }

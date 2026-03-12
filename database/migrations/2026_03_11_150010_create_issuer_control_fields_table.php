@@ -25,6 +25,12 @@ return new class extends Migration
             $table->unsignedInteger('order')->default(0);
             $table->json('options')->nullable();
             $table->json('accepted_types')->nullable();
+            $table->string('file_directory')->nullable();
+            $table->string('file_disk')->nullable();
+            $table->unsignedInteger('file_max_size')->nullable();
+            $table->boolean('preserve_filenames')->default(false);
+            $table->string('input_placeholder')->nullable();
+            $table->string('input_mask')->nullable();
 
             $table->timestamps();
 
