@@ -2,6 +2,8 @@
 
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
+use Filament\Actions\AttachAction;
+use Filament\Actions\DetachAction;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Tables\Columns\TextColumn;
@@ -20,11 +22,17 @@ new class extends Component implements HasActions, HasSchemas, HasTable {
     public function table(Table $table): Table
     {
         return $table
-            ->query(function () {
-                $issuer = currentIssuer();
-                return $issuer->users();
-            })
-            ->headerActions([])
+            ->relationship(fn () => currentIssuer()->users())
+            ->headerActions([
+                AttachAction::make()
+                    ->recordTitleAttribute('name')
+                    ->modalHeading('Vincular Usuário')
+                    ->recordSelectOptionsQuery(
+                        fn ($query) => $query
+                            ->where('tenant_id', currentIssuer()->tenant_id)
+                            ->whereDoesntHave('issuers', fn ($q) => $q->where('issuers.id', currentIssuer()->id))
+                    ),
+            ])
             ->columns([
                 TextColumn::make('name')
                     ->label('Nome')
@@ -37,7 +45,9 @@ new class extends Component implements HasActions, HasSchemas, HasTable {
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
             ])
-            ->recordActions([]);
+            ->recordActions([
+                DetachAction::make(),
+            ]);
 
     }
 };
