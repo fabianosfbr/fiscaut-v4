@@ -29,9 +29,9 @@ class UserForm
                         TextInput::make('password')
                             ->label('Senha')
                             ->password()
-                            ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
-                            ->dehydrated(fn (?string $state): bool => filled($state))
-                            ->required(fn (string $operation): bool => $operation === 'create')
+                            ->dehydrateStateUsing(fn(string $state): string => Hash::make($state))
+                            ->dehydrated(fn(?string $state): bool => filled($state))
+                            ->required(fn(string $operation): bool => $operation === 'create')
                             ->columnSpan(2),
                         Grid::make(1)
                             ->schema([
@@ -41,14 +41,15 @@ class UserForm
                                     ->preload()
                                     ->relationship('roles', 'name'),
                             ]),
-                        Grid::make(1)
-                            ->schema([
-                                Select::make('permissions')
-                                    ->label('Permissões')
-                                    ->multiple()
-                                    ->preload()
-                                    ->relationship('permissions', 'name'),
-                            ]),
+                        // Grid::make(1)
+                        //     ->schema([
+                        //         Select::make('permissions')
+                        //             ->disabled()
+                        //             ->label('Permissões')
+                        //             ->multiple()
+                        //             ->preload()
+                        //             ->relationship('permissions', 'name'),
+                        //     ]),
                     ])
                     ->columnSpanFull(),
             ]);

@@ -38,8 +38,7 @@ class IssuerResource extends Resource
     public static function getRelations(): array
     {
         return [
-            UsersRelationManager::class,
-            ContactsRelationManager::class,
+          
         ];
     }
 
