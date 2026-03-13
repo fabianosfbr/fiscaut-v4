@@ -13,10 +13,7 @@ class EditIssuer extends EditRecord
 {
     protected static string $resource = IssuerResource::class;
 
-    public function hasCombinedRelationManagerTabsWithContent(): bool
-    {
-        return true;
-    }
+
 
     protected function mutateFormDataBeforeFill(array $data): array
     {

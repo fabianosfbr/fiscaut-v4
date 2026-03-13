@@ -21,7 +21,7 @@ class IssuerResource extends Resource
 
     protected static ?string $modelLabel = 'Empresa';
 
-    protected static ?string $pluralModelLabel = 'Empresas';
+    protected static ?string $navigationLabel = 'Minhas Empresas';
 
     protected static string|UnitEnum|null $navigationGroup = 'Configurações';
 
