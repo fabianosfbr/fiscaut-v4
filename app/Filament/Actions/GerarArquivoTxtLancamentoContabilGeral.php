@@ -40,7 +40,7 @@ class GerarArquivoTxtLancamentoContabilGeral
                     ->default(false),
 
                 Fieldset::make('Registros sem lançamento')
-                    ->visible(fn (callable $get) => $get('is_exist') === false)
+                    ->visible(fn(callable $get) => $get('is_exist') === false)
                     ->schema([
                         SelectPlanoDeConta::make('conta_contabil')
                             ->label('Conta contabil')
@@ -56,7 +56,7 @@ class GerarArquivoTxtLancamentoContabilGeral
                                     ->orderBy('codigo', 'asc')
                                     ->get()
                                     ->map(function ($item) {
-                                        $item->codigo_descricao = $item->codigo.' | '.$item->descricao;
+                                        $item->codigo_descricao = $item->codigo . ' | ' . $item->descricao;
 
                                         return $item;
                                     })
@@ -75,7 +75,8 @@ class GerarArquivoTxtLancamentoContabilGeral
                 $lancamentos = ImportarLancamentoContabil::where('issuer_id', $issuerId)
                     ->where('user_id', $user->id)
                     ->where('valor', '!=', 0)
-                    ->when($data['is_exist'], fn ($query) => $query->where('is_exist', $data['is_exist'])) // Aplica o filtro apenas se is_exist for true
+                    ->where('metadata->type', 'geral')
+                    ->when($data['is_exist'], fn($query) => $query->where('is_exist', $data['is_exist'])) // Aplica o filtro apenas se is_exist for true
                     ->orderBy('id', 'asc')
                     ->get();
 
@@ -90,7 +91,7 @@ class GerarArquivoTxtLancamentoContabilGeral
                     $action->halt();
                 }
 
-                $filename = now()->format('m-Y').'/'.Str::random(8).'.txt';
+                $filename = Str::random(20) . '.txt';
 
                 if (isset($data['conta_contabil'])) {
                     $conta_contabil = PlanoDeConta::where('issuer_id', $issuerId)
@@ -99,11 +100,10 @@ class GerarArquivoTxtLancamentoContabilGeral
                     $data['descricao_conta_contabil'] = $conta_contabil?->nome;
                 }
 
-                $txtContent = $this->gerarRelatorio($lancamentos, $data, ';');
+                $txtContent = self::gerarRelatorio($lancamentos, $data, ';');
 
                 $txtContentAnsi = mb_convert_encoding($txtContent, 'Windows-1252', 'UTF-8');
 
-                Storage::disk('downloads-files')->put($filename, $txtContentAnsi);
 
                 Notification::make()
                     ->title('Exportação iniciada')
@@ -114,23 +114,27 @@ class GerarArquivoTxtLancamentoContabilGeral
                 if ($data['limpar_lancamentos']) {
                     ImportarLancamentoContabil::where('issuer_id', $issuerId)
                         ->where('user_id', $user->id)
+                        ->where('metadata->type', 'geral')
                         ->delete();
                 }
 
-                return response()->download(public_path('/downloads/'.$filename));
+                return response()->streamDownload(function () use ($txtContentAnsi) {
+                    echo $txtContentAnsi;
+                }, $filename);
+
             });
     }
 
-    public function gerarRelatorio(Collection $lancamentos, array $data = [], string $separador = ';'): string
+    public static function gerarRelatorio(Collection $lancamentos, array $data = [], string $separador = ';'): string
     {
 
         $linhas = $lancamentos
-            ->map(fn ($lancamento) => $this->formatarConteudo($lancamento, $data, $separador));
+            ->map(fn($lancamento) => self::formatarConteudo($lancamento, $data, $separador));
 
-        return $linhas->implode(PHP_EOL).PHP_EOL;
+        return $linhas->implode(PHP_EOL) . PHP_EOL;
     }
 
-    private function formatarConteudo($lancamento, array $params, string $separador): string
+    private static function formatarConteudo($lancamento, array $params, string $separador): string
     {
 
         $data = $lancamento->data->format('d/m/Y');

@@ -41,7 +41,7 @@ class OptimizedExcelImport
             // Normaliza o nome da coluna do layout: remove espaços e converte para minúsculas
             $normalizedColumnName = strtolower(trim($column->excel_column_name));
 
-            if (! in_array($normalizedColumnName, $normalizedHeader)) {
+            if (!in_array($normalizedColumnName, $normalizedHeader)) {
                 $missingColumns[] = $column->excel_column_name; // Mantém o nome original para exibir ao usuário
             }
         }

@@ -4,9 +4,11 @@ namespace App\Jobs;
 
 use App\Filament\Actions\Traits\ImportarLancamentoContabilTrait;
 use App\Imports\OptimizedExcelImport;
+use App\Models\ImportarLancamentoContabil;
 use App\Models\JobProgress;
 use App\Models\Layout;
 use App\Models\User;
+use App\Services\Contabil\LayoutLancamentoResolverService;
 use Exception;
 use Filament\Notifications\Notification;
 use Illuminate\Bus\Batchable;
@@ -29,7 +31,7 @@ class ImportarLancamentoContabilJob implements ShouldQueue
         protected int $layoutId,
         protected string $relativePath,
         protected int $userId,
-        protected ?string $jobProgressId = null
+        protected string $jobProgressId
     ) {
         $this->onQueue('low');
     }
@@ -43,7 +45,7 @@ class ImportarLancamentoContabilJob implements ShouldQueue
         $user = User::find($this->userId);
         $jobProgress = $this->jobProgressId ? JobProgress::find($this->jobProgressId) : null;
 
-        if (! $layout || ! $user) {
+        if (!$layout || !$user) {
             $jobProgress?->update([
                 'status' => 'failed',
                 'message' => 'Layout ou Usuário não encontrado.',
@@ -54,7 +56,7 @@ class ImportarLancamentoContabilJob implements ShouldQueue
 
         $filePath = Storage::disk('local')->path($this->relativePath);
 
-        if (! file_exists($filePath)) {
+        if (!file_exists($filePath)) {
             Log::error("Job ImportarLancamentoContabilJob: Arquivo não encontrado em {$filePath}");
 
             $jobProgress?->update([
@@ -73,14 +75,49 @@ class ImportarLancamentoContabilJob implements ShouldQueue
             ]);
 
             $fileReader = (new OptimizedExcelImport($layout, $filePath));
-            $excelData = $fileReader->getData();
+            $rows = $fileReader->getData();
 
             $jobProgress?->update([
                 'progress' => 10,
                 'message' => 'Processando dados...',
             ]);
 
-            self::prepareData($excelData, $layout, $user, $jobProgress);
+            $resolver = new LayoutLancamentoResolverService(
+                $layout,
+                (int) $layout->issuer_id,
+                (int) $user->id,
+                $jobProgress->id,
+            );
+
+            $resolvedRows = $resolver->resolveRows($rows);
+
+            foreach ($resolvedRows as $resolved) {
+                if (($resolved['valor'] ?? 0) == 0) {
+                    continue;
+                }
+
+                $import = new ImportarLancamentoContabil();
+                $import->issuer_id = $layout->issuer_id;
+                $import->user_id = $user->id;
+                $import->data = $resolved['data'] ?? null;
+                $import->valor = $resolved['valor'] ?? 0;
+                $import->debito = $resolved['debito'] ?? null;
+                $import->credito = $resolved['credito'] ?? null;
+                $import->is_exist = !is_null($resolved['data'] ?? null)
+                    && !is_null($resolved['debito'] ?? null)
+                    && !is_null($resolved['credito'] ?? null);
+                $import->historico = $resolved['historico'] ?? ' ';
+                $import->metadata = [
+                    'descricao_debito' => $resolved['debito_descricao'] ?? null,
+                    'descricao_credito' => $resolved['credito_descricao'] ?? null,
+                    'cod_historico' => $resolved['cod_historico'] ?? null,
+                    'col_historico' => $resolved['col_historico'] ?? null,
+                    'row' => $resolved['metadata']['row'] ?? null,
+                    'rule_trace' => $resolved['metadata']['rule_trace'] ?? null,
+                    'type' => 'geral',
+                ];
+                $import->saveQuietly();
+            }
 
             $jobProgress?->update([
                 'status' => 'done',
@@ -94,11 +131,11 @@ class ImportarLancamentoContabilJob implements ShouldQueue
                 ->body('Todos os registros foram processados com sucesso.')
                 ->sendToDatabase($user, isEventDispatched: true);
         } catch (Exception $e) {
-            Log::error('Erro no Job ImportarLancamentoContabilJob: '.$e->getMessage());
+            Log::error('Erro no Job ImportarLancamentoContabilJob: ' . $e->getMessage());
 
             $jobProgress?->update([
                 'status' => 'failed',
-                'message' => 'Erro: '.$e->getMessage(),
+                'message' => 'Erro: ' . $e->getMessage(),
             ]);
 
             throw $e;

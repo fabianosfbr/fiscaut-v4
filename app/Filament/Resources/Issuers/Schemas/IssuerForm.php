@@ -833,8 +833,7 @@ class IssuerForm
 
         try {
             $cnpjDetails = CnpjJaService::getCnpjDetails($cnpj);
-
-            ds($cnpjDetails);
+            
         } catch (Exception $e) {
             Notification::make()
                 ->title('Erro ao consultar CNPJ')

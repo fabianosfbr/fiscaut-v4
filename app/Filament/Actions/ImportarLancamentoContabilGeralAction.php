@@ -35,29 +35,35 @@ class ImportarLancamentoContabilGeralAction
                     ->delete();
             })
             ->action(function (array $data, Action $action) {
+
                 $layout = Layout::find($data['layout_id']);
 
                 $relativePath = $data['excel_file'];
-                $filePath = Storage::disk('local')->path($relativePath);
 
-                if (! file_exists($filePath)) {
+                // Verifica se o arquivo existe no storage antes de tentar obter o path
+                $relativePath = ltrim($data['excel_file'], '/');
+                $file = storage_path('app/private/' . $relativePath);
+           
+                if (!file_exists($file)) {
                     Notification::make()
                         ->title('Arquivo não encontrado')
                         ->body('Não foi possível localizar o arquivo enviado para importação.')
                         ->danger()
-                        ->duration(2000)
+                        ->persistent()
                         ->send();
                     $action->halt();
                 }
 
+            
                 try {
-                    $fileReader = (new OptimizedExcelImport($layout, $filePath));
+                    $fileReader = (new OptimizedExcelImport($layout, $file));
                     $missingColumns = $fileReader->validateExcelColumns();
 
-                    if (! empty($missingColumns)) {
+      
+                    if (!empty($missingColumns)) {
                         Notification::make()
                             ->title('Colunas Ausentes')
-                            ->body('As seguintes colunas estão faltando no arquivo Excel: '.implode(', ', $missingColumns))
+                            ->body('As seguintes colunas estão faltando no arquivo Excel: ' . implode(', ', $missingColumns))
                             ->danger()
                             ->persistent()
                             ->send();
@@ -74,6 +80,7 @@ class ImportarLancamentoContabilGeralAction
                     ]);
 
                     session()->put('lancamento_geral', $jobProgress->id);
+
 
                     // Dispara o Job em background
                     ImportarLancamentoContabilJob::dispatch(
@@ -94,7 +101,7 @@ class ImportarLancamentoContabilGeralAction
                     Log::error($e->getMessage());
                     Notification::make()
                         ->title('Erro na Importação')
-                        ->body('Ocorreu um erro ao iniciar a importação: '.$e->getMessage())
+                        ->body('Ocorreu um erro ao iniciar a importação: ' . $e->getMessage())
                         ->danger()
                         ->send();
 
