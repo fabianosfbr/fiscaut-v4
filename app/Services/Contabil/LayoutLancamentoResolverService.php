@@ -6,11 +6,10 @@ use App\Models\Banco;
 use App\Models\Cliente;
 use App\Models\Fornecedor;
 use App\Models\HistoricoContabil;
-use App\Models\JobProgress;
 use App\Models\Layout;
 use App\Models\LayoutColumn;
 use App\Models\LayoutRule;
-use App\Models\ParametroGeral;
+use App\Models\ParametrosConciliacaoBancaria;
 use App\Models\PlanoDeConta;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
@@ -22,7 +21,6 @@ class LayoutLancamentoResolverService
     private Layout $layout;
     private int $issuerId;
     private int $userId;
-    private JobProgress $jobProgress;
 
     /** @var \Illuminate\Support\Collection<int, LayoutRule> */
     private Collection $rules;
@@ -30,23 +28,22 @@ class LayoutLancamentoResolverService
     /** @var \Illuminate\Support\Collection<int, LayoutColumn> */
     private Collection $layoutColumns;
 
-    /** @var \Illuminate\Support\Collection<int, ParametroGeral> */
+    /** @var \Illuminate\Support\Collection<int, ParametrosConciliacaoBancaria> */
     private Collection $parametros;
 
     /** @var array<int, string> */
     private array $historicosByCodigo = [];
 
-    public function __construct(Layout $layout, int $issuerId, int $userId, string $jobProgressId)
+    public function __construct(Layout $layout, int $issuerId, int $userId)
     {
         $this->layout = $layout;
         $this->issuerId = $issuerId;
         $this->userId = $userId;
-        $this->jobProgress = JobProgress::findOrFail($jobProgressId);
 
         $this->rules = $layout->layoutRules->sortBy('position')->values();
         $this->layoutColumns = $layout->layoutColumns->sortBy('id')->values();
 
-        $this->parametros = ParametroGeral::where('issuer_id', $issuerId)
+        $this->parametros = ParametrosConciliacaoBancaria::where('issuer_id', $issuerId)
             ->orderBy('order')
             ->get();
 
@@ -64,23 +61,9 @@ class LayoutLancamentoResolverService
     public function resolveRows(array $rows): array
     {
         $result = [];
-        $totalRows = count($rows);
-        $rowNumber = 0;
-        
         foreach ($rows as $row) {
-            $rowNumber++;
             $result[] = $this->resolveRow($row);
-            
-            // Atualiza o progresso a cada 10 linhas ou no final
-            if ($this->jobProgress && ($rowNumber % 10 === 0 || $rowNumber === $totalRows)) {
-                $percentage = 10 + (int) (($rowNumber / $totalRows) * 80); // Inicia em 10% e vai até 90%
-                $this->jobProgress->update([
-                    'progress' => $percentage,
-                    'message' => "Processando linha {$rowNumber} de {$totalRows}...",
-                ]);
-            }
         }
-        
         return $result;
     }
 
@@ -584,8 +567,36 @@ class LayoutLancamentoResolverService
         }
 
         $raw = (string) $value;
-        $raw = str_replace(['.', ' '], ['', ''], $raw);
-        $raw = str_replace(',', '.', $raw);
+        
+        // Remove espaços
+        $raw = str_replace(' ', '', $raw);
+        
+        // Detecta se já está no formato brasileiro (vírgula como decimal)
+        $hasBrazilianFormat = str_contains($raw, ',') && !str_contains($raw, '.');
+        
+        // Se está no formato brasileiro, converte para formato padrão (ponto como decimal)
+        if ($hasBrazilianFormat) {
+            $raw = str_replace(',', '.', $raw);
+        }
+        // Se tem tanto vírgula quanto ponto, assume formato europeu (ponto como separador de milhares)
+        elseif (str_contains($raw, ',') && str_contains($raw, '.')) {
+            // Remove pontos (separadores de milhares) e converte vírgula para ponto decimal
+            $raw = str_replace('.', '', $raw);
+            $raw = str_replace(',', '.', $raw);
+        }
+        // Se tem apenas pontos, verifica se é separador decimal ou de milhares
+        elseif (str_contains($raw, '.')) {
+            // Se há mais de um ponto ou o último ponto não está nas últimas 3 posições,
+            // trata como separador de milhares
+            $lastDotPos = strrpos($raw, '.');
+            $dotCount = substr_count($raw, '.');
+            
+            if ($dotCount > 1 || (strlen($raw) - $lastDotPos - 1) > 3) {
+                // Remove todos os pontos (separadores de milhares)
+                $raw = str_replace('.', '', $raw);
+            }
+            // Caso contrário, mantém como separador decimal
+        }
 
         $num = is_numeric($raw) ? (float) $raw : null;
         if ($num === null) {
