@@ -6,10 +6,11 @@ use App\Models\Banco;
 use App\Models\Cliente;
 use App\Models\Fornecedor;
 use App\Models\HistoricoContabil;
+use App\Models\JobProgress;
 use App\Models\Layout;
 use App\Models\LayoutColumn;
 use App\Models\LayoutRule;
-use App\Models\ParametrosConciliacaoBancaria;
+use App\Models\ParametroGeral;
 use App\Models\PlanoDeConta;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
@@ -21,6 +22,7 @@ class LayoutLancamentoResolverService
     private Layout $layout;
     private int $issuerId;
     private int $userId;
+    private string $jobProgressId;
 
     /** @var \Illuminate\Support\Collection<int, LayoutRule> */
     private Collection $rules;
@@ -28,28 +30,29 @@ class LayoutLancamentoResolverService
     /** @var \Illuminate\Support\Collection<int, LayoutColumn> */
     private Collection $layoutColumns;
 
-    /** @var \Illuminate\Support\Collection<int, ParametrosConciliacaoBancaria> */
+    /** @var \Illuminate\Support\Collection<int, ParametroGeral> */
     private Collection $parametros;
 
     /** @var array<int, string> */
     private array $historicosByCodigo = [];
 
-    public function __construct(Layout $layout, int $issuerId, int $userId)
+    public function __construct(Layout $layout, int $issuerId, int $userId, string $jobProgressId)
     {
         $this->layout = $layout;
         $this->issuerId = $issuerId;
         $this->userId = $userId;
+        $this->jobProgressId = $jobProgressId;
 
         $this->rules = $layout->layoutRules->sortBy('position')->values();
         $this->layoutColumns = $layout->layoutColumns->sortBy('id')->values();
 
-        $this->parametros = ParametrosConciliacaoBancaria::where('issuer_id', $issuerId)
+        $this->parametros = ParametroGeral::where('issuer_id', $issuerId)
             ->orderBy('order')
             ->get();
 
         $this->historicosByCodigo = HistoricoContabil::where('issuer_id', $issuerId)
             ->get()
-            ->mapWithKeys(fn ($h) => [$h->codigo => $h->descricao])
+            ->mapWithKeys(fn($h) => [$h->codigo => $h->descricao])
             ->toArray();
     }
 
@@ -61,7 +64,23 @@ class LayoutLancamentoResolverService
     public function resolveRows(array $rows): array
     {
         $result = [];
-        foreach ($rows as $row) {
+        $jobProgress = $this->jobProgressId ? JobProgress::find($this->jobProgressId) : null;
+
+        $totalRows = count($rows);
+
+        foreach ($rows as $index => $row) {
+
+            $rowNumber = $index + 1;
+
+            // Atualiza o progresso a cada 10 linhas ou no final
+            if ($jobProgress && ($rowNumber % 10 === 0 || $rowNumber === $totalRows)) {
+                $percentage = 20 + (int) (($rowNumber / $totalRows) * 70); // 20% a 90%
+                $jobProgress->update([
+                    'progress' => $percentage,
+                    'message' => "Processando linha {$rowNumber} de {$totalRows}...",
+                ]);                
+            }
+
             $result[] = $this->resolveRow($row);
         }
         return $result;
@@ -344,10 +363,10 @@ class LayoutLancamentoResolverService
                     $bestScore = $score;
                     $bestOrder = $order;
                     $best = [
-                    'conta_contabil' => Arr::get($parametro->descricao_conta_contabil, 'codigo'),
-                    'conta_contabil_descricao' => Arr::get($parametro->descricao_conta_contabil, 'descricao'),
-                    'codigo_historico' => $parametro->codigo_historico,
-                    'historico_template' => Arr::get($parametro->descricao_historico, 'descricao'),
+                        'conta_contabil' => Arr::get($parametro->descricao_conta_contabil, 'codigo'),
+                        'conta_contabil_descricao' => Arr::get($parametro->descricao_conta_contabil, 'descricao'),
+                        'codigo_historico' => $parametro->codigo_historico,
+                        'historico_template' => Arr::get($parametro->descricao_historico, 'descricao'),
                     ];
                 }
             }
@@ -532,13 +551,13 @@ class LayoutLancamentoResolverService
 
     private function parseExcelDate($value, ?string $format): ?Carbon
     {
-        
+
         if ($value === null || $value === '') {
             return null;
         }
 
         try {
-            if ($value instanceof \DateTimeInterface) {                
+            if ($value instanceof \DateTimeInterface) {
                 return Carbon::instance($value);
             }
 
@@ -567,13 +586,13 @@ class LayoutLancamentoResolverService
         }
 
         $raw = (string) $value;
-        
+
         // Remove espaços
         $raw = str_replace(' ', '', $raw);
-        
+
         // Detecta se já está no formato brasileiro (vírgula como decimal)
         $hasBrazilianFormat = str_contains($raw, ',') && !str_contains($raw, '.');
-        
+
         // Se está no formato brasileiro, converte para formato padrão (ponto como decimal)
         if ($hasBrazilianFormat) {
             $raw = str_replace(',', '.', $raw);
@@ -590,7 +609,7 @@ class LayoutLancamentoResolverService
             // trata como separador de milhares
             $lastDotPos = strrpos($raw, '.');
             $dotCount = substr_count($raw, '.');
-            
+
             if ($dotCount > 1 || (strlen($raw) - $lastDotPos - 1) > 3) {
                 // Remove todos os pontos (separadores de milhares)
                 $raw = str_replace('.', '', $raw);

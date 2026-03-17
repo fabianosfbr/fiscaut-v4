@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Filament\Actions\Traits\ImportarLancamentoContabilTrait;
+
 use App\Imports\OptimizedExcelImport;
 use App\Models\ImportarLancamentoContabil;
 use App\Models\JobProgress;
@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ImportarLancamentoContabilJob implements ShouldQueue
 {
-    use Batchable, Dispatchable, ImportarLancamentoContabilTrait, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new job instance.
@@ -44,6 +44,7 @@ class ImportarLancamentoContabilJob implements ShouldQueue
         $layout = Layout::find($this->layoutId);
         $user = User::find($this->userId);
         $jobProgress = $this->jobProgressId ? JobProgress::find($this->jobProgressId) : null;
+
 
         if (!$layout || !$user) {
             $jobProgress?->update([
@@ -67,7 +68,11 @@ class ImportarLancamentoContabilJob implements ShouldQueue
             return;
         }
 
+
+
+
         try {
+
             $jobProgress?->update([
                 'status' => 'running',
                 'progress' => 0,
@@ -77,9 +82,24 @@ class ImportarLancamentoContabilJob implements ShouldQueue
             $fileReader = (new OptimizedExcelImport($layout, $filePath));
             $rows = $fileReader->getData();
 
+            if (empty($rows)) {
+                $jobProgress?->update([
+                    'status' => 'failed',
+                    'message' => 'O arquivo Excel está vazio.',
+                ]);
+
+                Notification::make()
+                    ->warning()
+                    ->title('Arquivo vazio')
+                    ->body('O arquivo Excel não contém dados para importação.')
+                    ->sendToDatabase($user, isEventDispatched: true);
+
+                return;
+            }
+
             $jobProgress?->update([
                 'progress' => 10,
-                'message' => 'Processando dados...',
+                'message' => 'Preparando dados para importação...',
             ]);
 
             $resolver = new LayoutLancamentoResolverService(
@@ -87,15 +107,12 @@ class ImportarLancamentoContabilJob implements ShouldQueue
                 (int) $layout->issuer_id,
                 (int) $user->id,
                 $jobProgress->id,
-            );
+            );  
 
             $resolvedRows = $resolver->resolveRows($rows);
 
             foreach ($resolvedRows as $resolved) {
-                if (($resolved['valor'] ?? 0) == 0) {
-                    continue;
-                }
-
+  
                 $import = new ImportarLancamentoContabil();
                 $import->issuer_id = $layout->issuer_id;
                 $import->user_id = $user->id;
@@ -125,11 +142,6 @@ class ImportarLancamentoContabilJob implements ShouldQueue
                 'message' => 'Importação concluída com sucesso!',
             ]);
 
-            Notification::make()
-                ->success()
-                ->title('Importação concluída')
-                ->body('Todos os registros foram processados com sucesso.')
-                ->sendToDatabase($user, isEventDispatched: true);
         } catch (Exception $e) {
             Log::error('Erro no Job ImportarLancamentoContabilJob: ' . $e->getMessage());
 
@@ -144,5 +156,6 @@ class ImportarLancamentoContabilJob implements ShouldQueue
                 Storage::disk('local')->delete($this->relativePath);
             }
         }
+        
     }
 }
