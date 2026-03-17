@@ -2,7 +2,7 @@
 
 namespace App\Filament\Actions;
 
-use App\Filament\Actions\Traits\ImportarLancamentoContabilTrait;
+
 use App\Imports\OptimizedExcelImport;
 use App\Jobs\ImportarLancamentoContabilJob;
 use App\Models\ImportarLancamentoContabil;
@@ -19,7 +19,6 @@ use Illuminate\Support\Facades\Storage;
 
 class ImportarLancamentoContabilGeralAction
 {
-    use ImportarLancamentoContabilTrait;
 
     public static function make(): Action
     {
@@ -43,7 +42,7 @@ class ImportarLancamentoContabilGeralAction
                 // Verifica se o arquivo existe no storage antes de tentar obter o path
                 $relativePath = ltrim($data['excel_file'], '/');
                 $file = storage_path('app/private/' . $relativePath);
-           
+
                 if (!file_exists($file)) {
                     Notification::make()
                         ->title('Arquivo não encontrado')
@@ -54,12 +53,12 @@ class ImportarLancamentoContabilGeralAction
                     $action->halt();
                 }
 
-            
+
                 try {
                     $fileReader = (new OptimizedExcelImport($layout, $file));
                     $missingColumns = $fileReader->validateExcelColumns();
 
-      
+
                     if (!empty($missingColumns)) {
                         Notification::make()
                             ->title('Colunas Ausentes')
@@ -89,7 +88,7 @@ class ImportarLancamentoContabilGeralAction
                         Auth::user()->id,
                         $jobProgress->id
                     );
-
+    
                     Notification::make()
                         ->title('Importação Iniciada')
                         ->body('O arquivo será processado em segundo plano.')
