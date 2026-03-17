@@ -71,7 +71,7 @@ class ImportarLancamentoContabilSuperLogicaJob implements ShouldQueue
             ]);
 
             $fileReader = new OptimizedExcelSuperLogicaImport($filePath);
-            $rows = $fileReader->import();
+            $rows = $fileReader->getData();
 
             if (empty($rows)) {
                 $jobProgress?->update([

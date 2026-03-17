@@ -11,12 +11,10 @@ return new class extends Migration
         Schema::create('issuer_controls', function (Blueprint $table) {
             $table->id();
             $table->foreignId('issuer_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('issuer_control_field_id')->constrained('issuer_control_fields')->cascadeOnDelete();
+            $table->string('control_type');
             $table->json('value')->nullable();
             $table->timestamps();
-
-            $table->unique(['issuer_id', 'issuer_control_field_id']);
-            $table->index(['issuer_id', 'issuer_control_field_id']);
+            
         });
     }
 

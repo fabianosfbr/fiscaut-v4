@@ -22,7 +22,7 @@ class LayoutLancamentoResolverService
     private Layout $layout;
     private int $issuerId;
     private int $userId;
-    private JobProgress $jobProgress;
+    private string $jobProgressId;
 
     /** @var \Illuminate\Support\Collection<int, LayoutRule> */
     private Collection $rules;
@@ -41,7 +41,7 @@ class LayoutLancamentoResolverService
         $this->layout = $layout;
         $this->issuerId = $issuerId;
         $this->userId = $userId;
-        $this->jobProgress = JobProgress::findOrFail($jobProgressId);
+        $this->jobProgressId = $jobProgressId;
 
         $this->rules = $layout->layoutRules->sortBy('position')->values();
         $this->layoutColumns = $layout->layoutColumns->sortBy('id')->values();
@@ -52,7 +52,7 @@ class LayoutLancamentoResolverService
 
         $this->historicosByCodigo = HistoricoContabil::where('issuer_id', $issuerId)
             ->get()
-            ->mapWithKeys(fn ($h) => [$h->codigo => $h->descricao])
+            ->mapWithKeys(fn($h) => [$h->codigo => $h->descricao])
             ->toArray();
     }
 
@@ -64,23 +64,25 @@ class LayoutLancamentoResolverService
     public function resolveRows(array $rows): array
     {
         $result = [];
+        $jobProgress = $this->jobProgressId ? JobProgress::find($this->jobProgressId) : null;
+
         $totalRows = count($rows);
-        $rowNumber = 0;
-        
-        foreach ($rows as $row) {
-            $rowNumber++;
-            $result[] = $this->resolveRow($row);
-            
+
+        foreach ($rows as $index => $row) {
+
+            $rowNumber = $index + 1;
+
             // Atualiza o progresso a cada 10 linhas ou no final
-            if ($this->jobProgress && ($rowNumber % 10 === 0 || $rowNumber === $totalRows)) {
-                $percentage = 10 + (int) (($rowNumber / $totalRows) * 80); // Inicia em 10% e vai até 90%
-                $this->jobProgress->update([
+            if ($jobProgress && ($rowNumber % 10 === 0 || $rowNumber === $totalRows)) {
+                $percentage = 20 + (int) (($rowNumber / $totalRows) * 70); // 20% a 90%
+                $jobProgress->update([
                     'progress' => $percentage,
                     'message' => "Processando linha {$rowNumber} de {$totalRows}...",
-                ]);
+                ]);                
             }
+
+            $result[] = $this->resolveRow($row);
         }
-        
         return $result;
     }
 
@@ -361,10 +363,10 @@ class LayoutLancamentoResolverService
                     $bestScore = $score;
                     $bestOrder = $order;
                     $best = [
-                    'conta_contabil' => Arr::get($parametro->descricao_conta_contabil, 'codigo'),
-                    'conta_contabil_descricao' => Arr::get($parametro->descricao_conta_contabil, 'descricao'),
-                    'codigo_historico' => $parametro->codigo_historico,
-                    'historico_template' => Arr::get($parametro->descricao_historico, 'descricao'),
+                        'conta_contabil' => Arr::get($parametro->descricao_conta_contabil, 'codigo'),
+                        'conta_contabil_descricao' => Arr::get($parametro->descricao_conta_contabil, 'descricao'),
+                        'codigo_historico' => $parametro->codigo_historico,
+                        'historico_template' => Arr::get($parametro->descricao_historico, 'descricao'),
                     ];
                 }
             }
@@ -549,13 +551,13 @@ class LayoutLancamentoResolverService
 
     private function parseExcelDate($value, ?string $format): ?Carbon
     {
-        
+
         if ($value === null || $value === '') {
             return null;
         }
 
         try {
-            if ($value instanceof \DateTimeInterface) {                
+            if ($value instanceof \DateTimeInterface) {
                 return Carbon::instance($value);
             }
 
@@ -584,8 +586,36 @@ class LayoutLancamentoResolverService
         }
 
         $raw = (string) $value;
-        $raw = str_replace(['.', ' '], ['', ''], $raw);
-        $raw = str_replace(',', '.', $raw);
+
+        // Remove espaços
+        $raw = str_replace(' ', '', $raw);
+
+        // Detecta se já está no formato brasileiro (vírgula como decimal)
+        $hasBrazilianFormat = str_contains($raw, ',') && !str_contains($raw, '.');
+
+        // Se está no formato brasileiro, converte para formato padrão (ponto como decimal)
+        if ($hasBrazilianFormat) {
+            $raw = str_replace(',', '.', $raw);
+        }
+        // Se tem tanto vírgula quanto ponto, assume formato europeu (ponto como separador de milhares)
+        elseif (str_contains($raw, ',') && str_contains($raw, '.')) {
+            // Remove pontos (separadores de milhares) e converte vírgula para ponto decimal
+            $raw = str_replace('.', '', $raw);
+            $raw = str_replace(',', '.', $raw);
+        }
+        // Se tem apenas pontos, verifica se é separador decimal ou de milhares
+        elseif (str_contains($raw, '.')) {
+            // Se há mais de um ponto ou o último ponto não está nas últimas 3 posições,
+            // trata como separador de milhares
+            $lastDotPos = strrpos($raw, '.');
+            $dotCount = substr_count($raw, '.');
+
+            if ($dotCount > 1 || (strlen($raw) - $lastDotPos - 1) > 3) {
+                // Remove todos os pontos (separadores de milhares)
+                $raw = str_replace('.', '', $raw);
+            }
+            // Caso contrário, mantém como separador decimal
+        }
 
         $num = is_numeric($raw) ? (float) $raw : null;
         if ($num === null) {

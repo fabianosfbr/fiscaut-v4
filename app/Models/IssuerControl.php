@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ControlTypeEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -11,6 +12,7 @@ class IssuerControl extends Model
 
     protected $casts = [
         'value' => 'array',
+        'control_type' => ControlTypeEnum::class,
     ];
 
     public function issuer(): BelongsTo
