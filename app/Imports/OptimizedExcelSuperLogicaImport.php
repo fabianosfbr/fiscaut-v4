@@ -10,7 +10,7 @@ use Rap2hpoutre\FastExcel\FastExcel;
 
 class OptimizedExcelSuperLogicaImport
 {
-   
+
     private string $file;
     private array $headers = [];
     private array $columnMap = [];
@@ -116,7 +116,7 @@ class OptimizedExcelSuperLogicaImport
             }
 
             $match = $this->findParametroMatch($parametros, $row);
-             
+
 
             $contaCredito = $match?->contaCredito?->codigo;
             $contaDebito = $match?->contaDebito?->codigo;
@@ -147,7 +147,7 @@ class OptimizedExcelSuperLogicaImport
                 'historico' => $historico,
                 'is_total' => $row['is_total'] ?? false,
             ];
-                      
+
         }
 
         return $prepared;
@@ -282,6 +282,9 @@ class OptimizedExcelSuperLogicaImport
         if ($value === null) {
             return null;
         }
+        if ($value instanceof \DateTimeInterface) {
+            $value = $value->format('Y-m-d');
+        }
         $text = (string) $value;
         $text = trim($text);
         if ($text === '') {
@@ -297,6 +300,9 @@ class OptimizedExcelSuperLogicaImport
     {
         if ($value === null) {
             return null;
+        }
+        if ($value instanceof \DateTimeInterface) {
+            $value = $value->format('Y-m-d');
         }
         $text = trim((string) $value);
         return $text === '' ? null : $text;
@@ -427,11 +433,11 @@ class OptimizedExcelSuperLogicaImport
         if (!$categoria) {
             return null;
         }
-                
+
         foreach ($parametros as $parametro) {
             $terms = $parametro->params ?? [];
             foreach ($terms as $term) {
-                $termNormalized = $this->normalizeText($term);                
+                $termNormalized = $this->normalizeText($term);
                 if ($termNormalized && $termNormalized === $categoria) {
                     return $parametro;
                 }
