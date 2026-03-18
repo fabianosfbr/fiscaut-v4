@@ -20,18 +20,17 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Str;
 
-
 class UserGroupManager extends Page implements HasActions, HasSchemas, HasTable
 {
     use InteractsWithActions;
     use InteractsWithSchemas;
     use InteractsWithTable;
+
     protected static string $resource = UserResource::class;
 
     protected static ?string $title = 'Grupos de Usuários';
 
     protected string $view = 'filament.resources.users.pages.user-group-manager';
-
 
     protected function getHeaderActions(): array
     {
@@ -90,7 +89,7 @@ class UserGroupManager extends Page implements HasActions, HasSchemas, HasTable
                 DeleteAction::make('delete')
                     ->label('Excluir')
                     ->modalHeading('Confirmar Exclusão')
-                    ->modalSubheading('Tem certeza de que deseja excluir este grupo de usuários? Esta ação não pode ser desfeita.')
+                    ->modalDescription('Tem certeza de que deseja excluir este grupo de usuários? Esta ação não pode ser desfeita.')
                     ->before(function (DeleteAction $action, Role $record) {
 
                         if ($record->users()->count() > 0) {

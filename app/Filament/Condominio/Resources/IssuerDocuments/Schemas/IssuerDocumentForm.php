@@ -41,11 +41,11 @@ class IssuerDocumentForm
                     ->disk('local')
                     ->directory(function ($get) {
                         $issuer = currentIssuer();
-                        if (!$issuer) {
+                        if (! $issuer) {
                             return null;
                         }
 
-                        return 'rag/' . $issuer->tenant_id . '/' . sanitize($issuer->cnpj) . '/documents';
+                        return 'rag/'.$issuer->tenant_id.'/'.sanitize($issuer->cnpj).'/documents';
                     })
                     ->visibility('private')
                     ->acceptedFileTypes([
@@ -58,7 +58,6 @@ class IssuerDocumentForm
                     ->preserveFilenames()
                     ->helperText('Formatos permitidos: PDF, DOC, DOCX. Tamanho máximo: 10MB')
                     ->columnSpanFull(),
-
 
             ]);
     }

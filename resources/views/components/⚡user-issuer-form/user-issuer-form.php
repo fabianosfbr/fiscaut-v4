@@ -1,8 +1,8 @@
 <?php
 
+use Filament\Actions\AttachAction;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
-use Filament\Actions\AttachAction;
 use Filament\Actions\DetachAction;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
@@ -12,9 +12,8 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Livewire\Component;
 
-
-
-new class extends Component implements HasActions, HasSchemas, HasTable {
+new class extends Component implements HasActions, HasSchemas, HasTable
+{
     use InteractsWithActions;
     use InteractsWithSchemas;
     use InteractsWithTable;

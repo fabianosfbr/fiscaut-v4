@@ -30,7 +30,7 @@ class ImportarLancamentoContabilSuperLogicaJob implements ShouldQueue
         protected int $issuerId,
         protected ?string $jobProgressId = null
     ) {
-        $this->onQueue('low');
+        $this->onQueue('high');
     }
 
     /**
@@ -125,7 +125,7 @@ class ImportarLancamentoContabilSuperLogicaJob implements ShouldQueue
                     $import->valor = abs($row['valor']);
                     $import->debito = $row['conta_debito'];
                     $import->credito = $row['conta_credito'];
-                    $import->is_exist = true;
+                    $import->is_exist = isset($row['historico']) && ! empty($row['historico']) ? true : false;
                     $import->historico = $row['historico'] ?? null;
                     $import->metadata = [
                         'codigo_historico' => $row['codigo_historico'] ?? null,

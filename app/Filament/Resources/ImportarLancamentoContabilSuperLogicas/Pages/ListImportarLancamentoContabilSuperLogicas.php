@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ImportarLancamentoContabilSuperLogicas\Pages;
 
+use App\Filament\Actions\GerarArquivoTxtLancamentoContabilSuperLogica;
 use App\Filament\Actions\ImportarLancamentoContabilSuperLogicaAction;
 use App\Filament\Resources\ImportarLancamentoContabilSuperLogicas\ImportarLancamentoContabilSuperLogicaResource;
 use App\Filament\Resources\ImportarLancamentoContabilSuperLogicas\Widgets\ImportLancamentoSuperLogicaOverview;
@@ -16,6 +17,7 @@ class ListImportarLancamentoContabilSuperLogicas extends ListRecords
     {
         return [
             ImportarLancamentoContabilSuperLogicaAction::make(),
+            GerarArquivoTxtLancamentoContabilSuperLogica::make(),
         ];
     }
 

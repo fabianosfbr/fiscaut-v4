@@ -10,25 +10,26 @@ use Rap2hpoutre\FastExcel\FastExcel;
 
 class OptimizedExcelSuperLogicaImport
 {
-
     private string $file;
+
     private array $headers = [];
+
     private array $columnMap = [];
 
     private const SECTION_RECEITAS = 'receitas';
+
     private const SECTION_DESPESAS = 'despesas';
 
     public function __construct(string $file)
     {
         $this->file = $file;
-
     }
 
     public function getData(): array
     {
         $rows = [];
 
-        $collection = (new FastExcel())
+        $collection = (new FastExcel)
             ->withoutHeaders()
             ->import($this->file, function ($row) {
                 return $row;
@@ -51,15 +52,17 @@ class OptimizedExcelSuperLogicaImport
                 $currentSection = $headerInfo['section'];
                 $currentHeaderMap = $headerInfo['map'];
                 $currentCategory = null;
+
                 continue;
             }
 
-            if (!$currentSection || !$currentHeaderMap) {
+            if (! $currentSection || ! $currentHeaderMap) {
                 if ($this->containsSectionTitle($values, self::SECTION_RECEITAS)) {
                     $currentSection = self::SECTION_RECEITAS;
                 } elseif ($this->containsSectionTitle($values, self::SECTION_DESPESAS)) {
                     $currentSection = self::SECTION_DESPESAS;
                 }
+
                 continue;
             }
 
@@ -70,8 +73,9 @@ class OptimizedExcelSuperLogicaImport
             $extra1 = $this->valueAt($values, $currentHeaderMap['extra1'] ?? null);
             $extra2 = $this->valueAt($values, $currentHeaderMap['extra2'] ?? null);
 
-            if ($this->isCategoryRow($descricao, [$competencia, $liquidacao, $valor, $extra1, $extra2])) {
+            if ($this->isCategoryRow($descricao, $competencia, $liquidacao, $valor, $extra1, $extra2)) {
                 $currentCategory = $this->cleanText($descricao);
+
                 continue;
             }
 
@@ -111,20 +115,25 @@ class OptimizedExcelSuperLogicaImport
                 continue;
             }
 
-            if (!isset($row['valor']) || $row['valor'] === null) {
+            if (! isset($row['valor']) || $row['valor'] === null) {
                 continue;
             }
 
             $match = $this->findParametroMatch($parametros, $row);
 
-
             $contaCredito = $match?->contaCredito?->codigo;
             $contaDebito = $match?->contaDebito?->codigo;
+            $contaCreditoNome = $match?->contaCredito?->nome;
+            $contaDebitoNome = $match?->contaDebito?->nome;
 
             if ($match?->check_value && $row['valor'] < 0) {
                 $tmp = $contaCredito;
                 $contaCredito = $contaDebito;
                 $contaDebito = $tmp;
+
+                $tmp = $contaCreditoNome;
+                $contaCreditoNome = $contaDebitoNome;
+                $contaDebitoNome = $tmp;
             }
 
             $codigoHistorico = $match?->codigo_historico;
@@ -143,11 +152,12 @@ class OptimizedExcelSuperLogicaImport
                 'valor' => $row['valor'],
                 'conta_credito' => $contaCredito,
                 'conta_debito' => $contaDebito,
+                'conta_credito_nome' => $contaCreditoNome,
+                'conta_debito_nome' => $contaDebitoNome,
                 'codigo_historico' => $codigoHistorico,
                 'historico' => $historico,
                 'is_total' => $row['is_total'] ?? false,
             ];
-
         }
 
         return $prepared;
@@ -166,6 +176,7 @@ class OptimizedExcelSuperLogicaImport
 
         if ($receitas !== null && $competencia !== null && $liquidacao !== null && $valor !== null) {
             $credito = $this->findHeaderIndex($normalized, ['credito', 'crédito']);
+
             return [
                 'section' => self::SECTION_RECEITAS,
                 'map' => [
@@ -181,6 +192,7 @@ class OptimizedExcelSuperLogicaImport
         if ($despesas !== null && $competencia !== null && $liquidacao !== null && $valor !== null) {
             $documento = $this->findHeaderIndex($normalized, ['documento', 'doc']);
             $conta = $this->findHeaderIndex($normalized, ['conta bancaria', 'conta bancária', 'banco', 'conta']);
+
             return [
                 'section' => self::SECTION_DESPESAS,
                 'map' => [
@@ -221,20 +233,59 @@ class OptimizedExcelSuperLogicaImport
                 return true;
             }
         }
+
         return false;
     }
 
-    private function isCategoryRow(?string $descricao, array $others): bool
+    private function isCategoryRow(?string $descricao, $competencia, $liquidacao, $valor, $extra1, $extra2): bool
     {
         if ($descricao === null || $descricao === '') {
             return false;
         }
+        $others = [$competencia, $liquidacao, $valor, $extra1, $extra2];
+        $allEmpty = true;
         foreach ($others as $value) {
             if ($value !== null && $value !== '') {
-                return false;
+                $allEmpty = false;
+                break;
             }
         }
-        return true;
+
+        if ($allEmpty) {
+            return true;
+        }
+
+        if ($liquidacao === null && $valor === null && $extra1 === null && $extra2 === null && $this->isCategoryCode($competencia)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function isCategoryCode($value): bool
+    {
+        if ($value === null || $value === '') {
+            return false;
+        }
+        if ($value instanceof \DateTimeInterface) {
+            return false;
+        }
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            if ($trimmed === '' || str_contains($trimmed, '/') || str_contains($trimmed, '-')) {
+                return false;
+            }
+            if (preg_match('/^\d{1,5}$/', $trimmed) !== 1) {
+                return false;
+            }
+            $value = (int) $trimmed;
+        }
+        if (! is_numeric($value)) {
+            return false;
+        }
+        $numeric = (int) $value;
+
+        return $numeric > 0 && $numeric <= 9999;
     }
 
     private function isTotalRow(?string $descricao): bool
@@ -242,6 +293,7 @@ class OptimizedExcelSuperLogicaImport
         if ($descricao === null) {
             return false;
         }
+
         return Str::contains($this->normalizeText($descricao), 'total');
     }
 
@@ -253,8 +305,10 @@ class OptimizedExcelSuperLogicaImport
             }
             if (is_string($value)) {
                 $trimmed = trim($value);
+
                 return $trimmed === '' ? null : $trimmed;
             }
+
             return $value;
         }, $row);
     }
@@ -266,6 +320,7 @@ class OptimizedExcelSuperLogicaImport
                 return false;
             }
         }
+
         return true;
     }
 
@@ -274,6 +329,7 @@ class OptimizedExcelSuperLogicaImport
         if ($index === null) {
             return null;
         }
+
         return $values[$index] ?? null;
     }
 
@@ -293,6 +349,7 @@ class OptimizedExcelSuperLogicaImport
         $text = Str::ascii($text);
         $text = mb_strtoupper($text);
         $text = preg_replace('/\s+/', ' ', $text);
+
         return $text;
     }
 
@@ -305,6 +362,7 @@ class OptimizedExcelSuperLogicaImport
             $value = $value->format('Y-m-d');
         }
         $text = trim((string) $value);
+
         return $text === '' ? null : $text;
     }
 
@@ -322,7 +380,7 @@ class OptimizedExcelSuperLogicaImport
             }
         }
 
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             return null;
         }
 
@@ -341,6 +399,7 @@ class OptimizedExcelSuperLogicaImport
             if (preg_match('/^\d{4}-\d{2}-\d{2}/', $value)) {
                 return Carbon::createFromFormat('Y-m-d', substr($value, 0, 10));
             }
+
             return Carbon::parse($value);
         } catch (\Throwable $e) {
             return null;
@@ -355,7 +414,7 @@ class OptimizedExcelSuperLogicaImport
         if (is_numeric($value)) {
             return (float) $value;
         }
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             return null;
         }
         $value = trim($value);
@@ -375,7 +434,7 @@ class OptimizedExcelSuperLogicaImport
             } else {
                 $value = str_replace(',', '', $value);
             }
-        } elseif ($hasComma && !$hasDot) {
+        } elseif ($hasComma && ! $hasDot) {
             $value = str_replace(',', '.', $value);
         }
 
@@ -398,6 +457,7 @@ class OptimizedExcelSuperLogicaImport
         ];
 
         $resolved = str_replace(array_keys($replacements), array_values($replacements), $template);
+
         return trim(preg_replace('/\s+/', ' ', $resolved));
     }
 
@@ -412,6 +472,7 @@ class OptimizedExcelSuperLogicaImport
         if (is_string($value) && $value !== '') {
             return $value;
         }
+
         return null;
     }
 
@@ -423,6 +484,7 @@ class OptimizedExcelSuperLogicaImport
         if (is_numeric($value)) {
             return number_format((float) $value, 2, ',', '.');
         }
+
         return (string) $value;
     }
 
@@ -430,7 +492,7 @@ class OptimizedExcelSuperLogicaImport
     {
         $categoria = $this->normalizeText($row['categoria'] ?? null);
 
-        if (!$categoria) {
+        if (! $categoria) {
             return null;
         }
 

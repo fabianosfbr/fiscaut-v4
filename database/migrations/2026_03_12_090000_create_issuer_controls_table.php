@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('control_type');
             $table->json('value')->nullable();
             $table->timestamps();
-            
+
         });
     }
 

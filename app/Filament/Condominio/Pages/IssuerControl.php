@@ -14,12 +14,12 @@ use UnitEnum;
 class IssuerControl extends Page implements HasSchemas
 {
     use InteractsWithSchemas;
+
     protected string $view = 'filament.condominio.pages.issuer-control';
 
     protected static ?string $title = 'Visão Geral';
 
     protected static string|UnitEnum|null $navigationGroup = 'Controles';
-
 
     public function form(Schema $schema): Schema
     {

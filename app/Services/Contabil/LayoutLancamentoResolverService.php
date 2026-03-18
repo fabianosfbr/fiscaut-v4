@@ -20,8 +20,11 @@ use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 class LayoutLancamentoResolverService
 {
     private Layout $layout;
+
     private int $issuerId;
+
     private int $userId;
+
     private string $jobProgressId;
 
     /** @var \Illuminate\Support\Collection<int, LayoutRule> */
@@ -52,7 +55,7 @@ class LayoutLancamentoResolverService
 
         $this->historicosByCodigo = HistoricoContabil::where('issuer_id', $issuerId)
             ->get()
-            ->mapWithKeys(fn($h) => [$h->codigo => $h->descricao])
+            ->mapWithKeys(fn ($h) => [$h->codigo => $h->descricao])
             ->toArray();
     }
 
@@ -78,11 +81,12 @@ class LayoutLancamentoResolverService
                 $jobProgress->update([
                     'progress' => $percentage,
                     'message' => "Processando linha {$rowNumber} de {$totalRows}...",
-                ]);                
+                ]);
             }
 
             $result[] = $this->resolveRow($row);
         }
+
         return $result;
     }
 
@@ -114,7 +118,7 @@ class LayoutLancamentoResolverService
         ];
 
         foreach ($this->rules as $rule) {
-            if (!$this->conditionPasses($rule, $row)) {
+            if (! $this->conditionPasses($rule, $row)) {
                 continue;
             }
 
@@ -240,12 +244,13 @@ class LayoutLancamentoResolverService
 
     private function formatDate(?Carbon $date, ?string $format): ?string
     {
-        if (!$date) {
+        if (! $date) {
             return null;
         }
         if ($format) {
             return $date->format($format);
         }
+
         return $date->format('d/m/Y');
     }
 
@@ -267,52 +272,56 @@ class LayoutLancamentoResolverService
         if ($table === 'contabil_bancos') {
             $query = Banco::with('plano_de_conta')->where('issuer_id', $this->issuerId);
             if ($condition === 'like') {
-                $query->where($attribute, 'LIKE', '%' . $searchValue . '%');
+                $query->where($attribute, 'LIKE', '%'.$searchValue.'%');
             } else {
                 $query->where($attribute, $searchValue);
             }
             $banco = $query->first();
             $codigo = $banco?->plano_de_conta?->codigo ?? null;
             $descricao = $banco?->plano_de_conta?->nome ?? null;
+
             return ['value' => $codigo ?? $rule->default_value ?? ' ', 'descricao' => $descricao];
         }
 
         if ($table === 'contabil_clientes') {
             $query = Cliente::with('plano_de_conta')->where('issuer_id', $this->issuerId);
             if ($condition === 'like') {
-                $query->where($attribute, 'LIKE', '%' . $searchValue . '%');
+                $query->where($attribute, 'LIKE', '%'.$searchValue.'%');
             } else {
                 $query->where($attribute, $searchValue);
             }
             $cliente = $query->first();
             $codigo = $this->extractContaCodigo($cliente);
             $descricao = $this->extractContaDescricao($cliente);
+
             return ['value' => $codigo ?? $rule->default_value ?? ' ', 'descricao' => $descricao];
         }
 
         if ($table === 'contabil_fornecedores') {
             $query = Fornecedor::where('issuer_id', $this->issuerId);
             if ($condition === 'like') {
-                $query->where($attribute, 'LIKE', '%' . $searchValue . '%');
+                $query->where($attribute, 'LIKE', '%'.$searchValue.'%');
             } else {
                 $query->where($attribute, $searchValue);
             }
             $fornecedor = $query->first();
             $codigo = $this->extractContaCodigo($fornecedor);
             $descricao = $this->extractContaDescricao($fornecedor);
+
             return ['value' => $codigo ?? $rule->default_value ?? ' ', 'descricao' => $descricao];
         }
 
         if ($table === 'contabil_plano_de_contas') {
             $query = PlanoDeConta::where('issuer_id', $this->issuerId);
             if ($condition === 'like') {
-                $query->where($attribute, 'LIKE', '%' . $searchValue . '%');
+                $query->where($attribute, 'LIKE', '%'.$searchValue.'%');
             } else {
                 $query->where($attribute, $searchValue);
             }
             $plano = $query->first();
             $codigo = $plano?->codigo ?? null;
             $descricao = $plano?->nome ?? null;
+
             return ['value' => $codigo ?? $rule->default_value ?? ' ', 'descricao' => $descricao];
         }
 
@@ -354,7 +363,7 @@ class LayoutLancamentoResolverService
                 }
             }
 
-            $matched = ($isInclusivo && $matches === count($includeTerms)) || (!$isInclusivo && $matches > 0);
+            $matched = ($isInclusivo && $matches === count($includeTerms)) || (! $isInclusivo && $matches > 0);
             if ($matched) {
                 $score = $matches;
                 $order = is_numeric($parametro->order) ? (int) $parametro->order : PHP_INT_MAX;
@@ -469,7 +478,7 @@ class LayoutLancamentoResolverService
             '>=' => $left >= $right,
             '<=' => $left <= $right,
             'contains' => str_contains($left, $right),
-            'not_contains' => !str_contains($left, $right),
+            'not_contains' => ! str_contains($left, $right),
             'empty' => $left === '',
             'not_empty' => $left !== '',
             default => true,
@@ -488,12 +497,14 @@ class LayoutLancamentoResolverService
                 $parts[] = $this->normalizeText($this->stringifyValue($value));
             }
         }
+
         return trim(implode(' ', $parts));
     }
 
     private function normalizeText(string $value): string
     {
         $value = mb_strtoupper($value, 'UTF-8');
+
         return preg_replace('/\s+/', ' ', trim($value)) ?? '';
     }
 
@@ -534,6 +545,7 @@ class LayoutLancamentoResolverService
         foreach (array_keys($row) as $key) {
             $map[$this->normalizeHeader($key)] = $key;
         }
+
         return $map;
     }
 
@@ -591,7 +603,7 @@ class LayoutLancamentoResolverService
         $raw = str_replace(' ', '', $raw);
 
         // Detecta se já está no formato brasileiro (vírgula como decimal)
-        $hasBrazilianFormat = str_contains($raw, ',') && !str_contains($raw, '.');
+        $hasBrazilianFormat = str_contains($raw, ',') && ! str_contains($raw, '.');
 
         // Se está no formato brasileiro, converte para formato padrão (ponto como decimal)
         if ($hasBrazilianFormat) {
@@ -637,7 +649,7 @@ class LayoutLancamentoResolverService
 
     private function applyDateAdjustment(?Carbon $date, string $adjustment): ?Carbon
     {
-        if (!$date) {
+        if (! $date) {
             return null;
         }
 
@@ -679,7 +691,7 @@ class LayoutLancamentoResolverService
 
         foreach ($this->layoutColumns as $col) {
             $key = $col->excel_column_name;
-            $replacements['#' . $key] = $this->stringifyValue($this->getRowValue($row, $key) ?? ' ');
+            $replacements['#'.$key] = $this->stringifyValue($this->getRowValue($row, $key) ?? ' ');
         }
 
         $date = $resolved['data'] instanceof Carbon ? $resolved['data'] : null;
@@ -697,7 +709,7 @@ class LayoutLancamentoResolverService
 
     private function extractContaCodigo($model): ?string
     {
-        if (!$model) {
+        if (! $model) {
             return null;
         }
 
@@ -713,6 +725,7 @@ class LayoutLancamentoResolverService
             $plano = PlanoDeConta::where('issuer_id', $this->issuerId)
                 ->where('id', $model->conta_contabil)
                 ->first();
+
             return $plano?->codigo;
         }
 
@@ -721,7 +734,7 @@ class LayoutLancamentoResolverService
 
     private function extractContaDescricao($model): ?string
     {
-        if (!$model) {
+        if (! $model) {
             return null;
         }
 
@@ -733,6 +746,7 @@ class LayoutLancamentoResolverService
             $plano = PlanoDeConta::where('issuer_id', $this->issuerId)
                 ->where('id', $model->conta_contabil)
                 ->first();
+
             return $plano?->nome;
         }
 

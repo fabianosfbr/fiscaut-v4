@@ -2,12 +2,10 @@
 
 namespace App\Filament\Condominio\Pages;
 
-use App\Models\IssuerControl;
 use App\Models\TipoManutencao;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
-use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
 use Filament\Pages\Page;
@@ -19,12 +17,12 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use UnitEnum;
 
-
 class TipoManutencaoPage extends Page implements HasActions, HasSchemas, HasTable
 {
     use InteractsWithActions;
     use InteractsWithSchemas;
     use InteractsWithTable;
+
     protected string $view = 'filament.condominio.pages.tipo-manutencao-page';
 
     protected static string|UnitEnum|null $navigationGroup = 'Controles';
@@ -54,7 +52,7 @@ class TipoManutencaoPage extends Page implements HasActions, HasSchemas, HasTabl
                     ->schema(self::getFormSchema())
                     ->action(function ($data) {
                         self::updateOrCreate($data);
-                    })
+                    }),
             ])
             ->recordActions([
                 Action::make('edit')
@@ -72,7 +70,7 @@ class TipoManutencaoPage extends Page implements HasActions, HasSchemas, HasTabl
                     ->action(function ($data, TipoManutencao $record) {
                         self::updateOrCreate($data);
                     }),
-                    
+
             ])
             ->toolbarActions([
                 // ...
@@ -102,6 +100,4 @@ class TipoManutencaoPage extends Page implements HasActions, HasSchemas, HasTabl
             ]
         );
     }
-
-
 }
