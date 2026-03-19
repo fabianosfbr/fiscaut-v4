@@ -21,6 +21,8 @@ class IssuerControl extends Page implements HasSchemas
 
     protected static string|UnitEnum|null $navigationGroup = 'Controles';
 
+    protected static ?bool $navigationShouldBeHidden = false;
+
     public function form(Schema $schema): Schema
     {
         return $schema

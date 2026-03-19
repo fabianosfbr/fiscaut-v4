@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Akaunting\Money;
+use App\Models\Manutencao;
+use App\Observers\ManutencaoObserver;
 use BezhanSalleh\PanelSwitch\PanelSwitch;
 use Filament\Actions\BulkAction;
 use Filament\Forms\Components\TextInput;
@@ -52,28 +54,28 @@ class AppServiceProvider extends ServiceProvider
 
         FilamentView::registerRenderHook(
             TablesRenderHook::SELECTION_INDICATOR_ACTIONS_BEFORE,
-            fn (): string => Blade::render('@livewire(\'keep-rows-selected-table\')'),
+            fn(): string => Blade::render('@livewire(\'keep-rows-selected-table\')'),
         );
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::CONTENT_START,
-            fn (): string => Blade::render('@livewire(\'issuer-switcher\')'),
+            fn(): string => Blade::render('@livewire(\'issuer-switcher\')'),
         );
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::BODY_END,
-            fn (): string => Blade::render('@livewire(\'chat-ai\')'),
+            fn(): string => Blade::render('@livewire(\'chat-ai\')'),
         );
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::PAGE_HEADER_WIDGETS_START,
-            fn (): string => Blade::render('@livewire(\'job-progress\')'),
+            fn(): string => Blade::render('@livewire(\'job-progress\')'),
             scopes: \App\Filament\Resources\ImportarLancamentoContabilGerals\Pages\ListImportarLancamentoContabilGerals::class,
         );
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::PAGE_START,
-            fn (): string => Blade::render('@livewire(\'job-progress-super-logica\')'),
+            fn(): string => Blade::render('@livewire(\'job-progress-super-logica\')'),
             scopes: \App\Filament\Resources\ImportarLancamentoContabilSuperLogicas\Pages\ListImportarLancamentoContabilSuperLogicas::class,
         );
     }
@@ -131,14 +133,5 @@ class AppServiceProvider extends ServiceProvider
                 $shouldConvert,
             ))->format();
         };
-        TextInput::macro('currencyMask', function ($thousandSeparator = ',', $decimalSeparator = '.', $precision = 2): TextInput {
-            /**
-             * @var TextInput $this
-             */
-            $this->view = 'filament.forms.components.currency-mask';
-            $this->viewData(compact('thousandSeparator', 'decimalSeparator', 'precision'));
-
-            return $this;
-        });
     }
 }

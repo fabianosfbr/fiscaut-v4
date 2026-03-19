@@ -13,8 +13,15 @@ return new class extends Migration
     {
         Schema::create('tipos_manutencao', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->foreignId('issuer_id')->constrained('issuers')->cascadeOnDelete();
             $table->string('nome');
+            $table->string('descricao');
+            $table->string('categoria', 50)->default('preventiva');
+            $table->string('periodicidade_padrao', 50)->nullable();
+            $table->integer('alerta_dias_antecedencia')->default(7);
+            $table->string('prioridade', 50)->default('media');
+            $table->string('responsavel_padrao')->nullable();
+            $table->boolean('ativo')->default(true);
             $table->timestamps();
         });
     }
