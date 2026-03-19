@@ -99,8 +99,7 @@ class ManutencaoRecorrenciaForm
                             ->required()
                             ->native(false)
                             ->displayFormat('d/m/Y')
-                            ->minDate(now())
-                            ->helperText('Primeira data para geração de manutenções'),
+                            ->helperText('Primeira data para geração da recorrência'),
 
                         DatePicker::make('data_fim')
                             ->label('Data de Fim')
@@ -112,7 +111,7 @@ class ManutencaoRecorrenciaForm
                         Toggle::make('ativo')
                             ->label('Ativo')
                             ->default(true)
-                            ->helperText('Recorrências inativas não geram novas manutenções'),
+                            ->helperText('Recorrências inativas não geram novas recorrências'),
                     ])
                     ->columns(3)
                     ->columnSpanFull(),
@@ -128,7 +127,7 @@ class ManutencaoRecorrenciaForm
                             ->minValue(1)
                             ->maxValue(365)
                             ->suffix('dias')
-                            ->helperText('Quantos dias antes gerar as próximas manutenções'),
+                            ->helperText('Quantos dias antes gerar as próximas recorrências'),
 
                         DatePicker::make('ultima_geracao')
                             ->label('Última Geração')
