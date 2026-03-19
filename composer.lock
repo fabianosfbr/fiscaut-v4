@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "911b0d94625b1fb9cffee5bb11f818a5",
+    "content-hash": "cbd3936fabbc4dbe720253d8c15269c0",
     "packages": [
         {
             "name": "akaunting/laravel-money",
@@ -139,6 +139,53 @@
                 "source": "https://github.com/AnourValar/eloquent-serialize/tree/1.3.5"
             },
             "time": "2025-12-04T13:38:21+00:00"
+        },
+        {
+            "name": "asmit/filament-upload",
+            "version": "v2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/AsmitNepali/filament-upload.git",
+                "reference": "eb7ad5a394820a999dcb2b53fdf9176776e7843c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/AsmitNepali/filament-upload/zipball/eb7ad5a394820a999dcb2b53fdf9176776e7843c",
+                "reference": "eb7ad5a394820a999dcb2b53fdf9176776e7843c",
+                "shasum": ""
+            },
+            "require": {
+                "filament/support": "^3.0|^4.0|^5.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Asmit\\FilamentUpload\\FilamentUploadServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Asmit\\FilamentUpload\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "AsmitNepali",
+                    "email": "mail2asmitnepali@gmail.com"
+                }
+            ],
+            "description": "Filament PDF file upload and preview.",
+            "support": {
+                "issues": "https://github.com/AsmitNepali/filament-upload/issues",
+                "source": "https://github.com/AsmitNepali/filament-upload/tree/v2.0.0"
+            },
+            "time": "2026-01-17T06:36:31+00:00"
         },
         {
             "name": "barryvdh/laravel-dompdf",
