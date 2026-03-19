@@ -133,5 +133,14 @@ class AppServiceProvider extends ServiceProvider
                 $shouldConvert,
             ))->format();
         };
+        TextInput::macro('currencyMask', function ($thousandSeparator = ',', $decimalSeparator = '.', $precision = 2): TextInput {
+            /**
+             * @var TextInput $this
+             */
+            $this->view = 'filament.forms.components.currency-mask';
+            $this->viewData(compact('thousandSeparator', 'decimalSeparator', 'precision'));
+
+            return $this;
+        });
     }
 }
