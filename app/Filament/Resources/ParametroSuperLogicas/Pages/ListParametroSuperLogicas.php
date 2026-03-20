@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ParametroSuperLogicas\Pages;
 
+use App\Filament\Actions\CopiarParametroSuperLogicaAction;
 use App\Filament\Resources\ParametroSuperLogicas\ParametroSuperLogicaResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
@@ -15,6 +16,7 @@ class ListParametroSuperLogicas extends ListRecords
         return [
             CreateAction::make()
                 ->label('Adicionar Novo'),
+            CopiarParametroSuperLogicaAction::make(),
         ];
     }
 
