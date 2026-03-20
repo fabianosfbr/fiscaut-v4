@@ -228,3 +228,9 @@ A: The logic is centralized in `vendor/filament/filament/resources/js/unsaved-ch
 ---
 *Last Updated: 2026-01-23*
 
+
+## Active Technologies
+- PHP 8.2+ (Laravel 12) + Laravel Http facade, Filament Notifications (001-fiscaconnector-sync-service)
+
+## Recent Changes
+- 001-fiscaconnector-sync-service: Added PHP 8.2+ (Laravel 12) + Laravel Http facade, Filament Notifications

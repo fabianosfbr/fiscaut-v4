@@ -30,6 +30,8 @@ return [
     'cnpj_ja_api_key' => env('CNPJ_JA_API_KEY'),
     'sieg_api_key' => env('SIEG_API_KEY'),
     'sieg_url' => env('SIEG_URL'),
+    'fiscaconnector_url' => env('FISCAUTCONNECTOR_URL'),
+    'fiscaconnector_api_key' => env('FISCAUTCONNECTOR_API_KEY'),
     'footer_credits_danfe' => env('APP_FOOTER_CREDITS_DANFE', 'FiscAut Sistemas - www.fiscaut.com.br'),
 
     'environment' => [
