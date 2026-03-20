@@ -22,7 +22,7 @@ class IssuerDocumentsTable
             ->columns([
                 TextColumn::make('document_type')
                     ->label('Tipo de Documento')
-                    ->formatStateUsing(fn($state) => IssuerDocumentTypeEnum::tryFrom($state)?->getLabel() ?? $state)
+                    ->formatStateUsing(fn ($state) => IssuerDocumentTypeEnum::tryFrom($state)?->getLabel() ?? $state)
                     ->searchable()
                     ->badge()
                     ->sortable(),
@@ -39,7 +39,7 @@ class IssuerDocumentsTable
 
                 TextColumn::make('file_size')
                     ->label('Tamanho')
-                    ->formatStateUsing(fn($state) => $state ? number_format($state / 1024, 2) . ' KB' : '-')
+                    ->formatStateUsing(fn ($state) => $state ? number_format($state / 1024, 2).' KB' : '-')
                     ->sortable(),
 
                 TextColumn::make('created_at')

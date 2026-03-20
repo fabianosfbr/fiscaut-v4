@@ -21,7 +21,7 @@ class DownloadPdfNfseAction
             ->closeModalByClickingAway(false)
             ->closeModalByEscaping(false)
             ->modalSubmitActionLabel('Sim, download')
-            ->visible(fn(Model $record): bool => !empty($record->xml))
+            ->visible(fn (Model $record): bool => ! empty($record->xml))
             ->action(function ($record) {
                 if (isset($record->chave_acesso)) {
                     $service = new SefazNfseDownloadService(currentIssuer());
@@ -30,7 +30,7 @@ class DownloadPdfNfseAction
 
                     return response()->streamDownload(function () use ($pdf) {
                         echo $pdf;
-                    }, 'nfse-' . $record->chave_acesso . '.pdf');
+                    }, 'nfse-'.$record->chave_acesso.'.pdf');
                 }
 
                 if (isset($record->link_download_pdf)) {

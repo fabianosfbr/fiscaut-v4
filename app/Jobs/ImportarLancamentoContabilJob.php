@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-
 use App\Imports\OptimizedExcelImport;
 use App\Models\ImportarLancamentoContabil;
 use App\Models\JobProgress;
@@ -45,8 +44,7 @@ class ImportarLancamentoContabilJob implements ShouldQueue
         $user = User::find($this->userId);
         $jobProgress = $this->jobProgressId ? JobProgress::find($this->jobProgressId) : null;
 
-
-        if (!$layout || !$user) {
+        if (! $layout || ! $user) {
             $jobProgress?->update([
                 'status' => 'failed',
                 'message' => 'Layout ou Usuário não encontrado.',
@@ -57,7 +55,7 @@ class ImportarLancamentoContabilJob implements ShouldQueue
 
         $filePath = Storage::disk('local')->path($this->relativePath);
 
-        if (!file_exists($filePath)) {
+        if (! file_exists($filePath)) {
             Log::error("Job ImportarLancamentoContabilJob: Arquivo não encontrado em {$filePath}");
 
             $jobProgress?->update([
@@ -67,9 +65,6 @@ class ImportarLancamentoContabilJob implements ShouldQueue
 
             return;
         }
-
-
-
 
         try {
 
@@ -107,22 +102,22 @@ class ImportarLancamentoContabilJob implements ShouldQueue
                 (int) $layout->issuer_id,
                 (int) $user->id,
                 $jobProgress->id,
-            );  
+            );
 
             $resolvedRows = $resolver->resolveRows($rows);
 
             foreach ($resolvedRows as $resolved) {
-  
-                $import = new ImportarLancamentoContabil();
+
+                $import = new ImportarLancamentoContabil;
                 $import->issuer_id = $layout->issuer_id;
                 $import->user_id = $user->id;
                 $import->data = $resolved['data'] ?? null;
                 $import->valor = $resolved['valor'] ?? 0;
                 $import->debito = $resolved['debito'] ?? null;
                 $import->credito = $resolved['credito'] ?? null;
-                $import->is_exist = !is_null($resolved['data'] ?? null)
-                    && !is_null($resolved['debito'] ?? null)
-                    && !is_null($resolved['credito'] ?? null);
+                $import->is_exist = ! is_null($resolved['data'] ?? null)
+                    && ! is_null($resolved['debito'] ?? null)
+                    && ! is_null($resolved['credito'] ?? null);
                 $import->historico = $resolved['historico'] ?? ' ';
                 $import->metadata = [
                     'descricao_debito' => $resolved['debito_descricao'] ?? null,
@@ -143,11 +138,11 @@ class ImportarLancamentoContabilJob implements ShouldQueue
             ]);
 
         } catch (Exception $e) {
-            Log::error('Erro no Job ImportarLancamentoContabilJob: ' . $e->getMessage());
+            Log::error('Erro no Job ImportarLancamentoContabilJob: '.$e->getMessage());
 
             $jobProgress?->update([
                 'status' => 'failed',
-                'message' => 'Erro: ' . $e->getMessage(),
+                'message' => 'Erro: '.$e->getMessage(),
             ]);
 
             throw $e;
@@ -156,6 +151,6 @@ class ImportarLancamentoContabilJob implements ShouldQueue
                 Storage::disk('local')->delete($this->relativePath);
             }
         }
-        
+
     }
 }

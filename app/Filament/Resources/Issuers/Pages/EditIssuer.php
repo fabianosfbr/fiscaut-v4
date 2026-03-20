@@ -13,8 +13,6 @@ class EditIssuer extends EditRecord
 {
     protected static string $resource = IssuerResource::class;
 
-
-
     protected function mutateFormDataBeforeFill(array $data): array
     {
         // Remover campos sensíveis que não devem aparecer no formulário de edição

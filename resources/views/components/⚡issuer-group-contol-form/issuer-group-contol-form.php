@@ -4,9 +4,9 @@ use App\Models\IssuerControl;
 use App\Models\IssuerControlField;
 use App\Models\IssuerGroupControl;
 use App\Services\Filament\FormBuilderRender;
-use Filament\Notifications\Notification;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
@@ -16,7 +16,6 @@ new class extends Component implements HasActions, HasSchemas
 {
     use InteractsWithActions;
     use InteractsWithSchemas;
-
 
     public int $groupId;
 

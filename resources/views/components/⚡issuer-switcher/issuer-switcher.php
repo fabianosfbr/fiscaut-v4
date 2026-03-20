@@ -104,4 +104,19 @@ new class extends Component implements HasSchemas
         // Método necessário para evitar erros caso o formulário seja submetido via "Enter"
         // A lógica principal ocorre no evento 'afterStateUpdated' do campo Select.
     }
+
+    public function fiscautConnect(): void
+    {
+        // Lógica para sincronizar com o domínio (exemplo)
+        // Aqui você pode implementar a lógica real de conexão, como uma chamada API ou comando Artisan
+
+        // Exemplo de feedback visual
+        Notification::make()
+            ->title('Sincronização iniciada!')
+            ->body('Estamos sincronizando os dados vinculados ao '.currentIssuer()->razao_social.'. Isso pode levar alguns minutos.')
+            ->info()
+            ->duration(3000)
+            ->send();
+
+    }
 };

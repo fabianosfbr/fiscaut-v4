@@ -13,7 +13,6 @@ use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Fieldset;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class GerarArquivoTxtLancamentoContabilGeral
@@ -40,7 +39,7 @@ class GerarArquivoTxtLancamentoContabilGeral
                     ->default(false),
 
                 Fieldset::make('Registros sem lançamento')
-                    ->visible(fn(callable $get) => $get('is_exist') === false)
+                    ->visible(fn (callable $get) => $get('is_exist') === false)
                     ->schema([
                         SelectPlanoDeConta::make('conta_contabil')
                             ->label('Conta contabil')
@@ -56,7 +55,7 @@ class GerarArquivoTxtLancamentoContabilGeral
                                     ->orderBy('codigo', 'asc')
                                     ->get()
                                     ->map(function ($item) {
-                                        $item->codigo_descricao = $item->codigo . ' | ' . $item->descricao;
+                                        $item->codigo_descricao = $item->codigo.' | '.$item->descricao;
 
                                         return $item;
                                     })
@@ -76,7 +75,7 @@ class GerarArquivoTxtLancamentoContabilGeral
                     ->where('user_id', $user->id)
                     ->where('valor', '!=', 0)
                     ->where('metadata->type', 'geral')
-                    ->when($data['is_exist'], fn($query) => $query->where('is_exist', $data['is_exist'])) // Aplica o filtro apenas se is_exist for true
+                    ->when($data['is_exist'], fn ($query) => $query->where('is_exist', $data['is_exist'])) // Aplica o filtro apenas se is_exist for true
                     ->orderBy('id', 'asc')
                     ->get();
 
@@ -91,7 +90,7 @@ class GerarArquivoTxtLancamentoContabilGeral
                     $action->halt();
                 }
 
-                $filename = Str::random(20) . '.txt';
+                $filename = Str::random(20).'.txt';
 
                 if (isset($data['conta_contabil'])) {
                     $conta_contabil = PlanoDeConta::where('issuer_id', $issuerId)
@@ -103,7 +102,6 @@ class GerarArquivoTxtLancamentoContabilGeral
                 $txtContent = self::gerarRelatorio($lancamentos, $data, ';');
 
                 $txtContentAnsi = mb_convert_encoding($txtContent, 'Windows-1252', 'UTF-8');
-
 
                 Notification::make()
                     ->title('Exportação iniciada')
@@ -129,9 +127,9 @@ class GerarArquivoTxtLancamentoContabilGeral
     {
 
         $linhas = $lancamentos
-            ->map(fn($lancamento) => self::formatarConteudo($lancamento, $data, $separador));
+            ->map(fn ($lancamento) => self::formatarConteudo($lancamento, $data, $separador));
 
-        return $linhas->implode(PHP_EOL) . PHP_EOL;
+        return $linhas->implode(PHP_EOL).PHP_EOL;
     }
 
     private static function formatarConteudo($lancamento, array $params, string $separador): string

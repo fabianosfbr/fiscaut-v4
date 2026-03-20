@@ -1,18 +1,17 @@
 <?php
 
-
-use App\Models\EntradasImpostosEquivalente;
-
+use App\Enums\ControlTypeEnum;
+use App\Models\IssuerControl as IssuerControlModel;
 use App\Models\TipoManutencao;
-use Filament\Forms\Components\Select;
-use Livewire\Component;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Actions\DeleteAction;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
@@ -20,26 +19,20 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\TextInput;
-
 use Illuminate\Support\Facades\Storage;
+use Livewire\Component;
 
-use App\Models\IssuerControl as IssuerControlModel;
-use App\Enums\ControlTypeEnum;
-
-new class extends Component implements HasActions, HasSchemas, HasTable {
+new class extends Component implements HasActions, HasSchemas, HasTable
+{
     use InteractsWithActions;
     use InteractsWithSchemas;
     use InteractsWithTable;
 
-
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn(): Builder => IssuerControlModel::query()
+            ->query(fn (): Builder => IssuerControlModel::query()
                 ->where('issuer_id', currentIssuer()->id)
                 ->where('control_type', ControlTypeEnum::MANUTENCAO_PROGRAMADA))
             ->defaultSort('created_at', 'desc')
@@ -56,12 +49,13 @@ new class extends Component implements HasActions, HasSchemas, HasTable {
                     ->label('Valido até'),
                 TextColumn::make('value.document_path')
                     ->label('Documento')
-                    ->formatStateUsing(fn($state) => 'Visualizar Documento')
+                    ->formatStateUsing(fn ($state) => 'Visualizar Documento')
                     ->url(function ($record) {
 
-                        if (!isset($record->value['document_path'])) {
+                        if (! isset($record->value['document_path'])) {
                             return null;
                         }
+
                         return route('issuer-rag.document.show', $record);
                     }, true)
                     ->icon('heroicon-m-document-arrow-down')
@@ -78,7 +72,7 @@ new class extends Component implements HasActions, HasSchemas, HasTable {
                     ->schema(self::getFormSchema())
                     ->action(function ($data) {
                         self::updateOrCreate($data);
-                    })
+                    }),
             ])
             ->recordActions([
                 Action::make('edit')
@@ -102,7 +96,7 @@ new class extends Component implements HasActions, HasSchemas, HasTable {
 
                 DeleteAction::make()
                     ->modalHeading('Excluir seguro')
-                    ->modalSubheading('Tem certeza que deseja excluir este documento? Esta ação não pode ser desfeita.')
+                    ->modalDescription('Tem certeza que deseja excluir este documento? Esta ação não pode ser desfeita.')
                     ->modalSubmitActionLabel('Sim, excluir')
                     ->modalCancelActionLabel('Cancelar')
                     ->before(function ($record) {
@@ -153,7 +147,7 @@ new class extends Component implements HasActions, HasSchemas, HasTable {
                 ->afterLabel(
                     Action::make('generate')
                         ->modalHeading('Adicionar Tipo de Manutenção')
-                        ->modalSubheading('Cadastre um novo tipo de manutenção para poder selecioná-lo no formulário.')
+                        ->modalDescription('Cadastre um novo tipo de manutenção para poder selecioná-lo no formulário.')
                         ->modalWidth('sm')
                         ->label('Adicionar Tipo de Manutenção')
                         ->color('success')
@@ -197,11 +191,11 @@ new class extends Component implements HasActions, HasSchemas, HasTable {
                 ->disk('local')
                 ->directory(function ($get) {
                     $issuer = currentIssuer();
-                    if (!$issuer) {
+                    if (! $issuer) {
                         return null;
                     }
 
-                    return 'rag/' . $issuer->tenant_id . '/' . sanitize($issuer->cnpj) . '/documents';
+                    return 'rag/'.$issuer->tenant_id.'/'.sanitize($issuer->cnpj).'/documents';
                 })
                 ->visibility('private')
                 ->acceptedFileTypes([
@@ -213,5 +207,4 @@ new class extends Component implements HasActions, HasSchemas, HasTable {
                 ->columnSpanFull(),
         ];
     }
-
 };
