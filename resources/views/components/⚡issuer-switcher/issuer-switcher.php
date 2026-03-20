@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\FiscautConnectorService;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
@@ -107,16 +108,34 @@ new class extends Component implements HasSchemas
 
     public function fiscautConnect(): void
     {
-        // Lógica para sincronizar com o domínio (exemplo)
-        // Aqui você pode implementar a lógica real de conexão, como uma chamada API ou comando Artisan
 
-        // Exemplo de feedback visual
-        Notification::make()
-            ->title('Sincronização iniciada!')
-            ->body('Estamos sincronizando os dados vinculados ao '.currentIssuer()->razao_social.'. Isso pode levar alguns minutos.')
-            ->info()
-            ->duration(3000)
-            ->send();
+        try {
+            $service = new FiscautConnectorService(currentIssuer());
 
+            $result = $service->sync();
+
+            if (isset($result['status']) && $result['status'] === true) {
+                Notification::make()
+                    ->title('Sincronização concluída!')
+                    ->body('Estamos sincronizando os dados vinculados ao ' . currentIssuer()->razao_social . '. Isso pode levar alguns minutos.')
+                    ->success()
+                    ->duration(2000)
+                    ->send();
+            } else {
+                Notification::make()
+                    ->title('Erro na sincronização!')
+                    ->body('Ocorreu um erro ao sincronizar os dados do ' . currentIssuer()->razao_social . '. Por favor, tente novamente mais tarde.')
+                    ->danger()
+                    ->duration(2000)
+                    ->send();
+            }
+        } catch (Exception $e) {
+            Notification::make()
+                ->title('Erro na sincronização!')
+                ->body($e->getMessage())
+                ->danger()
+                ->duration(2000)
+                ->send();
+        }
     }
 };

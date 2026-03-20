@@ -41,7 +41,7 @@
 
             <!-- Gerenciar Todas as Empresas -->
             <x-filament::dropdown.list>
-                <x-filament::dropdown.list.item icon="heroicon-m-building-office"
+                <x-filament::dropdown.list.item icon="heroicon-m-arrow-path"
                     wire:click="fiscautConnect">
                     Sincronizar com Domínio
                 </x-filament::dropdown.list.item>

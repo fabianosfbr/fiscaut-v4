@@ -5,18 +5,21 @@ namespace App\Services;
 use App\Exceptions\FiscautConnectorException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Models\Issuer;
 
 class FiscautConnectorService
 {
     public function __construct(
-        protected string $cgcEmp,
+        protected Issuer $issuer,
     ) {}
 
-    public function sync(): bool
+    public function sync(): array
     {
-        $url = config('admin.fiscaconnector_url');
-        $apiKey = config('admin.fiscaconnector_api_key');
-
+        $tenant = $this->issuer->tenant()->first();
+        $url = $tenant?->fiscaut_connector_url;
+        $apiKey = $tenant?->fiscaut_connector_token;
+        
+     
         if (empty($apiKey)) {
             Log::error('FiscautConnectorException: Chave de API do FiscautConnector não configurada.');
 
@@ -30,7 +33,7 @@ class FiscautConnectorService
                     'Accept' => 'application/json',
                 ])
                 ->post($url, [
-                    'cgc_emp' => $this->cgcEmp,
+                    'cgce_emp' => $this->issuer->cnpj,
                     'sync' => true,
                 ]);
 
@@ -43,9 +46,8 @@ class FiscautConnectorService
             }
 
             $data = $response->json();
-            $status = $data['status'] ?? null;
 
-            return $status === 'OK';
+            return $data;
         } catch (FiscautConnectorException $e) {
             throw $e;
         } catch (\Throwable $e) {
