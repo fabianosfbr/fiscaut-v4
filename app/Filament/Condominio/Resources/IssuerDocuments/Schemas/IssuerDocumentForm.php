@@ -3,6 +3,7 @@
 namespace App\Filament\Condominio\Resources\IssuerDocuments\Schemas;
 
 use App\Enums\IssuerDocumentTypeEnum;
+use Asmit\FilamentUpload\Forms\Components\AdvancedFileUpload;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -35,8 +36,13 @@ class IssuerDocumentForm
                     ->helperText('Data de validade do documento (ex: 31/12/2024)    ')
                     ->columnSpan(1),
 
-                FileUpload::make('file_path')
+                AdvancedFileUpload::make('file_path')
                     ->label('Arquivo do Documento')
+                    ->pdfPreviewHeight(400) // Customize preview height
+                    ->pdfDisplayPage(1) // Set default page
+                    ->pdfToolbar(true) // Enable toolbar
+                    ->pdfZoomLevel(100) // Set zoom level
+                    ->pdfNavPanes(true) // Enable navigation panes
                     ->required()
                     ->disk('local')
                     ->directory(function ($get) {
@@ -45,7 +51,7 @@ class IssuerDocumentForm
                             return null;
                         }
 
-                        return 'rag/'.$issuer->tenant_id.'/'.sanitize($issuer->cnpj).'/documents';
+                        return 'rag/' . $issuer->tenant_id . '/' . sanitize($issuer->cnpj) . '/documents';
                     })
                     ->visibility('private')
                     ->acceptedFileTypes([
@@ -58,6 +64,30 @@ class IssuerDocumentForm
                     ->preserveFilenames()
                     ->helperText('Formatos permitidos: PDF, DOC, DOCX. Tamanho máximo: 10MB')
                     ->columnSpanFull(),
+
+                // FileUpload::make('file_path')
+                //     ->label('Arquivo do Documento')
+                //     ->required()
+                //     ->disk('local')
+                //     ->directory(function ($get) {
+                //         $issuer = currentIssuer();
+                //         if (! $issuer) {
+                //             return null;
+                //         }
+
+                //         return 'rag/' . $issuer->tenant_id . '/' . sanitize($issuer->cnpj) . '/documents';
+                //     })
+                //     ->visibility('private')
+                //     ->acceptedFileTypes([
+                //         'application/pdf',
+                //         'application/msword',
+                //         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                //     ])
+                //     ->maxSize(10240) // 10MB in KB
+                //     ->storeFileNamesIn('original_name')
+                //     ->preserveFilenames()
+                //     ->helperText('Formatos permitidos: PDF, DOC, DOCX. Tamanho máximo: 10MB')
+                //     ->columnSpanFull(),
 
             ]);
     }

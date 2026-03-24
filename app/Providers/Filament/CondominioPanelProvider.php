@@ -34,7 +34,6 @@ class CondominioPanelProvider extends PanelProvider
             ->brandLogo(asset('images/application/logo-no-background.png'))
             ->brandLogoHeight('65px')
             ->brandName(config('app.name'))
-            ->topNavigation()
             ->maxContentWidth(Width::Full)
             ->databaseNotifications()
             ->colors([
@@ -62,11 +61,11 @@ class CondominioPanelProvider extends PanelProvider
                     ->label('Documentos')
                     ->icon('heroicon-o-document-text'),
                 NavigationGroup::make()
-                    ->label('AGE/AGO')
-                    ->icon('heroicon-o-document-text'),
+                    ->label('Assembleias')
+                    ->icon('heroicon-o-building-office-2'),
                 NavigationGroup::make()
                     ->label('Controles')
-                    ->icon('heroicon-o-rectangle-stack'),
+                    ->icon('heroicon-o-adjustments-horizontal'),
 
             ])
             ->middleware([

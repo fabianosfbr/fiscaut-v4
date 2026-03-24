@@ -12,8 +12,6 @@ class EditIssuerDocument extends EditRecord
 
     protected function getHeaderActions(): array
     {
-        return [
-            DeleteAction::make(),
-        ];
+        return [ ];
     }
 }

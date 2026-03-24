@@ -9,5 +9,5 @@ class EditIssuerCondominio extends EditIssuer
 {
     protected static string $resource = IssuerCondominioResource::class;
 
-    protected static ?string $title = 'Editar';
+    
 }

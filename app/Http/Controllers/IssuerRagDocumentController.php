@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\IssuerControl;
+
+use App\Models\IssuerDocument;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -12,9 +13,9 @@ class IssuerRagDocumentController extends Controller
     /**
      * Handle the incoming request.
      */
-    public function show(IssuerControl $record): StreamedResponse
+    public function show(IssuerDocument $record): StreamedResponse
     {
-        $documentPath = $record->value['document_path'] ?? $record->document_path ?? null;
+        $documentPath = $record->file_path ?? null;
 
         if (! $documentPath || ! Storage::disk('local')->exists($documentPath)) {
             abort(404);

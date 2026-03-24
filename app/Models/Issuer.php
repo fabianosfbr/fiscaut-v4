@@ -37,6 +37,9 @@ class Issuer extends Model
         'data_situacao_cadastral' => 'date',
         'contract_start_date' => 'date',
         'units_count' => 'integer',
+        'residential_count' => 'integer',
+        'commercial_count' => 'integer',
+        'units_data' => 'array',
         'atividade' => 'array',
         'issuer_type' => IssuerTypeEnum::class,
         'condominium_type' => CondominiumTypeEnum::class,
@@ -88,5 +91,15 @@ class Issuer extends Model
     public function municipio()
     {
         return $this->hasOne(Municipio::class, 'id', 'cod_municipio_ibge');
+    }
+
+    public function units()
+    {
+        return $this->hasMany(IssuerUnit::class);
+    }
+
+    public function unitFracoes()
+    {
+        return $this->hasMany(IssuerUnitFracao::class);
     }
 }

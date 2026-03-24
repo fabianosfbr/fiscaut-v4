@@ -23,6 +23,8 @@ class IssuerContactResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Contatos';
 
+    protected static bool $shouldRegisterNavigation = false;
+
     public static function form(Schema $schema): Schema
     {
         return IssuerContactForm::configure($schema);
