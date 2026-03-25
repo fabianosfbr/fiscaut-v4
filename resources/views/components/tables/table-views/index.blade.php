@@ -1,18 +1,16 @@
 @props([
-    'activeTableView',
-    'isActiveTableViewModified',
-    'favoriteViews' => [],
-    'savedViews' => [],
-    'presetViews' => [],
+'activeTableView',
+'isActiveTableViewModified',
+'favoriteViews' => [],
+'savedViews' => [],
+'presetViews' => [],
 ])
 
 
-<div class="flex items-center justify-between p-4">
-    <h4 class="text-sm font-semibold leading-6 text-gray-950 dark:text-white">
-        Visualizar
-    </h4>
+<div class="flex justify-start px-4 py-3 border-b border-gray-200 dark:border-gray-700">
 
-    <div class="flex gap-x-4">
+
+    <div class="flex justify-start gap-x-4 items-center">
         {{ $this->createTableViewAction }}
 
         {{ $this->resetTableViewAction }}
@@ -25,47 +23,51 @@
 'Predefinidos' => array_diff_key($presetViews, $favoriteViews),
 ] as $label => $views)
 @if (! empty($views))
-<x-filament::dropdown.list>
-    <x-filament::dropdown.header class="font-semibold">
-        {{ $label }}
-    </x-filament::dropdown.header>
+<div>
+    <x-filament::dropdown.list>
+        <x-filament::dropdown.header class="font-semibold">
+            {{ $label }}
+        </x-filament::dropdown.header>
 
-    @foreach ($views as $key => $tableView)
-    @php
-    $type = $tableView instanceof App\Filament\Forms\Components\SavedView ? 'saved' : 'preset';
-    @endphp
+        @foreach ($views as $key => $tableView)
+        @php
+        $type = $tableView instanceof App\Filament\Forms\Components\SavedView ? 'saved' : 'preset';
+        $isActive = $key == $activeTableView;
+        @endphp
 
-    <x-filament::dropdown.list.item
-        tag="a"
-        class="p-3"
-        :icon="$tableView->getIcon()">
-        <div class="flex justify-between">
-            <div
-                class="w-full cursor-pointer select-none"
-                wire:click="mountAction('applyTableView', {{ json_encode([
+        <x-filament::dropdown.list.item
+            tag="a"
+            class="p-2"
+            :icon="$tableView->getIcon()">
+            <div class="flex justify-between">
+                <div
+                    class="w-full cursor-pointer select-none"
+                    wire:click="mountAction('applyTableView', {{ json_encode([
                                 'view_key' => $key, 
                                 'view_type' => $type
                             ]) }})">
-                {{ $tableView->getLabel() }}
-            </div>
+                    {{ \Str::limit($tableView->getLabel(), 40) }}
+                </div>
 
-            <div class="flex items-center gap-x-2">
-                <x-filament::icon
-                    icon="heroicon-m-check"
-                    @class([ 'text-primary-600 h-4 w-4' , 'visible'=> $key == $activeTableView,
-                    'hidden' => $key != $activeTableView,
-                    ])
-                    />
-
+                <div class="flex items-center gap-x-2">
                     <x-filament::icon
-                        :icon="$tableView->getVisibilityIcon()"
-                        class="h-4 w-4 text-gray-400 dark:text-gray-200" />
+                        icon="heroicon-m-check"
+                        @class([ 'text-primary-600 h-4 w-4' , 'visible'=> $key == $activeTableView,
+                        'hidden' => $key != $activeTableView,
+                        ])
+                        />
 
-                    {{ $this->getTableViewActionGroup($key, $type, $tableView) }}
+                        <x-filament::icon
+                            :icon="$tableView->getVisibilityIcon()"
+                            class="h-4 w-4 text-gray-400 dark:text-gray-200" />
+
+                        {{ $this->getTableViewActionGroup($key, $type, $tableView) }}
+                </div>
             </div>
-        </div>
-    </x-filament::dropdown.list.item>
-    @endforeach
-</x-filament::dropdown.list>
+        </x-filament::dropdown.list.item>
+        @endforeach
+    </x-filament::dropdown.list>
+</div>
+
 @endif
 @endforeach

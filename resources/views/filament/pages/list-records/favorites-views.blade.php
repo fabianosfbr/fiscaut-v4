@@ -35,8 +35,8 @@
     </x-filament::tabs.item>
     @endforeach
 
-    <div class="flex items-center">
-        <x-filament::dropdown>
+    <div class="flex items-center" >
+        <x-filament::dropdown width="xs">
             <x-slot name="trigger">
                 {{ $tableViewsTriggerAction }}
             </x-slot>
