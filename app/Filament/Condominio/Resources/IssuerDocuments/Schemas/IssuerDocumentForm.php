@@ -8,6 +8,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Carbon;
 
 class IssuerDocumentForm
 {
@@ -32,6 +33,7 @@ class IssuerDocumentForm
                 TextInput::make('validate_at')
                     ->label('Válido até')
                     ->mask('99/99/9999')
+                    ->formatStateUsing(fn($state) => Carbon::parse($state)->format('d/m/Y'))
                     ->maxLength(255)
                     ->helperText('Data de validade do documento (ex: 31/12/2024)    ')
                     ->columnSpan(1),
@@ -51,7 +53,7 @@ class IssuerDocumentForm
                             return null;
                         }
 
-                        return 'rag/'.$issuer->tenant_id.'/'.sanitize($issuer->cnpj).'/documents';
+                        return 'rag/' . $issuer->tenant_id . '/' . sanitize($issuer->cnpj) . '/documents';
                     })
                     ->visibility('private')
                     ->acceptedFileTypes([
