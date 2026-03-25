@@ -33,16 +33,17 @@ class GenerateManutencaoRecorrencias extends Command
         $this->info('Iniciando geração de manutenções recorrentes...');
 
         // Verificar se está no horário permitido (se não for forçado)
-        if (!$this->option('force')) {
+        if (! $this->option('force')) {
             $horaAtual = now()->hour;
             $horarioPermitido = in_array($horaAtual, [0, 1, 2, 3, 4, 5, 22, 23]); // Madrugada e final de expediente
 
-            if (!$horarioPermitido) {
+            if (! $horarioPermitido) {
                 $this->warn('A geração automática só deve ser executada fora do horário comercial (00h-06h ou 22h-23h)');
                 $confirmar = $this->confirm('Deseja continuar mesmo assim?', false);
 
-                if (!$confirmar) {
+                if (! $confirmar) {
                     $this->info('Operação cancelada pelo usuário.');
+
                     return self::FAILURE;
                 }
             }
@@ -67,8 +68,9 @@ class GenerateManutencaoRecorrencias extends Command
 
             return self::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('Erro ao disparar o job: ' . $e->getMessage());
-            Log::error('Erro no command manutencao:generate-recorrencias: ' . $e->getMessage());
+            $this->error('Erro ao disparar o job: '.$e->getMessage());
+            Log::error('Erro no command manutencao:generate-recorrencias: '.$e->getMessage());
+
             return self::FAILURE;
         }
     }

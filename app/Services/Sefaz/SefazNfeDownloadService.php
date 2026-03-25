@@ -43,8 +43,6 @@ class SefazNfeDownloadService
             // Carrega o certificado digital
             $this->loadCertificate();
 
-
-
             // Inicializa as ferramentas NFePHP
             $this->tools = new Tools(json_encode($this->config), $this->certificate);
             $this->tools->model('55'); // Modelo 55 para NFe
@@ -54,7 +52,7 @@ class SefazNfeDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha na inicialização do serviço: ' . $e->getMessage());
+            throw new Exception('Falha na inicialização do serviço: '.$e->getMessage());
         }
     }
 
@@ -106,7 +104,7 @@ class SefazNfeDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha ao carregar certificado digital: ' . $e->getMessage());
+            throw new Exception('Falha ao carregar certificado digital: '.$e->getMessage());
         }
     }
 
@@ -209,7 +207,7 @@ class SefazNfeDownloadService
                 'iterations' => $iterations,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha no download: ' . $e->getMessage());
+            throw new Exception('Falha no download: '.$e->getMessage());
         }
     }
 
@@ -240,8 +238,8 @@ class SefazNfeDownloadService
 
             Log::channel('sefaz_log')->info(
                 $nsu ?
-                    'Log de consulta NFe - SEFAZ - registro específico - ' . explode(':', $this->issuer->razao_social)[0] . " : \n" . $response :
-                    'Log de consulta NFe - SEFAZ - registro em lote - ' . explode(':', $this->issuer->razao_social)[0] . " : \n" . $response
+                    'Log de consulta NFe - SEFAZ - registro específico - '.explode(':', $this->issuer->razao_social)[0]." : \n".$response :
+                    'Log de consulta NFe - SEFAZ - registro em lote - '.explode(':', $this->issuer->razao_social)[0]." : \n".$response
             );
             // Processa a resposta
             $result = $this->processDistDFeResponse($response);
@@ -259,7 +257,7 @@ class SefazNfeDownloadService
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            throw new Exception('Falha no download de NFe: ' . $e->getMessage());
+            throw new Exception('Falha no download de NFe: '.$e->getMessage());
         }
     }
 
@@ -376,7 +374,7 @@ class SefazNfeDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha ao processar resposta: ' . $e->getMessage());
+            throw new Exception('Falha ao processar resposta: '.$e->getMessage());
         }
     }
 
@@ -504,7 +502,7 @@ class SefazNfeDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha ao verificar status SEFAZ: ' . $e->getMessage());
+            throw new Exception('Falha ao verificar status SEFAZ: '.$e->getMessage());
         }
     }
 

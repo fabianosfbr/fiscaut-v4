@@ -38,11 +38,11 @@ class EditViewAction extends Action
                     ->first();
 
                 return [
-                    'name'        => $tableView->name,
-                    'color'       => $tableView->color,
-                    'icon'        => $tableView->icon,
+                    'name' => $tableView->name,
+                    'color' => $tableView->color,
+                    'icon' => $tableView->icon,
                     'is_favorite' => $tableViewFavorite?->is_favorite ?? false,
-                    'is_public'   => $tableView->is_public,
+                    'is_public' => $tableView->is_public,
                 ];
             })
             ->schema([
@@ -71,10 +71,10 @@ class EditViewAction extends Action
 
                     TableViewFavorite::updateOrCreate(
                         [
-                            'view_type'       => 'saved',
-                            'view_key'        => $tableView->id,
+                            'view_type' => 'saved',
+                            'view_key' => $tableView->id,
                             'filterable_type' => $tableView->filterable_type,
-                            'user_id'         => Auth::id(),
+                            'user_id' => Auth::id(),
                         ],
                         [
                             'is_favorite' => $data['is_favorite'],

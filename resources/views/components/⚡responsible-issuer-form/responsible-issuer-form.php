@@ -1,10 +1,13 @@
 <?php
 
+use App\Enums\AreaAtendimentoEnum;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\DetachAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Tables\Columns\TextColumn;
@@ -12,13 +15,6 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Livewire\Component;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
-use App\Enums\IssuerContactRoleEnum;
-use App\Enums\AreaAtendimentoEnum;
-use App\Rules\CpfRule;
-use Filament\Actions\EditAction;
 
 new class extends Component implements HasActions, HasSchemas, HasTable
 {
@@ -29,7 +25,7 @@ new class extends Component implements HasActions, HasSchemas, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->relationship(fn() => currentIssuer()->areaResponsibles())
+            ->relationship(fn () => currentIssuer()->areaResponsibles())
             ->headerActions([
                 Action::make('add')
                     ->label('Adicionar Novo')
@@ -54,7 +50,7 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                 TextColumn::make('area')
                     ->label('Área de Atendimento')
                     ->badge()
-                    ->formatStateUsing(fn($state): ?string => AreaAtendimentoEnum::tryFrom($state)?->getLabel() ?? $state)
+                    ->formatStateUsing(fn ($state): ?string => AreaAtendimentoEnum::tryFrom($state)?->getLabel() ?? $state)
                     ->sortable(),
             ])
             ->recordActions([
@@ -74,7 +70,7 @@ new class extends Component implements HasActions, HasSchemas, HasTable
 
                         $record->update($data);
                     }),
-                DeleteAction::make()
+                DeleteAction::make(),
             ]);
     }
 

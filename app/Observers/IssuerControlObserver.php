@@ -32,7 +32,7 @@ class IssuerControlObserver
             'data_execucao',
             'data_conclusao',
             'prioridade',
-            'status'
+            'status',
         ];
 
         // Verificar cada campo auditável para alterações
@@ -42,7 +42,6 @@ class IssuerControlObserver
             }
         }
     }
-
 
     /**
      * Cria um registro de auditoria para o campo alterado
@@ -58,7 +57,7 @@ class IssuerControlObserver
         // Criar registro no histórico
         $userId = Auth::check() ? Auth::id() : 3; // 3 = usuário sistema
 
-        $historico = new IssuerControlEventLog();
+        $historico = new IssuerControlEventLog;
         $historico->issuer_control_id = $issuerControl->id;
         $historico->usuario_id = $userId;
         $historico->acao = 'alteracao_campo';
@@ -68,7 +67,7 @@ class IssuerControlObserver
         $historico->dados_alterados = json_encode([
             'campo' => $field,
             'valor_anterior' => $oldValue,
-            'valor_novo' => $newValue
+            'valor_novo' => $newValue,
         ]);
         $historico->save();
     }
@@ -82,11 +81,13 @@ class IssuerControlObserver
             case 'status':
                 $oldLabel = $this->getStatusLabel($oldValue);
                 $newLabel = $this->getStatusLabel($newValue);
+
                 return "Alteração de status de '{$oldLabel}' para '{$newLabel}'";
 
             case 'custo_real':
                 $oldFormatted = $this->formatCurrency($oldValue);
                 $newFormatted = $this->formatCurrency($newValue);
+
                 return "Alteração do custo real de {$oldFormatted} para {$newFormatted}";
 
             case 'data_programada':
@@ -95,16 +96,19 @@ class IssuerControlObserver
                 $fieldName = $this->getFormattedFieldName($field);
                 $oldFormatted = $this->formatDate($oldValue);
                 $newFormatted = $this->formatDate($newValue);
+
                 return "Alteração da data de {$fieldName} de {$oldFormatted} para {$newFormatted}";
 
             case 'usuario_responsavel':
                 $oldResponsavel = $oldValue ?: 'não definido';
                 $newResponsavel = $newValue ?: 'não definido';
+
                 return "Alteração do responsável de '{$oldResponsavel}' para '{$newResponsavel}'";
 
             case 'prioridade':
                 $oldLabel = $this->getPrioridadeLabel($oldValue);
                 $newLabel = $this->getPrioridadeLabel($newValue);
+
                 return "Alteração da prioridade de '{$oldLabel}' para '{$newLabel}'";
 
             default:
@@ -173,7 +177,7 @@ class IssuerControlObserver
             return 'não definido';
         }
 
-        return 'R$ ' . number_format($value, 2, ',', '.');
+        return 'R$ '.number_format($value, 2, ',', '.');
     }
 
     /**

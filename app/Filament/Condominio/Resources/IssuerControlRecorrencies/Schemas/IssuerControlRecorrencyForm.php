@@ -53,7 +53,7 @@ class IssuerControlRecorrencyForm
                             ->required()
                             ->native(false)
                             ->live()
-                            ->afterStateUpdated(fn(callable $set) => $set('intervalo', 1)),
+                            ->afterStateUpdated(fn (callable $set) => $set('intervalo', 1)),
 
                         TextInput::make('intervalo')
                             ->label('Intervalo')

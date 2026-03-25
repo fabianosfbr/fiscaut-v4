@@ -52,7 +52,7 @@ class SefazCteDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha na inicialização do serviço: ' . $e->getMessage());
+            throw new Exception('Falha na inicialização do serviço: '.$e->getMessage());
         }
     }
 
@@ -94,7 +94,7 @@ class SefazCteDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha ao carregar certificado digital: ' . $e->getMessage());
+            throw new Exception('Falha ao carregar certificado digital: '.$e->getMessage());
         }
     }
 
@@ -225,7 +225,7 @@ class SefazCteDownloadService
                 'nsu_especifico' => $nsu,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha no download: ' . $e->getMessage());
+            throw new Exception('Falha no download: '.$e->getMessage());
         }
     }
 
@@ -256,8 +256,8 @@ class SefazCteDownloadService
 
             Log::channel('sefaz_log')->info(
                 $nsu ?
-                    'Log de consulta CTE - SEFAZ - registro específico - ' . explode(':', $this->issuer->razao_social)[0] . " : \n" . $response :
-                    'Log de consulta CTE - SEFAZ - registro em lote - ' . explode(':', $this->issuer->razao_social)[0] . " : \n" . $response
+                    'Log de consulta CTE - SEFAZ - registro específico - '.explode(':', $this->issuer->razao_social)[0]." : \n".$response :
+                    'Log de consulta CTE - SEFAZ - registro em lote - '.explode(':', $this->issuer->razao_social)[0]." : \n".$response
             );
 
             $result = $this->processDistDFeResponse($response);
@@ -274,7 +274,7 @@ class SefazCteDownloadService
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            throw new Exception('Falha no download de CTe: ' . $e->getMessage());
+            throw new Exception('Falha no download de CTe: '.$e->getMessage());
         }
     }
 

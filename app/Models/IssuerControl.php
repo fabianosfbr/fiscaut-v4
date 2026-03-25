@@ -6,7 +6,6 @@ use App\Enums\IssuerControlFrequencyEnum;
 use App\Enums\IssuerControlPriorityEnum;
 use App\Enums\IssuerControlStatusEnum;
 use App\Enums\IssuerControlTypeEnum;
-use App\Models\Issuer;
 use App\Observers\IssuerControlObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
@@ -53,8 +52,6 @@ class IssuerControl extends Model
     {
         return $this->hasMany(IssuerControlEventLog::class);
     }
-
-
 
     // Scopes
     public function scopePorStatus($query, IssuerControlStatusEnum $status)

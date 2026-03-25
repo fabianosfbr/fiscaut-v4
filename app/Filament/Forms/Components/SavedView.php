@@ -2,14 +2,12 @@
 
 namespace App\Filament\Forms\Components;
 
-use App\Filament\Forms\Components\PresetView;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 class SavedView extends PresetView
 {
-
     protected Model|array|string|Closure|null $model = null;
 
     public function model(Model|array|string|Closure|null $model = null): static

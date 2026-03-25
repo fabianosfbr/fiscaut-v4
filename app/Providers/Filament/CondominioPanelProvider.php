@@ -82,6 +82,9 @@ class CondominioPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+             ->plugin(
+                \Octopy\Filament\Palette\PaletteSwitcherPlugin::make()
+            );
     }
 }

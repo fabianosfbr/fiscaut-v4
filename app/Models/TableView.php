@@ -12,7 +12,6 @@ class TableView extends Model
         'filters' => 'array',
     ];
 
-
     public function user()
     {
         return $this->belongsTo(User::class);

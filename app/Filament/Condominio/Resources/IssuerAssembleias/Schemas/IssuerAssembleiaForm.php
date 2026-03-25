@@ -33,7 +33,7 @@ class IssuerAssembleiaForm
                             ->live()
                             ->columnSpanFull(),
                         Fieldset::make('Dados da Assembleia Geral Extraordinária')
-                            ->visible(fn(Get $get) => ($get('type')?->value ?? $get('type')) !== IssuerAgeTypeEnum::AGO->value)
+                            ->visible(fn (Get $get) => ($get('type')?->value ?? $get('type')) !== IssuerAgeTypeEnum::AGO->value)
                             ->schema([
                                 DatePicker::make('vigencia_date')
                                     ->label('Data de Vigência')
@@ -71,7 +71,7 @@ class IssuerAssembleiaForm
                                     return null;
                                 }
 
-                                return 'rag/' . $issuer->tenant_id . '/' . sanitize($issuer->cnpj) . '/documents';
+                                return 'rag/'.$issuer->tenant_id.'/'.sanitize($issuer->cnpj).'/documents';
                             })
                             ->visibility('private')
                             ->acceptedFileTypes([
@@ -86,7 +86,7 @@ class IssuerAssembleiaForm
                     ->columnSpanFull(),
 
                 Section::make('Informações da AGO')
-                    ->visible(fn(Get $get) => ($get('type')?->value ?? $get('type')) === IssuerAgeTypeEnum::AGO->value)
+                    ->visible(fn (Get $get) => ($get('type')?->value ?? $get('type')) === IssuerAgeTypeEnum::AGO->value)
                     ->collapsible()
                     ->schema([
                         DatePicker::make('data_limite_ago')
@@ -143,7 +143,7 @@ class IssuerAssembleiaForm
 
                 Section::make('Configuração de Boleto')
                     ->collapsible()
-                    ->visible(fn(Get $get) => ($get('type')?->value ?? $get('type')) === IssuerAgeTypeEnum::AGO->value)
+                    ->visible(fn (Get $get) => ($get('type')?->value ?? $get('type')) === IssuerAgeTypeEnum::AGO->value)
                     ->schema([
                         TextInput::make('boleto_dia_vencimento')
                             ->label('Dia do Vencimento')
@@ -174,7 +174,7 @@ class IssuerAssembleiaForm
                     ->columnSpanFull()
                     ->columns(2),
                 Section::make('Isenção ou Remuneração')
-                    ->visible(fn(Get $get) => ($get('type')?->value ?? $get('type')) === IssuerAgeTypeEnum::AGO->value)
+                    ->visible(fn (Get $get) => ($get('type')?->value ?? $get('type')) === IssuerAgeTypeEnum::AGO->value)
                     ->collapsible()
                     ->schema([
                         CheckboxList::make('tem_isencao_remuneracao')
@@ -189,7 +189,7 @@ class IssuerAssembleiaForm
                         Select::make('quem_recebe_isencao')
                             ->label('Quem recebe a isenção?')
                             ->multiple()
-                            ->visible(fn(Get $get) => in_array('isencao', $get('tem_isencao_remuneracao') ?? []))
+                            ->visible(fn (Get $get) => in_array('isencao', $get('tem_isencao_remuneracao') ?? []))
                             ->options(function () {
                                 $issuer = currentIssuer();
                                 if ($issuer && $issuer->issuer_type === IssuerTypeEnum::ASSOCIACAO) {
@@ -213,11 +213,11 @@ class IssuerAssembleiaForm
                             ->currencyMask(thousandSeparator: '.', decimalSeparator: ',', precision: 2)
                             ->numeric()
                             ->prefix('R$')
-                            ->visible(fn(Get $get) => in_array('isencao', $get('tem_isencao_remuneracao') ?? [])),
+                            ->visible(fn (Get $get) => in_array('isencao', $get('tem_isencao_remuneracao') ?? [])),
                         Select::make('quem_recebe_remuneracao')
                             ->label('Quem recebe a remuneração?')
                             ->multiple()
-                            ->visible(fn(Get $get) => in_array('remuneracao', $get('tem_isencao_remuneracao') ?? []))
+                            ->visible(fn (Get $get) => in_array('remuneracao', $get('tem_isencao_remuneracao') ?? []))
                             ->options(function () {
                                 $issuer = currentIssuer();
                                 if ($issuer && $issuer->issuer_type === IssuerTypeEnum::ASSOCIACAO) {
@@ -241,7 +241,7 @@ class IssuerAssembleiaForm
                             ->currencyMask(thousandSeparator: '.', decimalSeparator: ',', precision: 2)
                             ->numeric()
                             ->prefix('R$')
-                            ->visible(fn(Get $get) => in_array('remuneracao', $get('tem_isencao_remuneracao') ?? [])),
+                            ->visible(fn (Get $get) => in_array('remuneracao', $get('tem_isencao_remuneracao') ?? [])),
                     ])
                     ->columnSpanFull()
                     ->columns(2),

@@ -1,6 +1,5 @@
 <?php
 
-
 use App\Http\Controllers\IssuerAssembleiaDocumentController;
 use App\Http\Controllers\IssuerRagDocumentController;
 use App\Http\Controllers\PlanoDeContaSelectController;

@@ -9,7 +9,6 @@ class CreateIssuerAssembleia extends CreateRecord
 {
     protected static string $resource = IssuerAssembleiaResource::class;
 
-
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['issuer_id'] = currentIssuer()->id;

@@ -39,16 +39,16 @@ class IssuerControlInfoList
                                                 TextEntry::make('status')
                                                     ->label('Status')
                                                     ->badge()
-                                                    ->icon(fn(?IssuerControlStatusEnum $state): ?string => $state?->getIcon())
-                                                    ->color(fn(?IssuerControlStatusEnum $state): string => $state?->getColor() ?? 'gray')
-                                                    ->formatStateUsing(fn(?IssuerControlStatusEnum $state): string => $state?->getLabel() ?? ''),
+                                                    ->icon(fn (?IssuerControlStatusEnum $state): ?string => $state?->getIcon())
+                                                    ->color(fn (?IssuerControlStatusEnum $state): string => $state?->getColor() ?? 'gray')
+                                                    ->formatStateUsing(fn (?IssuerControlStatusEnum $state): string => $state?->getLabel() ?? ''),
 
                                                 TextEntry::make('prioridade')
                                                     ->label('Prioridade')
                                                     ->badge()
-                                                    ->icon(fn(?IssuerControlPriorityEnum $state): ?string => $state?->getIcon())
-                                                    ->color(fn(?IssuerControlPriorityEnum $state): string => $state?->getColor() ?? 'gray')
-                                                    ->formatStateUsing(fn(?IssuerControlPriorityEnum $state): string => $state?->getLabel() ?? '\u2014'),
+                                                    ->icon(fn (?IssuerControlPriorityEnum $state): ?string => $state?->getIcon())
+                                                    ->color(fn (?IssuerControlPriorityEnum $state): string => $state?->getColor() ?? 'gray')
+                                                    ->formatStateUsing(fn (?IssuerControlPriorityEnum $state): string => $state?->getLabel() ?? '\u2014'),
 
                                                 TextEntry::make('tipo')
                                                     ->label('Tipo')
@@ -81,8 +81,8 @@ class IssuerControlInfoList
                                                 TextEntry::make('dias_atraso')
                                                     ->label('Atraso')
                                                     ->suffix(' dia(s)')
-                                                    ->color(fn(int $state): string => $state > 0 ? 'danger' : 'gray')
-                                                    ->visible(fn($record): bool => ($record->dias_atraso ?? 0) > 0),
+                                                    ->color(fn (int $state): string => $state > 0 ? 'danger' : 'gray')
+                                                    ->visible(fn ($record): bool => ($record->dias_atraso ?? 0) > 0),
                                             ]),
                                     ])
                                     ->collapsible(),
@@ -123,7 +123,7 @@ class IssuerControlInfoList
                                                 TextEntry::make('recorrencia.titulo_template')
                                                     ->label('Recorrência')
                                                     ->placeholder('Não definido')
-                                                    ->visible(fn($record): bool => filled($record->recorrencia_id)),
+                                                    ->visible(fn ($record): bool => filled($record->recorrencia_id)),
                                             ]),
                                     ])
                                     ->collapsible(),
@@ -221,7 +221,7 @@ class IssuerControlInfoList
                                             ->hiddenLabel()
                                             ->state(function ($record): HtmlString {
                                                 $files = Collection::make($record->anexos ?? [])
-                                                    ->filter(fn($path) => filled($path))
+                                                    ->filter(fn ($path) => filled($path))
                                                     ->values();
 
                                                 if ($files->isEmpty()) {
@@ -256,7 +256,6 @@ class IssuerControlInfoList
                             ]),
                     ])
                     ->persistTab(),
-
 
             ]);
     }

@@ -9,8 +9,7 @@ class DashboardPorEmpresa extends Page
 {
     protected string $view = 'filament.condominio.pages.dashboard-por-empresa';
 
-
-     protected static string|UnitEnum|null $navigationGroup = 'Dashboard';
+    protected static string|UnitEnum|null $navigationGroup = 'Dashboard';
 
     protected static ?int $navigationSort = 1;
 

@@ -5,7 +5,6 @@ namespace App\Filament\Condominio\Resources\IssuerControlTypes\Tables;
 use App\Enums\IssuerControlPriorityEnum;
 use App\Enums\IssuerControlTypeEnum;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -37,7 +36,6 @@ class IssuerControlTypesTable
                     ->searchable()
                     ->sortable(),
 
-
                 TextColumn::make('alerta_dias_antecedencia')
                     ->label('Alerta')
                     ->numeric()
@@ -46,14 +44,16 @@ class IssuerControlTypesTable
                             return ' dia';
                         }
                         if ($state == 0) {
-                            return  null;
+                            return null;
                         }
+
                         return ' dias';
                     })
                     ->formatStateUsing(function ($state) {
                         if ($state == 0) {
                             return 'N/A';
                         }
+
                         return $state;
                     })
                     ->sortable()
@@ -73,6 +73,7 @@ class IssuerControlTypesTable
                         if (strlen($state) <= 20) {
                             return null;
                         }
+
                         return $state;
                     }),
 

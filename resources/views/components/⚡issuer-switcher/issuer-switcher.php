@@ -117,14 +117,14 @@ new class extends Component implements HasSchemas
             if (isset($result['status']) && $result['status'] === true) {
                 Notification::make()
                     ->title('Sincronização concluída!')
-                    ->body('Estamos sincronizando os dados vinculados ao ' . currentIssuer()->razao_social . '. Isso pode levar alguns minutos.')
+                    ->body('Estamos sincronizando os dados vinculados ao '.currentIssuer()->razao_social.'. Isso pode levar alguns minutos.')
                     ->success()
                     ->duration(2000)
                     ->send();
             } else {
                 Notification::make()
                     ->title('Erro na sincronização!')
-                    ->body('Ocorreu um erro ao sincronizar os dados do ' . currentIssuer()->razao_social . '. Por favor, tente novamente mais tarde.')
+                    ->body('Ocorreu um erro ao sincronizar os dados do '.currentIssuer()->razao_social.'. Por favor, tente novamente mais tarde.')
                     ->danger()
                     ->duration(2000)
                     ->send();

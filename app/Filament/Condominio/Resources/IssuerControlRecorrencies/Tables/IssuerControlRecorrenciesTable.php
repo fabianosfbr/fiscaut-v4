@@ -3,9 +3,7 @@
 namespace App\Filament\Condominio\Resources\IssuerControlRecorrencies\Tables;
 
 use App\Enums\IssuerControlFrequencyEnum;
-use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -36,6 +34,7 @@ class IssuerControlRecorrenciesTable
                         if (strlen($state) <= 40) {
                             return null;
                         }
+
                         return $state;
                     }),
 
@@ -58,7 +57,7 @@ class IssuerControlRecorrenciesTable
                     ->sortable()
                     ->alignCenter()
                     ->formatStateUsing(function ($state, $record) {
-                        return $state . ' ' . match ($record->frequencia) {
+                        return $state.' '.match ($record->frequencia) {
                             'diaria' => $state == 1 ? 'dia' : 'dias',
                             'semanal' => $state == 1 ? 'semana' : 'semanas',
                             'mensal' => $state == 1 ? 'mês' : 'meses',
@@ -84,10 +83,13 @@ class IssuerControlRecorrenciesTable
                     ->placeholder('Não calculada')
                     ->sortable()
                     ->color(function ($record) {
-                        if (!$record->proxima_geracao) return null;
+                        if (! $record->proxima_geracao) {
+                            return null;
+                        }
                         if ($record->proxima_geracao <= now()) {
                             return 'warning';
                         }
+
                         return null;
                     }),
 
@@ -120,7 +122,10 @@ class IssuerControlRecorrenciesTable
                     ->numeric()
                     ->placeholder('N/A')
                     ->formatStateUsing(function ($state) {
-                        if ($state === null) return 'N/A';
+                        if ($state === null) {
+                            return 'N/A';
+                        }
+
                         return match ($state) {
                             0 => 'Domingo',
                             1 => 'Segunda',
@@ -140,7 +145,10 @@ class IssuerControlRecorrenciesTable
                     ->numeric()
                     ->placeholder('N/A')
                     ->formatStateUsing(function ($state) {
-                        if ($state === null) return 'N/A';
+                        if ($state === null) {
+                            return 'N/A';
+                        }
+
                         return match ($state) {
                             1 => 'Janeiro',
                             2 => 'Fevereiro',

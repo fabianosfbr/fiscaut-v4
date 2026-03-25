@@ -22,7 +22,7 @@ class CopiarParametroSuperLogicaAction
             ->modalWidth(Width::ExtraLarge)
             ->modalDescription(new HtmlString('
                     <div class="space-y-2 text-sm">
-                        <p>Esta ação irá copiar todos os parâmetros da empresa <b>' . currentIssuer()->razao_social . '</b> para a empresa selecionada. </p>
+                        <p>Esta ação irá copiar todos os parâmetros da empresa <b>'.currentIssuer()->razao_social.'</b> para a empresa selecionada. </p>
                         <p>Os parâmetros existentes na empresa destino serão <b>removidos e substituídos </b> pelos novos parâmetros. </p>                        
                         <p><b>Esta operação não poderá ser desfeita. </b></p>
                     </div>

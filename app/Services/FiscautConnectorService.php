@@ -3,9 +3,9 @@
 namespace App\Services;
 
 use App\Exceptions\FiscautConnectorException;
+use App\Models\Issuer;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use App\Models\Issuer;
 
 class FiscautConnectorService
 {
@@ -18,8 +18,7 @@ class FiscautConnectorService
         $tenant = $this->issuer->tenant()->first();
         $url = $tenant?->fiscaut_connector_url;
         $apiKey = $tenant?->fiscaut_connector_token;
-        
-     
+
         if (empty($apiKey)) {
             Log::error('FiscautConnectorException: Chave de API do FiscautConnector não configurada.');
 

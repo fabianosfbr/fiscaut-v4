@@ -4,7 +4,6 @@ namespace App\Filament\Condominio\Resources\IssuerAssembleias\Pages;
 
 use App\Enums\IssuerAgeTypeEnum;
 use App\Filament\Condominio\Resources\IssuerAssembleias\IssuerAssembleiaResource;
-use App\Filament\Forms\Components\PresetView;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -27,10 +26,10 @@ class ListIssuerAssembleias extends ListRecords
         return [
             'ago' => Tab::make()
                 ->label('AGO')
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('type', IssuerAgeTypeEnum::AGO)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('type', IssuerAgeTypeEnum::AGO)),
             'age' => Tab::make()
                 ->label('AGE')
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('type', IssuerAgeTypeEnum::AGE)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('type', IssuerAgeTypeEnum::AGE)),
 
         ];
     }

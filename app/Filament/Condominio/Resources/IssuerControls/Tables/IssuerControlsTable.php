@@ -40,6 +40,7 @@ class IssuerControlsTable
                         if (strlen($state) <= 50) {
                             return null;
                         }
+
                         return $state;
                     }),
 
@@ -72,6 +73,7 @@ class IssuerControlsTable
                         if ($record->data_programada < now() && $record->status !== 'concluida') {
                             return 'danger';
                         }
+
                         return null;
                     })
                     ->toggleable(isToggledHiddenByDefault: false),
@@ -175,14 +177,13 @@ class IssuerControlsTable
 
                 Filter::make('atrasadas')
                     ->label('Atrasadas')
-                    ->query(fn(Builder $query): Builder => $query->where('data_programada', '<', now())->where('status', '!=', 'concluida'))
+                    ->query(fn (Builder $query): Builder => $query->where('data_programada', '<', now())->where('status', '!=', 'concluida'))
                     ->toggle(),
 
                 Filter::make('proximas')
                     ->label('Próximas (7 dias)')
-                    ->query(fn(Builder $query): Builder => $query->whereBetween('data_programada', [now(), now()->addDays(7)]))
+                    ->query(fn (Builder $query): Builder => $query->whereBetween('data_programada', [now(), now()->addDays(7)]))
                     ->toggle(),
-
 
             ])
             ->filtersFormColumns(4)
@@ -203,7 +204,7 @@ class IssuerControlsTable
                             IssuerControlLogEntry::make('log')
                                 ->hiddenLabel(),
                         ])
-                        ->disabled(fn($record) => $record->logs()->count() === 0),
+                        ->disabled(fn ($record) => $record->logs()->count() === 0),
                 ]),
 
             ])

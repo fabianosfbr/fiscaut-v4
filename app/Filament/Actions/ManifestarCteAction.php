@@ -2,9 +2,7 @@
 
 namespace App\Filament\Actions;
 
-use App\Enums\StatusManifestoNfeEnum;
 use App\Services\Sefaz\SefazCteDownloadService;
-use App\Services\Sefaz\SefazNfeDownloadService;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
@@ -64,7 +62,7 @@ class ManifestarCteAction
 
                     Notification::make()
                         ->title('Erro ao manifestar CTe')
-                        ->body('Falha ao manifestar CTe. Por favor, entre em contato com o administrador. ' . $e->getMessage())
+                        ->body('Falha ao manifestar CTe. Por favor, entre em contato com o administrador. '.$e->getMessage())
                         ->danger()
                         ->send();
 

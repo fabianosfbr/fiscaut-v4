@@ -29,19 +29,19 @@ class ListIssuerControls extends ListRecords
 
             'overdue_controls' => PresetView::make('Controles Vencidos')
                 ->icon('heroicon-o-clock')
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('issuer_id', currentIssuer()->id)->where('data_programada', '<', now())),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('issuer_id', currentIssuer()->id)->where('data_programada', '<', now())),
 
             'overdue_7days_controls' => PresetView::make('Próximos 7 dias')
                 ->icon('heroicon-o-clock')
-                ->modifyQueryUsing(fn(Builder $query) => $query->whereBetween('data_programada', [now(), now()->addDays(7)])),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereBetween('data_programada', [now(), now()->addDays(7)])),
 
             'overdue_15days_controls' => PresetView::make('Próximos 15 dias')
                 ->icon('heroicon-o-clock')
-                ->modifyQueryUsing(fn(Builder $query) => $query->whereBetween('data_programada', [now(), now()->addDays(15)])),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereBetween('data_programada', [now(), now()->addDays(15)])),
 
             'overdue_30days_controls' => PresetView::make('Próximos 30 dias')
                 ->icon('heroicon-o-clock')
-                ->modifyQueryUsing(fn(Builder $query) => $query->whereBetween('data_programada', [now(), now()->addDays(30)])),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereBetween('data_programada', [now(), now()->addDays(30)])),
         ];
     }
 }

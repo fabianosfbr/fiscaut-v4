@@ -44,7 +44,7 @@ class ManifestarNfeAction
                     ])
                     ->live()
                     ->afterStateUpdated(
-                        fn($state, callable $set) => $state ? $set('justificativa', null) : $set('justificativa', 'hidden')
+                        fn ($state, callable $set) => $state ? $set('justificativa', null) : $set('justificativa', 'hidden')
                     ),
                 Textarea::make('justificativa')
                     ->label('Justificativa')
@@ -68,7 +68,7 @@ class ManifestarNfeAction
 
                     Notification::make()
                         ->title('Erro ao manifestar NFe')
-                        ->body('Falha ao manifestar NFe. Por favor, entre em contato com o administrador. ' . $e->getMessage())
+                        ->body('Falha ao manifestar NFe. Por favor, entre em contato com o administrador. '.$e->getMessage())
                         ->danger()
                         ->send();
 

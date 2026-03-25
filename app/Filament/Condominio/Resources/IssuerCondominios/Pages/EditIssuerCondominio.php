@@ -8,6 +8,4 @@ use App\Filament\Resources\Issuers\Pages\EditIssuer;
 class EditIssuerCondominio extends EditIssuer
 {
     protected static string $resource = IssuerCondominioResource::class;
-
-    
 }

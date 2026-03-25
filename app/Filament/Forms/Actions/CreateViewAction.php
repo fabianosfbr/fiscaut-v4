@@ -52,11 +52,11 @@ class CreateViewAction extends Action
                     $record->save();
 
                     TableViewFavorite::create([
-                        'view_type'       => 'saved',
-                        'view_key'        => $record->id,
+                        'view_type' => 'saved',
+                        'view_key' => $record->id,
                         'filterable_type' => $record->filterable_type,
-                        'user_id'         => Auth::id(),
-                        'is_favorite'     => $data['is_favorite'],
+                        'user_id' => Auth::id(),
+                        'is_favorite' => $data['is_favorite'],
                     ]);
 
                     return $record;

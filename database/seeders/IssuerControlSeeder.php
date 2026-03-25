@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-
 use App\Enums\IssuerControlFrequencyEnum;
 use App\Enums\IssuerControlPriorityEnum;
 use App\Enums\IssuerControlStatusEnum;
@@ -11,9 +10,7 @@ use App\Models\IssuerControl;
 use App\Models\IssuerControlEventLog;
 use App\Models\IssuerControlRecorrency;
 use App\Models\IssuerControlType;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class IssuerControlSeeder extends Seeder
 {

@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Enums\IssuerControlFrequencyEnum;
 use App\Enums\IssuerControlPriorityEnum;
 use App\Enums\IssuerControlTypeEnum;
-use App\Models\Issuer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 

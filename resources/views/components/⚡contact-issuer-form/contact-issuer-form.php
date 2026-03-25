@@ -1,10 +1,15 @@
 <?php
 
+use App\Enums\IssuerContactRoleEnum;
+use App\Rules\CpfRule;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\DetachAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Tables\Columns\TextColumn;
@@ -12,12 +17,6 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Livewire\Component;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
-use App\Enums\IssuerContactRoleEnum;
-use App\Rules\CpfRule;
-use Filament\Actions\EditAction;
 
 new class extends Component implements HasActions, HasSchemas, HasTable
 {
@@ -28,7 +27,7 @@ new class extends Component implements HasActions, HasSchemas, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->relationship(fn() => currentIssuer()->contacts())
+            ->relationship(fn () => currentIssuer()->contacts())
             ->headerActions([
                 Action::make('add')
                     ->label('Adicionar Novo')
@@ -53,7 +52,7 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                     ->sortable(),
                 TextColumn::make('cpf')
                     ->label('CPF')
-                    ->formatStateUsing(fn($state) => formatar_cnpj_cpf($state)),
+                    ->formatStateUsing(fn ($state) => formatar_cnpj_cpf($state)),
                 TextColumn::make('email')
                     ->label('E-mail'),
                 TextColumn::make('telefone_whatsapp')
@@ -74,7 +73,7 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                 TextColumn::make('tipo_relacao')
                     ->label('Tipo de Relação')
                     ->badge()
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         'isencao' => 'Isenção',
                         'remuneracao' => 'Remuneração',
                         default => $state,
@@ -91,7 +90,7 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                         $data['telefone_whatsapp'] = isset($data['telefone_whatsapp']) ? preg_replace('/\D/', '', $data['telefone_whatsapp']) : null;
                         $record->update($data);
                     }),
-                DeleteAction::make()
+                DeleteAction::make(),
             ]);
     }
 

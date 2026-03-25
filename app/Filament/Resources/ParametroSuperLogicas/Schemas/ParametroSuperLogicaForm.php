@@ -49,7 +49,7 @@ class ParametroSuperLogicaForm
                                     ->orderBy('codigo', 'asc')
                                     ->get()
                                     ->map(function ($item) {
-                                        $item->codigo_descricao = $item->codigo . ' | ' . $item->descricao;
+                                        $item->codigo_descricao = $item->codigo.' | '.$item->descricao;
 
                                         return $item;
                                     })

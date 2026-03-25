@@ -115,7 +115,7 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-o-adjustments-horizontal')
                     ->collapsed(),
 
-            ])            
+            ])
             ->userMenuItems([
                 Action::make('profile')
                     ->label('Meu Perfil')

@@ -29,7 +29,7 @@ class IssuerDocumentsTable
             ->columns([
                 TextColumn::make('document_type')
                     ->label('Tipo de Documento')
-                    ->formatStateUsing(fn($state) => IssuerDocumentTypeEnum::tryFrom($state)?->getLabel() ?? $state)
+                    ->formatStateUsing(fn ($state) => IssuerDocumentTypeEnum::tryFrom($state)?->getLabel() ?? $state)
                     ->searchable()
                     ->badge()
                     ->sortable(),
@@ -46,7 +46,7 @@ class IssuerDocumentsTable
 
                 TextColumn::make('file_size')
                     ->label('Tamanho')
-                    ->formatStateUsing(fn($state) => $state ? number_format($state / 1024, 2) . ' KB' : '-')
+                    ->formatStateUsing(fn ($state) => $state ? number_format($state / 1024, 2).' KB' : '-')
                     ->sortable(),
 
                 TextColumn::make('created_at')
@@ -86,11 +86,11 @@ class IssuerDocumentsTable
                         return $query
                             ->when(
                                 $data['de'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('validate_at', '>=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('validate_at', '>=', $date),
                             )
                             ->when(
                                 $data['ate'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('validate_at', '<=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('validate_at', '<=', $date),
                             );
                     })->indicateUsing(function (array $data): ?string {
                         if (empty($data['de']) && empty($data['ate'])) {
@@ -112,7 +112,7 @@ class IssuerDocumentsTable
                     Action::make('download')
                         ->label('Download Documento')
                         ->icon(Heroicon::ArrowDown)
-                        ->url(fn($record) => route('issuer-rag.document.show', $record), true),
+                        ->url(fn ($record) => route('issuer-rag.document.show', $record), true),
                     DeleteAction::make()
                         ->before(function ($record) {
                             if ($record->file_path && Storage::disk('local')->exists($record->file_path)) {

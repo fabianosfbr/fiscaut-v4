@@ -8,10 +8,10 @@ use App\Filament\Condominio\Resources\IssuerControlTypes\Pages\ListIssuerControl
 use App\Filament\Condominio\Resources\IssuerControlTypes\Schemas\IssuerControlTypeForm;
 use App\Filament\Condominio\Resources\IssuerControlTypes\Tables\IssuerControlTypesTable;
 use App\Models\IssuerControlType;
-use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class IssuerControlTypeResource extends Resource
 {
@@ -26,7 +26,6 @@ class IssuerControlTypeResource extends Resource
     protected static string|UnitEnum|null $navigationGroup = 'Controles';
 
     protected static ?string $slug = 'tipos-de-controle';
-
 
     protected static ?int $navigationSort = 2;
 

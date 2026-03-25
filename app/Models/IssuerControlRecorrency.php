@@ -3,9 +3,6 @@
 namespace App\Models;
 
 use App\Enums\IssuerControlFrequencyEnum;
-use App\Models\Issuer;
-use App\Models\IssuerControl;
-use App\Models\IssuerControlType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -88,7 +85,7 @@ class IssuerControlRecorrency extends Model
             IssuerControlFrequencyEnum::BIMESTRAL,
             IssuerControlFrequencyEnum::TRIMESTRAL,
             IssuerControlFrequencyEnum::SEMESTRAL,
-            IssuerControlFrequencyEnum::ANUAL
+            IssuerControlFrequencyEnum::ANUAL,
         ])) {
             $proximaGeracao->day = min($this->dia_mes, $proximaGeracao->daysInMonth);
         }
@@ -96,7 +93,7 @@ class IssuerControlRecorrency extends Model
         // Ajustar para dia da semana se configurado
         if ($this->dia_semana !== null && in_array($this->frequencia, [
             IssuerControlFrequencyEnum::SEMANAL,
-            IssuerControlFrequencyEnum::QUINZENAL
+            IssuerControlFrequencyEnum::QUINZENAL,
         ])) {
             $proximaGeracao = $proximaGeracao->next($this->dia_semana);
         }
@@ -111,7 +108,7 @@ class IssuerControlRecorrency extends Model
 
     public function podeGerar(): bool
     {
-        if (!$this->ativo) {
+        if (! $this->ativo) {
             return false;
         }
 
@@ -119,7 +116,7 @@ class IssuerControlRecorrency extends Model
             return false;
         }
 
-        if (!$this->proxima_geracao) {
+        if (! $this->proxima_geracao) {
             return true;
         }
 
@@ -153,7 +150,7 @@ class IssuerControlRecorrency extends Model
 
     private function processarTemplate(?string $template, Carbon $data): ?string
     {
-        if (!$template) {
+        if (! $template) {
             return null;
         }
 

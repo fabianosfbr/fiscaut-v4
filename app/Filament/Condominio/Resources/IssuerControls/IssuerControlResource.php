@@ -37,7 +37,6 @@ class IssuerControlResource extends Resource
         return IssuerControlsTable::configure($table);
     }
 
-
     public static function infolist(Schema $schema): Schema
     {
         return IssuerControlInfoList::configure($schema);

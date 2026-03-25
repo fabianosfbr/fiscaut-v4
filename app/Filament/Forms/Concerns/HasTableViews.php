@@ -38,7 +38,6 @@ trait HasTableViews
 
     protected Width|string|Closure|null $tableViewsFormWidth = null;
 
-
     public function bootedInteractsWithTable(): void
     {
         parent::bootedInteractsWithTable();
@@ -214,11 +213,11 @@ trait HasTableViews
         }
 
         return [
-            'tableFilters'        => $this->tableFilters,
-            'tableGrouping'       => $this->tableGrouping,
-            'tableSearch'         => $this->tableSearch,
+            'tableFilters' => $this->tableFilters,
+            'tableGrouping' => $this->tableGrouping,
+            'tableSearch' => $this->tableSearch,
             'tableColumnSearches' => $this->tableColumnSearches,
-            'tableSort'           => $this->tableSort,
+            'tableSort' => $this->tableSort,
             'tableRecordsPerPage' => $this->tableRecordsPerPage,
         ] != $tableViews[$this->activeTableView]->getRecord()->filters;
     }
@@ -286,11 +285,11 @@ trait HasTableViews
                 $data['filterable_type'] = static::class;
 
                 $data['filters'] = [
-                    'tableFilters'        => $this->tableFilters,
-                    'tableGrouping'       => $this->tableGrouping,
-                    'tableSearch'         => $this->tableSearch,
+                    'tableFilters' => $this->tableFilters,
+                    'tableGrouping' => $this->tableGrouping,
+                    'tableSearch' => $this->tableSearch,
                     'tableColumnSearches' => $this->tableColumnSearches,
-                    'tableSort'           => $this->tableSort,
+                    'tableSort' => $this->tableSort,
                     'tableRecordsPerPage' => $this->tableRecordsPerPage,
                 ];
 
@@ -342,10 +341,10 @@ trait HasTableViews
             ->action(function (array $arguments) {
                 TableViewFavoriteModel::updateOrCreate(
                     [
-                        'view_type'       => $arguments['view_type'],
-                        'view_key'        => $arguments['view_key'],
+                        'view_type' => $arguments['view_type'],
+                        'view_key' => $arguments['view_key'],
                         'filterable_type' => static::class,
-                        'user_id'         => Auth::id(),
+                        'user_id' => Auth::id(),
                     ],
                     [
                         'is_favorite' => true,
@@ -365,10 +364,10 @@ trait HasTableViews
             ->action(function (array $arguments) {
                 TableViewFavoriteModel::updateOrCreate(
                     [
-                        'view_type'       => $arguments['view_type'],
-                        'view_key'        => $arguments['view_key'],
+                        'view_type' => $arguments['view_type'],
+                        'view_key' => $arguments['view_key'],
                         'filterable_type' => static::class,
-                        'user_id'         => Auth::id(),
+                        'user_id' => Auth::id(),
                     ],
                     [
                         'is_favorite' => false,
@@ -423,11 +422,11 @@ trait HasTableViews
             ->action(function (array $arguments) {
                 TableViewModel::find($arguments['view_key'])->update([
                     'filters' => [
-                        'tableFilters'        => $this->tableFilters,
-                        'tableGrouping'       => $this->tableGrouping,
-                        'tableSearch'         => $this->tableSearch,
+                        'tableFilters' => $this->tableFilters,
+                        'tableGrouping' => $this->tableGrouping,
+                        'tableSearch' => $this->tableSearch,
                         'tableColumnSearches' => $this->tableColumnSearches,
-                        'tableSort'           => $this->tableSort,
+                        'tableSort' => $this->tableSort,
                         'tableRecordsPerPage' => $this->tableRecordsPerPage,
                     ],
                 ]);
@@ -442,46 +441,46 @@ trait HasTableViews
         return ActionGroup::make([
             $this->applyTableViewAction()
                 ->arguments([
-                    'view_key'  => $key,
+                    'view_key' => $key,
                     'view_type' => $type,
                 ])
-                ->visible(fn() => $key != $this->activeTableView),
+                ->visible(fn () => $key != $this->activeTableView),
 
             $this->addTableViewToFavoritesAction()
                 ->arguments([
-                    'view_key'  => $key,
+                    'view_key' => $key,
                     'view_type' => $type,
                 ])
-                ->visible(fn() => ! $tableView->isFavorite($key)),
+                ->visible(fn () => ! $tableView->isFavorite($key)),
 
             $this->removeTableViewFromFavoritesAction()
                 ->arguments([
-                    'view_key'  => $key,
+                    'view_key' => $key,
                     'view_type' => $type,
                 ])
-                ->visible(fn() => $tableView->isFavorite($key)),
+                ->visible(fn () => $tableView->isFavorite($key)),
 
             $this->editTableViewAction(['view_model' => $tableView->getModel()])
                 ->arguments([
-                    'view_key'  => $key,
+                    'view_key' => $key,
                     'view_type' => $type,
                 ])
-                ->visible(fn() => $tableView->isEditable()),
+                ->visible(fn () => $tableView->isEditable()),
 
             ActionGroup::make([
                 $this->replaceTableViewAction()
                     ->arguments([
-                        'view_key'  => $key,
+                        'view_key' => $key,
                         'view_type' => $type,
                     ])
-                    ->visible(fn() => $tableView->isReplaceable() && $key == $this->activeTableView && $this->isActiveTableViewModified()),
+                    ->visible(fn () => $tableView->isReplaceable() && $key == $this->activeTableView && $this->isActiveTableViewModified()),
 
                 $this->deleteTableViewAction()
                     ->arguments([
-                        'view_key'  => $key,
+                        'view_key' => $key,
                         'view_type' => $type,
                     ])
-                    ->visible(fn() => $key == $tableView->isDeletable()),
+                    ->visible(fn () => $key == $tableView->isDeletable()),
             ])->dropdown(false),
         ])->dropdownPlacement('bottom-end');
     }

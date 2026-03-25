@@ -4,8 +4,6 @@ namespace App\Filament\Condominio\Resources\IssuerControlTypes\Schemas;
 
 use App\Enums\IssuerControlPriorityEnum;
 use App\Enums\IssuerControlTypeEnum;
-use App\Enums\ManutencaoCategoriaEnum;
-use App\Enums\ManutencaoPrioridadeEnum;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;

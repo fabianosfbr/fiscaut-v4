@@ -7,11 +7,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class IssuerControlEventLog extends Model
 {
-
     protected $guarded = ['id'];
 
     protected $casts = [
-        'dados_alterados' => 'array'
+        'dados_alterados' => 'array',
     ];
 
     public function control(): BelongsTo
@@ -23,7 +22,6 @@ class IssuerControlEventLog extends Model
     {
         return $this->belongsTo(User::class);
     }
-
 
     // Scopes
     public function scopePorAcao($query, string $acao)

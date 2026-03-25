@@ -3,7 +3,6 @@
 namespace App\Filament\Condominio\Resources\IssuerControls\Pages;
 
 use App\Filament\Condominio\Resources\IssuerControls\IssuerControlResource;
-use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditIssuerControl extends EditRecord
