@@ -16,6 +16,7 @@ use Filament\Tables\View\TablesRenderHook;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Contracts\View\View;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -77,6 +78,16 @@ class AppServiceProvider extends ServiceProvider
             PanelsRenderHook::PAGE_START,
             fn(): string => Blade::render('@livewire(\'job-progress-super-logica\')'),
             scopes: \App\Filament\Resources\ImportarLancamentoContabilSuperLogicas\Pages\ListImportarLancamentoContabilSuperLogicas::class,
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::RESOURCE_PAGES_LIST_RECORDS_TABLE_BEFORE,
+            fn(): View => view('filament.pages.list-records.favorites-views'),
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::RESOURCE_PAGES_MANAGE_RELATED_RECORDS_TABLE_BEFORE,
+            fn(): View => view('filament.pages.list-records.favorites-views'),
         );
     }
 

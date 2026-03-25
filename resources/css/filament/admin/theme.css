@@ -9,6 +9,7 @@
 @source '../../../../resources/views/components/**/*';
 @source '../../../../resources/views/vendor/**/*';
 @source '../../../../vendor/bezhansalleh/filament-panel-switch/resources/views/**/*.blade.php';
+@source '../../../../vendor/guava/filament-icon-picker/resources/**/*';
 
 
 

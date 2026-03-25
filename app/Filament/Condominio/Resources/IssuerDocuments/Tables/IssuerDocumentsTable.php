@@ -8,8 +8,11 @@ use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
@@ -57,8 +60,52 @@ class IssuerDocumentsTable
                     ->sortable(),
             ])
             ->filters([
-                //
+                Filter::make('document_type')
+                    ->label('Tipo de Documento')
+                    ->columnSpan(2)
+                    ->schema([
+                        Select::make('document_type')
+                            ->label('Tipo de Documento')
+                            ->options(IssuerDocumentTypeEnum::class)
+                            ->searchable()
+                            ->preload(),
+                    ]),
+
+                Filter::make('validate_at')
+                    ->label('Vigência')
+                    ->columnSpan(2)
+                    ->schema([
+                        DatePicker::make('de')
+                            ->label('Data Validade Início')
+                            ->columnSpan(1),
+                        DatePicker::make('ate')
+                            ->label('Data Validade Final')
+                            ->columnSpan(1),
+                    ])->columns(2)
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['de'] ?? null,
+                                fn(Builder $query, $date): Builder => $query->whereDate('validate_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['ate'] ?? null,
+                                fn(Builder $query, $date): Builder => $query->whereDate('validate_at', '<=', $date),
+                            );
+                    })->indicateUsing(function (array $data): ?string {
+                        if (empty($data['de']) && empty($data['ate'])) {
+                            return null;
+                        }
+
+                        $inicio = $data['de'] ? date('d/m/Y', strtotime($data['de'])) : '...';
+                        $fim = $data['ate'] ? date('d/m/Y', strtotime($data['ate'])) : '...';
+
+                        return "Vigência: {$inicio} até {$fim}";
+                    }),
             ])
+            ->filtersFormColumns(4)
+            ->persistFiltersInSession()
+            ->deferFilters(true)
             ->recordActions([
                 ActionGroup::make([
                     EditAction::make(),
