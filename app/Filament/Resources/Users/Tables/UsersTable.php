@@ -7,6 +7,7 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
+use STS\FilamentImpersonate\Actions\Impersonate;
 
 class UsersTable
 {
@@ -36,6 +37,12 @@ class UsersTable
             ])
             ->recordActions([
                 EditAction::make(),
+                Impersonate::make()
+                    ->hiddenLabel()
+                    ->visible(function () {
+                        return Auth::user()->hasRole('super-admin', 'admin', 'contabilidade');
+                    })
+                    ->tooltip('Entrar como usuário'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([]),

@@ -11,6 +11,8 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Livewire\Component;
+use STS\FilamentImpersonate\Actions\Impersonate;
+use Illuminate\Support\Facades\Auth;
 
 new class extends Component implements HasActions, HasSchemas, HasTable
 {
@@ -21,15 +23,15 @@ new class extends Component implements HasActions, HasSchemas, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->relationship(fn () => currentIssuer()->users())
+            ->relationship(fn() => currentIssuer()->users())
             ->headerActions([
                 AttachAction::make()
                     ->recordTitleAttribute('name')
                     ->modalHeading('Vincular Usuário')
                     ->recordSelectOptionsQuery(
-                        fn ($query) => $query
+                        fn($query) => $query
                             ->where('tenant_id', currentIssuer()->tenant_id)
-                            ->whereDoesntHave('issuers', fn ($q) => $q->where('issuers.id', currentIssuer()->id))
+                            ->whereDoesntHave('issuers', fn($q) => $q->where('issuers.id', currentIssuer()->id))
                     ),
             ])
             ->columns([
@@ -39,14 +41,18 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                 TextColumn::make('email')
                     ->label('E-mail')
                     ->searchable(),
-                TextColumn::make('pivot.created_at')
-                    ->label('Vinculado em')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable(),
+                TextColumn::make('roles.name')
+                    ->label('Grupos')
+                    ->badge(),
             ])
             ->recordActions([
                 DetachAction::make(),
+                Impersonate::make()
+                    ->hiddenLabel()
+                    ->visible(function () {
+                        return Auth::user()->hasRole('super-admin', 'admin', 'contabilidade');
+                    })
+                    ->tooltip('Entrar como usuário'),
             ]);
-
     }
 };
