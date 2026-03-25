@@ -3,11 +3,13 @@
 namespace App\Services\Sefaz;
 
 use App\Models\Issuer;
+use App\Models\LogSefazManifestoEvent;
 use App\Services\Xml\XmlIdentifierService;
 use Exception;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 use NFePHP\Common\Certificate;
+use NFePHP\CTe\Common\Standardize;
 use NFePHP\CTe\Tools;
 
 class SefazCteDownloadService
@@ -50,7 +52,7 @@ class SefazCteDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha na inicialização do serviço: '.$e->getMessage());
+            throw new Exception('Falha na inicialização do serviço: ' . $e->getMessage());
         }
     }
 
@@ -78,12 +80,21 @@ class SefazCteDownloadService
             $certificatePassword = Crypt::decrypt($this->issuer->senha_certificado);
 
             $this->certificate = Certificate::readPfx($certificateContent, $certificatePassword);
+
+            $agora = time();
+            $validoAte = $this->certificate->getValidTo()->getTimestamp();
+
+            if ($validoAte < $agora) {
+                $diasVencido = ceil(($agora - $validoAte) / 86400);
+                $nomeEmpresa = explode(':', $this->issuer->razao_social)[0];
+                throw new Exception("O certificado digital da empresa {$nomeEmpresa} está vencido há {$diasVencido} dia(s). Por favor, atualize o certificado.");
+            }
         } catch (Exception $e) {
             Log::error('Erro ao carregar certificado digital', [
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha ao carregar certificado digital: '.$e->getMessage());
+            throw new Exception('Falha ao carregar certificado digital: ' . $e->getMessage());
         }
     }
 
@@ -119,7 +130,7 @@ class SefazCteDownloadService
     private function getTools(): Tools
     {
         if (! $this->tools) {
-            throw new Exception('Ferramentas NFePHP não inicializadas para este issuer.');
+            throw new Exception('Não foi possível inicializar conexão com a SEFAZ. Verifique o certificado digital e as configurações.');
         }
 
         return $this->tools;
@@ -214,7 +225,7 @@ class SefazCteDownloadService
                 'nsu_especifico' => $nsu,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha no download: '.$e->getMessage());
+            throw new Exception('Falha no download: ' . $e->getMessage());
         }
     }
 
@@ -245,8 +256,8 @@ class SefazCteDownloadService
 
             Log::channel('sefaz_log')->info(
                 $nsu ?
-                    'Log de consulta CTE - SEFAZ - registro específico - '.explode(':', $this->issuer->razao_social)[0]." : \n".$response :
-                    'Log de consulta CTE - SEFAZ - registro em lote - '.explode(':', $this->issuer->razao_social)[0]." : \n".$response
+                    'Log de consulta CTE - SEFAZ - registro específico - ' . explode(':', $this->issuer->razao_social)[0] . " : \n" . $response :
+                    'Log de consulta CTE - SEFAZ - registro em lote - ' . explode(':', $this->issuer->razao_social)[0] . " : \n" . $response
             );
 
             $result = $this->processDistDFeResponse($response);
@@ -263,7 +274,7 @@ class SefazCteDownloadService
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            throw new Exception('Falha no download de CTe: '.$e->getMessage());
+            throw new Exception('Falha no download de CTe: ' . $e->getMessage());
         }
     }
 
@@ -392,8 +403,32 @@ class SefazCteDownloadService
         return $documentos;
     }
 
-    public function sefazManifesta(string $chCTe, string $tpEvento, string $xJust, int $nSeqEvento, string $uf): string
+    public function sefazManifesta(string $chCTe, string $tpEvento, string $xJust, int $nSeqEvento, string $uf)
     {
-        return $this->tools->sefazManifesta($chCTe, $tpEvento, $xJust, $nSeqEvento, $uf);
+        $response = $this->tools->sefazManifesta($chCTe, $tpEvento, $xJust, $nSeqEvento, $uf);
+
+        Log::info('Log de manifestação CTe - SEFAZ', [
+            'issuer' => $this->issuer->razao_social,
+            'chave' => $chCTe,
+            'response' => $response,
+        ]);
+
+        $standardize = new Standardize($response);
+        $std = $standardize->toStd();
+
+        LogSefazManifestoEvent::create([
+            'issuer_id' => $this->issuer->id,
+            'chave' => $chCTe,
+            'type' => 'cte',
+            'tpEvento' => $std->retEvento->infEvento->tpEvento,
+            'cStat' => $std->cStat,
+            'xMotivo' => $std->xMotivo,
+            'justificativa' => $xJust,
+            'infEvento_cStat' => $std->retEvento->infEvento->cStat,
+            'infEvento_xMotivo' => $std->retEvento->infEvento->xMotivo,
+            'xml' => $response,
+        ]);
+
+        return $std;
     }
 }

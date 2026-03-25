@@ -3,6 +3,7 @@
 namespace App\Filament\Actions;
 
 use App\Enums\StatusManifestoNfeEnum;
+use App\Services\Sefaz\SefazCteDownloadService;
 use App\Services\Sefaz\SefazNfeDownloadService;
 use Exception;
 use Filament\Actions\Action;
@@ -13,16 +14,16 @@ use Filament\Notifications\Notification;
 use Filament\Support\Exceptions\Halt;
 use Illuminate\Database\Eloquent\Model;
 
-class ManifestarNfeAction
+class ManifestarCteAction
 {
     public static function make(): Action
     {
-        return Action::make('manifestar-nfe')
+        return Action::make('manifestar-cte')
             ->label('Manifestar')
             ->icon('heroicon-o-book-open')
             ->modalWidth('lg')
             ->modalHeading('Manifestar')
-            ->modalDescription('Insira os dados para manifestar a nota fiscal eletrônica.')
+            ->modalDescription('Insira os dados para manifestar o conhecimento de transporte eletrônico.')
             ->closeModalByClickingAway(false)
             ->closeModalByEscaping(false)
             ->modalSubmitActionLabel('Sim, manifestar')
@@ -37,21 +38,15 @@ class ManifestarNfeAction
                 Select::make('status_manifestacao')
                     ->label('Status da Manifestação')
                     ->required()
+                    ->default(610110)
                     ->options([
-                        '210200' => 'Confirmação da Operação',
-                        '210220' => 'Desconhecimento da Operação',
-                        '210240' => 'Operação não Realizada',
-                    ])
-                    ->live()
-                    ->afterStateUpdated(
-                        fn($state, callable $set) => $state ? $set('justificativa', null) : $set('justificativa', 'hidden')
-                    ),
+                        '610110' => 'Prestação de serviço em desarcordo',
+                    ]),
                 Textarea::make('justificativa')
                     ->label('Justificativa')
-                    ->required()
-                    ->hidden(function ($get) {
-                        return $get('status_manifestacao') != 210240;
-                    }),
+                    ->hint('Minimo de 15 caracteres')
+                    ->minLength(15)
+                    ->required(),
             ])
             ->action(function (array $data, Model $record) {
                 if (empty($record->xml)) {
@@ -60,25 +55,25 @@ class ManifestarNfeAction
                 $justificativa = array_key_exists('justificativa', $data) ? $data['justificativa'] : '';
 
                 $issuer = currentIssuer();
-                $service = new SefazNfeDownloadService($issuer);
+                $service = new SefazCteDownloadService($issuer);
 
+                $uf = 'SP';
                 try {
-                    $manifestado = $service->sefazManifesta($record->chave, $data['status_manifestacao'], $justificativa);
+                    $manifestado = $service->sefazManifesta($record->chave, $data['status_manifestacao'], $justificativa, 1, $uf);
                 } catch (Exception $e) {
 
                     Notification::make()
-                        ->title('Erro ao manifestar NFe')
-                        ->body('Falha ao manifestar NFe. Por favor, entre em contato com o administrador. ' . $e->getMessage())
+                        ->title('Erro ao manifestar CTe')
+                        ->body('Falha ao manifestar CTe. Por favor, entre em contato com o administrador. ' . $e->getMessage())
                         ->danger()
                         ->send();
 
                     throw new Halt;
                 }
-                if ($manifestado) {
+                if ($manifestado->infEvento->cStat == '135') {
                     $record->update([
+                        'status_manifestacao' => $data['status_manifestacao'],
                         'data_manifesto' => date('Y-m-d H:i:s'),
-                        'status_manifestacao' => StatusManifestoNfeEnum::from($data['status_manifestacao']),
-                        'data_entrada' => isset($data['data_entrada']) ? str_replace('T', ' ', $data['data_entrada']) : $record->data_entrada,
                     ]);
 
                     Notification::make()
