@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\IssuerAgeTypeEnum;
+use App\Enums\IssuerAssembleiaStatusAtaEnum;
 use Illuminate\Database\Eloquent\Model;
 
 class IssuerAssembleia extends Model
@@ -24,6 +25,7 @@ class IssuerAssembleia extends Model
         'valor_isencao' => 'decimal:2',
         'valor_remuneracao' => 'decimal:2',
         'type' => IssuerAgeTypeEnum::class,
+        'status_ata' => IssuerAssembleiaStatusAtaEnum::class,
     ];
 
     public function issuer()

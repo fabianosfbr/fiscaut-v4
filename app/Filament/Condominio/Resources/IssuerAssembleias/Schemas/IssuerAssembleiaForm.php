@@ -3,6 +3,7 @@
 namespace App\Filament\Condominio\Resources\IssuerAssembleias\Schemas;
 
 use App\Enums\IssuerAgeTypeEnum;
+use App\Enums\IssuerAssembleiaStatusAtaEnum;
 use App\Enums\IssuerTypeEnum;
 use Asmit\FilamentUpload\Forms\Components\AdvancedFileUpload;
 use Filament\Forms\Components\CheckboxList;
@@ -38,6 +39,10 @@ class IssuerAssembleiaForm
                                     ->label('Data de Vigência')
                                     ->native(false)
                                     ->displayFormat('d/m/Y')
+                                    ->columnSpan(1),
+                                Select::make('status_ata')
+                                    ->label('Status da ATA')
+                                    ->options(IssuerAssembleiaStatusAtaEnum::class)
                                     ->columnSpan(1),
                                 DatePicker::make('data_limite_edital')
                                     ->label('Data Limite para Expedição do Edital')
@@ -88,7 +93,11 @@ class IssuerAssembleiaForm
                             ->label('Data Limite da AGO')
                             ->native(false)
                             ->displayFormat('d/m/Y')
-                            ->columnSpanFull(),
+                            ->columnSpan(1),
+                        Select::make('status_ata')
+                            ->label('Status da ATA')
+                            ->options(IssuerAssembleiaStatusAtaEnum::class)
+                            ->columnSpan(1),
 
                         Fieldset::make('Dados do Edital')
                             ->schema([
