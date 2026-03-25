@@ -36,6 +36,7 @@ class CondominioPanelProvider extends PanelProvider
             ->brandName(config('app.name'))
             ->maxContentWidth(Width::Full)
             ->databaseNotifications()
+            ->sidebarCollapsibleOnDesktop()
             ->colors([
                 'primary' => Color::Amber,
             ])

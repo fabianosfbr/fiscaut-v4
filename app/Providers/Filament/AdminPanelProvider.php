@@ -38,6 +38,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName(config('app.name'))
             ->login()
             ->passwordReset()
+            ->sidebarCollapsibleOnDesktop()
             ->maxContentWidth(Width::Full)
             ->profile(isSimple: false)
             ->databaseNotifications()
@@ -114,8 +115,7 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-o-adjustments-horizontal')
                     ->collapsed(),
 
-            ])
-            ->sidebarCollapsibleOnDesktop()
+            ])            
             ->userMenuItems([
                 Action::make('profile')
                     ->label('Meu Perfil')
