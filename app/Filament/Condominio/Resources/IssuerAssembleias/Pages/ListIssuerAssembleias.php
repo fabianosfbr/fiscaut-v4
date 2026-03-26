@@ -4,6 +4,7 @@ namespace App\Filament\Condominio\Resources\IssuerAssembleias\Pages;
 
 use App\Enums\IssuerAgeTypeEnum;
 use App\Filament\Condominio\Resources\IssuerAssembleias\IssuerAssembleiaResource;
+use App\Filament\Condominio\Resources\IssuerAssembleias\Widgets\IssuerAssembleiaConselhoMandatoOverview;
 use App\Filament\Condominio\Resources\IssuerAssembleias\Widgets\IssuerAssembleiaPrazoTecnicoOverview;
 use App\Filament\Condominio\Resources\IssuerAssembleias\Widgets\IssuerAssembleiaSindicoMandatoOverview;
 use Filament\Actions\CreateAction;
@@ -26,8 +27,18 @@ class ListIssuerAssembleias extends ListRecords
     protected function getHeaderWidgets(): array
     {
         return [
-            // IssuerAssembleiaPrazoTecnicoOverview::class,
-            // IssuerAssembleiaSindicoMandatoOverview::class,
+            // 0 => [
+            //     'class' => IssuerAssembleiaPrazoTecnicoOverview::class,
+            //     'columnSpan' => 1,
+            // ],
+            // 1 => [
+            //     'class' => IssuerAssembleiaSindicoMandatoOverview::class,
+            //     'columnSpan' => 1,
+            // ],
+            // 2 => [
+            //     'class' => IssuerAssembleiaConselhoMandatoOverview::class,
+            //     'columnSpan' => 'full',
+            // ],
         ];
     }
 

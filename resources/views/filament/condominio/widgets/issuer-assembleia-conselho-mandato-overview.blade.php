@@ -1,6 +1,6 @@
 <x-filament-widgets::widget>
     <x-filament::section>
-        <div class="text-lg font-semibold py-3">Status do Prazo Técnico Mandato Sindico</div>
+        <div class="text-lg font-semibold py-3">Status do Prazo Técnico Mandato Conselho</div>
         <div class="space-y-2">
             @foreach ($items as $item)
                 <div

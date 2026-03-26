@@ -188,6 +188,78 @@ class IssuerAssembleia extends Model
         return $this->sindicoMandatoPeriodoAtual();
     }
 
+    public function conselhoMandatoStatus(?Carbon $baseDate = null): ?IssuerAssembleiaPrazoTecnicoEnum
+    {
+        $periodo = $this->conselhoMandatoPeriodoAtual($baseDate);
+
+        if ($periodo === null) {
+            return null;
+        }
+
+        return $periodo['status'];
+    }
+
+    public function conselhoMandatoPeriodoAtual(?Carbon $baseDate = null): ?array
+    {
+        $mandatoFim = $this->mandato_conselho_fim?->copy()->startOfDay();
+        $numDayControl = $this->num_day_control_conselho ?? $this->num_day_control;
+
+        if (! $mandatoFim || ! $numDayControl) {
+            return null;
+        }
+
+        $today = ($baseDate ?? now())->startOfDay();
+
+        if ($today->gt($mandatoFim)) {
+            return [
+                'status' => IssuerAssembleiaPrazoTecnicoEnum::ATRASADO,
+                'inicio' => null,
+                'fim' => null,
+                'faixa' => null,
+            ];
+        }
+
+        $prazoTecnicoDias = $this->prazo_tecnico_conselho ?? 30;
+        $inicioPrazo = $mandatoFim->copy()->subDays($prazoTecnicoDias);
+
+        if ($today->lt($inicioPrazo)) {
+            return [
+                'status' => IssuerAssembleiaPrazoTecnicoEnum::ANTES_DO_PRAZO,
+                'inicio' => null,
+                'fim' => null,
+                'faixa' => null,
+            ];
+        }
+
+        $diasDesdeInicio = $inicioPrazo->diffInDays($today);
+        $faixa = intdiv($diasDesdeInicio, $numDayControl) + 1;
+        $maxFaixas = (int) ceil($prazoTecnicoDias / $numDayControl);
+        $faixa = min($faixa, $maxFaixas);
+
+        $faixaInicio = $inicioPrazo->copy()->addDays(($faixa - 1) * $numDayControl);
+        $faixaFim = $faixaInicio->copy()->addDays($numDayControl - 1);
+        if ($faixaFim->gt($mandatoFim)) {
+            $faixaFim = $mandatoFim->copy();
+        }
+
+        return [
+            'status' => IssuerAssembleiaPrazoTecnicoEnum::fromIndex($faixa),
+            'inicio' => $faixaInicio,
+            'fim' => $faixaFim,
+            'faixa' => $faixa,
+        ];
+    }
+
+    public function getConselhoMandatoStatusAttribute(): ?IssuerAssembleiaPrazoTecnicoEnum
+    {
+        return $this->conselhoMandatoStatus();
+    }
+
+    public function getConselhoMandatoPeriodoAttribute(): ?array
+    {
+        return $this->conselhoMandatoPeriodoAtual();
+    }
+
     public function logs(): HasMany
     {
         return $this->hasMany(IssuerAssembleiaEventLog::class);

@@ -7,11 +7,11 @@ use App\Enums\IssuerAssembleiaPrazoTecnicoEnum;
 use App\Models\IssuerAssembleia;
 use Filament\Widgets\Widget;
 
-class IssuerAssembleiaPrazoTecnicoOverview extends Widget
+class IssuerAssembleiaConselhoMandatoOverview extends Widget
 {
-    protected string $view = 'filament.condominio.widgets.issuer-assembleia-prazo-tecnico-overview';
+    protected string $view = 'filament.condominio.widgets.issuer-assembleia-conselho-mandato-overview';
 
-    //protected int | string | array $columnSpan = 'full';
+    // protected int|string|array $columnSpan = 'full';
 
     protected function getViewData(): array
     {
@@ -21,7 +21,7 @@ class IssuerAssembleiaPrazoTecnicoOverview extends Widget
             ->mapWithKeys(fn(IssuerAssembleiaPrazoTecnicoEnum $status) => [$status->value => 0])
             ->all();
 
-        $emAndamentoCount = 0;
+        $comMandatoCount = 0;
 
         if ($issuer) {
             $assembleias = IssuerAssembleia::query()
@@ -32,11 +32,12 @@ class IssuerAssembleiaPrazoTecnicoOverview extends Widget
                 if (
                     $assembleia->assembleia_status instanceof AssembleiaStatusEnum
                     && $assembleia->assembleia_status !== AssembleiaStatusEnum::DRAFT
+                    && $assembleia->mandato_conselho_fim
                 ) {
-                    $emAndamentoCount++;
+                    $comMandatoCount++;
                 }
 
-                $status = $assembleia->prazoTecnicoStatus();
+                $status = $assembleia->conselhoMandatoStatus();
 
                 if (! $status) {
                     continue;
@@ -48,8 +49,8 @@ class IssuerAssembleiaPrazoTecnicoOverview extends Widget
 
         $items = [
             [
-                'label' => 'Em andamento',
-                'count' => $emAndamentoCount,
+                'label' => 'Com mandato definido',
+                'count' => $comMandatoCount,
                 'color' => '#0d6efd',
             ],
             [
@@ -73,7 +74,7 @@ class IssuerAssembleiaPrazoTecnicoOverview extends Widget
                 'status' => IssuerAssembleiaPrazoTecnicoEnum::QUARTO,
             ],
             [
-                'label' => 'Atrasadas',
+                'label' => 'Mandato expirado',
                 'status' => IssuerAssembleiaPrazoTecnicoEnum::ATRASADO,
             ],
         ];

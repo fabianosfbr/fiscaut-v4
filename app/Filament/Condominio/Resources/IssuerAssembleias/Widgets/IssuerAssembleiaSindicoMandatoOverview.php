@@ -11,14 +11,14 @@ class IssuerAssembleiaSindicoMandatoOverview extends Widget
 {
     protected string $view = 'filament.condominio.widgets.issuer-assembleia-sindico-mandato-overview';
 
-    protected int|string|array $columnSpan = 'full';
+    // protected int|string|array $columnSpan = 'full';
 
     protected function getViewData(): array
     {
         $issuer = currentIssuer();
 
         $counts = collect(IssuerAssembleiaPrazoTecnicoEnum::cases())
-            ->mapWithKeys(fn (IssuerAssembleiaPrazoTecnicoEnum $status) => [$status->value => 0])
+            ->mapWithKeys(fn(IssuerAssembleiaPrazoTecnicoEnum $status) => [$status->value => 0])
             ->all();
 
         $comMandatoCount = 0;
@@ -49,7 +49,7 @@ class IssuerAssembleiaSindicoMandatoOverview extends Widget
 
         $items = [
             [
-                'label' => 'Com mandato definido',
+                'label' => 'Em andamento',
                 'count' => $comMandatoCount,
                 'color' => '#0d6efd',
             ],
@@ -74,7 +74,7 @@ class IssuerAssembleiaSindicoMandatoOverview extends Widget
                 'status' => IssuerAssembleiaPrazoTecnicoEnum::QUARTO,
             ],
             [
-                'label' => 'Mandato expirado',
+                'label' => 'Atrasado',
                 'status' => IssuerAssembleiaPrazoTecnicoEnum::ATRASADO,
             ],
         ];

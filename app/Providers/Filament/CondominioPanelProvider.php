@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Condominio\Pages\DashboardPorEmpresa;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -42,12 +43,11 @@ class CondominioPanelProvider extends PanelProvider
             ])
             ->discoverResources(in: app_path('Filament/Condominio/Resources'), for: 'App\Filament\Condominio\Resources')
             ->discoverPages(in: app_path('Filament/Condominio/Pages'), for: 'App\Filament\Condominio\Pages')
-            ->pages([])
-            ->discoverWidgets(in: app_path('Filament/Condominio/Widgets'), for: 'App\Filament\Condominio\Widgets')
-            ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
+            ->pages([
+                DashboardPorEmpresa::class
             ])
+            ->discoverWidgets(in: app_path('Filament/Condominio/Widgets'), for: 'App\Filament\Condominio\Widgets')
+            ->widgets([])
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label('Dashboard')
@@ -83,7 +83,7 @@ class CondominioPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-             ->plugin(
+            ->plugin(
                 \Octopy\Filament\Palette\PaletteSwitcherPlugin::make()
             );
     }
