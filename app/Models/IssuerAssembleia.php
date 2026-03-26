@@ -7,7 +7,6 @@ use App\Enums\AtaStatusEnum;
 use App\Enums\DeliberacaoStatusEnum;
 use App\Enums\IssuerAgeTypeEnum;
 use App\Enums\IssuerAssembleiaPrazoTecnicoEnum;
-use App\Models\IssuerAssembleiaEventLog;
 use App\Observers\IssuerAssembleiaObserver;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -117,6 +116,77 @@ class IssuerAssembleia extends Model
         return $this->prazoTecnicoPeriodoAtual();
     }
 
+    public function sindicoMandatoStatus(?Carbon $baseDate = null): ?IssuerAssembleiaPrazoTecnicoEnum
+    {
+        $periodo = $this->sindicoMandatoPeriodoAtual($baseDate);
+
+        if ($periodo === null) {
+            return null;
+        }
+
+        return $periodo['status'];
+    }
+
+    public function sindicoMandatoPeriodoAtual(?Carbon $baseDate = null): ?array
+    {
+        $mandatoFim = $this->mandato_fim?->copy()->startOfDay();
+        $numDayControl = $this->num_day_control_sindico ?? $this->num_day_control;
+
+        if (! $mandatoFim || ! $numDayControl) {
+            return null;
+        }
+
+        $today = ($baseDate ?? now())->startOfDay();
+
+        if ($today->gt($mandatoFim)) {
+            return [
+                'status' => IssuerAssembleiaPrazoTecnicoEnum::ATRASADO,
+                'inicio' => null,
+                'fim' => null,
+                'faixa' => null,
+            ];
+        }
+
+        $prazoTecnicoDias = $this->prazo_tecnico_sindico ?? 30;
+        $inicioPrazo = $mandatoFim->copy()->subDays($prazoTecnicoDias);
+
+        if ($today->lt($inicioPrazo)) {
+            return [
+                'status' => IssuerAssembleiaPrazoTecnicoEnum::ANTES_DO_PRAZO,
+                'inicio' => null,
+                'fim' => null,
+                'faixa' => null,
+            ];
+        }
+
+        $diasDesdeInicio = $inicioPrazo->diffInDays($today);
+        $faixa = intdiv($diasDesdeInicio, $numDayControl) + 1;
+        $maxFaixas = (int) ceil($prazoTecnicoDias / $numDayControl);
+        $faixa = min($faixa, $maxFaixas);
+
+        $faixaInicio = $inicioPrazo->copy()->addDays(($faixa - 1) * $numDayControl);
+        $faixaFim = $faixaInicio->copy()->addDays($numDayControl - 1);
+        if ($faixaFim->gt($mandatoFim)) {
+            $faixaFim = $mandatoFim->copy();
+        }
+
+        return [
+            'status' => IssuerAssembleiaPrazoTecnicoEnum::fromIndex($faixa),
+            'inicio' => $faixaInicio,
+            'fim' => $faixaFim,
+            'faixa' => $faixa,
+        ];
+    }
+
+    public function getSindicoMandatoStatusAttribute(): ?IssuerAssembleiaPrazoTecnicoEnum
+    {
+        return $this->sindicoMandatoStatus();
+    }
+
+    public function getSindicoMandatoPeriodoAttribute(): ?array
+    {
+        return $this->sindicoMandatoPeriodoAtual();
+    }
 
     public function logs(): HasMany
     {

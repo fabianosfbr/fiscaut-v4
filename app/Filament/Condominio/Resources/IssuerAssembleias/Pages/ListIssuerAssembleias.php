@@ -5,6 +5,7 @@ namespace App\Filament\Condominio\Resources\IssuerAssembleias\Pages;
 use App\Enums\IssuerAgeTypeEnum;
 use App\Filament\Condominio\Resources\IssuerAssembleias\IssuerAssembleiaResource;
 use App\Filament\Condominio\Resources\IssuerAssembleias\Widgets\IssuerAssembleiaPrazoTecnicoOverview;
+use App\Filament\Condominio\Resources\IssuerAssembleias\Widgets\IssuerAssembleiaSindicoMandatoOverview;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -25,7 +26,8 @@ class ListIssuerAssembleias extends ListRecords
     protected function getHeaderWidgets(): array
     {
         return [
-            IssuerAssembleiaPrazoTecnicoOverview::class,
+            // IssuerAssembleiaPrazoTecnicoOverview::class,
+            // IssuerAssembleiaSindicoMandatoOverview::class,
         ];
     }
 
@@ -34,10 +36,10 @@ class ListIssuerAssembleias extends ListRecords
         return [
             'ago' => Tab::make()
                 ->label('AGO')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('type', IssuerAgeTypeEnum::AGO)),
+                ->modifyQueryUsing(fn(Builder $query) => $query->where('type', IssuerAgeTypeEnum::AGO)),
             'age' => Tab::make()
                 ->label('AGE')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('type', IssuerAgeTypeEnum::AGE)),
+                ->modifyQueryUsing(fn(Builder $query) => $query->where('type', IssuerAgeTypeEnum::AGE)),
 
         ];
     }
