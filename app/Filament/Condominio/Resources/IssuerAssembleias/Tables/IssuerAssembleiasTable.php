@@ -9,6 +9,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\ColorColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
@@ -27,7 +28,7 @@ class IssuerAssembleiasTable
                 TextColumn::make('type')
                     ->label('Tipo')
                     ->badge()
-                    ->color(fn (IssuerAgeTypeEnum $state): string => match ($state) {
+                    ->color(fn(IssuerAgeTypeEnum $state): string => match ($state) {
                         IssuerAgeTypeEnum::AGO => 'success',
                         IssuerAgeTypeEnum::AGE => 'warning',
                     })
@@ -46,84 +47,98 @@ class IssuerAssembleiasTable
                         // Only render the tooltip if the column contents exceeds the length limit.
                         return basename($state);
                     })
-                    ->formatStateUsing(fn ($state) => basename($state)),
+                    ->formatStateUsing(fn($state) => basename($state)),
 
                 // AGE Only
                 TextColumn::make('vigencia_date')
                     ->label('Vigência')
-                    ->visible(fn ($livewire) => $livewire->activeTab === 'age')
+                    ->visible(fn($livewire) => $livewire->activeTab === 'age')
                     ->date('d/m/Y')
                     ->sortable(),
 
                 TextColumn::make('prazo_tecnico')
                     ->label('Prazo Técnico')
-                    ->visible(fn ($livewire) => $livewire->activeTab === 'age')
+                    ->visible(fn($livewire) => $livewire->activeTab === 'age')
                     ->sortable(),
+
+                // ColorColumn::make('status')
+                //     ->label('Status')
+                //     ->state(function ($record) {
+                //         $hoje = now();
+                //         $dataRef = $record->data_limite_edital->subDays($record->prazo_tecnico_edital)->format('d/m/Y');
+
+                //         if ($hoje < $dataRef) {
+                //             return '#dc3545';
+                //         }
+
+                //         return '#67ac0eff';
+                //     }),
+
 
                 // AGO Only
                 TextColumn::make('data_limite_ago')
                     ->label('Data Limite')
-                    ->visible(fn ($livewire) => $livewire->activeTab === 'ago')
+                    ->visible(fn($livewire) => $livewire->activeTab === 'ago')
                     ->date('d/m/Y')
                     ->sortable(),
 
                 TextColumn::make('prazo_tecnico_edital')
                     ->label('Prazo Técnico (Edital)')
-                    ->visible(fn ($livewire) => $livewire->activeTab === 'ago')
+                    ->visible(fn($livewire) => $livewire->activeTab === 'ago')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
 
                 TextColumn::make('mandato_fim')
                     ->label('Fim Mandato (Síndico)')
-                    ->visible(fn ($livewire) => $livewire->activeTab === 'ago')
+                    ->visible(fn($livewire) => $livewire->activeTab === 'ago')
                     ->date('d/m/Y')
                     ->toggleable(isToggledHiddenByDefault: false)
                     ->sortable(),
 
                 TextColumn::make('prazo_tecnico_mandato')
                     ->label('Prazo Técnico (Mandato)')
-                    ->visible(fn ($livewire) => $livewire->activeTab === 'ago')
+                    ->visible(fn($livewire) => $livewire->activeTab === 'ago')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
 
                 TextColumn::make('mandato_conselho_fim')
                     ->label('Fim Mandato (Conselho)')
-                    ->visible(fn ($livewire) => $livewire->activeTab === 'ago')
+                    ->visible(fn($livewire) => $livewire->activeTab === 'ago')
                     ->date('d/m/Y')
                     ->sortable(),
 
                 TextColumn::make('prazo_tecnico_mandato_conselho')
                     ->label('Prazo Técnico (Conselho)')
-                    ->visible(fn ($livewire) => $livewire->activeTab === 'ago')
+                    ->visible(fn($livewire) => $livewire->activeTab === 'ago')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
 
                 TextColumn::make('mandato_banco_fim')
                     ->label('Fim Mandato (Banco)')
-                    ->visible(fn ($livewire) => $livewire->activeTab === 'ago')
+                    ->visible(fn($livewire) => $livewire->activeTab === 'ago')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->date('d/m/Y')
                     ->sortable(),
 
                 TextColumn::make('prazo_tecnico_mandato_banco')
                     ->label('Prazo Técnico (Banco)')
-                    ->visible(fn ($livewire) => $livewire->activeTab === 'ago')
+                    ->visible(fn($livewire) => $livewire->activeTab === 'ago')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
 
                 // Boleto fields (AGO)
                 TextColumn::make('boleto_dia_vencimento')
                     ->label('Dia Vencimento')
-                    ->visible(fn ($livewire) => $livewire->activeTab === 'ago')
+                    ->visible(fn($livewire) => $livewire->activeTab === 'ago')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->numeric()
                     ->sortable(),
 
                 TextColumn::make('boleto_tipo_prazo')
                     ->label('Tipo Prazo')
-                    ->visible(fn ($livewire) => $livewire->activeTab === 'ago')
+                    ->visible(fn($livewire) => $livewire->activeTab === 'ago')
                     ->toggleable(isToggledHiddenByDefault: false)
-                    ->formatStateUsing(fn ($state): string => match ($state) {
+                    ->formatStateUsing(fn($state): string => match ($state) {
                         'uteis' => 'Dias Úteis',
                         'corridos' => 'Dias Corridos',
                         default => (string) $state,
@@ -131,9 +146,9 @@ class IssuerAssembleiasTable
 
                 TextColumn::make('boleto_gerado_por')
                     ->label('Gerado Por')
-                    ->visible(fn ($livewire) => $livewire->activeTab === 'ago')
+                    ->visible(fn($livewire) => $livewire->activeTab === 'ago')
                     ->toggleable(isToggledHiddenByDefault: false)
-                    ->formatStateUsing(fn ($state): string => match ($state) {
+                    ->formatStateUsing(fn($state): string => match ($state) {
                         'administradora' => 'Administradora',
                         'garantidora' => 'Garantidora',
                         default => (string) $state,
@@ -141,8 +156,8 @@ class IssuerAssembleiasTable
 
                 TextColumn::make('boleto_forma_rateio')
                     ->label('Forma Rateio')
-                    ->visible(fn ($livewire) => $livewire->activeTab === 'ago')
-                    ->formatStateUsing(fn ($state): string => match ($state) {
+                    ->visible(fn($livewire) => $livewire->activeTab === 'ago')
+                    ->formatStateUsing(fn($state): string => match ($state) {
                         'ideal' => 'Rateio Ideal',
                         'unidade' => 'Unidade',
                         'm2' => 'Por m²',
@@ -152,21 +167,21 @@ class IssuerAssembleiasTable
                 // Isenção/Remuneração (AGO)
                 TextColumn::make('tem_isencao_remuneracao')
                     ->label('Tipo')
-                    ->visible(fn ($livewire) => $livewire->activeTab === 'ago')
+                    ->visible(fn($livewire) => $livewire->activeTab === 'ago')
                     ->toggleable(isToggledHiddenByDefault: true)
-                    ->formatStateUsing(fn ($state): string => $state ? 'Isenção' : 'Remuneração')
+                    ->formatStateUsing(fn($state): string => $state ? 'Isenção' : 'Remuneração')
                     ->badge()
-                    ->color(fn ($state): string => $state ? 'success' : 'info'),
+                    ->color(fn($state): string => $state ? 'success' : 'info'),
 
                 TextColumn::make('quem_recebe_isencao')
                     ->label('Quem Recebe')
-                    ->visible(fn ($livewire) => $livewire->activeTab === 'ago')
+                    ->visible(fn($livewire) => $livewire->activeTab === 'ago')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->badge(),
 
                 TextColumn::make('valor_isencao_remuneracao')
                     ->label('Valor')
-                    ->visible(fn ($livewire) => $livewire->activeTab === 'ago')
+                    ->visible(fn($livewire) => $livewire->activeTab === 'ago')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->money('BRL'),
 
@@ -224,11 +239,11 @@ class IssuerAssembleiasTable
                         return $query
                             ->when(
                                 $data['de'] ?? null,
-                                fn (Builder $query, $date): Builder => $query->whereDate('vigencia_date', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('vigencia_date', '>=', $date),
                             )
                             ->when(
                                 $data['ate'] ?? null,
-                                fn (Builder $query, $date): Builder => $query->whereDate('vigencia_date', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('vigencia_date', '<=', $date),
                             );
                     })->indicateUsing(function (array $data): ?string {
                         if (empty($data['de']) && empty($data['ate'])) {
@@ -256,11 +271,11 @@ class IssuerAssembleiasTable
                         return $query
                             ->when(
                                 $data['de'] ?? null,
-                                fn (Builder $query, $date): Builder => $query->whereDate('data_limite_ago', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('data_limite_ago', '>=', $date),
                             )
                             ->when(
                                 $data['ate'] ?? null,
-                                fn (Builder $query, $date): Builder => $query->whereDate('data_limite_ago', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('data_limite_ago', '<=', $date),
                             );
                     })->indicateUsing(function (array $data): ?string {
                         if (empty($data['de']) && empty($data['ate'])) {
@@ -288,11 +303,11 @@ class IssuerAssembleiasTable
                         return $query
                             ->when(
                                 $data['de'] ?? null,
-                                fn (Builder $query, $date): Builder => $query->whereDate('mandato_fim', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('mandato_fim', '>=', $date),
                             )
                             ->when(
                                 $data['ate'] ?? null,
-                                fn (Builder $query, $date): Builder => $query->whereDate('mandato_fim', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('mandato_fim', '<=', $date),
                             );
                     })->indicateUsing(function (array $data): ?string {
                         if (empty($data['de']) && empty($data['ate'])) {
@@ -314,7 +329,7 @@ class IssuerAssembleiasTable
                     Action::make('download')
                         ->label('Download Edital')
                         ->icon(Heroicon::ArrowDown)
-                        ->url(fn ($record) => route('issuer-assembleia.document.show', $record), true),
+                        ->url(fn($record) => route('issuer-assembleia.document.show', $record), true),
                 ]),
 
             ])
