@@ -4,6 +4,7 @@ namespace App\Filament\Condominio\Resources\IssuerAssembleias\Pages;
 
 use App\Enums\IssuerAgeTypeEnum;
 use App\Filament\Condominio\Resources\IssuerAssembleias\IssuerAssembleiaResource;
+use App\Filament\Condominio\Resources\IssuerAssembleias\Widgets\IssuerAssembleiaPrazoTecnicoOverview;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -18,6 +19,13 @@ class ListIssuerAssembleias extends ListRecords
         return [
             CreateAction::make()
                 ->label('Adicionar Novo'),
+        ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            IssuerAssembleiaPrazoTecnicoOverview::class,
         ];
     }
 

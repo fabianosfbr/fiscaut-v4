@@ -3,17 +3,21 @@
 namespace App\Filament\Condominio\Resources\IssuerAssembleias\Tables;
 
 use App\Enums\IssuerAgeTypeEnum;
+use App\Enums\IssuerAssembleiaPrazoTecnicoEnum;
+use App\Filament\Infolists\Components\IssuerControlLogEntry;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\ColorColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 
 class IssuerAssembleiasTable
 {
@@ -56,10 +60,24 @@ class IssuerAssembleiasTable
                     ->date('d/m/Y')
                     ->sortable(),
 
-                TextColumn::make('prazo_tecnico')
+
+
+                TextColumn::make('prazo_tecnico_status')
                     ->label('Prazo Técnico')
-                    ->visible(fn($livewire) => $livewire->activeTab === 'age')
-                    ->sortable(),
+                    //->visible(fn($livewire) => $livewire->activeTab === 'age')
+                    ->state(fn($record) => $record->prazoTecnicoStatus())
+                    ->html()
+                    ->formatStateUsing(function (?IssuerAssembleiaPrazoTecnicoEnum $state): HtmlString {
+                        $label = $state?->getLabel() ?? '-';
+                        $color = $state?->getColorHex() ?? '#6c757d';
+
+                        $style = 'display:inline-flex;align-items:center;padding:0.125rem 0.5rem;'
+                            . 'border-radius:9999px;font-size:0.75rem;font-weight:600;line-height:1;'
+                            . 'background-color:' . $color . ';color:#ffffff;';
+
+                        return new HtmlString('<span style="' . $style . '">' . e($label) . '</span>');
+                    }),
+
 
                 // ColorColumn::make('status')
                 //     ->label('Status')
@@ -87,6 +105,24 @@ class IssuerAssembleiasTable
                     ->visible(fn($livewire) => $livewire->activeTab === 'ago')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
+
+                TextColumn::make('prazo_tecnico_status')
+                    ->label('Prazo Técnico')
+                    ->visible(fn($livewire) => $livewire->activeTab === 'ago')
+                    ->state(fn($record) => $record->prazoTecnicoStatus())
+                    ->html()
+                    ->tooltip(fn($record) => $record->prazoTecnicoStatus()->getToolTip())
+                    ->formatStateUsing(function (?IssuerAssembleiaPrazoTecnicoEnum $state): HtmlString {
+                        $label = $state?->getLabel() ?? '-';
+                        $color = $state?->getColorHex() ?? '#6c757d';
+
+                        $style = 'display:inline-flex; align-items:center;padding:0.125rem 0.5rem;'
+                            . 'font-size:0.75rem;font-weight:600;border-radius:9999px;'
+                            . 'background-color:' . $color . ';color:#ffffff;';
+
+                        return new HtmlString('<span style="' . $style . '">' . e($label) . '</span>');
+                    }),
+
 
                 TextColumn::make('mandato_fim')
                     ->label('Fim Mandato (Síndico)')
@@ -330,6 +366,20 @@ class IssuerAssembleiasTable
                         ->label('Download Edital')
                         ->icon(Heroicon::ArrowDown)
                         ->url(fn($record) => route('issuer-assembleia.document.show', $record), true),
+                    Action::make('log')
+                        ->label('Log')
+                        ->icon('heroicon-o-document-text')
+                        ->modalHeading('Log de Alterações')
+                        ->modalSubmitAction(false)
+                        ->modalCancelAction(false)
+                        ->modalWidth(Width::Large)
+                        ->schema([
+                            IssuerControlLogEntry::make('log')
+                                ->hiddenLabel(),
+                        ])
+                        ->disabled(fn($record) => $record->logs()->count() === 0),
+
+
                 ]),
 
             ])

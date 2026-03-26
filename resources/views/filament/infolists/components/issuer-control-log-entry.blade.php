@@ -24,7 +24,7 @@
                     </p>
                 </div>
                 <div class="mb-6 ms-4 mt-2">
-                    <p class="mb-1.5 text-md font-semibold">Alteração realizada por {{ e($item->usuario?->name ?? 'Sistema') }}</p>
+                    <p class="mb-1.5 text-md font-semibold">Alteração realizada por {{ e($item->user?->name ?? 'Sistema') }}</p>
                     <p class="mb-3 text-neutral-500 dark:text-neutral-300">
                         {{ $item->observacao }}
                     </p>
