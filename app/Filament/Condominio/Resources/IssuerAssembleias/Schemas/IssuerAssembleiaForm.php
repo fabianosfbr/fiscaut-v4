@@ -254,6 +254,7 @@ class IssuerAssembleiaForm
                                                         'vice-presidente' => 'Vice-Presidente',
                                                         'conselheiro' => 'Conselheiro',
                                                         'administrador' => 'Administrador',
+
                                                     ];
                                                 }
 

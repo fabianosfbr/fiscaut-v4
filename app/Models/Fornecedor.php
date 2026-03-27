@@ -15,4 +15,11 @@ class Fornecedor extends Model
         'descricao_conta_contabil' => 'array',
         'colunas_arquivo' => 'array',
     ];
+
+
+    //Plano de contas
+    public function plano_de_conta()
+    {
+        return $this->belongsTo(PlanoDeConta::class, 'conta_contabil', 'codigo');
+    }
 }
