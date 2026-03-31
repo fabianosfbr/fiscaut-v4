@@ -16,6 +16,7 @@
         "bezhansalleh/filament-panel-switch": "^3.0",
         "blade-ui-kit/blade-icons": "^1.9",
         "filament/filament": "^5.0",
+        "guava/filament-icon-picker": "^4.0",
         "laradumps/laradumps": "^5.0",
         "laravel/framework": "^12.0",
         "laravel/horizon": "^5.44",
@@ -29,10 +30,12 @@
         "nfephp-org/sped-nfe": "^5.2",
         "nfse-br/danfse": "^1.0",
         "octopyid/filament-palette": "^1.0",
+        "phpoffice/phpspreadsheet": "^5.5",
         "pusher/pusher-php-server": "^7.2",
         "rap2hpoutre/fast-excel": "^5.6",
         "setasign/fpdf": "^1.8",
-        "setasign/fpdi": "^2.6"
+        "setasign/fpdi": "^2.6",
+        "stechstudio/filament-impersonate": "^5.1"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

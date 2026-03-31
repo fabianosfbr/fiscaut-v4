@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\IssuerAgeDocumentController;
+use App\Http\Controllers\IssuerAssembleiaDocumentController;
 use App\Http\Controllers\IssuerRagDocumentController;
 use App\Http\Controllers\PlanoDeContaSelectController;
 use App\Http\Controllers\SecureDownloadController;
@@ -18,10 +18,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/upload-file/{id}', [UploadFileController::class, 'preview'])
         ->name('upload-file.preview');
 
-    Route::get('/issuer-age/document/{record}', [IssuerAgeDocumentController::class, 'show'])
-        ->name('issuer-age.document.show');
     Route::get('/issuer-rag/document/{record}', [IssuerRagDocumentController::class, 'show'])
         ->name('issuer-rag.document.show');
+
+    Route::get('/issuer-assembleia/document/{record}', [IssuerAssembleiaDocumentController::class, 'show'])
+        ->name('issuer-assembleia.document.show');
 
     Route::get('filament/remote-select/search', [PlanoDeContaSelectController::class, 'search'])
         ->name('filament.remote-select.search');

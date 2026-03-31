@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Condominio\Pages\DashboardPorEmpresa;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -34,20 +35,19 @@ class CondominioPanelProvider extends PanelProvider
             ->brandLogo(asset('images/application/logo-no-background.png'))
             ->brandLogoHeight('65px')
             ->brandName(config('app.name'))
-            ->topNavigation()
             ->maxContentWidth(Width::Full)
             ->databaseNotifications()
+            ->sidebarCollapsibleOnDesktop()
             ->colors([
                 'primary' => Color::Amber,
             ])
             ->discoverResources(in: app_path('Filament/Condominio/Resources'), for: 'App\Filament\Condominio\Resources')
             ->discoverPages(in: app_path('Filament/Condominio/Pages'), for: 'App\Filament\Condominio\Pages')
-            ->pages([])
-            ->discoverWidgets(in: app_path('Filament/Condominio/Widgets'), for: 'App\Filament\Condominio\Widgets')
-            ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
+            ->pages([
+                DashboardPorEmpresa::class
             ])
+            ->discoverWidgets(in: app_path('Filament/Condominio/Widgets'), for: 'App\Filament\Condominio\Widgets')
+            ->widgets([])
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label('Dashboard')
@@ -62,11 +62,11 @@ class CondominioPanelProvider extends PanelProvider
                     ->label('Documentos')
                     ->icon('heroicon-o-document-text'),
                 NavigationGroup::make()
-                    ->label('AGE/AGO')
-                    ->icon('heroicon-o-document-text'),
+                    ->label('Assembleias')
+                    ->icon('heroicon-o-building-office-2'),
                 NavigationGroup::make()
                     ->label('Controles')
-                    ->icon('heroicon-o-rectangle-stack'),
+                    ->icon('heroicon-o-adjustments-horizontal'),
 
             ])
             ->middleware([
@@ -82,6 +82,9 @@ class CondominioPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->plugin(
+                \Octopy\Filament\Palette\PaletteSwitcherPlugin::make()
+            );
     }
 }

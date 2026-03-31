@@ -240,6 +240,7 @@ class IssuerForm
                                                 IssuerTypeEnum::CONDOMINIO->value,
                                                 IssuerTypeEnum::ASSOCIACAO->value,
                                             ]))
+                                            ->live()
                                             ->placeholder('Selecione o tipo do condomínio')
                                             ->columnSpan(3),
 
@@ -266,8 +267,72 @@ class IssuerForm
                                             ]))
                                             ->placeholder('Ex: 120')
                                             ->columnSpan(3),
+
+                                        TextInput::make('residential_count')
+                                            ->label('Quantidade Residencial')
+                                            ->numeric()
+                                            ->inputMode('numeric')
+                                            ->rules(['nullable', 'integer', 'min:0'])
+                                            ->visible(fn (Get $get): bool => ($get('condominium_type')?->value ?? $get('condominium_type')) === CondominiumTypeEnum::MISTO->value)
+                                            ->dehydrated(fn (Get $get): bool => ($get('condominium_type')?->value ?? $get('condominium_type')) === CondominiumTypeEnum::MISTO->value)
+                                            ->placeholder('Ex: 80')
+                                            ->columnSpan(3),
+
+                                        TextInput::make('commercial_count')
+                                            ->label('Quantidade Comercial')
+                                            ->numeric()
+                                            ->inputMode('numeric')
+                                            ->rules(['nullable', 'integer', 'min:0'])
+                                            ->visible(fn (Get $get): bool => ($get('condominium_type')?->value ?? $get('condominium_type')) === CondominiumTypeEnum::MISTO->value)
+                                            ->dehydrated(fn (Get $get): bool => ($get('condominium_type')?->value ?? $get('condominium_type')) === CondominiumTypeEnum::MISTO->value)
+                                            ->placeholder('Ex: 40')
+                                            ->columnSpan(3),
                                     ])
                                     ->columns(6),
+
+                                Section::make('Unidades do Condomínio/Associação')
+                                    ->description('Cadastro das unidades com tipo, número e fração ideal')
+                                    ->schema([
+                                        Repeater::make('units_data')
+                                            ->hiddenLabel()
+                                            ->dehydrated(fn (Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                                IssuerTypeEnum::CONDOMINIO->value,
+                                            ]))
+                                            ->table([
+                                                TableColumn::make('Tipo')
+                                                    ->markAsRequired()
+                                                    ->width('150px'),
+                                                TableColumn::make('Quantidade de Unidades')
+                                                    ->markAsRequired()
+                                                    ->width('120px'),
+                                                TableColumn::make('Fração Ideal')
+                                                    ->markAsRequired()
+                                                    ->width('150px'),
+                                            ])
+                                            ->schema([
+                                                TextInput::make('unit_type')
+                                                    ->label('Tipo')
+                                                    ->required()
+                                                    ->columnSpan(2),
+
+                                                TextInput::make('unit_number')
+                                                    ->label('Número da Unidade')
+                                                    ->required()
+                                                    ->placeholder('Ex: 101')
+                                                    ->columnSpan(2),
+
+                                                TextInput::make('fraction')
+                                                    ->label('Fração Ideal')
+                                                    ->numeric()
+                                                    ->inputMode('decimal')
+                                                    ->placeholder('Ex: 0,050000')
+                                                    ->columnSpan(2),
+                                            ])
+                                            ->columns(6)
+                                            ->addActionLabel('Adicionar Unidade')
+                                            ->collapsible(),
+                                    ])
+                                    ->columnSpanFull(),
                             ]),
                         Tab::make('Detalhes da Empresa')
                             ->schema([
@@ -416,8 +481,8 @@ class IssuerForm
                                                             ->collapsible()
                                                             ->itemLabel(
                                                                 fn (array $state): ?string => isset($state['id'], $state['text'])
-                                                                ? "#{$state['id']} - {$state['text']}"
-                                                                : null
+                                                                    ? "#{$state['id']} - {$state['text']}"
+                                                                    : null
                                                             ),
                                                     ])
                                                     ->columnSpanFull()
@@ -812,6 +877,16 @@ class IssuerForm
                                 Livewire::make('user-issuer-form'),
                             ])
                             ->visibleOn(Operation::Edit),
+                        Tab::make('Contatos')
+                            ->schema([
+                                Livewire::make('contact-issuer-form'),
+                            ])
+                            ->visibleOn(Operation::Edit),
+                        Tab::make('Responsáveis')
+                            ->schema([
+                                Livewire::make('responsible-issuer-form'),
+                            ])
+                            ->visibleOn(Operation::Edit),
                     ])->columnSpanFull(),
 
             ]);
@@ -833,7 +908,6 @@ class IssuerForm
 
         try {
             $cnpjDetails = CnpjJaService::getCnpjDetails($cnpj);
-
         } catch (Exception $e) {
             Notification::make()
                 ->title('Erro ao consultar CNPJ')

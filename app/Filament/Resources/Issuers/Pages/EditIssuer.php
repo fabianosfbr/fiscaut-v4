@@ -13,6 +13,8 @@ class EditIssuer extends EditRecord
 {
     protected static string $resource = IssuerResource::class;
 
+    protected static ?string $title = 'Gerenciar Empresa';
+
     protected function mutateFormDataBeforeFill(array $data): array
     {
         // Remover campos sensíveis que não devem aparecer no formulário de edição
@@ -64,11 +66,11 @@ class EditIssuer extends EditRecord
         return $record;
     }
 
-    protected function getRedirectUrl(): string
-    {
-        // Redirecionar para a listagem de empresas
-        return $this->getResource()::getUrl('index');
-    }
+    // protected function getRedirectUrl(): string
+    // {
+    //     // Redirecionar para a listagem de empresas
+    //     return $this->getResource()::getUrl('index');
+    // }
 
     protected function getFormActions(): array
     {

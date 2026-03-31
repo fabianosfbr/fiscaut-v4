@@ -33,7 +33,7 @@ class GenerateManutencaoRecorrenciasJob implements ShouldQueue
                 $totalProcessadas++;
 
                 // Verificar se a recorrência precisa gerar manutenções
-                if (!$recorrencia->podeGerar()) {
+                if (! $recorrencia->podeGerar()) {
                     continue;
                 }
 
@@ -47,12 +47,14 @@ class GenerateManutencaoRecorrenciasJob implements ShouldQueue
 
                 if ($existeManutencao) {
                     Log::info("Manutenção já existe para recorrência {$recorrencia->id} na data {$dataManutencao->toDateString()}");
+
                     continue;
                 }
 
                 // Verificar se a data está dentro do período de vigência
                 if ($recorrencia->data_fim && $dataManutencao->isAfter($recorrencia->data_fim)) {
                     Log::info("Data {$dataManutencao->toDateString()} está fora do período de vigência para recorrência {$recorrencia->id}");
+
                     continue;
                 }
 
@@ -63,7 +65,7 @@ class GenerateManutencaoRecorrenciasJob implements ShouldQueue
 
                 Log::info("Manutenção gerada com sucesso: {$manutencao->id} - {$manutencao->titulo}");
             } catch (\Exception $e) {
-                Log::error("Erro ao processar recorrência {$recorrencia->id}: " . $e->getMessage());
+                Log::error("Erro ao processar recorrência {$recorrencia->id}: ".$e->getMessage());
                 Log::error($e->getTraceAsString());
             }
         }

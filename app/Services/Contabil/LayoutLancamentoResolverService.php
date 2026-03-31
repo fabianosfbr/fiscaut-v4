@@ -55,7 +55,7 @@ class LayoutLancamentoResolverService
 
         $this->historicosByCodigo = HistoricoContabil::where('issuer_id', $issuerId)
             ->get()
-            ->mapWithKeys(fn ($h) => [$h->codigo => $h->descricao])
+            ->mapWithKeys(fn($h) => [$h->codigo => $h->descricao])
             ->toArray();
     }
 
@@ -263,6 +263,10 @@ class LayoutLancamentoResolverService
             $searchValue = $rule->data_source_search_constant;
         }
 
+        if ($rule->is_sanitize) {
+            $searchValue = sanitize($searchValue);
+        }
+
         $searchValue = $searchValue ?? '';
 
         $table = (string) $rule->data_source_table;
@@ -272,7 +276,7 @@ class LayoutLancamentoResolverService
         if ($table === 'contabil_bancos') {
             $query = Banco::with('plano_de_conta')->where('issuer_id', $this->issuerId);
             if ($condition === 'like') {
-                $query->where($attribute, 'LIKE', '%'.$searchValue.'%');
+                $query->where($attribute, 'LIKE', '%' . $searchValue . '%');
             } else {
                 $query->where($attribute, $searchValue);
             }
@@ -286,27 +290,27 @@ class LayoutLancamentoResolverService
         if ($table === 'contabil_clientes') {
             $query = Cliente::with('plano_de_conta')->where('issuer_id', $this->issuerId);
             if ($condition === 'like') {
-                $query->where($attribute, 'LIKE', '%'.$searchValue.'%');
+                $query->where($attribute, 'LIKE', '%' . $searchValue . '%');
             } else {
                 $query->where($attribute, $searchValue);
             }
             $cliente = $query->first();
-            $codigo = $this->extractContaCodigo($cliente);
-            $descricao = $this->extractContaDescricao($cliente);
+            $codigo = $cliente?->plano_de_conta?->codigo ?? null;
+            $descricao = $cliente?->plano_de_conta?->nome ?? null;
 
             return ['value' => $codigo ?? $rule->default_value ?? ' ', 'descricao' => $descricao];
         }
 
         if ($table === 'contabil_fornecedores') {
-            $query = Fornecedor::where('issuer_id', $this->issuerId);
+            $query = Fornecedor::with('plano_de_conta')->where('issuer_id', $this->issuerId);
             if ($condition === 'like') {
-                $query->where($attribute, 'LIKE', '%'.$searchValue.'%');
+                $query->where($attribute, 'LIKE', '%' . $searchValue . '%');
             } else {
                 $query->where($attribute, $searchValue);
             }
             $fornecedor = $query->first();
-            $codigo = $this->extractContaCodigo($fornecedor);
-            $descricao = $this->extractContaDescricao($fornecedor);
+            $codigo = $fornecedor?->plano_de_conta?->codigo ?? null;
+            $descricao = $fornecedor?->plano_de_conta?->nome ?? null;
 
             return ['value' => $codigo ?? $rule->default_value ?? ' ', 'descricao' => $descricao];
         }
@@ -314,7 +318,7 @@ class LayoutLancamentoResolverService
         if ($table === 'contabil_plano_de_contas') {
             $query = PlanoDeConta::where('issuer_id', $this->issuerId);
             if ($condition === 'like') {
-                $query->where($attribute, 'LIKE', '%'.$searchValue.'%');
+                $query->where($attribute, 'LIKE', '%' . $searchValue . '%');
             } else {
                 $query->where($attribute, $searchValue);
             }
@@ -691,7 +695,7 @@ class LayoutLancamentoResolverService
 
         foreach ($this->layoutColumns as $col) {
             $key = $col->excel_column_name;
-            $replacements['#'.$key] = $this->stringifyValue($this->getRowValue($row, $key) ?? ' ');
+            $replacements['#' . $key] = $this->stringifyValue($this->getRowValue($row, $key) ?? ' ');
         }
 
         $date = $resolved['data'] instanceof Carbon ? $resolved['data'] : null;
@@ -705,51 +709,5 @@ class LayoutLancamentoResolverService
         $replacements['#V'] = $valorFormatado ?? ' ';
 
         return strtr($template, $replacements);
-    }
-
-    private function extractContaCodigo($model): ?string
-    {
-        if (! $model) {
-            return null;
-        }
-
-        if (is_array($model->descricao_conta_contabil) && isset($model->descricao_conta_contabil['codigo'])) {
-            return $model->descricao_conta_contabil['codigo'];
-        }
-
-        if (is_array($model->conta_contabil) && isset($model->conta_contabil['codigo'])) {
-            return $model->conta_contabil['codigo'];
-        }
-
-        if (is_numeric($model->conta_contabil)) {
-            $plano = PlanoDeConta::where('issuer_id', $this->issuerId)
-                ->where('id', $model->conta_contabil)
-                ->first();
-
-            return $plano?->codigo;
-        }
-
-        return null;
-    }
-
-    private function extractContaDescricao($model): ?string
-    {
-        if (! $model) {
-            return null;
-        }
-
-        if (is_array($model->descricao_conta_contabil) && isset($model->descricao_conta_contabil['descricao'])) {
-            return $model->descricao_conta_contabil['descricao'];
-        }
-
-        if (is_numeric($model->conta_contabil)) {
-            $plano = PlanoDeConta::where('issuer_id', $this->issuerId)
-                ->where('id', $model->conta_contabil)
-                ->first();
-
-            return $plano?->nome;
-        }
-
-        return null;
     }
 }

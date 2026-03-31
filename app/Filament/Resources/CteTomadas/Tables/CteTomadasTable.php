@@ -7,6 +7,7 @@ use App\Filament\Actions\ClassificarDocumentoMaisAplicadaEmLoteAction;
 use App\Filament\Actions\DownloadPdfCteAction;
 use App\Filament\Actions\DownloadXmlAction;
 use App\Filament\Actions\DownloadXmlPdfCteEmLoteAction;
+use App\Filament\Actions\ManifestarCteAction;
 use App\Filament\Actions\RemoverClassificaoNfeAction;
 use App\Filament\Actions\ToggleEscrituracaoAction;
 use App\Filament\Tables\Columns\TagBadgesColumn;
@@ -242,6 +243,7 @@ class CteTomadasTable
                 ActionGroup::make([
                     ViewAction::make()
                         ->label('Detalhes'),
+                    ManifestarCteAction::make(),
                     ToggleEscrituracaoAction::make(),
                     ClassificarDocumentoAction::make(),
                     RemoverClassificaoNfeAction::make(),

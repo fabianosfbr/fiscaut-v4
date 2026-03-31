@@ -44,7 +44,7 @@ class IssuerDocumentResource extends Resource
     {
         return [
             'index' => ListIssuerDocuments::route('/'),
-            // 'create' => CreateIssuerDocument::route('/create'),
+            'create' => CreateIssuerDocument::route('/create'),
             'edit' => EditIssuerDocument::route('/{record}/edit'),
         ];
     }

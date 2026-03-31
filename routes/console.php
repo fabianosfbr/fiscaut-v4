@@ -33,7 +33,7 @@ $argv = $_SERVER['argv'] ?? [];
 // Tenta encontrar o comando ignorando opções globais (ex: -v, --ansi)
 $artisanCommand = collect($argv)
     ->slice(1)
-    ->filter(fn($arg) => ! str_starts_with($arg, '-'))
+    ->filter(fn ($arg) => ! str_starts_with($arg, '-'))
     ->first();
 
 app(DynamicTaskCommandExecutor::class)->registerFromDatabase($artisanCommand);

@@ -10,7 +10,9 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use STS\FilamentImpersonate\Actions\Impersonate;
 
 new class extends Component implements HasActions, HasSchemas, HasTable
 {
@@ -39,14 +41,18 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                 TextColumn::make('email')
                     ->label('E-mail')
                     ->searchable(),
-                TextColumn::make('pivot.created_at')
-                    ->label('Vinculado em')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable(),
+                TextColumn::make('roles.name')
+                    ->label('Grupos')
+                    ->badge(),
             ])
             ->recordActions([
                 DetachAction::make(),
+                Impersonate::make()
+                    ->hiddenLabel()
+                    ->visible(function () {
+                        return Auth::user()->hasRole('super-admin', 'admin', 'contabilidade');
+                    })
+                    ->tooltip('Entrar como usuário'),
             ]);
-
     }
 };

@@ -4,11 +4,13 @@ namespace App\Filament\Actions;
 
 use App\Enums\StatusManifestoNfeEnum;
 use App\Services\Sefaz\SefazNfeDownloadService;
+use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
+use Filament\Support\Exceptions\Halt;
 use Illuminate\Database\Eloquent\Model;
 
 class ManifestarNfeAction
@@ -60,8 +62,18 @@ class ManifestarNfeAction
                 $issuer = currentIssuer();
                 $service = new SefazNfeDownloadService($issuer);
 
-                $manifestado = $service->sefazManifesta($record->chave, $data['status_manifestacao'], $justificativa);
+                try {
+                    $manifestado = $service->sefazManifesta($record->chave, $data['status_manifestacao'], $justificativa);
+                } catch (Exception $e) {
 
+                    Notification::make()
+                        ->title('Erro ao manifestar NFe')
+                        ->body('Falha ao manifestar NFe. Por favor, entre em contato com o administrador. '.$e->getMessage())
+                        ->danger()
+                        ->send();
+
+                    throw new Halt;
+                }
                 if ($manifestado) {
                     $record->update([
                         'data_manifesto' => date('Y-m-d H:i:s'),

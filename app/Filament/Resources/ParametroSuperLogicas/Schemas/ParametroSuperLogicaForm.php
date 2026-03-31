@@ -30,13 +30,13 @@ class ParametroSuperLogicaForm
 
                         Grid::make(2)
                             ->schema([
-                                SelectPlanoDeConta::make('conta_credito')
-                                    ->label('Conta crédito')
-                                    ->required()
-                                    ->columnSpan(1),
                                 SelectPlanoDeConta::make('conta_debito')
                                     ->label('Conta débito')
                                     ->id('conta_debito')
+                                    ->required()
+                                    ->columnSpan(1),
+                                SelectPlanoDeConta::make('conta_credito')
+                                    ->label('Conta crédito')
                                     ->required()
                                     ->columnSpan(1),
                             ])->columnSpan(2),

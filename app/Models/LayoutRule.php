@@ -17,6 +17,7 @@ class LayoutRule extends Model
         'data_source_historical_columns' => 'array',
         'rule_type' => TipoRegraExportacaoEnum::class,
         'data_source_type' => TipoFonteDeDadosEnum::class,
+        'is_sanitize' => 'boolean',
     ];
 
     public function layout()

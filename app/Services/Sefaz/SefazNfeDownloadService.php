@@ -90,6 +90,15 @@ class SefazNfeDownloadService
             $certificatePassword = Crypt::decrypt($this->issuer->senha_certificado);
 
             $this->certificate = Certificate::readPfx($certificateContent, $certificatePassword);
+
+            $agora = time();
+            $validoAte = $this->certificate->getValidTo()->getTimestamp();
+
+            if ($validoAte < $agora) {
+                $diasVencido = ceil(($agora - $validoAte) / 86400);
+                $nomeEmpresa = explode(':', $this->issuer->razao_social)[0];
+                throw new Exception("O certificado digital da empresa {$nomeEmpresa} está vencido há {$diasVencido} dia(s). Por favor, atualize o certificado.");
+            }
         } catch (Exception $e) {
             Log::error('Erro ao carregar certificado digital', [
                 'issuer_id' => $this->issuer->id,
@@ -427,7 +436,7 @@ class SefazNfeDownloadService
     private function getTools(): Tools
     {
         if (! $this->tools) {
-            throw new Exception('Ferramentas NFePHP não inicializadas para este issuer.');
+            throw new Exception('Não foi possível inicializar conexão com a SEFAZ. Verifique o certificado digital e as configurações.');
         }
 
         return $this->tools;

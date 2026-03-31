@@ -22,6 +22,8 @@ class IssuerAreaResponsibleResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Responsáveis por Área';
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|UnitEnum|null $navigationGroup = 'Responsáveis';
 
     public static function form(Schema $schema): Schema
