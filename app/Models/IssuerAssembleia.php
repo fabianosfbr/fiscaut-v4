@@ -264,4 +264,117 @@ class IssuerAssembleia extends Model
     {
         return $this->hasMany(IssuerAssembleiaEventLog::class);
     }
+
+    public function scopeAtrasadas($query)
+    {
+        return $query->whereNotNull('data_limite_edital')
+            ->where('data_limite_edital', '<', today());
+    }
+
+    public function scopePorTipo($query, IssuerAgeTypeEnum $type)
+    {
+        return $query->where('type', $type);
+    }
+
+    public function scopePorPrazoTecnicoStatus($query, IssuerAssembleiaPrazoTecnicoEnum $status)
+    {
+        return match ($status) {
+            IssuerAssembleiaPrazoTecnicoEnum::ANTES_DO_PRAZO => $query->where(function ($q) {
+                $q->whereNotNull('data_limite_edital')
+                    ->whereRaw('DATE_SUB(data_limite_edital, INTERVAL COALESCE(prazo_tecnico_edital, prazo_tecnico) DAY) > CURDATE()');
+            }),
+            IssuerAssembleiaPrazoTecnicoEnum::PRIMEIRO => $query->where(function ($q) {
+                $q->whereNotNull('data_limite_edital')
+                    ->whereRaw('DATE_SUB(data_limite_edital, INTERVAL COALESCE(prazo_tecnico_edital, prazo_tecnico) DAY) <= CURDATE()')
+                    ->whereRaw('DATE_SUB(data_limite_edital, INTERVAL COALESCE(prazo_tecnico_edital, prazo_tecnico) DAY) + INTERVAL num_day_control DAY > CURDATE()');
+            }),
+            IssuerAssembleiaPrazoTecnicoEnum::SEGUNDO => $query->where(function ($q) {
+                $q->whereNotNull('data_limite_edital')
+                    ->whereRaw('DATE_SUB(data_limite_edital, INTERVAL COALESCE(prazo_tecnico_edital, prazo_tecnico) DAY) + INTERVAL num_day_control DAY <= CURDATE()')
+                    ->whereRaw('DATE_SUB(data_limite_edital, INTERVAL COALESCE(prazo_tecnico_edital, prazo_tecnico) DAY) + INTERVAL (num_day_control * 2) DAY > CURDATE()');
+            }),
+            IssuerAssembleiaPrazoTecnicoEnum::TERCEIRO => $query->where(function ($q) {
+                $q->whereNotNull('data_limite_edital')
+                    ->whereRaw('DATE_SUB(data_limite_edital, INTERVAL COALESCE(prazo_tecnico_edital, prazo_tecnico) DAY) + INTERVAL (num_day_control * 2) DAY <= CURDATE()')
+                    ->whereRaw('DATE_SUB(data_limite_edital, INTERVAL COALESCE(prazo_tecnico_edital, prazo_tecnico) DAY) + INTERVAL (num_day_control * 3) DAY > CURDATE()');
+            }),
+            IssuerAssembleiaPrazoTecnicoEnum::QUARTO => $query->where(function ($q) {
+                $q->whereNotNull('data_limite_edital')
+                    ->whereRaw('DATE_SUB(data_limite_edital, INTERVAL COALESCE(prazo_tecnico_edital, prazo_tecnico) DAY) + INTERVAL (num_day_control * 3) DAY <= CURDATE()')
+                    ->where('data_limite_edital', '>=', today());
+            }),
+            IssuerAssembleiaPrazoTecnicoEnum::ATRASADO => $query->where(function ($q) {
+                $q->whereNotNull('data_limite_edital')
+                    ->where('data_limite_edital', '<', today());
+            }),
+        };
+    }
+
+    public function scopePorPrazoTecnicoSindicoStatus($query, IssuerAssembleiaPrazoTecnicoEnum $status)
+    {
+        return match ($status) {
+            IssuerAssembleiaPrazoTecnicoEnum::ANTES_DO_PRAZO => $query->where(function ($q) {
+                $q->whereNotNull('mandato_fim')
+                    ->whereRaw('DATE_SUB(mandato_fim, INTERVAL COALESCE(prazo_tecnico_sindico, 30) DAY) > CURDATE()');
+            }),
+            IssuerAssembleiaPrazoTecnicoEnum::PRIMEIRO => $query->where(function ($q) {
+                $q->whereNotNull('mandato_fim')
+                    ->whereRaw('DATE_SUB(mandato_fim, INTERVAL COALESCE(prazo_tecnico_sindico, 30) DAY) <= CURDATE()')
+                    ->whereRaw('DATE_SUB(mandato_fim, INTERVAL COALESCE(prazo_tecnico_sindico, 30) DAY) + INTERVAL COALESCE(num_day_control_sindico, num_day_control) DAY > CURDATE()');
+            }),
+            IssuerAssembleiaPrazoTecnicoEnum::SEGUNDO => $query->where(function ($q) {
+                $q->whereNotNull('mandato_fim')
+                    ->whereRaw('DATE_SUB(mandato_fim, INTERVAL COALESCE(prazo_tecnico_sindico, 30) DAY) + INTERVAL COALESCE(num_day_control_sindico, num_day_control) DAY <= CURDATE()')
+                    ->whereRaw('DATE_SUB(mandato_fim, INTERVAL COALESCE(prazo_tecnico_sindico, 30) DAY) + INTERVAL (COALESCE(num_day_control_sindico, num_day_control) * 2) DAY > CURDATE()');
+            }),
+            IssuerAssembleiaPrazoTecnicoEnum::TERCEIRO => $query->where(function ($q) {
+                $q->whereNotNull('mandato_fim')
+                    ->whereRaw('DATE_SUB(mandato_fim, INTERVAL COALESCE(prazo_tecnico_sindico, 30) DAY) + INTERVAL (COALESCE(num_day_control_sindico, num_day_control) * 2) DAY <= CURDATE()')
+                    ->whereRaw('DATE_SUB(mandato_fim, INTERVAL COALESCE(prazo_tecnico_sindico, 30) DAY) + INTERVAL (COALESCE(num_day_control_sindico, num_day_control) * 3) DAY > CURDATE()');
+            }),
+            IssuerAssembleiaPrazoTecnicoEnum::QUARTO => $query->where(function ($q) {
+                $q->whereNotNull('mandato_fim')
+                    ->whereRaw('DATE_SUB(mandato_fim, INTERVAL COALESCE(prazo_tecnico_sindico, 30) DAY) + INTERVAL (COALESCE(num_day_control_sindico, num_day_control) * 3) DAY <= CURDATE()')
+                    ->where('mandato_fim', '>=', today());
+            }),
+            IssuerAssembleiaPrazoTecnicoEnum::ATRASADO => $query->where(function ($q) {
+                $q->whereNotNull('mandato_fim')
+                    ->where('mandato_fim', '<', today());
+            }),
+        };
+    }
+
+    public function scopePorPrazoTecnicoConselhoStatus($query, IssuerAssembleiaPrazoTecnicoEnum $status)
+    {
+        return match ($status) {
+            IssuerAssembleiaPrazoTecnicoEnum::ANTES_DO_PRAZO => $query->where(function ($q) {
+                $q->whereNotNull('mandato_conselho_fim')
+                    ->whereRaw('DATE_SUB(mandato_conselho_fim, INTERVAL COALESCE(prazo_tecnico_conselho, 30) DAY) > CURDATE()');
+            }),
+            IssuerAssembleiaPrazoTecnicoEnum::PRIMEIRO => $query->where(function ($q) {
+                $q->whereNotNull('mandato_conselho_fim')
+                    ->whereRaw('DATE_SUB(mandato_conselho_fim, INTERVAL COALESCE(prazo_tecnico_conselho, 30) DAY) <= CURDATE()')
+                    ->whereRaw('DATE_SUB(mandato_conselho_fim, INTERVAL COALESCE(prazo_tecnico_conselho, 30) DAY) + INTERVAL COALESCE(num_day_control_conselho, num_day_control) DAY > CURDATE()');
+            }),
+            IssuerAssembleiaPrazoTecnicoEnum::SEGUNDO => $query->where(function ($q) {
+                $q->whereNotNull('mandato_conselho_fim')
+                    ->whereRaw('DATE_SUB(mandato_conselho_fim, INTERVAL COALESCE(prazo_tecnico_conselho, 30) DAY) + INTERVAL COALESCE(num_day_control_conselho, num_day_control) DAY <= CURDATE()')
+                    ->whereRaw('DATE_SUB(mandato_conselho_fim, INTERVAL COALESCE(prazo_tecnico_conselho, 30) DAY) + INTERVAL (COALESCE(num_day_control_conselho, num_day_control) * 2) DAY > CURDATE()');
+            }),
+            IssuerAssembleiaPrazoTecnicoEnum::TERCEIRO => $query->where(function ($q) {
+                $q->whereNotNull('mandato_conselho_fim')
+                    ->whereRaw('DATE_SUB(mandato_conselho_fim, INTERVAL COALESCE(prazo_tecnico_conselho, 30) DAY) + INTERVAL (COALESCE(num_day_control_conselho, num_day_control) * 2) DAY <= CURDATE()')
+                    ->whereRaw('DATE_SUB(mandato_conselho_fim, INTERVAL COALESCE(prazo_tecnico_conselho, 30) DAY) + INTERVAL (COALESCE(num_day_control_conselho, num_day_control) * 3) DAY > CURDATE()');
+            }),
+            IssuerAssembleiaPrazoTecnicoEnum::QUARTO => $query->where(function ($q) {
+                $q->whereNotNull('mandato_conselho_fim')
+                    ->whereRaw('DATE_SUB(mandato_conselho_fim, INTERVAL COALESCE(prazo_tecnico_conselho, 30) DAY) + INTERVAL (COALESCE(num_day_control_conselho, num_day_control) * 3) DAY <= CURDATE()')
+                    ->where('mandato_conselho_fim', '>=', today());
+            }),
+            IssuerAssembleiaPrazoTecnicoEnum::ATRASADO => $query->where(function ($q) {
+                $q->whereNotNull('mandato_conselho_fim')
+                    ->where('mandato_conselho_fim', '<', today());
+            }),
+        };
+    }
 }

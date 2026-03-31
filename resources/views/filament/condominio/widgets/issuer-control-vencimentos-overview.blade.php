@@ -1,42 +1,63 @@
 <x-filament-widgets::widget>
     <x-filament::section>
-        <div class="text-lg font-semibold py-3">Vencimentos dos Controles</div>
-        <div class="grid grid-cols-1 gap-3">
-            <div class="flex items-center justify-between rounded px-3 py-2 text-sm font-semibold">
-                <span
-                    style="display:inline-flex; align-items:center;
-                    padding:0.125rem 0.5rem;font-size:0.75rem;font-weight:600;border-radius:9999px;
-                    background-color: #f5130bff; color: #ffffff;">
-                    Vencidos
-                </span>
-                <span>{{ $vencidos }}</span>
-            </div>
-            <div class="flex items-center justify-between rounded px-3 py-2 text-sm font-semibold">
-                <span
-                    style="display:inline-flex; align-items:center;
-                    padding:0.125rem 0.5rem;font-size:0.75rem;font-weight:600;border-radius:9999px;
-                    background-color: #f59e0b; color: #ffffff;">
-                    Próximos 7 dias
-                </span>
-                <span>{{ $proximos7 }}</span>
-            </div>
-            <div class="flex items-center justify-between rounded px-3 py-2 text-sm font-semibold">
-                <span
-                    style="display:inline-flex; align-items:center;
-                    padding:0.125rem 0.5rem;font-size:0.75rem;font-weight:600;border-radius:9999px;
-                    background-color: #3b82f6; color: #ffffff;">
-                    Próximos 15 dias
-                </span>
-                <span>{{ $proximos15 }}</span>
-            </div>
-            <div class="flex items-center justify-between rounded px-3 py-2 text-sm font-semibold">
-                <span
-                    style="display:inline-flex; align-items:center;
-                    padding:0.125rem 0.5rem;font-size:0.75rem;font-weight:600;border-radius:9999px;
-                    background-color: #10b981; color: #ffffff;">
-                    Próximos 30 dias
-                </span>
-                <span>{{ $proximos30 }}</span>
+        <div class="flex items-start justify-between gap-4">
+            <div class="space-y-1">
+                <p class="text-sm font-bold text-gray-500 dark:text-gray-400 mb-3">
+                    Vencimentos dos Controles
+                </p>
+                <div class="space-y-3 ">
+                    <!-- Item -->
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="bg-[#f5130b] text-white text-sm font-bold px-3 py-1 rounded-md min-w-[40px] text-center">
+                            {{ $vencidos }}
+                        </span>
+                        <x-filament::link :href="route('filament.condominio.resources.issuer-controls.index', [
+                            'activeTableView' => 'overdue_controls',
+                        ])">
+                            Vencidos
+                        </x-filament::link>
+                    </div>
+
+                    <!-- Item -->
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="bg-[#f59e0b] text-white text-sm font-bold px-3 py-1 rounded-md min-w-[40px] text-center">
+                            {{ $proximos7 }}
+                        </span>
+                        <x-filament::link :href="route('filament.condominio.resources.issuer-controls.index', [
+                            'activeTableView' => 'overdue_7days_controls',
+                        ])">
+                            Próximos 7 dias
+                        </x-filament::link>
+                    </div>
+
+                    <!-- Item -->
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="bg-[#3b82f6] text-white text-sm font-bold px-3 py-1 rounded-md min-w-[40px] text-center">
+                            {{ $proximos15 }}
+                        </span>
+                        <x-filament::link :href="route('filament.condominio.resources.issuer-controls.index', [
+                            'activeTableView' => 'overdue_15days_controls',
+                        ])">
+                            Próximos 15 dias
+                        </x-filament::link>
+                    </div>
+
+                    <!-- Item -->
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="bg-[#10b981] text-white text-sm font-bold px-3 py-1 rounded-md min-w-[40px] text-center">
+                            {{ $proximos30 }}
+                        </span>
+                        <x-filament::link :href="route('filament.condominio.resources.issuer-controls.index', [
+                            'activeTableView' => 'overdue_30days_controls',
+                        ])">
+                            Próximos 30 dias
+                        </x-filament::link>
+                    </div>
+                </div>
             </div>
         </div>
     </x-filament::section>

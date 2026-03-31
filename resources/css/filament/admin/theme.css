@@ -4,6 +4,7 @@
 @source '../../../../app/Filament/Pages/**/*';
 @source '../../../../resources/views/filament/app/**/*';
 @source '../../../../resources/views/filament/pages/**/*';
+@source '../../../../resources/views/filament/condominio/**/*';
 @source '../../../../resources/views/filament/infolists/components/**/*';
 @source '../../../../vendor/octopyid/filament-palette/resources';
 @source '../../../../resources/views/components/**/*';
