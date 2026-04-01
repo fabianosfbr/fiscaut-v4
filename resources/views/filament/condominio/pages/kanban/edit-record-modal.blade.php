@@ -1,5 +1,5 @@
 <form wire:submit="editModalFormSubmitted">
-    <x-filament::modal id="kanban--edit-record-modal" :slideOver="$this->getEditModalSlideOver()" :width="$this->getEditModalWidth()">
+    <x-filament::modal id="kanban--edit-record-modal" :slideOver="$this->getEditModalSlideOver()" :width="$this->getEditModalWidth()" :close-by-escaping="false" :close-by-clicking-away="false">
         <x-slot name="header">
             <x-filament::modal.heading>
                 {{ $this->getEditModalTitle() }}

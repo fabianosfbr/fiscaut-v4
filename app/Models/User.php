@@ -6,10 +6,12 @@ namespace App\Models;
 use App\Models\Traits\HasPermissions;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements FilamentUser, MustVerifyEmail
@@ -75,5 +77,38 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     public function areaResponsibles()
     {
         return $this->hasMany(IssuerAreaResponsible::class);
+    }
+
+    public function assignedTasks(): BelongsToMany
+    {
+        return $this->belongsToMany(Task::class)
+            ->withTimestamps();
+    }
+
+    public function getAvatarInitials(): string
+    {
+        return Str::of($this->name)
+            ->trim()
+            ->explode(' ')
+            ->filter()
+            ->take(2)
+            ->map(fn (string $part): string => Str::upper(Str::substr($part, 0, 1)))
+            ->implode('');
+    }
+
+    public function getAvatarBackgroundColor(): string
+    {
+        $colors = [
+            '#0f766e',
+            '#1d4ed8',
+            '#7c3aed',
+            '#c2410c',
+            '#be123c',
+            '#0369a1',
+            '#4f46e5',
+            '#15803d',
+        ];
+
+        return $colors[crc32((string) $this->getKey().$this->name) % count($colors)];
     }
 }

@@ -54,23 +54,28 @@ class KanbanBoard extends Page
     protected static string $scriptsView = 'filament.condominio.pages.kanban.kanban-scripts';
 
 
-    public function recordClicked(int|string $recordId, array $data): void
+    public ?array $data = [];
+
+
+    public function recordClicked(int|string $recordId): void
     {
         $this->editModalRecordId = $recordId;
-
+        
+        
         /**
          * todo - the following line is a hacky fix
          * figure why sometimes form schema is created before this
          * method when a RichText is present in the form schema
          **/
         $this->form($this->form);
-        $this->form->fill($this->getEditModalRecordData($recordId, $data));
+        $this->form->fill($this->getEditModalRecordData($recordId));
 
         $this->dispatch('open-modal', id: 'kanban--edit-record-modal');
     }
 
     public function editModalFormSubmitted(): void
     {
+        dd($this->form->getState());
         $this->editRecord($this->editModalRecordId, $this->form->getState(), $this->editModalFormState);
 
         $this->editModalRecordId = null;
@@ -83,7 +88,7 @@ class KanbanBoard extends Page
     {
         return $schema
             ->components($this->getEditModalFormSchema($this->editModalRecordId))
-            ->statePath('editModalFormState')
+            ->statePath('data')
             ->model($this->editModalRecordId ? static::$model::find($this->editModalRecordId) : static::$model);
     }
 
@@ -94,7 +99,7 @@ class KanbanBoard extends Page
         ];
     }
 
-    protected function getEditModalRecordData(int|string $recordId, array $data): array
+    protected function getEditModalRecordData(int|string $recordId): array
     {
         return $this->getEloquentQuery()->find($recordId)->toArray();
     }
