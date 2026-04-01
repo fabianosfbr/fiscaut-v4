@@ -2,6 +2,9 @@
 
 namespace App\Filament\Condominio\Pages\Kanban\Concerns;
 
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasIcon;
+use Filament\Support\Contracts\HasLabel;
 use Illuminate\Support\Collection;
 
 trait IsKanbanStatus
@@ -13,6 +16,8 @@ trait IsKanbanStatus
                 return [
                     'id' => $item->getId(),
                     'title' => $item->getTitle(),
+                    'icon' => $item->getStatusIcon(),
+                    'color' => $item->getStatusColor(),
                 ];
             });
     }
@@ -29,6 +34,28 @@ trait IsKanbanStatus
 
     public function getTitle(): string
     {
-        return $this->value;
+        return $this instanceof HasLabel
+            ? (string) $this->getLabel()
+            : $this->value;
+    }
+
+    public function getStatusIcon(): ?string
+    {
+        if (! ($this instanceof HasIcon)) {
+            return null;
+        }
+
+        $icon = $this->getIcon();
+
+        return is_string($icon) ? $icon : null;
+    }
+
+    public function getStatusColor(): string|array|null
+    {
+        if (! ($this instanceof HasColor)) {
+            return null;
+        }
+
+        return $this->getColor();
     }
 }

@@ -4,9 +4,10 @@ namespace App\Enums;
 
 use App\Filament\Condominio\Pages\Kanban\Concerns\IsKanbanStatus;
 use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum TaskStatusEnum: string implements HasLabel, HasColor
+enum TaskStatusEnum: string implements HasLabel, HasColor, HasIcon
 {
     use IsKanbanStatus;
 
@@ -17,9 +18,9 @@ enum TaskStatusEnum: string implements HasLabel, HasColor
     public function getLabel(): string
     {
         return match ($this) {
-            self::TODO => 'To Do',
-            self::IN_PROGRESS => 'In Progress',
-            self::DONE => 'Done',
+            self::TODO => 'A Fazer',
+            self::IN_PROGRESS => 'Em Andamento',
+            self::DONE => 'Concluído',
         };
     }
 
@@ -27,8 +28,17 @@ enum TaskStatusEnum: string implements HasLabel, HasColor
     {
         return match ($this) {
             self::TODO => 'gray',
-            self::IN_PROGRESS => 'blue',
-            self::DONE => 'green',
+            self::IN_PROGRESS => 'gray',
+            self::DONE => 'gray',
+        };
+    }
+
+    public function getIcon(): ?string
+    {
+        return match ($this) {
+            self::TODO => 'heroicon-o-clipboard-document-list',
+            self::IN_PROGRESS => 'heroicon-o-arrow-path',
+            self::DONE => 'heroicon-o-check-circle',
         };
     }
 }
