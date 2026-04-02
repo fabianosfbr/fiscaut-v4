@@ -20,6 +20,8 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Octopy\Filament\Palette\PaletteSwitcherPlugin;
+use Relaticle\Comments\CommentsPlugin;
 
 class CondominioPanelProvider extends PanelProvider
 {
@@ -83,8 +85,9 @@ class CondominioPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->plugin(
-                \Octopy\Filament\Palette\PaletteSwitcherPlugin::make()
-            );
+            ->plugins([
+                PaletteSwitcherPlugin::make(),
+                CommentsPlugin::make(),
+            ]);
     }
 }
