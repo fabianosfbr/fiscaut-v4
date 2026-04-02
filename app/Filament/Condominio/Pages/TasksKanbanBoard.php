@@ -17,6 +17,7 @@ use Filament\Support\Enums\Alignment;
 use Illuminate\Support\Arr;
 use Relaticle\Comments\Filament\Actions\CommentsAction;
 use Relaticle\Comments\Filament\Infolists\Components\CommentsEntry;
+use Illuminate\Support\Collection;
 
 class TasksKanbanBoard extends KanbanBoard
 {
@@ -40,7 +41,47 @@ class TasksKanbanBoard extends KanbanBoard
     protected string $editModalCancelButtonLabel = 'Cancelar';
 
 
-    protected function getEditModalFormSchema(null | int | string $recordId): array
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('add-task')
+                ->label('Adicionar Tarefa')
+                ->icon('heroicon-o-plus')
+                ->schema([
+                    TextInput::make('title')
+                        ->label('Título')
+                        ->required()
+                        ->columnSpanFull(),
+                    Textarea::make('description')
+                        ->label('Descrição')
+                        ->required()
+                        ->rows(4)
+                        ->columnSpanFull(),
+                    DateTimePicker::make('init_at')
+                        ->label('Data Início')
+                        ->columnSpan(1),
+                    DateTimePicker::make('due_date')
+                        ->label('Data de Entrega')
+                        ->columnSpan(1),
+                    Select::make('assignee_ids')
+                        ->label('Responsáveis')
+                        ->multiple()
+                        ->options($this->getAssignableUsersOptions())
+                        ->columnSpanFull(),
+
+                ])
+                ->action(function (array $data) {
+                    $data['project'] = 'Condominio';
+                    $data['status'] = 'todo';
+                    $data['order_column'] = 1;
+                    $task = Task::create($data);
+                    $task->assignees()->sync($data['assignee_ids']);
+                }),
+
+        ];
+    }
+
+    protected function getEditModalFormSchema(null|int|string $recordId): array
     {
         $schema = [
             TextInput::make('title')
@@ -106,8 +147,6 @@ class TasksKanbanBoard extends KanbanBoard
 
     protected function editRecord(int|string $recordId, array $data): void
     {
-
-
         $assigneeIds = collect(Arr::pull($data, 'assignee_ids', Arr::get($data, 'assignee_ids', [])))
             ->filter()
             ->map(fn($id): int => (int) $id)
@@ -118,6 +157,11 @@ class TasksKanbanBoard extends KanbanBoard
 
         $task->update($data);
         $task->assignees()->sync($assigneeIds);
+    }
+
+    protected function records(): Collection
+    {
+        return Task::ordered()->get();
     }
 
     protected function getEditModalRecordData(int|string $recordId): array

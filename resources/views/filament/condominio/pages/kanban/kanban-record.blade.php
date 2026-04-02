@@ -7,15 +7,14 @@
 
 <div id="{{ $record->getKey() }}" wire:click="recordClicked('{{ $record->getKey() }}')"
     class="record cursor-grab rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-700 shadow-sm transition hover:border-primary-300 hover:shadow-md dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
-    @if ($record->timestamps && now()->diffInSeconds($record->{$record::UPDATED_AT}, true) < 3) x-data
-        x-init="
-            $el.classList.add('animate-pulse-twice', 'bg-primary-100', 'dark:bg-primary-800')
-            $el.classList.remove('bg-white', 'dark:bg-gray-700')
-            setTimeout(() => {
-                $el.classList.remove('bg-primary-100', 'dark:bg-primary-800')
-                $el.classList.add('bg-white', 'dark:bg-gray-700')
-            }, 3000)
-        " @endif>
+    @if ($record->timestamps && now()->diffInSeconds($record->{$record::UPDATED_AT}, true) < 3) x-data x-init="
+        $el.classList.add('animate-pulse-twice', 'bg-primary-100', 'dark:bg-primary-800')
+        $el.classList.remove('bg-white', 'dark:bg-gray-700')
+        setTimeout(() => {
+            $el.classList.remove('bg-primary-100', 'dark:bg-primary-800')
+            $el.classList.add('bg-white', 'dark:bg-gray-700')
+        }, 3000)
+    " @endif>
     <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
             <div class="flex items-center gap-2">
@@ -55,7 +54,14 @@
     <div class="mt-4 flex items-center justify-between gap-3">
         <div class="flex items-center">
             @forelse ($visibleAssignees as $assignee)
-                <x-filament-panels::avatar.user size="sm" :user="$assignee" />
+
+                <div x-data="{ tooltip: '{{ $assignee->name }}' }">
+                    <div x-tooltip.placement.right="tooltip"
+                        class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-sm font-medium text-primary-700 dark:bg-primary-800 dark:text-primary-300">
+                        {{ str($assignee->name ?? '?')->substr(0, 1)->upper() }}
+                    </div>
+                </div>
+
             @empty
                 <span
                     class="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-400">

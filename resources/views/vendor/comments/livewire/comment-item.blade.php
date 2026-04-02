@@ -63,11 +63,10 @@
                                         class="max-h-[200px] rounded border border-gray-200 object-cover dark:border-gray-600" />
                                 </a>
                             @else
-                                <a href="{{ $attachment->url() }}" target="_blank"
-                                    download="{{ $attachment->original_name }}"
+                                <a href="{{ $attachment->url() }}" target="_blank" download="{{ $attachment->original_name }}"
                                     class="flex items-center gap-2 rounded border border-gray-200 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
-                                    <svg class="h-4 w-4 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <svg class="h-4 w-4 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
                                     </svg>
@@ -117,64 +116,64 @@
         {{-- Reply form --}}
         @if ($isReplying)
             <form wire:submit="addReply" class="relative mt-3" x-data="{
-                showMentions: false,
-                mentionQuery: '',
-                mentionResults: [],
-                selectedIndex: 0,
-                mentionStart: null,
-                async handleInput(event) {
-                    const textarea = event.target;
-                    const value = textarea.value;
-                    const cursorPos = textarea.selectionStart;
-                    const textBeforeCursor = value.substring(0, cursorPos);
-                    const atIndex = textBeforeCursor.lastIndexOf('@');
-                    if (atIndex !== -1 && (atIndex === 0 || textBeforeCursor[atIndex - 1] === ' ' || textBeforeCursor[atIndex - 1] === '\n')) {
-                        const query = textBeforeCursor.substring(atIndex + 1);
-                        if (query.length > 0 && !query.includes(' ')) {
-                            this.mentionStart = atIndex;
-                            this.mentionQuery = query;
-                            this.mentionResults = await $wire.searchUsers(query);
-                            this.showMentions = this.mentionResults.length > 0;
-                            this.selectedIndex = 0;
-                            return;
+                    showMentions: false,
+                    mentionQuery: '',
+                    mentionResults: [],
+                    selectedIndex: 0,
+                    mentionStart: null,
+                    async handleInput(event) {
+                        const textarea = event.target;
+                        const value = textarea.value;
+                        const cursorPos = textarea.selectionStart;
+                        const textBeforeCursor = value.substring(0, cursorPos);
+                        const atIndex = textBeforeCursor.lastIndexOf('@');
+                        if (atIndex !== -1 && (atIndex === 0 || textBeforeCursor[atIndex - 1] === ' ' || textBeforeCursor[atIndex - 1] === '\n')) {
+                            const query = textBeforeCursor.substring(atIndex + 1);
+                            if (query.length > 0 && !query.includes(' ')) {
+                                this.mentionStart = atIndex;
+                                this.mentionQuery = query;
+                                this.mentionResults = await $wire.searchUsers(query);
+                                this.showMentions = this.mentionResults.length > 0;
+                                this.selectedIndex = 0;
+                                return;
+                            }
                         }
-                    }
-                    this.showMentions = false;
-                },
-                handleKeydown(event) {
-                    if (!this.showMentions) return;
-                    if (event.key === 'ArrowDown') {
-                        event.preventDefault();
-                        this.selectedIndex = Math.min(this.selectedIndex + 1, this.mentionResults.length - 1);
-                    } else if (event.key === 'ArrowUp') {
-                        event.preventDefault();
-                        this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
-                    } else if (event.key === 'Enter' || event.key === 'Tab') {
-                        if (this.mentionResults.length > 0) {
-                            event.preventDefault();
-                            this.selectMention(this.mentionResults[this.selectedIndex]);
-                        }
-                    } else if (event.key === 'Escape') {
                         this.showMentions = false;
+                    },
+                    handleKeydown(event) {
+                        if (!this.showMentions) return;
+                        if (event.key === 'ArrowDown') {
+                            event.preventDefault();
+                            this.selectedIndex = Math.min(this.selectedIndex + 1, this.mentionResults.length - 1);
+                        } else if (event.key === 'ArrowUp') {
+                            event.preventDefault();
+                            this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
+                        } else if (event.key === 'Enter' || event.key === 'Tab') {
+                            if (this.mentionResults.length > 0) {
+                                event.preventDefault();
+                                this.selectMention(this.mentionResults[this.selectedIndex]);
+                            }
+                        } else if (event.key === 'Escape') {
+                            this.showMentions = false;
+                        }
+                    },
+                    selectMention(user) {
+                        const textarea = this.$refs.replyInput;
+                        const value = textarea.value;
+                        const before = value.substring(0, this.mentionStart);
+                        const after = value.substring(textarea.selectionStart);
+                        const newValue = before + '@' + user.name + ' ' + after;
+                        $wire.set('replyBody', newValue);
+                        this.showMentions = false;
+                        this.$nextTick(() => {
+                            const pos = before.length + user.name.length + 2;
+                            textarea.focus();
+                            textarea.setSelectionRange(pos, pos);
+                        });
                     }
-                },
-                selectMention(user) {
-                    const textarea = this.$refs.replyInput;
-                    const value = textarea.value;
-                    const before = value.substring(0, this.mentionStart);
-                    const after = value.substring(textarea.selectionStart);
-                    const newValue = before + '@' + user.name + ' ' + after;
-                    $wire.set('replyBody', newValue);
-                    this.showMentions = false;
-                    this.$nextTick(() => {
-                        const pos = before.length + user.name.length + 2;
-                        textarea.focus();
-                        textarea.setSelectionRange(pos, pos);
-                    });
-                }
-            }">
-                <textarea x-ref="replyInput" wire:model="replyBody" @input="handleInput($event)" @keydown="handleKeydown($event)"
-                    rows="2" placeholder="Escreva uma resposta..."
+                }">
+                <textarea x-ref="replyInput" wire:model="replyBody" @input="handleInput($event)"
+                    @keydown="handleKeydown($event)" rows="2" placeholder="Escreva uma resposta..."
                     class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:placeholder-gray-400 sm:text-sm"></textarea>
 
                 {{-- Mention autocomplete dropdown --}}

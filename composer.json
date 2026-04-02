@@ -36,6 +36,7 @@
         "relaticle/comments": "dev-main",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6",
+        "spatie/eloquent-sortable": "^5.0",
         "stechstudio/filament-impersonate": "^5.1"
     },
     "require-dev": {

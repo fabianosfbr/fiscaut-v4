@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Model;
 use Relaticle\Comments\Concerns\HasComments;
 use Relaticle\Comments\Contracts\Commentable;
+use Spatie\EloquentSortable\Sortable;
+use Spatie\EloquentSortable\SortableTrait;
 
-class Task extends Model implements Commentable
+class Task extends Model implements Commentable, Sortable
 {
-    use HasComments;
+    use HasComments, SortableTrait;
 
     protected $guarded = ['id'];
 
