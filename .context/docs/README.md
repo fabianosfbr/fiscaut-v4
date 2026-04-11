@@ -31,14 +31,13 @@ Use a lista abaixo como ponto de partida. Quando for criar/alterar uma feature, 
 | :--- | :--- |
 | [Project Overview](./project-overview.md) | Objetivos, roadmap e contexto do produto. |
 | [Architecture Notes](./architecture.md) | Arquitetura, módulos, dependências e ADRs. |
-| [Filament Admin](./filament-admin.md) | Inventário de Resources, Pages, Widgets e Actions do painel. |
+| [Filament Admin](./filament-admin.md) | Inventário de Resources, Pages e Actions do painel. |
 | [Development Workflow](./development-workflow.md) | Setup, branching, CI/CD e convenções. |
 | [Testing Strategy](./testing-strategy.md) | Padrões de testes (Pest/PHPUnit) e organização. |
 | [Glossary & Domain](./glossary.md) | Glossário do domínio fiscal e termos de negócio. |
 | [Security & Compliance](./security.md) | Autenticação, segredos e LGPD. |
 | [Application Services](./services.md) | Serviços centrais e integrações externas. |
 | [Background Jobs](./jobs.md) | Filas, processamento assíncrono e pipelines (ex.: SEFAZ). |
-| [Horizon Ops](../../docs/horizon-producao.md) | Operação e configuração do Horizon em produção. |
 | [XmlReaderService](./xml-reader-service.md) | Convenções de parsing XML e padrões de acesso por array. |
 
 > Observação: se um guia ainda não existir no repositório, crie-o seguindo as convenções de `docs/` e adicione aqui.
@@ -92,14 +91,14 @@ Categorias comuns de recursos:
 - **Category Tags (`CategoryTagResource`)**: sistema global de tags
 
 ### 2) Configuração Fiscal e Tributária
-- **CFOP (`CfopResource`)**
-- **CNAE (`CnaeResource`)**
-- **Códigos de Serviço / ISS (`CodigoServicoResource`)**
-- **Acumuladores (`AcumuladoresResource`)** (agregações por período/regras)
+- **CFOP (`CfopResource`)** Fiscal Operation and Installment codes used in tax documents.
+- **CNAE (`CnaeResource`)** National Classification of Economic Activities mapping.
+- **Service Codes (`CodigoServicoResource`)** Specific municipal codes for service taxation (ISS).
+- **Accumulators (`AcumuladoresResource`)** Logic for aggregating fiscal data over specific periods.
 
 ### 3) Módulo Simples Nacional
-- **Anexos (`SimplesNacionalAnexoResource`)**
-- **Alíquotas (`SimplesNacionalAliquotaResource`)**
+- **Anexos (`SimplesNacionalAnexoResource`)** Management of the various tax "Annexes" of the Simples Nacional regime.
+- **Alíquotas (`SimplesNacionalAliquotaResource`)** Maintenance of progressive tax rates and brackets.
 
 ---
 
@@ -109,8 +108,8 @@ Categorias comuns de recursos:
 ├── app/
 │   ├── Filament/       # Resources, Pages, Widgets do admin
 │   ├── Models/         # Modelos Eloquent do domínio fiscal
-│   └── Actions/        # Casos de uso / lógica reutilizável
-├── config/             # Configurações da aplicação
+│   └── Actions/        # Reusable business logic classes
+├── config/             # Application and third-party configurations
 ├── database/
 │   ├── migrations/     # Evolução do schema
 │   └── seeders/        # Seeds (ex.: CFOP, CNAE)

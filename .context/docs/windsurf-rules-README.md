@@ -1,8 +1,3 @@
----
-source: .windsurf/rules/README.md
-type: windsurfrules
----
-
 # Quality Assurance and Developer Q&A
 
 Welcome to the central documentation hub for **Fiscaut-v4.1**. This guide provides developers and QA engineers with a technical overview of the system architecture, component structures, and testing priorities.
@@ -94,4 +89,5 @@ A: Use the browser console to monitor `Livewire.on` events. You can also refer t
 A: The logic is centralized in `vendor/filament/filament/resources/js/unsaved-changes-alert.js`. It monitors the state of form fields and prevents navigation if changes are detected but not saved.
 
 ---
+
 *Last Updated: 2026-01-23*
