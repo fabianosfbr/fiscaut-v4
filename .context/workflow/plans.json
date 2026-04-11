@@ -1,14 +1,14 @@
 {
   "active": [
     {
-      "slug": "gerar-txt-das-nfe-integracao-dominio",
-      "path": "plans/gerar-txt-das-nfe-integracao-dominio.md",
-      "title": "Gerar TXT das NFe para Integração com Domínio",
-      "summary": "Desenvolver funcionalidade para geração de arquivos TXT contendo informações das Notas Fiscais Eletrônicas (NFe) extraídas do XML da NFe e considerando configurações cadastradas das etiquetas aplicadas à NFe, Acumuladores, Cfops equivalentes, etiquetas equivalentes e produtos genéricos cadastrados do current issuer, organizadas conforme o leiaute da Domínio Sistemas",
-      "linkedAt": "2026-02-15T13:08:11.854Z",
+      "slug": "superlogica-connection-service",
+      "path": "plans/superlogica-connection-service.md",
+      "title": "Superlogica Connection Service",
+      "summary": "Implementar credenciais Superlógica por tenant e validação de conexão via endpoint dedicado de health check.",
+      "linkedAt": "2026-04-11T15:24:05.954Z",
       "status": "active"
     }
   ],
   "completed": [],
-  "primary": "gerar-txt-das-nfe-integracao-dominio"
+  "primary": "superlogica-connection-service"
 }

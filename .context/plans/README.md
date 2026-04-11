@@ -8,10 +8,11 @@ This directory contains plans for coordinating work across documentation and pla
 3. [Resource Aliquotas Simples Nacional](./resource-aliquotas-simples-nacional.md)
 4. [Sefaz Nfse Download Service](./sefaz-nfse-download-service.md)
 5. [Simple Nacional Anexo Resource](./simple-nacional-anexo-resource.md)
+6. [Superlogica Connection Service](./superlogica-connection-service.md)
 
 ## How To Create Or Update Plans
-- Run "ai-context plan <name>" to scaffold a new plan template.
-- Run "ai-context plan <name> --fill" to have an LLM refresh the plan using the latest repository context.
+- Run "dotcontext plan <name>" to scaffold a new plan template.
+- Run "dotcontext plan <name> --fill" to have an LLM refresh the plan using the latest repository context.
 
 ## Related Resources
 - [Agent Handbook](../agents/README.md)

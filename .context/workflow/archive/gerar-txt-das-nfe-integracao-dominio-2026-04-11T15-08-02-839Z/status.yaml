@@ -1,0 +1,38 @@
+project:
+  name: "gerar-txt-das-nfe-integracao-dominio"
+  scale: MEDIUM
+  started: "2026-02-11T12:27:25.676Z"
+  current_phase: E
+
+phases:
+  P:
+    status: filled
+    started_at: "2026-02-11T12:27:25.676Z"
+    completed_at: "2026-02-11T12:33:18.627Z"
+  R:
+    status: completed
+    started_at: "2026-02-11T12:33:18.629Z"
+    completed_at: "2026-02-15T13:08:23.659Z"
+  E:
+    status: in_progress
+    started_at: "2026-02-15T13:08:23.661Z"
+  V:
+    status: pending
+  C:
+    status: skipped
+    reason: "Not required for scale MEDIUM"
+
+execution:
+  history:
+    - timestamp: "2026-02-15T13:08:23.661Z"
+      phase: E
+      action: started
+  last_activity: "2026-02-15T13:08:23.661Z"
+  resume_context: "Fase E (Execução) em progresso"
+
+approval:
+  plan_created: true
+  plan_approved: true
+  approved_by: "reviewer"
+  approved_at: "2026-02-15T13:08:19.792Z"
+

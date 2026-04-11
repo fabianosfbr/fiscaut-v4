@@ -1,38 +1,43 @@
 project:
-  name: "gerar-txt-das-nfe-integracao-dominio"
-  scale: MEDIUM
-  started: "2026-02-11T12:27:25.676Z"
-  current_phase: E
+  name: "superlogica-connection-service"
+  scale: SMALL
+  started: "2026-04-11T15:08:02.852Z"
+  current_phase: V
 
 phases:
   P:
     status: filled
-    started_at: "2026-02-11T12:27:25.676Z"
-    completed_at: "2026-02-11T12:33:18.627Z"
+    started_at: "2026-04-11T15:08:02.852Z"
+    completed_at: "2026-04-11T15:24:14.497Z"
   R:
-    status: completed
-    started_at: "2026-02-11T12:33:18.629Z"
-    completed_at: "2026-02-15T13:08:23.659Z"
+    status: skipped
+    reason: "Not required for scale SMALL"
   E:
-    status: in_progress
-    started_at: "2026-02-15T13:08:23.661Z"
+    status: filled
+    started_at: "2026-04-11T15:24:14.499Z"
+    completed_at: "2026-04-11T15:37:46.459Z"
   V:
-    status: pending
+    status: completed
+    started_at: "2026-04-11T15:37:46.463Z"
+    completed_at: "2026-04-11T15:38:21.280Z"
+    outputs:
+      - path: "tests/Unit/Services/SuperlogicaConnectionServiceTest.php"
+        status: filled
+      - path: "tests/Feature/Filament/SuperlogicaCredentialPageTest.php"
+        status: filled
   C:
     status: skipped
-    reason: "Not required for scale MEDIUM"
+    reason: "Not required for scale SMALL"
 
 execution:
   history:
-    - timestamp: "2026-02-15T13:08:23.661Z"
-      phase: E
-      action: started
-  last_activity: "2026-02-15T13:08:23.661Z"
-  resume_context: "Fase E (Execução) em progresso"
+    - timestamp: "2026-04-11T15:38:21.280Z"
+      phase: V
+      action: completed
+  last_activity: "2026-04-11T15:38:21.280Z"
+  resume_context: "Fase V (Validação) concluída"
 
 approval:
   plan_created: true
-  plan_approved: true
-  approved_by: "reviewer"
-  approved_at: "2026-02-15T13:08:19.792Z"
+  plan_approved: false
 
