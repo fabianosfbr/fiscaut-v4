@@ -8,9 +8,27 @@ Artisan::command('play', function () {
 
     $issuer = Issuer::find(60);
 
-    $service = app()->make(App\Services\FiscautConnectorService::class, ['issuer' => $issuer]);
+    $service = new \App\Services\SuperlogicaConnectionService($issuer);
 
-    dd($service->sync());
+    // dd($service->condominio()->list([
+    //     'id' => 238,
+    //     'itensPorPagina' => 1,
+    //     'pagina' => 1,
+
+    // ]));
+
+
+    $unidades = $service->unidade()->listar([
+        'idCondominio' => 237,
+        'exibirDadosDosContatos' => 1,
+        'exibirGruposDasUnidades' => 1,
+        'exibirInadimplencia' => 1,
+        'pagina' => 1,
+    ]);
+
+    dd(count($unidades));
+
+    dd($issuer->tenant()->first()->superlogica_base_url);
 });
 
 Artisan::command('schedule:run-dynamic {--force}', function (DynamicTaskCommandExecutor $executor) {
@@ -33,7 +51,7 @@ $argv = $_SERVER['argv'] ?? [];
 // Tenta encontrar o comando ignorando opções globais (ex: -v, --ansi)
 $artisanCommand = collect($argv)
     ->slice(1)
-    ->filter(fn ($arg) => ! str_starts_with($arg, '-'))
+    ->filter(fn($arg) => ! str_starts_with($arg, '-'))
     ->first();
 
 app(DynamicTaskCommandExecutor::class)->registerFromDatabase($artisanCommand);

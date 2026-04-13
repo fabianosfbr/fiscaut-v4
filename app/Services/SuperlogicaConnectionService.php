@@ -4,12 +4,19 @@ namespace App\Services;
 
 use App\Exceptions\SuperlogicaConnectionException;
 use App\Models\Issuer;
+use App\Services\SuperLogica\Condominio\SuperLogicaCondominio;
+use App\Services\SuperLogica\Unidade\SuperLogicaUnidade;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class SuperlogicaConnectionService
 {
+
+    public function __construct(
+        protected Issuer $issuer
+    ) {}
+
     /**
      * @return array<string, mixed>|bool
      *
@@ -34,7 +41,7 @@ class SuperlogicaConnectionService
             throw new SuperlogicaConnectionException('access_token da Superlógica não configurado.');
         }
 
-        $endpoint = rtrim($baseUrl, '/').'/health/check';
+        $endpoint = rtrim($baseUrl, '/') . '/health/check';
 
         try {
             $response = Http::timeout(15)
@@ -53,7 +60,7 @@ class SuperlogicaConnectionService
                     'status' => $response->status(),
                 ]);
 
-                throw new SuperlogicaConnectionException('Falha de conexão com a Superlógica (HTTP '.$response->status().').');
+                throw new SuperlogicaConnectionException('Falha de conexão com a Superlógica (HTTP ' . $response->status() . ').');
             }
 
             $payload = $response->json();
@@ -81,5 +88,15 @@ class SuperlogicaConnectionService
 
             throw new SuperlogicaConnectionException('Erro ao validar conexão com a Superlógica.', 0, $exception);
         }
+    }
+
+    public function condominio()
+    {
+        return new SuperLogicaCondominio($this->issuer);
+    }
+
+     public function unidade()
+    {
+        return new SuperLogicaUnidade($this->issuer);
     }
 }
