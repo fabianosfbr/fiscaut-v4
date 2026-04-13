@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\Exceptions\SuperlogicaConnectionException;
 use App\Models\Issuer;
-use App\Services\SuperLogica\Condominio\SuperLogicaCondominio;
-use App\Services\SuperLogica\Unidade\SuperLogicaUnidade;
+use App\Services\SuperLogica\Condominio\SuperLogicaCondominio as SuperLogicaCondominioConnector;
+use App\Services\SuperLogica\Unidade\SuperLogicaUnidade as SuperLogicaUnidadeConnector;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -92,11 +92,11 @@ class SuperlogicaConnectionService
 
     public function condominio()
     {
-        return new SuperLogicaCondominio($this->issuer);
+        return new SuperLogicaCondominioConnector($this->issuer);
     }
 
      public function unidade()
     {
-        return new SuperLogicaUnidade($this->issuer);
+        return new SuperLogicaUnidadeConnector($this->issuer);
     }
 }
