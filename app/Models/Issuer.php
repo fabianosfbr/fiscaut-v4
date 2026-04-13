@@ -4,13 +4,16 @@ namespace App\Models;
 
 use App\Enums\CondominiumTypeEnum;
 use App\Enums\IssuerTypeEnum;
+use App\Observers\IssuerSuperLogicaCondominio;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 
+#[ObservedBy([IssuerSuperLogicaCondominio::class])]
 class Issuer extends Model
 {
     protected $with = ['municipio'];
 
-    protected $guarded = ['id'];
+    protected $guarded = ['id', 'superlogica_condominio_id'];
 
     protected $casts = [
         'side_activities' => 'array',

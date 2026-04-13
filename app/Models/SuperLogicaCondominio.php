@@ -10,9 +10,14 @@ class SuperLogicaCondominio extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'metadados' => 'array',
+    ];
 
-    public function issuer()
+    public function unidades()
     {
-        return $this->belongsTo(Issuer::class, 'issuer_id', 'id');
+        return $this->hasMany(SuperLogicaUnidade::class, 'id_condominio', 'id_condominio_cond');
     }
+
+
 }

@@ -6,22 +6,26 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::create('super_logica_condominios', function (Blueprint $table) {
+        Schema::create('super_logica_unidades', function (Blueprint $table) {
             $table->id();
-            $table->integer('id_condominio_cond')->index();
-            $table->string('st_cpf_cond', 20)->index();
+            $table->integer('id_condominio')->index();
+            $table->string('id_unidade_uni')->index();
             $table->json('metadados')->nullable();
 
             $table->timestamps();
-
-            
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('super_logica_condominios');
+        Schema::dropIfExists('super_logica_unidades');
     }
 };

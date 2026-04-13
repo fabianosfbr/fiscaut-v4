@@ -23,4 +23,9 @@ class SuperLogicaCondominio
         return $this->get('/condominios/get', $filter);
     }
 
+    public function contaBancaria()
+    {
+        return new SuperLogicaCondominioContaBancaria($this->issuer);
+    }
+
 }

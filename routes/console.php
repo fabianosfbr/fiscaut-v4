@@ -9,14 +9,19 @@ Artisan::command('play', function () {
     $issuer = Issuer::find(60);
 
     $service = new \App\Services\SuperlogicaConnectionService($issuer);
-    $condominios = $service->condominio()->listar([
-        'id' => -1,
-        'somenteCondominiosAtivos' => 1,
+    $condominios = $service
+    ->condominio()
+    ->contaBancaria()
+    ->listar([
+        'idCondominio' => $issuer->superlogica_condominio_id,
+        'exibirDadosAgencia' => 1,
+        'exibirContasFechadas' => 1,
+        'exibirDadosBanco' => 1,
         'itensPorPagina' => 50,
         'pagina' => 1,
     ]);
 
-    dd($condominios[0]);
+    dd($condominios);
 
 
     $unidades = $service->unidade()->listar([
