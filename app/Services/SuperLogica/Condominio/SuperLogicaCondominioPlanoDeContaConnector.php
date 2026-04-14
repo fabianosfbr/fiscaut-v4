@@ -4,7 +4,7 @@ namespace App\Services\SuperLogica\Condominio;
 
 use App\Services\SuperLogica\Connector\SuperLogicaConfig;
 
-class SuperLogicaCondominioContaBancaria
+class SuperLogicaCondominioPlanoDeContaConnector
 {
 
      use SuperLogicaConfig;
@@ -13,7 +13,7 @@ class SuperLogicaCondominioContaBancaria
 
     public function listar(array $filter = [])
     {
-        return $this->get('/contabancos/index', $filter);
+        return $this->get('/planocontas/index', $filter);
     }
 
 

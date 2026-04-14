@@ -4,8 +4,9 @@ namespace App\Services;
 
 use App\Exceptions\SuperlogicaConnectionException;
 use App\Models\Issuer;
-use App\Services\SuperLogica\Condominio\SuperLogicaCondominio as SuperLogicaCondominioConnector;
-use App\Services\SuperLogica\Unidade\SuperLogicaUnidade as SuperLogicaUnidadeConnector;
+use App\Services\SuperLogica\Condominio\SuperLogicaCondominioConnector;
+use App\Services\SuperLogica\Condominio\SuperLogicaDespesaConnector;
+use App\Services\SuperLogica\Condominio\SuperLogicaUnidadeConnector;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -15,7 +16,8 @@ class SuperlogicaConnectionService
 
     public function __construct(
         protected Issuer $issuer
-    ) {}
+    ) {
+    }
 
     /**
      * @return array<string, mixed>|bool
@@ -53,7 +55,7 @@ class SuperlogicaConnectionService
                 ])
                 ->get($endpoint);
 
-            if (! $response->successful()) {
+            if (!$response->successful()) {
                 Log::error('Falha na validação Superlógica', [
                     'tenant_id' => $tenant?->id,
                     'issuer_id' => $issuer->id,
@@ -65,7 +67,7 @@ class SuperlogicaConnectionService
 
             $payload = $response->json();
 
-            if (! is_array($payload) || $payload === []) {
+            if (!is_array($payload) || $payload === []) {
                 throw new SuperlogicaConnectionException('Resposta inválida da Superlógica no health check.');
             }
 
@@ -95,8 +97,14 @@ class SuperlogicaConnectionService
         return new SuperLogicaCondominioConnector($this->issuer);
     }
 
-     public function unidade()
+    public function unidade()
     {
         return new SuperLogicaUnidadeConnector($this->issuer);
+    }
+
+    public function despesa()
+    {
+        return new SuperLogicaDespesaConnector($this->issuer);
+        
     }
 }

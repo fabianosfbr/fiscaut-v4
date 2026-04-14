@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Services\SuperLogica\Unidade;
+namespace App\Services\SuperLogica\Condominio;
 
 use App\Services\SuperLogica\Connector\SuperLogicaConfig;
 
-class SuperLogicaUnidade
+class SuperLogicaUnidadeConnector
 {
     use SuperLogicaConfig;
 
