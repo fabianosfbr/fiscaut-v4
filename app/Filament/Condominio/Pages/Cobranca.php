@@ -223,7 +223,6 @@ class Cobranca extends Page implements HasTable
                 'semProcesso' => 1,
             ]);
 
-            ds($inadimplencias[0]);
         return collect($inadimplencias);
     }
 
