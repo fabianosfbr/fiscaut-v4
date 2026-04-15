@@ -6,6 +6,7 @@ use App\Exceptions\SuperlogicaConnectionException;
 use App\Models\Issuer;
 use App\Services\SuperLogica\Condominio\SuperLogicaCondominioConnector;
 use App\Services\SuperLogica\Condominio\SuperLogicaDespesaConnector;
+use App\Services\SuperLogica\Condominio\SuperLogicaReceitaConnector;
 use App\Services\SuperLogica\Condominio\SuperLogicaUnidadeConnector;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
@@ -106,5 +107,10 @@ class SuperlogicaConnectionService
     {
         return new SuperLogicaDespesaConnector($this->issuer);
         
+    }
+
+    public function receita()
+    {
+        return new SuperLogicaReceitaConnector($this->issuer);
     }
 }
