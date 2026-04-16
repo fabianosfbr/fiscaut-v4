@@ -13,6 +13,9 @@ enum ConfiguracoesGeraisEnum: string implements HasLabel
     case IsNfeTomaCreditoIcms = 'isNfeTomaCreditoIcms';
     case VerificarUfEmitenteDestinatario = 'verificar_uf_emitente_destinatario';
     case IsClassificarCteVinculadoANfe = 'isClassificarCteVinculadoANfe';
+    case NotificacaoCobrancaAntes = 'notificacao_cobranca_antes';
+    case NotificacaoCobrancaDia = 'notificacao_cobranca_dia';
+    case NotificacaoCobrancaDepois = 'notificacao_cobranca_depois';
 
     public function getLabel(): string
     {
@@ -24,6 +27,9 @@ enum ConfiguracoesGeraisEnum: string implements HasLabel
             self::IsClassificarCteVinculadoANfe => 'Classificar CTE vinculado a NFe quando etiquetada',
             self::IsNfeTomaCreditoIcms => 'Considerar como crédito de ICMS as NF com CFOP 1.401',
             self::VerificarUfEmitenteDestinatario => 'Verificar UF emitente X UF destinatário',
+            self::NotificacaoCobrancaAntes => 'Notificar antes do vencimento',
+            self::NotificacaoCobrancaDia => 'Notificar no dia do vencimento',
+            self::NotificacaoCobrancaDepois => 'Notificar depois do vencimento',
         };
     }
 
