@@ -215,15 +215,28 @@ class Cobranca extends Page implements HasTable
             ->receita()
             ->listarInadimplencia([
                 'idCondominio' => $issuer->superlogica_condominio_id,
-                'posicaoEm' => now()->format('m/d/Y'),
-                'comValoresAtualizadosPorComposicao' => 1,
-                'apenasResumoInad' => 0,
-                'comDadosDaReceita' => 1,
-                'semAcordo' => 1,
-                'semProcesso' => 1,
             ]);
 
-        return collect($inadimplencias);
+        $records = collect($inadimplencias)->map(function ($record) {
+            if (isset($record['recebimento']) && is_array($record['recebimento'])) {
+                $recebimentos = collect($record['recebimento'])->sortBy(function ($recb) {
+                    try {
+                        return \Illuminate\Support\Carbon::createFromFormat('m/d/Y H:i:s', data_get($recb, 'dt_vencimento_recb'))->timestamp;
+                    } catch (\Exception $e) {
+                        try {
+                            return \Illuminate\Support\Carbon::parse(data_get($recb, 'dt_vencimento_recb'))->timestamp;
+                        } catch (\Exception $e) {
+                            return 0;
+                        }
+                    }
+                })->values()->all();
+
+                $record['recebimento'] = $recebimentos;
+            }
+            return $record;
+        });
+
+        return $records;
     }
 
     protected function applyFilters(\Illuminate\Support\Collection $records, array $filters): \Illuminate\Support\Collection

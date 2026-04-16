@@ -39,23 +39,23 @@ class CondominioSync extends Command
             return;
         }
 
-        //$this->syncCondominio($issuer);
+        $this->syncCondominio($issuer);
 
         // $this->info('Condominios sincronizados com sucesso.');
 
-        $this->syncUnidade($issuer);
-        $this->info('Unidades sincronizadas com sucesso.');
+        // $this->syncUnidade($issuer);
+        // $this->info('Unidades sincronizadas com sucesso.');
 
-        $this->syncFornecedor($issuer);
-        $this->info('Fornecedores sincronizados com sucesso.');
-
-
-        $this->syncContaBancaria($issuer);
-        $this->info('Contas bancárias sincronizadas com sucesso.');
+        // $this->syncFornecedor($issuer);
+        // $this->info('Fornecedores sincronizados com sucesso.');
 
 
-        $this->syncPlanoDeContas($issuer);
-        $this->info('Plano de contas sincronizadas com sucesso.');
+        // $this->syncContaBancaria($issuer);
+        // $this->info('Contas bancárias sincronizadas com sucesso.');
+
+
+        // $this->syncPlanoDeContas($issuer);
+        // $this->info('Plano de contas sincronizadas com sucesso.');
 
 
 
