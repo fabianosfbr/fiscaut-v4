@@ -27,6 +27,8 @@ class Inadimplencia extends Page  implements HasTable
 
     protected static ?string $title = 'Inadimplência';
 
+    protected static ?int $navigationSort = 1;
+
     protected function getHeaderActions(): array
     {
         return [

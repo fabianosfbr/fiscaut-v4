@@ -129,32 +129,7 @@ new class extends Component implements HasSchemas {
 
                             ]),
                     ]),
-
-                Section::make('Notificações de Cobrança')
-                    ->description('Configure quando deseja notificar sobre cobranças')
-                    ->icon('heroicon-m-bell-alert')
-                    ->collapsible()
-                    ->schema([
-                        Grid::make(4)
-                            ->schema([
-
-                                
-                                Checkbox::make('notificacao_cobranca_depois.enabled')
-                                    ->label('Notificar depois do vencimento')
-                                    ->live()
-                                    ->columnSpan(1)
-                                    ->afterStateUpdated(fn() => $this->hasChanges = true),
-
-                                TextInput::make('notificacao_cobranca_depois.dias')
-                                    ->label('Dias depois do vencimento')
-                                    ->numeric()
-                                    ->minValue(1)
-                                    ->visible(fn($get) => $get('notificacao_cobranca_depois.enabled'))
-                                    ->live()
-                                    ->columnSpan(1)
-                                    ->afterStateUpdated(fn() => $this->hasChanges = true),
-                            ]),
-                    ]),
+                
             ])
             ->statePath('data');
     }
