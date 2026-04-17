@@ -2,7 +2,6 @@
 
 namespace App\Filament\Condominio\Pages;
 
-use UnitEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\DatePicker;
@@ -14,17 +13,19 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use UnitEnum;
 
-class Cobranca extends Page implements HasTable
+class Inadimplencia extends Page  implements HasTable
 {
     use InteractsWithTable;
 
-    protected string $view = 'filament.condominio.pages.cobranca';
+    protected string $view = 'filament.condominio.pages.inadimplencia';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Cadastros';
+    protected static string|UnitEnum|null $navigationGroup = 'Cobranças';
 
-    protected static ?string $title = 'Cobranças';
+    protected static ?string $title = 'Inadimplência';
 
     protected function getHeaderActions(): array
     {
@@ -161,15 +162,15 @@ class Cobranca extends Page implements HasTable
             ->filtersFormColumns(3)
             ->persistFiltersInSession()
             ->deferFilters(true)
-            ->actions([
+            ->recordActions([
                 Action::make('detalhes')
                     ->label('Detalhes')
                     ->icon('heroicon-o-eye')
-                    ->modalHeading('Detalhes da Cobrança')
-                    ->modalWidth(Width::SevenExtraLarge)
-                    ->modalContent(fn(array $record) => view('filament.condominio.pages.cobranca-detalhes', ['recebimentos' => $record['recebimento'] ?? []]))
-                    ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Fechar'),
+                    ->url(function (array $record) {
+                        $key = 'cobranca_detalhes_' . Str::uuid();
+                        Cache::put($key, $record, now()->addMinutes(60));
+                        return route('filament.condominio.pages.detalhes-cobranca', ['record_key' => $key]);
+                    }),
             ]);
     }
 
@@ -198,6 +199,7 @@ class Cobranca extends Page implements HasTable
         $total = $records->count();
         $records = $records->forPage($page, $recordsPerPage);
 
+        // dd($records);
         return new LengthAwarePaginator(
             $records,
             total: $total,

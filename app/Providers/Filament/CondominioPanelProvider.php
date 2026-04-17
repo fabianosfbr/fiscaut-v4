@@ -55,8 +55,8 @@ class CondominioPanelProvider extends PanelProvider
                 NavigationGroup::make()
                     ->label('Contatos')
                     ->icon('heroicon-o-user-circle'),
-                    NavigationGroup::make()
-                    ->label('Cadastros')
+                NavigationGroup::make()
+                    ->label('Cobranças')
                     ->icon('heroicon-o-adjustments-vertical'),
                 NavigationGroup::make()
                     ->label('Documentos')
