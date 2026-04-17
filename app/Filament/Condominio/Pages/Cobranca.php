@@ -2,7 +2,7 @@
 
 namespace App\Filament\Condominio\Pages;
 
-use BackedEnum;
+use UnitEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\DatePicker;
@@ -22,7 +22,7 @@ class Cobranca extends Page implements HasTable
 
     protected string $view = 'filament.condominio.pages.cobranca';
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-user-group';
+    protected static string|UnitEnum|null $navigationGroup = 'Cadastros';
 
     protected static ?string $title = 'Cobranças';
 
