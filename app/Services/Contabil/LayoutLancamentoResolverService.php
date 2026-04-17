@@ -20,11 +20,8 @@ use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 class LayoutLancamentoResolverService
 {
     private Layout $layout;
-
     private int $issuerId;
-
     private int $userId;
-
     private string $jobProgressId;
 
     /** @var \Illuminate\Support\Collection<int, LayoutRule> */
@@ -68,13 +65,10 @@ class LayoutLancamentoResolverService
     {
         $result = [];
         $jobProgress = $this->jobProgressId ? JobProgress::find($this->jobProgressId) : null;
-
         $totalRows = count($rows);
 
         foreach ($rows as $index => $row) {
-
             $rowNumber = $index + 1;
-
             // Atualiza o progresso a cada 10 linhas ou no final
             if ($jobProgress && ($rowNumber % 10 === 0 || $rowNumber === $totalRows)) {
                 $percentage = 20 + (int) (($rowNumber / $totalRows) * 70); // 20% a 90%
@@ -86,7 +80,6 @@ class LayoutLancamentoResolverService
 
             $result[] = $this->resolveRow($row);
         }
-
         return $result;
     }
 
@@ -117,10 +110,13 @@ class LayoutLancamentoResolverService
             'rule_trace' => [],
         ];
 
+
         foreach ($this->rules as $rule) {
-            if (! $this->conditionPasses($rule, $row)) {
+
+            if (!$this->conditionPasses($rule, $row)) {
                 continue;
             }
+
 
             $valuePayload = $this->resolveRuleValue($rule, $row);
             $value = $valuePayload['value'];
@@ -128,6 +124,19 @@ class LayoutLancamentoResolverService
             $codHistorico = $valuePayload['cod_historico'];
             $historicoFromParam = $valuePayload['historico_template'];
             $dateFormat = $valuePayload['date_format'];
+
+            $dataSourceType = $rule->data_source_type?->value ?? $rule->data_source_type;
+            if (
+                $dataSourceType === 'parametros_gerais'
+                && $value === null
+                && $descricao === null
+                && $codHistorico === null
+                && $historicoFromParam === null
+                && $valuePayload['numeric_value'] === null
+            ) {
+                continue;
+            }
+
 
             if ($rule->data_source_historico) {
                 $historicoTemplate = $this->resolveHistoricoByCodigo((int) $rule->data_source_historico);
@@ -138,6 +147,7 @@ class LayoutLancamentoResolverService
                 $historicoTemplate = $historicoFromParam;
                 $resolved['cod_historico'] = $codHistorico ?? $resolved['cod_historico'];
             }
+
 
             switch ($rule->rule_type?->value ?? $rule->rule_type) {
                 case 'data_da_operacao':
@@ -163,6 +173,7 @@ class LayoutLancamentoResolverService
                 default:
                     break;
             }
+
 
             $metadata['rule_trace'][] = [
                 'rule_id' => $rule->id,
@@ -190,6 +201,8 @@ class LayoutLancamentoResolverService
         $formattedValue = null;
         $dateFormat = null;
 
+        $ruleType = $rule->rule_type?->value ?? $rule->rule_type;
+
         switch ($rule->data_source_type?->value ?? $rule->data_source_type) {
             case 'column':
                 $value = $this->getRowValue($row, (string) $rule->data_source);
@@ -216,6 +229,7 @@ class LayoutLancamentoResolverService
                 break;
             case 'parametros_gerais':
                 $match = $this->matchParametro($row);
+
                 if ($match) {
                     $value = $match['conta_contabil'];
                     $descricao = $match['conta_contabil_descricao'];
@@ -228,7 +242,20 @@ class LayoutLancamentoResolverService
         }
 
         if ($value === null || $value === '') {
-            $value = $rule->default_value ?? ' ';
+            $value = $rule->default_value ?? (($ruleType === 'operacao_de_debito' || $ruleType === 'operacao_de_credito') ? null : ' ');
+        }
+
+        if ($ruleType === 'operacao_de_debito' || $ruleType === 'operacao_de_credito') {
+            if (is_string($value)) {
+                $value = trim($value);
+                $value = $value === '' ? null : $value;
+            }
+            if ($value !== null && !is_numeric($value)) {
+                $value = null;
+            }
+            if (is_numeric($value)) {
+                $value = (int) $value;
+            }
         }
 
         return [
@@ -244,13 +271,12 @@ class LayoutLancamentoResolverService
 
     private function formatDate(?Carbon $date, ?string $format): ?string
     {
-        if (! $date) {
+        if (!$date) {
             return null;
         }
         if ($format) {
             return $date->format($format);
         }
-
         return $date->format('d/m/Y');
     }
 
@@ -266,7 +292,6 @@ class LayoutLancamentoResolverService
         if ($rule->is_sanitize) {
             $searchValue = sanitize($searchValue);
         }
-
         $searchValue = $searchValue ?? '';
 
         $table = (string) $rule->data_source_table;
@@ -274,6 +299,7 @@ class LayoutLancamentoResolverService
         $condition = (string) $rule->data_source_condition;
 
         if ($table === 'contabil_bancos') {
+
             $query = Banco::with('plano_de_conta')->where('issuer_id', $this->issuerId);
             if ($condition === 'like') {
                 $query->where($attribute, 'LIKE', '%' . $searchValue . '%');
@@ -281,6 +307,7 @@ class LayoutLancamentoResolverService
                 $query->where($attribute, $searchValue);
             }
             $banco = $query->first();
+
             $codigo = $banco?->plano_de_conta?->codigo ?? null;
             $descricao = $banco?->plano_de_conta?->nome ?? null;
 
@@ -295,8 +322,8 @@ class LayoutLancamentoResolverService
                 $query->where($attribute, $searchValue);
             }
             $cliente = $query->first();
-            $codigo = $cliente?->plano_de_conta?->codigo ?? null;
-            $descricao = $cliente?->plano_de_conta?->nome ?? null;
+            $codigo = $cliente->conta_contabil ?? null;
+            $descricao = $cliente->nome ?? null;
 
             return ['value' => $codigo ?? $rule->default_value ?? ' ', 'descricao' => $descricao];
         }
@@ -309,9 +336,9 @@ class LayoutLancamentoResolverService
                 $query->where($attribute, $searchValue);
             }
             $fornecedor = $query->first();
-            $codigo = $fornecedor?->plano_de_conta?->codigo ?? null;
-            $descricao = $fornecedor?->plano_de_conta?->nome ?? null;
 
+            $codigo = $fornecedor->conta_contabil ?? null;
+            $descricao = $fornecedor->nome ?? null;
             return ['value' => $codigo ?? $rule->default_value ?? ' ', 'descricao' => $descricao];
         }
 
@@ -325,7 +352,6 @@ class LayoutLancamentoResolverService
             $plano = $query->first();
             $codigo = $plano?->codigo ?? null;
             $descricao = $plano?->nome ?? null;
-
             return ['value' => $codigo ?? $rule->default_value ?? ' ', 'descricao' => $descricao];
         }
 
@@ -347,7 +373,8 @@ class LayoutLancamentoResolverService
 
             $isInclusivo = (bool) $parametro->is_inclusivo;
             [$includeTerms, $excludeTerms] = $this->splitIncludeExcludeTerms($terms);
-            if (empty($includeTerms) && empty($excludeTerms)) {
+            // Nunca considerar match sem ao menos 1 termo de inclusão.
+            if (empty($includeTerms)) {
                 continue;
             }
 
@@ -362,12 +389,12 @@ class LayoutLancamentoResolverService
                 if ($termNormalized === '') {
                     continue;
                 }
-                if (str_contains($texto, $termNormalized)) {
+                if ($this->textoContainsExactTerm($texto, $termNormalized)) {
                     $matches++;
                 }
             }
 
-            $matched = ($isInclusivo && $matches === count($includeTerms)) || (! $isInclusivo && $matches > 0);
+            $matched = ($isInclusivo && $matches === count($includeTerms)) || (!$isInclusivo && $matches > 0);
             if ($matched) {
                 $score = $matches;
                 $order = is_numeric($parametro->order) ? (int) $parametro->order : PHP_INT_MAX;
@@ -384,7 +411,6 @@ class LayoutLancamentoResolverService
                 }
             }
         }
-
         return $best;
     }
 
@@ -403,36 +429,46 @@ class LayoutLancamentoResolverService
         $exclude = [];
 
         foreach ($terms as $term) {
-            $raw = $this->normalizeText((string) $term);
-            if ($raw === '') {
-                continue;
-            }
+            // Aceita "A, B, C" no mesmo item, além de itens separados no array.
+            $chunks = preg_split('/\s*,\s*/u', (string) $term) ?: [];
 
-            $isExclude = false;
-            $value = $raw;
+            foreach ($chunks as $chunk) {
+                $raw = $this->normalizeText($chunk);
+                if ($raw === '') {
+                    continue;
+                }
 
-            if (str_starts_with($value, '!') || str_starts_with($value, '-')) {
-                $isExclude = true;
-                $value = ltrim($value, '!- ');
-            } elseif (str_starts_with($value, 'NOT ')) {
-                $isExclude = true;
-                $value = trim(substr($value, 4));
-            } elseif (str_starts_with($value, 'NAO ')) {
-                $isExclude = true;
-                $value = trim(substr($value, 4));
-            } elseif (str_starts_with($value, 'NÃO ')) {
-                $isExclude = true;
-                $value = trim(substr($value, 4));
-            }
+                $isExclude = false;
+                $value = $raw;
 
-            if ($value === '') {
-                continue;
-            }
+                if (str_starts_with($value, '!')) {
+                    $isExclude = true;
+                    $value = ltrim($value, '! ');
+                } elseif (str_starts_with($value, 'NOT ')) {
+                    $isExclude = true;
+                    $value = trim(substr($value, 4));
+                } elseif (str_starts_with($value, 'NAO ')) {
+                    $isExclude = true;
+                    $value = trim(substr($value, 4));
+                } elseif (str_starts_with($value, 'NÃO ')) {
+                    $isExclude = true;
+                    $value = trim(substr($value, 4));
+                } elseif (str_starts_with($value, '- ')) {
+                    // Mantém suporte legado para exclusão com "- TERMO",
+                    // sem confundir termos válidos como "-1 ISS".
+                    $isExclude = true;
+                    $value = trim(substr($value, 2));
+                }
 
-            if ($isExclude) {
-                $exclude[] = $value;
-            } else {
-                $include[] = $value;
+                if ($value === '') {
+                    continue;
+                }
+
+                if ($isExclude) {
+                    $exclude[] = $value;
+                } else {
+                    $include[] = $value;
+                }
             }
         }
 
@@ -450,12 +486,23 @@ class LayoutLancamentoResolverService
             if ($termNormalized === '') {
                 continue;
             }
-            if (str_contains($texto, $termNormalized)) {
+            if ($this->textoContainsExactTerm($texto, $termNormalized)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    private function textoContainsExactTerm(string $texto, string $term): bool
+    {
+        if ($term === '') {
+            return false;
+        }
+
+        $pattern = '/(?<![\p{L}\p{N}])' . preg_quote($term, '/') . '(?![\p{L}\p{N}])/u';
+
+        return preg_match($pattern, $texto) === 1;
     }
 
     private function conditionPasses(LayoutRule $rule, array $row): bool
@@ -482,7 +529,7 @@ class LayoutLancamentoResolverService
             '>=' => $left >= $right,
             '<=' => $left <= $right,
             'contains' => str_contains($left, $right),
-            'not_contains' => ! str_contains($left, $right),
+            'not_contains' => !str_contains($left, $right),
             'empty' => $left === '',
             'not_empty' => $left !== '',
             default => true,
@@ -501,14 +548,12 @@ class LayoutLancamentoResolverService
                 $parts[] = $this->normalizeText($this->stringifyValue($value));
             }
         }
-
         return trim(implode(' ', $parts));
     }
 
     private function normalizeText(string $value): string
     {
         $value = mb_strtoupper($value, 'UTF-8');
-
         return preg_replace('/\s+/', ' ', trim($value)) ?? '';
     }
 
@@ -549,7 +594,6 @@ class LayoutLancamentoResolverService
         foreach (array_keys($row) as $key) {
             $map[$this->normalizeHeader($key)] = $key;
         }
-
         return $map;
     }
 
@@ -607,7 +651,7 @@ class LayoutLancamentoResolverService
         $raw = str_replace(' ', '', $raw);
 
         // Detecta se já está no formato brasileiro (vírgula como decimal)
-        $hasBrazilianFormat = str_contains($raw, ',') && ! str_contains($raw, '.');
+        $hasBrazilianFormat = str_contains($raw, ',') && !str_contains($raw, '.');
 
         // Se está no formato brasileiro, converte para formato padrão (ponto como decimal)
         if ($hasBrazilianFormat) {
@@ -653,7 +697,7 @@ class LayoutLancamentoResolverService
 
     private function applyDateAdjustment(?Carbon $date, string $adjustment): ?Carbon
     {
-        if (! $date) {
+        if (!$date) {
             return null;
         }
 
@@ -709,5 +753,57 @@ class LayoutLancamentoResolverService
         $replacements['#V'] = $valorFormatado ?? ' ';
 
         return strtr($template, $replacements);
+    }
+
+    private function extractContaCodigo($model): ?string
+    {
+        if (!$model) {
+            return null;
+        }
+
+        if ($model->plano_de_conta) {
+            return $model->plano_de_conta->codigo;
+        }
+
+        if (is_array($model->descricao_conta_contabil) && isset($model->descricao_conta_contabil['codigo'])) {
+            return $model->descricao_conta_contabil['codigo'];
+        }
+
+        if (is_array($model->conta_contabil) && isset($model->conta_contabil['codigo'])) {
+            return $model->conta_contabil['codigo'];
+        }
+
+        if (is_numeric($model->conta_contabil)) {
+            $plano = PlanoDeConta::where('issuer_id', $this->issuerId)
+                ->where('id', $model->conta_contabil)
+                ->first();
+            return $plano?->codigo;
+        }
+
+        return null;
+    }
+
+    private function extractContaDescricao($model): ?string
+    {
+        if (!$model) {
+            return null;
+        }
+
+        if ($model->plano_de_conta) {
+            return $model->plano_de_conta->nome;
+        }
+
+        if (is_array($model->descricao_conta_contabil) && isset($model->descricao_conta_contabil['descricao'])) {
+            return $model->descricao_conta_contabil['descricao'];
+        }
+
+        if (is_numeric($model->conta_contabil)) {
+            $plano = PlanoDeConta::where('issuer_id', $this->issuerId)
+                ->where('id', $model->conta_contabil)
+                ->first();
+            return $plano?->nome;
+        }
+
+        return null;
     }
 }

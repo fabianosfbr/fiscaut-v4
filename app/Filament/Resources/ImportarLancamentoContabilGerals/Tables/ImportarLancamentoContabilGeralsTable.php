@@ -4,8 +4,10 @@ namespace App\Filament\Resources\ImportarLancamentoContabilGerals\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -36,7 +38,7 @@ class ImportarLancamentoContabilGeralsTable
                     ->searchable()
                     ->badge()
                     ->tooltip(function (Model $record) {
-                        if (! is_null($record->metadata) && isset($record->metadata['descricao_debito'])) {
+                        if (!is_null($record->metadata) && isset($record->metadata['descricao_debito'])) {
                             return $record->metadata['descricao_debito'];
                         }
 
@@ -50,7 +52,7 @@ class ImportarLancamentoContabilGeralsTable
                     ->searchable()
                     ->badge()
                     ->tooltip(function (Model $record) {
-                        if (! is_null($record->metadata) && isset($record->metadata['descricao_credito'])) {
+                        if (!is_null($record->metadata) && isset($record->metadata['descricao_credito'])) {
 
                             return $record->metadata['descricao_credito'];
                         }
@@ -67,7 +69,7 @@ class ImportarLancamentoContabilGeralsTable
                             return '';
                         }
 
-                        return 'R$ '.number_format($state, 2, ',', '.');
+                        return 'R$ ' . number_format($state, 2, ',', '.');
                     }),
 
                 TextColumn::make('historico')
@@ -87,9 +89,59 @@ class ImportarLancamentoContabilGeralsTable
             ->filters([
                 TernaryFilter::make('is_exist')
                     ->label('Possui Vínculo'),
+                Filter::make('debito')
+                    ->schema([
+                        TextInput::make('debito')
+                            ->label('Débito')
+                            ->placeholder('Ex: 5102, 6108'),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        $input = (string) ($data['debito'] ?? '');
+
+                        $debitosList = array_values(array_filter(
+                            array_map(
+                                static fn(string $value): string => trim($value),
+                                preg_split('/[,\s;]+/', $input, -1, PREG_SPLIT_NO_EMPTY) ?: []
+                            ),
+                            static fn(string $value): bool => $value !== ''
+                        ));
+
+                        if ($debitosList === []) {
+                            return $query;
+                        }
+
+                        return $query->whereIn('debito', $debitosList);
+                    }),
+
+                Filter::make('credito')
+                    ->schema([
+                        TextInput::make('credito')
+                            ->label('Crédito')
+                            ->placeholder('Ex: 5102, 6108'),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        $input = (string) ($data['credito'] ?? '');
+
+                        $creditosList = array_values(array_filter(
+                            array_map(
+                                static fn(string $value): string => trim($value),
+                                preg_split('/[,\s;]+/', $input, -1, PREG_SPLIT_NO_EMPTY) ?: []
+                            ),
+                            static fn(string $value): bool => $value !== ''
+                        ));
+
+                        if ($creditosList === []) {
+                            return $query;
+                        }
+
+                        return $query->whereIn('credito', $creditosList);
+                    }),
             ])
+            ->filtersFormColumns(3)
+            ->persistFiltersInSession()
+            ->deferFilters(true)
             ->recordActions([
-                EditAction::make(),
+               // EditAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([]),
