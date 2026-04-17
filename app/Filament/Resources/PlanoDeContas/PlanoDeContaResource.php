@@ -19,7 +19,9 @@ class PlanoDeContaResource extends Resource
 
     protected static ?string $navigationLabel = 'Plano de Contas';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Configurações';
+    protected static string|UnitEnum|null $navigationGroup = 'Contabilidade';
+
+    protected static ?int $navigationSort = 7;
 
     public static function form(Schema $schema): Schema
     {
