@@ -10,15 +10,14 @@ Artisan::command('play', function () {
 
     $service = new \App\Services\SuperlogicaConnectionService($issuer);
     $condominios = $service
-    ->despesa()
-    ->listarFornecedor([
-        'contatosDoTipo' => 'fornecedores',
-        'itensPorPagina' => 50,
-        'pagina' => 1,
-    ]);
+        ->despesa()
+        ->listarFornecedor([
+            'contatosDoTipo' => 'fornecedores',
+            'itensPorPagina' => 50,
+            'pagina' => 1,
+        ]);
 
     dd($condominios[0]);
-
 
     $unidades = $service->unidade()->listar([
         'idCondominio' => 237,
@@ -53,7 +52,7 @@ $argv = $_SERVER['argv'] ?? [];
 // Tenta encontrar o comando ignorando opções globais (ex: -v, --ansi)
 $artisanCommand = collect($argv)
     ->slice(1)
-    ->filter(fn($arg) => ! str_starts_with($arg, '-'))
+    ->filter(fn ($arg) => ! str_starts_with($arg, '-'))
     ->first();
 
 app(DynamicTaskCommandExecutor::class)->registerFromDatabase($artisanCommand);

@@ -7,13 +7,11 @@ use App\Models\SuperLogicaCondominio;
 
 class IssuerSuperLogicaCondominio
 {
-
     public function created(Issuer $issuer): void
     {
         $this->syncSuperLogicaCondominioId($issuer);
 
     }
-
 
     public function updated(Issuer $issuer): void
     {
@@ -39,5 +37,4 @@ class IssuerSuperLogicaCondominio
             $issuer->saveQuietly();
         }
     }
-
 }

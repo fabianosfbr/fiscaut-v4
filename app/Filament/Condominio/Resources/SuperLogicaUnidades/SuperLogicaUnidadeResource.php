@@ -8,17 +8,16 @@ use App\Filament\Condominio\Resources\SuperLogicaUnidades\Pages\ListSuperLogicaU
 use App\Filament\Condominio\Resources\SuperLogicaUnidades\Schemas\SuperLogicaUnidadeForm;
 use App\Filament\Condominio\Resources\SuperLogicaUnidades\Tables\SuperLogicaUnidadesTable;
 use App\Models\SuperLogicaUnidade;
-use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class SuperLogicaUnidadeResource extends Resource
 {
     protected static ?string $model = SuperLogicaUnidade::class;
 
-     protected static ?string $modelLabel = 'Unidade';
+    protected static ?string $modelLabel = 'Unidade';
 
     protected static ?string $pluralModelLabel = 'Unidades';
 

@@ -22,7 +22,7 @@ class SuperLogicaUnidadeConnector
     {
         return $this->get('/unidades/index', $filter);
     }
-    
+
     public function excluir(array $params = [])
     {
         return $this->post('unidades/delete', $params);

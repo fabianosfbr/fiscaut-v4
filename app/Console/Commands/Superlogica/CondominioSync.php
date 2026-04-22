@@ -8,7 +8,6 @@ use App\Models\SuperLogicaContaBancaria;
 use App\Models\SuperLogicaFornecedor;
 use App\Models\SuperLogicaPlanoDeConta;
 use App\Models\SuperLogicaUnidade;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class CondominioSync extends Command
@@ -34,8 +33,9 @@ class CondominioSync extends Command
     {
         $issuer = Issuer::find(63);
 
-        if (!isset($issuer->superlogica_condominio_id)) {
+        if (! isset($issuer->superlogica_condominio_id)) {
             $this->error('Empresa não vinculada ao condomínio no Superlogica.');
+
             return;
         }
 
@@ -49,15 +49,11 @@ class CondominioSync extends Command
         // $this->syncFornecedor($issuer);
         // $this->info('Fornecedores sincronizados com sucesso.');
 
-
         // $this->syncContaBancaria($issuer);
         // $this->info('Contas bancárias sincronizadas com sucesso.');
 
-
         // $this->syncPlanoDeContas($issuer);
         // $this->info('Plano de contas sincronizadas com sucesso.');
-
-
 
     }
 
@@ -143,7 +139,6 @@ class CondominioSync extends Command
 
         $condominios = SuperLogicaCondominio::where('id_condominio_cond', $issuer->superlogica_condominio_id)->get();
 
-
         foreach ($condominios as $condominio) {
 
             $havePagination = true;
@@ -189,7 +184,6 @@ class CondominioSync extends Command
 
         foreach ($condominios as $condominio) {
 
-
             $havePagination = true;
             $pagina = 1;
             while ($havePagination) {
@@ -223,7 +217,6 @@ class CondominioSync extends Command
 
         }
     }
-
 
     private function syncFornecedor(Issuer $issuer)
     {

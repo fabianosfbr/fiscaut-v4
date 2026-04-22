@@ -38,7 +38,7 @@ class ImportarLancamentoContabilGeralsTable
                     ->searchable()
                     ->badge()
                     ->tooltip(function (Model $record) {
-                        if (!is_null($record->metadata) && isset($record->metadata['descricao_debito'])) {
+                        if (! is_null($record->metadata) && isset($record->metadata['descricao_debito'])) {
                             return $record->metadata['descricao_debito'];
                         }
 
@@ -52,7 +52,7 @@ class ImportarLancamentoContabilGeralsTable
                     ->searchable()
                     ->badge()
                     ->tooltip(function (Model $record) {
-                        if (!is_null($record->metadata) && isset($record->metadata['descricao_credito'])) {
+                        if (! is_null($record->metadata) && isset($record->metadata['descricao_credito'])) {
 
                             return $record->metadata['descricao_credito'];
                         }
@@ -69,7 +69,7 @@ class ImportarLancamentoContabilGeralsTable
                             return '';
                         }
 
-                        return 'R$ ' . number_format($state, 2, ',', '.');
+                        return 'R$ '.number_format($state, 2, ',', '.');
                     }),
 
                 TextColumn::make('historico')
@@ -100,10 +100,10 @@ class ImportarLancamentoContabilGeralsTable
 
                         $debitosList = array_values(array_filter(
                             array_map(
-                                static fn(string $value): string => trim($value),
+                                static fn (string $value): string => trim($value),
                                 preg_split('/[,\s;]+/', $input, -1, PREG_SPLIT_NO_EMPTY) ?: []
                             ),
-                            static fn(string $value): bool => $value !== ''
+                            static fn (string $value): bool => $value !== ''
                         ));
 
                         if ($debitosList === []) {
@@ -124,10 +124,10 @@ class ImportarLancamentoContabilGeralsTable
 
                         $creditosList = array_values(array_filter(
                             array_map(
-                                static fn(string $value): string => trim($value),
+                                static fn (string $value): string => trim($value),
                                 preg_split('/[,\s;]+/', $input, -1, PREG_SPLIT_NO_EMPTY) ?: []
                             ),
-                            static fn(string $value): bool => $value !== ''
+                            static fn (string $value): bool => $value !== ''
                         ));
 
                         if ($creditosList === []) {
@@ -141,7 +141,7 @@ class ImportarLancamentoContabilGeralsTable
             ->persistFiltersInSession()
             ->deferFilters(true)
             ->recordActions([
-               // EditAction::make(),
+                // EditAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([]),

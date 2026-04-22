@@ -3,7 +3,6 @@
 namespace App\Filament\Condominio\Resources\SuperLogicaUnidades\Tables;
 
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -14,7 +13,7 @@ class SuperLogicaUnidadesTable
     public static function configure(Table $table): Table
     {
         return $table
-              ->modifyQueryUsing(function (Builder $query) {
+            ->modifyQueryUsing(function (Builder $query) {
                 return $query->where('id_condominio', currentIssuer()->superlogica_condominio_id);
             })
             ->recordUrl(null)
@@ -37,7 +36,7 @@ class SuperLogicaUnidadesTable
                 //
             ])
             ->recordActions([
-                //EditAction::make(),
+                // EditAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([]),

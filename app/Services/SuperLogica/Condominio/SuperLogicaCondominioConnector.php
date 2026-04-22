@@ -2,9 +2,6 @@
 
 namespace App\Services\SuperLogica\Condominio;
 
-
-use App\Services\SuperLogica\Condominio\SuperLogicaCondominioContaBancariaConnector;
-use App\Services\SuperLogica\Condominio\SuperLogicaCondominioPlanoDeContaConnector;
 use App\Services\SuperLogica\Connector\SuperLogicaConfig;
 
 class SuperLogicaCondominioConnector
@@ -31,10 +28,8 @@ class SuperLogicaCondominioConnector
         return new SuperLogicaCondominioContaBancariaConnector($this->issuer);
     }
 
-    
     public function planoDeConta()
     {
         return new SuperLogicaCondominioPlanoDeContaConnector($this->issuer);
     }
-
 }

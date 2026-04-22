@@ -7,6 +7,7 @@ use App\Filament\Resources\Issuers\IssuerResource;
 use App\Models\Issuer;
 use App\Models\IssuerUserPermission;
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -17,6 +18,15 @@ use Illuminate\Support\Facades\DB;
 class CreateIssuer extends CreateRecord
 {
     protected static string $resource = IssuerResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('view')
+                ->label('Voltar para a listagem')
+                ->url(IssuerResource::getUrl('index')),
+        ];
+    }
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {

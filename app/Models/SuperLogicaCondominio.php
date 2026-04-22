@@ -18,6 +18,4 @@ class SuperLogicaCondominio extends Model
     {
         return $this->hasMany(SuperLogicaUnidade::class, 'id_condominio', 'id_condominio_cond');
     }
-
-
 }

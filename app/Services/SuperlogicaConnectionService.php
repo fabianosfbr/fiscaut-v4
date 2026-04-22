@@ -14,11 +14,9 @@ use Illuminate\Support\Facades\Log;
 
 class SuperlogicaConnectionService
 {
-
     public function __construct(
         protected Issuer $issuer
-    ) {
-    }
+    ) {}
 
     /**
      * @return array<string, mixed>|bool
@@ -44,7 +42,7 @@ class SuperlogicaConnectionService
             throw new SuperlogicaConnectionException('access_token da Superlógica não configurado.');
         }
 
-        $endpoint = rtrim($baseUrl, '/') . '/health/check';
+        $endpoint = rtrim($baseUrl, '/').'/health/check';
 
         try {
             $response = Http::timeout(15)
@@ -56,19 +54,19 @@ class SuperlogicaConnectionService
                 ])
                 ->get($endpoint);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 Log::error('Falha na validação Superlógica', [
                     'tenant_id' => $tenant?->id,
                     'issuer_id' => $issuer->id,
                     'status' => $response->status(),
                 ]);
 
-                throw new SuperlogicaConnectionException('Falha de conexão com a Superlógica (HTTP ' . $response->status() . ').');
+                throw new SuperlogicaConnectionException('Falha de conexão com a Superlógica (HTTP '.$response->status().').');
             }
 
             $payload = $response->json();
 
-            if (!is_array($payload) || $payload === []) {
+            if (! is_array($payload) || $payload === []) {
                 throw new SuperlogicaConnectionException('Resposta inválida da Superlógica no health check.');
             }
 
@@ -106,7 +104,7 @@ class SuperlogicaConnectionService
     public function despesa()
     {
         return new SuperLogicaDespesaConnector($this->issuer);
-        
+
     }
 
     public function receita()

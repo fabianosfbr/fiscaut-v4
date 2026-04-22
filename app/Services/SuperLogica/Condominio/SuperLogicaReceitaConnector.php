@@ -2,20 +2,14 @@
 
 namespace App\Services\SuperLogica\Condominio;
 
-
 use App\Services\SuperLogica\Connector\SuperLogicaConfig;
 
 class SuperLogicaReceitaConnector
 {
     use SuperLogicaConfig;
 
-
-
-    public function listarInadimplencia (array $filter = [])
+    public function listarInadimplencia(array $filter = [])
     {
         return $this->get('/inadimplencia/index', $filter);
     }
-
-    
-
 }

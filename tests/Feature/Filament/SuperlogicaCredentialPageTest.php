@@ -93,13 +93,8 @@ class SuperlogicaCredentialPageTest extends TestCase
      */
     private function createAuthenticatedContext(array $tenantOverrides = []): array
     {
-        $tenant = new class(array_merge([
-            'id' => 1,
-            'name' => 'Tenant Teste',
-            'superlogica_base_url' => null,
-            'superlogica_app_token' => null,
-            'superlogica_access_token' => null,
-        ], $tenantOverrides)) {
+        $tenant = new class(array_merge(['id' => 1, 'name' => 'Tenant Teste', 'superlogica_base_url' => null, 'superlogica_app_token' => null, 'superlogica_access_token' => null], $tenantOverrides))
+        {
             public array $attributes;
 
             public int $id = 1;
@@ -126,7 +121,8 @@ class SuperlogicaCredentialPageTest extends TestCase
         $issuer = new Issuer;
         $issuer->id = 10;
 
-        $user = new class($tenant, $issuer) {
+        $user = new class($tenant, $issuer)
+        {
             public Issuer $currentIssuer;
 
             public function __construct(private object $tenant, Issuer $issuer)
@@ -136,7 +132,8 @@ class SuperlogicaCredentialPageTest extends TestCase
 
             public function tenant(): object
             {
-                return new class($this->tenant) {
+                return new class($this->tenant)
+                {
                     public function __construct(private object $tenant) {}
 
                     public function first(): object

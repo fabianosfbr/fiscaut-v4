@@ -2,9 +2,6 @@
 
 namespace App\Filament\Condominio\Pages;
 
-use App\Enums\ConfiguracoesGeraisEnum;
-use App\Filament\Forms\Components\SelectTagGrouped;
-use App\Models\CategoryTag;
 use App\Models\GeneralSetting;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\TextInput;
@@ -43,7 +40,6 @@ class ConfiguracaoCobranca extends Page implements HasSchemas
         'currentIssuerChanged' => 'handlecurrentIssuerChanged',
     ];
 
-
     public function mount(): void
     {
 
@@ -54,7 +50,7 @@ class ConfiguracaoCobranca extends Page implements HasSchemas
     {
         $currentIssuer = currentIssuer();
 
-        if (!$currentIssuer) {
+        if (! $currentIssuer) {
             $this->form->fill([]);
 
             return;
@@ -66,11 +62,9 @@ class ConfiguracaoCobranca extends Page implements HasSchemas
             $currentIssuer->tenant_id
         );
 
-
         // dd($settings);
         $this->form->fill($settings);
     }
-
 
     public function form(Schema $schema): Schema
     {
@@ -87,14 +81,14 @@ class ConfiguracaoCobranca extends Page implements HasSchemas
                                     ->label('Notificar depois do vencimento')
                                     ->live()
                                     ->columnSpan(1)
-                                    ->afterStateUpdated(fn() => $this->hasChanges = true),
+                                    ->afterStateUpdated(fn () => $this->hasChanges = true),
 
                                 TextInput::make('notificacao_cobranca_depois.dias')
                                     ->label('Dias depois do vencimento')
-                                    ->visible(fn($get) => $get('notificacao_cobranca_depois.enabled'))
+                                    ->visible(fn ($get) => $get('notificacao_cobranca_depois.enabled'))
                                     ->live()
                                     ->columnSpan(1)
-                                    ->afterStateUpdated(fn() => $this->hasChanges = true),
+                                    ->afterStateUpdated(fn () => $this->hasChanges = true),
                             ]),
                     ]),
             ])
@@ -105,7 +99,7 @@ class ConfiguracaoCobranca extends Page implements HasSchemas
     {
         $currentIssuer = currentIssuer();
 
-        if (!$currentIssuer) {
+        if (! $currentIssuer) {
             Notification::make()
                 ->title('Empresa não selecionada')
                 ->body('Selecione uma empresa para salvar as configurações.')
@@ -150,7 +144,7 @@ class ConfiguracaoCobranca extends Page implements HasSchemas
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Erro ao salvar')
-                ->body(new HtmlString('Ocorreu um erro ao salvar as configurações.<br>' . $e->getMessage()))
+                ->body(new HtmlString('Ocorreu um erro ao salvar as configurações.<br>'.$e->getMessage()))
                 ->danger()
                 ->send();
         } finally {

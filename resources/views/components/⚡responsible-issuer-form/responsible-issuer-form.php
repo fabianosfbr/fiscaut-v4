@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\AreaAtendimentoEnum;
+use App\Models\Issuer;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
@@ -22,10 +23,22 @@ new class extends Component implements HasActions, HasSchemas, HasTable
     use InteractsWithSchemas;
     use InteractsWithTable;
 
+    public ?int $issuerId = null;
+
+    public ?Issuer $issuer = null;
+
+    public function mount(?int $issuerId = null)
+    {
+        $this->issuerId = $issuerId;
+        $this->issuer = Issuer::find($this->issuerId);
+    }
+
     public function table(Table $table): Table
     {
+        $issuer = $this->issuer ?? Issuer::find($this->issuerId);
+
         return $table
-            ->relationship(fn () => currentIssuer()->areaResponsibles())
+            ->relationship(fn () => $issuer->areaResponsibles())
             ->headerActions([
                 Action::make('add')
                     ->label('Adicionar Novo')
@@ -33,9 +46,9 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                     ->closeModalByClickingAway(false)
                     ->closeModalByEscaping(false)
                     ->action(function (array $data) {
-                        $data['tenant_id'] = currentIssuer()->tenant_id;
-                        $data['issuer_id'] = currentIssuer()->id;
-                        currentIssuer()->areaResponsibles()->create($data);
+                        $data['tenant_id'] = $this->issuer->tenant_id;
+                        $data['issuer_id'] = $this->issuer->id;
+                        $this->issuer->areaResponsibles()->create($data);
                     }),
             ])
             ->columns([
@@ -82,7 +95,7 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                     Select::make('user_id')
                         ->label('Usuário')
                         ->relationship('user', 'name', function ($query) {
-                            return $query->where('tenant_id', currentIssuer()->tenant_id);
+                            return $query->where('tenant_id', $this->issuer->tenant_id);
                         })
                         ->searchable()
                         ->preload()

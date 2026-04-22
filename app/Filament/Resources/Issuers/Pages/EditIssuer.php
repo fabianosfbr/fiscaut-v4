@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Issuers\Pages;
 
 use App\Enums\IssuerTypeEnum;
 use App\Filament\Resources\Issuers\IssuerResource;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -14,6 +15,15 @@ class EditIssuer extends EditRecord
     protected static string $resource = IssuerResource::class;
 
     protected static ?string $title = 'Gerenciar Empresa';
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('view')
+                ->label('Voltar para a listagem')
+                ->url(IssuerResource::getUrl('index')),
+        ];
+    }
 
     protected function mutateFormDataBeforeFill(array $data): array
     {

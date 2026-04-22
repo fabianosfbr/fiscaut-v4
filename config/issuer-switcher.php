@@ -15,5 +15,7 @@ return [
         'filament.app.resources.tenants.index',
         'filament.app.resources.tenants.create',
         'filament.app.resources.tenants.edit',
+        'filament.app.resources.issuers.edit',
+        'filament.app.resources.issuers.create',
     ],
 ];

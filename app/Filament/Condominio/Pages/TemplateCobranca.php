@@ -9,7 +9,6 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
-use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
@@ -47,7 +46,7 @@ class TemplateCobranca extends Page implements HasSchemas
 
     protected function getDefaultTemplate(): string
     {
-        return <<<HTML
+        return <<<'HTML'
 <p><strong>Unidade {{numero_unidade}} Bloco {{bloco_quadra}}</strong></p>        
 <p>Prezado(a) {{nome_morador}},</p>
 <p>Esperamos que esteja bem.</p>
@@ -70,7 +69,7 @@ HTML;
     {
         $currentIssuer = currentIssuer();
 
-        if (!$currentIssuer) {
+        if (! $currentIssuer) {
             $this->form->fill([
                 'mensagem' => $this->getDefaultTemplate(),
             ]);
@@ -110,7 +109,7 @@ HTML;
                                 'link',
                             ])
                             ->live()
-                            ->afterStateUpdated(fn() => $this->hasChanges = true),
+                            ->afterStateUpdated(fn () => $this->hasChanges = true),
 
                         Group::make([
                             Actions::make([
@@ -136,7 +135,7 @@ HTML;
                             ->hiddenLabel()
                             ->state(function (): ?HtmlString {
 
-                                return new HtmlString("
+                                return new HtmlString('
                                 <div>
                                     <p><strong>Para substituir o número da unidade:</strong> {{numero_unidade}}</p>
                                     <p><strong>Para substituir o nome do bloco/quadra:</strong> {{bloco_quadra}}</p>
@@ -144,9 +143,9 @@ HTML;
                                     <p><strong>Para substituir os títulos em aberto:</strong> {{titulos_aberto}}
                                 </div>
                                 
-                                ");
+                                ');
                             }),
-                       
+
                     ]),
             ])
             ->statePath('data');
@@ -156,7 +155,7 @@ HTML;
     {
         $currentIssuer = currentIssuer();
 
-        if (!$currentIssuer) {
+        if (! $currentIssuer) {
             Notification::make()
                 ->title('Empresa não selecionada')
                 ->body('Selecione uma empresa para salvar o template.')
@@ -188,7 +187,7 @@ HTML;
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Erro ao salvar')
-                ->body(new HtmlString('Ocorreu um erro ao salvar o template.<br>' . $e->getMessage()))
+                ->body(new HtmlString('Ocorreu um erro ao salvar o template.<br>'.$e->getMessage()))
                 ->danger()
                 ->send();
         } finally {

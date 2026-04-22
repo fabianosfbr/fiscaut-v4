@@ -6,15 +6,10 @@ use App\Services\SuperLogica\Connector\SuperLogicaConfig;
 
 class SuperLogicaCondominioPlanoDeContaConnector
 {
-
-     use SuperLogicaConfig;
-
-
+    use SuperLogicaConfig;
 
     public function listar(array $filter = [])
     {
         return $this->get('/planocontas/index', $filter);
     }
-
-
 }

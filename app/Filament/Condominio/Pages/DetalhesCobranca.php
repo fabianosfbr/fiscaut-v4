@@ -11,7 +11,6 @@ use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Cache;
 
-
 class DetalhesCobranca extends Page implements HasSchemas
 {
     use InteractsWithSchemas;
@@ -21,15 +20,15 @@ class DetalhesCobranca extends Page implements HasSchemas
     protected static bool $shouldRegisterNavigation = false;
 
     public ?array $record = null;
-    public ?array $unidade = null;
 
+    public ?array $unidade = null;
 
     protected function getHeaderActions(): array
     {
         return [
             Action::make('voltar')
                 ->label('Voltar')
-                ->url(fn(): string => route('filament.condominio.pages.inadimplencia'))
+                ->url(fn (): string => route('filament.condominio.pages.inadimplencia'))
                 ->color('gray'),
         ];
     }
@@ -39,6 +38,7 @@ class DetalhesCobranca extends Page implements HasSchemas
         $this->record = $this->resolveRecord();
         $this->unidade = $this->resolveUnidade();
     }
+
     public function form(Schema $schema): Schema
     {
         return $schema
@@ -79,10 +79,8 @@ class DetalhesCobranca extends Page implements HasSchemas
                     ])->columns(6)
                     ->columnSpanFull(),
 
-
             ]);
     }
-
 
     protected function resolveRecord(): ?array
     {
@@ -98,7 +96,7 @@ class DetalhesCobranca extends Page implements HasSchemas
         // Suporte para o formato antigo em base64 (caso haja links antigos)
         $encoded = request()->query('record');
 
-        if (!$encoded) {
+        if (! $encoded) {
             return null;
         }
 
@@ -116,13 +114,13 @@ class DetalhesCobranca extends Page implements HasSchemas
     {
         $idUnidade = data_get($this->record, 'id_unidade_uni') ?? data_get($this->record, 'st_unidade_uni');
 
-        if (!$idUnidade) {
+        if (! $idUnidade) {
             return null;
         }
 
         $issuer = currentIssuer();
 
-        if (!$issuer) {
+        if (! $issuer) {
             return null;
         }
 
@@ -131,7 +129,6 @@ class DetalhesCobranca extends Page implements HasSchemas
             ->first();
 
         $values = [];
-
 
         if ($unidade) {
             $values = [

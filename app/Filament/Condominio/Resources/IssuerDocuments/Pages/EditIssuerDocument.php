@@ -18,6 +18,7 @@ class EditIssuerDocument extends EditRecord
     public function mutateFormDataBeforeSave(array $data): array
     {
         $data['validate_at'] = Carbon::parse($data['validate_at'])->format('Y-m-d');
+
         return $data;
     }
 }

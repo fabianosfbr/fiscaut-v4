@@ -8,10 +8,8 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 
-
 trait SuperLogicaConfig
 {
-
     public function __construct(
         protected Issuer $issuer,
         protected ?PendingRequest $http = null
@@ -33,7 +31,6 @@ trait SuperLogicaConfig
         if ($accessToken === '') {
             throw new SuperlogicaConnectionException('access_token da Superlógica não configurado.');
         }
-
 
         $this->http = Http::withToken($accessToken)
             ->withHeaders([

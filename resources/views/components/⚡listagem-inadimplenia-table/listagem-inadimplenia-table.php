@@ -41,10 +41,10 @@ new class extends Component implements HasActions, HasSchemas, HasTable
             ->columns([
                 TextColumn::make('dt_vencimento_recb')
                     ->label('Recebimento')
-                    ->formatStateUsing(fn($state) => \Carbon\Carbon::parse($state)->format('d/m/Y')),
+                    ->formatStateUsing(fn ($state) => \Carbon\Carbon::parse($state)->format('d/m/Y')),
                 TextColumn::make('dt_competencia_recb')
                     ->label('Competência')
-                    ->formatStateUsing(fn($state) => \Carbon\Carbon::parse($state)->format('m/Y')),
+                    ->formatStateUsing(fn ($state) => \Carbon\Carbon::parse($state)->format('m/Y')),
                 TextColumn::make('encargos.0.diasatraso')
                     ->label('Atraso'),
                 TextColumn::make('id_recebimento_recb')
@@ -67,7 +67,6 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                 TextColumn::make('encargos.0.valorcorrigido')
                     ->label('Total')
                     ->money('BRL'),
-
 
             ]);
     }

@@ -16,7 +16,7 @@ class Cliente extends Model
         'colunas_arquivo' => 'array',
     ];
 
-    //Plano de contas
+    // Plano de contas
     public function plano_de_conta()
     {
         return $this->belongsTo(PlanoDeConta::class, 'conta_contabil', 'codigo');

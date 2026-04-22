@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\IssuerContactRoleEnum;
+use App\Models\Issuer;
 use App\Rules\CpfRule;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -24,10 +25,22 @@ new class extends Component implements HasActions, HasSchemas, HasTable
     use InteractsWithSchemas;
     use InteractsWithTable;
 
+    public ?int $issuerId = null;
+
+    public ?Issuer $issuer = null;
+
+    public function mount(?int $issuerId = null)
+    {
+        $this->issuerId = $issuerId;
+        $this->issuer = Issuer::find($this->issuerId);
+    }
+
     public function table(Table $table): Table
     {
+        $issuer = $this->issuer ?? Issuer::find($this->issuerId);
+
         return $table
-            ->relationship(fn () => currentIssuer()->contacts())
+            ->relationship(fn () => $issuer->contacts())
             ->headerActions([
                 Action::make('add')
                     ->label('Adicionar Novo')
@@ -35,11 +48,11 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                     ->closeModalByClickingAway(false)
                     ->closeModalByEscaping(false)
                     ->action(function (array $data) {
-                        $data['tenant_id'] = currentIssuer()->tenant_id;
-                        $data['issuer_id'] = currentIssuer()->id;
+                        $data['tenant_id'] = $this->issuer->tenant_id;
+                        $data['issuer_id'] = $this->issuer->id;
                         $data['cpf'] = isset($data['cpf']) ? preg_replace('/\D/', '', $data['cpf']) : null;
                         $data['telefone_whatsapp'] = isset($data['telefone_whatsapp']) ? preg_replace('/\D/', '', $data['telefone_whatsapp']) : null;
-                        currentIssuer()->contacts()->create($data);
+                        $this->issuer->contacts()->create($data);
                     }),
             ])
             ->columns([

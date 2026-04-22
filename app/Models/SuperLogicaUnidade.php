@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SuperLogicaUnidade extends Model
 {
-     protected $table = 'super_logica_unidades';
+    protected $table = 'super_logica_unidades';
 
     protected $guarded = ['id'];
 

@@ -874,17 +874,17 @@ class IssuerForm
                             ]),
                         Tab::make('Usuários')
                             ->schema([
-                                Livewire::make('user-issuer-form'),
+                                Livewire::make('user-issuer-form', fn ($record) => ['issuerId' => $record?->id]),
                             ])
                             ->visibleOn(Operation::Edit),
                         Tab::make('Contatos')
                             ->schema([
-                                Livewire::make('contact-issuer-form'),
+                                Livewire::make('contact-issuer-form', fn ($record) => ['issuerId' => $record?->id]),
                             ])
                             ->visibleOn(Operation::Edit),
                         Tab::make('Responsáveis')
                             ->schema([
-                                Livewire::make('responsible-issuer-form'),
+                                Livewire::make('responsible-issuer-form', fn ($record) => ['issuerId' => $record?->id]),
                             ])
                             ->visibleOn(Operation::Edit),
                     ])->columnSpanFull(),

@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Issuer;
+use App\Models\User;
 use Filament\Actions\AttachAction;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
@@ -20,18 +22,27 @@ new class extends Component implements HasActions, HasSchemas, HasTable
     use InteractsWithSchemas;
     use InteractsWithTable;
 
+    public ?int $issuerId = null;
+
+    public function mount(?int $issuerId = null)
+    {
+        $this->issuerId = $issuerId;
+    }
+
     public function table(Table $table): Table
     {
+        $issuer = Issuer::find($this->issuerId);
+
         return $table
-            ->relationship(fn () => currentIssuer()->users())
+            ->relationship(fn () => $issuer ? $issuer->users() : User::where('id', 0))
             ->headerActions([
                 AttachAction::make()
                     ->recordTitleAttribute('name')
                     ->modalHeading('Vincular Usuário')
                     ->recordSelectOptionsQuery(
                         fn ($query) => $query
-                            ->where('tenant_id', currentIssuer()->tenant_id)
-                            ->whereDoesntHave('issuers', fn ($q) => $q->where('issuers.id', currentIssuer()->id))
+                            ->where('tenant_id', $issuer?->tenant_id)
+                            ->whereDoesntHave('issuers', fn ($q) => $q->where('issuers.id', $this->issuerId))
                     ),
             ])
             ->columns([

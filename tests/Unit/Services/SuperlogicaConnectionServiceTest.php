@@ -3,8 +3,8 @@
 namespace Tests\Unit\Services;
 
 use App\Exceptions\SuperlogicaConnectionException;
-use App\Services\SuperlogicaConnectionService;
 use App\Models\Issuer;
+use App\Services\SuperlogicaConnectionService;
 use Illuminate\Support\Facades\Http;
 use Mockery;
 use Tests\TestCase;
@@ -113,9 +113,6 @@ class SuperlogicaConnectionServiceTest extends TestCase
         });
     }
 
-    /**
-     * @return Issuer
-     */
     private function createIssuerWithCredentials(array $tenantOverrides = []): Issuer
     {
         $tenant = (object) array_merge([
