@@ -2,6 +2,7 @@
 
 namespace App\Filament\Actions;
 
+use App\Services\Sefaz\NfsePdfGenerator;
 use App\Services\Sefaz\SefazNfseDownloadService;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -21,16 +22,23 @@ class DownloadPdfNfseAction
             ->closeModalByClickingAway(false)
             ->closeModalByEscaping(false)
             ->modalSubmitActionLabel('Sim, download')
-            ->visible(fn (Model $record): bool => ! empty($record->xml))
+            ->visible(fn(Model $record): bool => ! empty($record->xml))
             ->action(function ($record) {
-                if (isset($record->chave_acesso)) {
-                    $service = new SefazNfseDownloadService(currentIssuer());
-
-                    $pdf = $service->getDanfse($record->chave_acesso);
-
-                    return response()->streamDownload(function () use ($pdf) {
-                        echo $pdf;
-                    }, 'nfse-'.$record->chave_acesso.'.pdf');
+                if (isset($record->xml)) {
+                    $generator = (new NfsePdfGenerator())
+                    ->parseXml($record->xml);
+                    
+                    $pdfContent = $generator->generate()->Output('', 'S');
+              
+                    return response()->streamDownload(
+                        function () use ($pdfContent) {
+                            echo $pdfContent;
+                        },
+                        'nfse-' . $record->chave . '.pdf',
+                        [
+                            'Content-Type' => 'application/pdf',
+                        ]
+                    );
                 }
 
                 if (isset($record->link_download_pdf)) {
