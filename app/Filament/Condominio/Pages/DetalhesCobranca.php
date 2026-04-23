@@ -19,6 +19,8 @@ class DetalhesCobranca extends Page implements HasSchemas
 
     protected static bool $shouldRegisterNavigation = false;
 
+    protected static ?string $title = 'Detalhes da Cobrança';
+
     public ?array $record = null;
 
     public ?array $unidade = null;

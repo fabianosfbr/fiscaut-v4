@@ -1,12 +1,36 @@
 <?php
 
 use App\Console\Scheduling\DynamicTaskCommandExecutor;
+use App\Jobs\SendCobrancaEmailJob;
+use App\Models\GeneralSetting;
 use App\Models\Issuer;
+use App\Models\SuperLogicaUnidade;
 use Illuminate\Support\Facades\Artisan;
 
 Artisan::command('play', function () {
 
-    $issuer = Issuer::find(60);
+    $issuer = Issuer::find(62);
+
+    $unidade = SuperLogicaUnidade::find(800);
+ //   dd($unidade->metadados);
+
+    $mapa = [
+        "st_unidade_uni" => "numero_unidade",
+        "st_bloco_uni"   => "bloco_quadra",
+        "st_sacado_uni"  => "nome_morador",
+    ];
+
+    $unidadeData = [];
+    foreach ($mapa as $chaveOriginal => $chaveNova) {
+        if (isset($unidade->metadados[$chaveOriginal])) {
+            $unidadeData[$chaveNova] = $unidade->metadados[$chaveOriginal];
+        }
+    }
+
+
+    SendCobrancaEmailJob::dispatch($issuer->id, 'contato@fabianofernandes.adm.br;gerencia.cont@speedgrupo.com.br', $unidadeData);
+
+   dd('enviado');
 
     $service = new \App\Services\SuperlogicaConnectionService($issuer);
     $condominios = $service
@@ -52,7 +76,7 @@ $argv = $_SERVER['argv'] ?? [];
 // Tenta encontrar o comando ignorando opções globais (ex: -v, --ansi)
 $artisanCommand = collect($argv)
     ->slice(1)
-    ->filter(fn ($arg) => ! str_starts_with($arg, '-'))
+    ->filter(fn($arg) => ! str_starts_with($arg, '-'))
     ->first();
 
 app(DynamicTaskCommandExecutor::class)->registerFromDatabase($artisanCommand);

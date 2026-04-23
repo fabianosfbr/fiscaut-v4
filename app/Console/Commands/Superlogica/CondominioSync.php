@@ -31,7 +31,7 @@ class CondominioSync extends Command
      */
     public function handle()
     {
-        $issuer = Issuer::find(63);
+        $issuer = Issuer::find(62);
 
         if (! isset($issuer->superlogica_condominio_id)) {
             $this->error('Empresa não vinculada ao condomínio no Superlogica.');
@@ -39,12 +39,12 @@ class CondominioSync extends Command
             return;
         }
 
-        $this->syncCondominio($issuer);
+       // $this->syncCondominio($issuer);
 
         // $this->info('Condominios sincronizados com sucesso.');
 
-        // $this->syncUnidade($issuer);
-        // $this->info('Unidades sincronizadas com sucesso.');
+        $this->syncUnidade($issuer);
+        $this->info('Unidades sincronizadas com sucesso.');
 
         // $this->syncFornecedor($issuer);
         // $this->info('Fornecedores sincronizados com sucesso.');
