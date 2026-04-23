@@ -36,6 +36,7 @@ class DetalhesCobranca extends Page implements HasSchemas
     public function mount(): void
     {
         $this->record = $this->resolveRecord();
+      //  dd($this->record);
         $this->unidade = $this->resolveUnidade();
     }
 
@@ -62,17 +63,17 @@ class DetalhesCobranca extends Page implements HasSchemas
                             ->label('Sacado'),
                         TextEntry::make('cpf')
                             ->state(function () {
-                                return $this->unidade['cpf'];
+                                return $this->unidade['cpf'] ?? '-';
                             })
                             ->label('CPF'),
                         TextEntry::make('email')
                             ->state(function () {
-                                return $this->unidade['email'];
+                                return $this->unidade['email'] ?? '-';
                             })
                             ->label('Email'),
                         TextEntry::make('celular')
                             ->state(function () {
-                                return $this->unidade['celular'];
+                                return $this->unidade['celular'] ?? '-';
                             })
                             ->label('Celular'),
 

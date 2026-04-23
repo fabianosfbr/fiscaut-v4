@@ -40,7 +40,7 @@ new class extends Component implements HasActions, HasSchemas, HasTable
             })
             ->columns([
                 TextColumn::make('dt_vencimento_recb')
-                    ->label('Recebimento')
+                    ->label('Vencimento')
                     ->formatStateUsing(fn ($state) => \Carbon\Carbon::parse($state)->format('d/m/Y')),
                 TextColumn::make('dt_competencia_recb')
                     ->label('Competência')
