@@ -11,6 +11,7 @@ use App\Models\CodigoServico;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 class CodigoServicoResource extends Resource
@@ -49,5 +50,10 @@ class CodigoServicoResource extends Resource
             'create' => CreateCodigoServico::route('/create'),
             'edit' => EditCodigoServico::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->hasRole('super-admin');
     }
 }

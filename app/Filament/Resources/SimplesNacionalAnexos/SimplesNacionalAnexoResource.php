@@ -14,6 +14,7 @@ use App\Models\SimplesNacionalAnexo;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 class SimplesNacionalAnexoResource extends Resource
@@ -54,5 +55,10 @@ class SimplesNacionalAnexoResource extends Resource
             'view' => ViewSimplesNacionalAnexo::route('/{record}'),
             'edit' => EditSimplesNacionalAnexo::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->hasRole('super-admin');
     }
 }

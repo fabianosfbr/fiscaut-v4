@@ -13,6 +13,7 @@ use App\Models\User;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 class UserResource extends Resource
@@ -50,5 +51,10 @@ class UserResource extends Resource
             'edit' => EditUser::route('/{record}/edit'),
             'groups' => UserGroupManager::route('/groups'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->hasRole('super-admin');
     }
 }

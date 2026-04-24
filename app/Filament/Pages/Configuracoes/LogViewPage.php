@@ -11,6 +11,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Livewire\WithPagination;
 use Symfony\Component\Finder\Finder;
@@ -162,5 +163,10 @@ class LogViewPage extends Page
             ->ignoreUnreadableDirs()
             ->files()
             ->in(storage_path('logs'));
+    }
+
+    public static function canAccess(): bool
+    {
+        return Auth::user()->hasRole('super-admin');
     }
 }

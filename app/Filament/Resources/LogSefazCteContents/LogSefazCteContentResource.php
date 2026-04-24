@@ -10,6 +10,7 @@ use App\Models\LogSefazCteContent;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 class LogSefazCteContentResource extends Resource
@@ -53,5 +54,10 @@ class LogSefazCteContentResource extends Resource
         return [
             'index' => ListLogSefazCteContents::route('/'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->hasRole('super-admin');
     }
 }

@@ -13,6 +13,7 @@ use App\Models\XmlImportJob;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 class XmlImportJobResource extends Resource
@@ -55,5 +56,10 @@ class XmlImportJobResource extends Resource
             'view' => ViewXmlImportJob::route('/{record}'),
             'edit' => EditXmlImportJob::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->hasRole('super-admin');
     }
 }
