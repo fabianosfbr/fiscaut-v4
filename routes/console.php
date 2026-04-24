@@ -11,8 +11,30 @@ Artisan::command('play', function () {
 
     $issuer = Issuer::find(62);
 
+    $service = new \App\Services\SuperlogicaConnectionService($issuer);
+
+    $inadimplencias = $service
+        ->receita()
+        ->listarInadimplencia([
+            'idCondominio' => $issuer->superlogica_condominio_id,
+        ]);
+
+    foreach ($inadimplencias as $record) {
+
+        foreach ($record['recebimento'] as $recb) {
+
+            $vencimentoStr = data_get($recb, 'dt_vencimento_recb');
+            $diasAtraso = data_get($recb, 'encargos.0.diasatraso');
+            ds($vencimentoStr);
+            ds($diasAtraso);
+            dd($recb);
+        }
+    }
+
+    dd('parei');
+
     $unidade = SuperLogicaUnidade::find(800);
- //   dd($unidade->metadados);
+    //   dd($unidade->metadados);
 
     $mapa = [
         "st_unidade_uni" => "numero_unidade",
@@ -30,7 +52,7 @@ Artisan::command('play', function () {
 
     SendCobrancaEmailJob::dispatch($issuer->id, 'contato@fabianofernandes.adm.br;gerencia.cont@speedgrupo.com.br', $unidadeData);
 
-   dd('enviado');
+    dd('enviado');
 
     $service = new \App\Services\SuperlogicaConnectionService($issuer);
     $condominios = $service

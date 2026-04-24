@@ -2,11 +2,10 @@
 
 return [
     'roles' => [
-        '0' => 'Proprietário',
-        '1' => 'Super Admin',
-        '2' => 'Administrador',
-        '3' => 'Contabilidade',
-        '4' => 'Usuário',
+        '0' => 'Super Admin',
+        '1' => 'Admin',
+        '2' => 'Contabilidade',
+        '3' => 'Usuário',
     ],
 
     'permissions' => [

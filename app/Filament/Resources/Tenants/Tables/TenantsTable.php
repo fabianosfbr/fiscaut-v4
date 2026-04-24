@@ -18,10 +18,15 @@ class TenantsTable
                 TextColumn::make('name')
                     ->searchable()
                     ->label('Nome'),
+                TextColumn::make('issuers_count')
+                    ->label('Empresas')
+                    ->sortable(),
+                TextColumn::make('users_count')
+                    ->label('Usuários')
+                    ->sortable(),
                 IconColumn::make('active')
                     ->boolean()
                     ->label('Status'),
-                TextColumn::make('owner.name')->label('Proprietário'),
             ])
             ->filters([
                 //

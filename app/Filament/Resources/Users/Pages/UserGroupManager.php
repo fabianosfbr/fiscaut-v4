@@ -46,7 +46,7 @@ class UserGroupManager extends Page implements HasActions, HasSchemas, HasTable
     {
         return $table
             ->recordUrl(null)
-            ->query(Role::query())
+            ->query(Role::query()->where('tenant_id', currentIssuer()->tenant_id))
             ->headerActions([
                 Action::make('create')
                     ->label('Criar Novo Grupo')

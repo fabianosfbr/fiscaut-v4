@@ -30,7 +30,8 @@ class TenantResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return TenantsTable::configure($table);
+        return TenantsTable::configure($table)
+            ->modifyQueryUsing(fn ($query) => $query->withCount(['issuers', 'users']));
     }
 
     public static function getRelations(): array
@@ -45,7 +46,8 @@ class TenantResource extends Resource
         return [
             'index' => ListTenants::route('/'),
             'create' => CreateTenant::route('/create'),
-            'edit' => EditTenant::route('/{record}/edit'),
+           // 'edit' => EditTenant::route('/{record}/edit'),
         ];
     }
+    
 }

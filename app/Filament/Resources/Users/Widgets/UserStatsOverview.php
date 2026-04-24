@@ -11,7 +11,7 @@ class UserStatsOverview extends StatsOverviewWidget
 {
     protected function getStats(): array
     {
-        $userQuery = User::where('tenant_id', Auth::user()->tenant_id);
+        $userQuery = User::query();
 
         return [
             Stat::make('Total de usuários', $userQuery->count()),

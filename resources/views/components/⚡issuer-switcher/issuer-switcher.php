@@ -55,10 +55,19 @@ new class extends Component implements HasSchemas
                             return [];
                         }
 
-                        return $user->issuers()
+                        if ($user->hasRole('super-admin')) {
+                            return \App\Models\Issuer::where('tenant_id', $user->tenant_id)
+                                ->where('is_enabled', true)
+                                ->pluck('razao_social', 'id');
+                        }
+
+                        $issuers = $user->issuers()
                             ->wherePivot('active', true) // Garante que o vínculo está ativo
                             ->where('is_enabled', true)  // Garante que a empresa está ativa
                             ->pluck('razao_social', 'issuers.id');
+
+
+                        return $issuers;
                     })
                     // 2. Tratamento de Estados:
                     ->searchable() // Permite buscar na lista
@@ -117,14 +126,14 @@ new class extends Component implements HasSchemas
             if (isset($result['status']) && $result['status'] === true) {
                 Notification::make()
                     ->title('Sincronização concluída!')
-                    ->body('Estamos sincronizando os dados vinculados ao '.currentIssuer()->razao_social.'. Isso pode levar alguns minutos.')
+                    ->body('Estamos sincronizando os dados vinculados ao ' . currentIssuer()->razao_social . '. Isso pode levar alguns minutos.')
                     ->success()
                     ->duration(2000)
                     ->send();
             } else {
                 Notification::make()
                     ->title('Erro na sincronização!')
-                    ->body('Ocorreu um erro ao sincronizar os dados do '.currentIssuer()->razao_social.'. Por favor, tente novamente mais tarde.')
+                    ->body('Ocorreu um erro ao sincronizar os dados do ' . currentIssuer()->razao_social . '. Por favor, tente novamente mais tarde.')
                     ->danger()
                     ->duration(2000)
                     ->send();

@@ -13,6 +13,11 @@ class Tenant extends Model
         return $this->hasMany(Issuer::class);
     }
 
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
     public function areaResponsibles()
     {
         return $this->hasMany(IssuerAreaResponsible::class);

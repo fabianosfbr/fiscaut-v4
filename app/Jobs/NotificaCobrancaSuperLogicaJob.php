@@ -95,8 +95,7 @@ class NotificaCobrancaSuperLogicaJob implements ShouldQueue
                     }
                 }
 
-                $diasAtraso = $vencimento->diffInDays($today, false);
-
+                $diasAtraso = data_get($recb, 'encargos.0.diasatraso');
 
                 $valor = number_format((float) data_get($recb, 'encargos.0.valorcorrigido', data_get($recb, 'vl_emitido_recb', 0)), 2, ',', '.');
                 $titulosAtrasados[] = "Vencimento: {$vencimento->format('d/m/Y')} - Valor: R$ {$valor}";
@@ -140,8 +139,8 @@ class NotificaCobrancaSuperLogicaJob implements ShouldQueue
 
                     ];
 
-                    SendCobrancaEmailJob::dispatch($this->issuer->id, 'cihatiw104@poisonword.com', $unidadeData);
-                    
+                    SendCobrancaEmailJob::dispatch($this->issuer->id, 'rehaf52729@poisonword.com;gerencia.cont@speedgrupo.com.br;cobranca.adm.2@speedgrupo.com.br', $unidadeData);
+                    sleep(10);
                 }
             }
         }

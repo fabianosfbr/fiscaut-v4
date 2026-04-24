@@ -14,9 +14,6 @@ class UsersTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(function ($query) {
-                return $query->where('tenant_id', Auth::user()->tenant_id);
-            })
             ->columns([
                 TextColumn::make('name')
                     ->label('Nome')

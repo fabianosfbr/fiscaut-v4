@@ -9,12 +9,13 @@ use Filament\Actions\DetachAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class IssuersRelationManager extends RelationManager
 {
     protected static string $relationship = 'issuers';
 
-    protected static ?string $relatedResource = UserResource::class;
+    protected static ?string $recordTitleAttribute = 'razao_social';
 
     public function table(Table $table): Table
     {
