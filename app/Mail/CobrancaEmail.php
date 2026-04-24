@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -14,10 +13,15 @@ class CobrancaEmail extends Mailable
     use Queueable, SerializesModels;
 
     public string $bodyContent;
+
     public string $subjectContent;
+
     public string $fromEmail;
+
     public string $fromName;
+
     public string $tenantName;
+
     public string $logoUrl;
 
     /**
@@ -30,7 +34,7 @@ class CobrancaEmail extends Mailable
         $this->fromEmail = $fromEmail;
         $this->fromName = $fromName;
         $this->tenantName = $tenantName;
-        
+
         // Ensure absolute URL for the logo for proper rendering in email clients
         $this->logoUrl = url('images/application/logo-no-background.png');
     }

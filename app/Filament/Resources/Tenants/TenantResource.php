@@ -46,8 +46,7 @@ class TenantResource extends Resource
         return [
             'index' => ListTenants::route('/'),
             'create' => CreateTenant::route('/create'),
-           // 'edit' => EditTenant::route('/{record}/edit'),
+            // 'edit' => EditTenant::route('/{record}/edit'),
         ];
     }
-    
 }

@@ -13,10 +13,8 @@ class SuperLogicaCobrancaNotification extends Model
 
     protected $table = 'super_logica_cobranca_notifications';
 
-
     protected $casts = [
         'data' => 'array',
         'sent_at' => 'datetime',
     ];
-
 }

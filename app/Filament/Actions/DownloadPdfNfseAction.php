@@ -3,7 +3,6 @@
 namespace App\Filament\Actions;
 
 use App\Services\Sefaz\NfsePdfGenerator;
-use App\Services\Sefaz\SefazNfseDownloadService;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
@@ -22,19 +21,19 @@ class DownloadPdfNfseAction
             ->closeModalByClickingAway(false)
             ->closeModalByEscaping(false)
             ->modalSubmitActionLabel('Sim, download')
-            ->visible(fn(Model $record): bool => ! empty($record->xml))
+            ->visible(fn (Model $record): bool => ! empty($record->xml))
             ->action(function ($record) {
                 if (isset($record->xml)) {
-                    $generator = (new NfsePdfGenerator())
-                    ->parseXml($record->xml);
-                    
+                    $generator = (new NfsePdfGenerator)
+                        ->parseXml($record->xml);
+
                     $pdfContent = $generator->generate()->Output('', 'S');
-              
+
                     return response()->streamDownload(
                         function () use ($pdfContent) {
                             echo $pdfContent;
                         },
-                        'nfse-' . $record->chave . '.pdf',
+                        'nfse-'.$record->chave.'.pdf',
                         [
                             'Content-Type' => 'application/pdf',
                         ]

@@ -145,7 +145,7 @@ class LayoutLancamentoResolverService
             }
 
             if ($historicoFromParam) {
-               // $historicoTemplate = $historicoFromParam;
+                // $historicoTemplate = $historicoFromParam;
                 $resolved['cod_historico'] = $codHistorico ?? $resolved['cod_historico'];
             }
 

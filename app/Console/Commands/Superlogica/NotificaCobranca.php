@@ -3,12 +3,8 @@
 namespace App\Console\Commands\Superlogica;
 
 use App\Jobs\NotificaCobrancaSuperLogicaJob;
-use App\Jobs\SendCobrancaEmailJob;
-use App\Models\GeneralSetting;
 use App\Models\Issuer;
-use App\Models\SuperLogicaUnidade;
 use Illuminate\Console\Command;
-use Illuminate\Support\Carbon;
 
 class NotificaCobranca extends Command
 {
@@ -35,7 +31,6 @@ class NotificaCobranca extends Command
         //     ->where('is_enabled', true)
         //     ->whereNotNull('superlogica_condominio_id')
         //     ->get();
-
 
         // foreach ($issuers as $issuer) {
         //     NotificaCobrancaSuperLogicaJob::dispatch($issuer);

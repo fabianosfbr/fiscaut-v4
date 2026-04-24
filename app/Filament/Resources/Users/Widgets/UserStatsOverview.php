@@ -5,7 +5,6 @@ namespace App\Filament\Resources\Users\Widgets;
 use App\Models\User;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use Illuminate\Support\Facades\Auth;
 
 class UserStatsOverview extends StatsOverviewWidget
 {

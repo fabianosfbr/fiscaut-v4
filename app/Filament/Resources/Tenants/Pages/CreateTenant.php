@@ -18,7 +18,7 @@ class CreateTenant extends CreateRecord
     {
 
         $data['cnpj'] = sanitize($data['cnpj']);
-    
+
         return $data;
     }
 
@@ -40,27 +40,24 @@ class CreateTenant extends CreateRecord
             $user = $this->createUser($data, $issuer, $record);
 
             $issuer->users()->attach(['user_id' => $user->id]);
-            
+
             $role = Role::where('slug', 'admin')->where('tenant_id', $record->id)->first();
 
             $user->roles()->attach($role);
 
-            //Atribui as permissões do grupo
+            // Atribui as permissões do grupo
             $permissions = $role->permissions;
             foreach ($permissions as $permission) {
                 $user->permissions()->attach($permission);
             }
         });
 
-
-
-
         return $record;
     }
 
     protected function createUser(array $data, Model $issuer, Model $tenant)
     {
-        return  User::create([
+        return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => $data['password'],
@@ -76,7 +73,7 @@ class CreateTenant extends CreateRecord
 
     protected function createIssuer(array $data, Model $tenant)
     {
-        return  $tenant->issuers()->create([
+        return $tenant->issuers()->create([
             'razao_social' => $data['razao_social'],
             'cnpj' => sanitize($data['cnpj']),
             'regime' => $data['regime'],

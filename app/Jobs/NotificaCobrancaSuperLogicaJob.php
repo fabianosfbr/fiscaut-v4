@@ -8,7 +8,6 @@ use App\Models\SuperLogicaUnidade;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use PHPUnit\Runner\Baseline\Issue;
 
 class NotificaCobrancaSuperLogicaJob implements ShouldQueue
 {
@@ -18,9 +17,8 @@ class NotificaCobrancaSuperLogicaJob implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(
-       protected Issuer $issuer
-    )
-    {
+        protected Issuer $issuer
+    ) {
         //
     }
 
@@ -33,23 +31,22 @@ class NotificaCobrancaSuperLogicaJob implements ShouldQueue
             ->where('name', 'configuracoes_cobranca')
             ->first();
 
-        if (!$settings || empty($settings->payload['notificacao_cobranca_depois'])) {
-           
+        if (! $settings || empty($settings->payload['notificacao_cobranca_depois'])) {
+
             return;
         }
 
         $config = $settings->payload['notificacao_cobranca_depois'];
 
         if (empty($config['enabled'])) {
-            
+
             return;
         }
 
         $diasConfig = array_filter(array_map('trim', explode(',', $config['dias'] ?? '')));
 
-
         if (empty($diasConfig)) {
-            
+
             return;
         }
 
@@ -62,16 +59,15 @@ class NotificaCobrancaSuperLogicaJob implements ShouldQueue
             ]);
 
         if (empty($inadimplencias)) {
-            
+
             return;
         }
 
         $today = Carbon::today();
-        
 
         foreach ($inadimplencias as $record) {
 
-            if (!isset($record['recebimento']) || !is_array($record['recebimento'])) {
+            if (! isset($record['recebimento']) || ! is_array($record['recebimento'])) {
                 continue;
             }
 
@@ -81,7 +77,7 @@ class NotificaCobrancaSuperLogicaJob implements ShouldQueue
             foreach ($record['recebimento'] as $recb) {
 
                 $vencimentoStr = data_get($recb, 'dt_vencimento_recb');
-                if (!$vencimentoStr) {
+                if (! $vencimentoStr) {
                     continue;
                 }
 
@@ -100,17 +96,16 @@ class NotificaCobrancaSuperLogicaJob implements ShouldQueue
                 $valor = number_format((float) data_get($recb, 'encargos.0.valorcorrigido', data_get($recb, 'vl_emitido_recb', 0)), 2, ',', '.');
                 $titulosAtrasados[] = "Vencimento: {$vencimento->format('d/m/Y')} - Valor: R$ {$valor}";
 
-                if (in_array((string)$diasAtraso, $diasConfig)) {
+                if (in_array((string) $diasAtraso, $diasConfig)) {
                     $deveNotificar = true;
                 }
             }
-
 
             if ($deveNotificar) {
 
                 $email = data_get($record, 'recebimento.0.contatosunidade.0.proprietario.0.email');
 
-                if (!$email) {
+                if (! $email) {
                     $idUnidade = data_get($record, 'id_unidade_uni') ?? data_get($record, 'st_unidade_uni');
                     $unidade = SuperLogicaUnidade::where('id_unidade_uni', $idUnidade)
                         ->where('id_condominio', $this->issuer->superlogica_condominio_id)
@@ -119,18 +114,17 @@ class NotificaCobrancaSuperLogicaJob implements ShouldQueue
                     $email = $unidade ? data_get($unidade, 'metadados.email_proprietario') : null;
                 }
 
-
                 if ($email) {
-                    $titulosHtml = "<ul>";
+                    $titulosHtml = '<ul>';
                     foreach ($titulosAtrasados as $t) {
                         $titulosHtml .= "<li>{$t}</li>";
                     }
-                    $titulosHtml .= "</ul>";
+                    $titulosHtml .= '</ul>';
 
                     $unidadeData = [
                         'numero_unidade' => data_get($record, 'st_unidade_uni', ''),
-                        'bloco_quadra'   => data_get($record, 'st_bloco_uni', ''),
-                        'nome_morador'   => data_get($record, 'st_sacado_uni', ''),
+                        'bloco_quadra' => data_get($record, 'st_bloco_uni', ''),
+                        'nome_morador' => data_get($record, 'st_sacado_uni', ''),
                         'titulos_aberto' => $titulosHtml,
                         'id_condominio_cond' => data_get($recb, 'id_condominio_cond'),
                         'id_recebimento_recb' => data_get($recb, 'id_recebimento_recb'),

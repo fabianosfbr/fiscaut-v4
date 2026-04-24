@@ -33,7 +33,7 @@ new class extends Component implements HasActions, HasSchemas, HasTable
                 // dd($this->recebimentos);
                 $notificacoes = SuperLogicaCobrancaNotification::where('id_unidade_uni', $this->recebimentos['id_unidade_uni'])->orderBy('created_at', 'desc')
                     ->get()->toArray();
-                $records = collect($notificacoes)->forPage($page, $recordsPerPage);                
+                $records = collect($notificacoes)->forPage($page, $recordsPerPage);
 
                 return new LengthAwarePaginator(
                     $records,
@@ -45,10 +45,9 @@ new class extends Component implements HasActions, HasSchemas, HasTable
             ->columns([
                 TextColumn::make('sent_at')
                     ->label('Data de Envio')
-                    ->formatStateUsing(fn($state) => \Carbon\Carbon::parse($state)->format('d/m/Y H:i:s')),
+                    ->formatStateUsing(fn ($state) => \Carbon\Carbon::parse($state)->format('d/m/Y H:i:s')),
                 TextColumn::make('data.recipient_email')
                     ->label('Enviada para'),
-
 
             ]);
     }

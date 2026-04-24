@@ -2,14 +2,12 @@
 
 namespace App\Filament\Resources\Users\RelationManagers;
 
-use App\Filament\Resources\Users\UserResource;
 use App\Models\Issuer;
 use Filament\Actions\AttachAction;
 use Filament\Actions\DetachAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
 
 class IssuersRelationManager extends RelationManager
 {

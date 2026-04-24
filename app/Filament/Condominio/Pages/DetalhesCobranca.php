@@ -38,7 +38,7 @@ class DetalhesCobranca extends Page implements HasSchemas
     public function mount(): void
     {
         $this->record = $this->resolveRecord();
-      //  dd($this->record);
+        //  dd($this->record);
         $this->unidade = $this->resolveUnidade();
     }
 

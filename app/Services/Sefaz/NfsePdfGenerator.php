@@ -1,19 +1,24 @@
 <?php
 
 namespace App\Services\Sefaz;
+
 use TCPDF;
 
 class NfsePdfGenerator
 {
     private $pdf;
+
     private $data;
+
     private $margin = 5;
+
     private $logoSvg = null;
+
     private $headerInfo = [
         'municipalityLine' => null,
-        'secretariatLine'  => null,
-        'phoneLine'        => null,
-        'emailLine'        => null,
+        'secretariatLine' => null,
+        'phoneLine' => null,
+        'emailLine' => null,
     ];
 
     public function __construct()
@@ -64,35 +69,35 @@ class NfsePdfGenerator
         $totaisTributos = $dps->valores->trib->totTrib->vTotTrib;
 
         // Extract Id attribute using attributes() method
-        $id = (string)$infNFSe->attributes()->Id;
+        $id = (string) $infNFSe->attributes()->Id;
         // Chave de acesso is the Id value without "NFS" prefix for display
         $chaveAcesso = preg_replace('/^NFS/', '', $id);
 
         $this->data = [
             'chaveAcesso' => $chaveAcesso,
-            'numeroNfse' => (string)$infNFSe->nNFSe,
-            'localEmissao' => (string)$infNFSe->xLocEmi,
-            'localPrestacao' => (string)$infNFSe->xLocPrestacao,
-            'localIncidencia' => (string)$infNFSe->xLocIncid,
-            'tribNac' => (string)$infNFSe->xTribNac,
-            'dataProcessamento' => $this->formatDateTime((string)$infNFSe->dhProc),
-            'numeroDFSe' => (string)$infNFSe->nDFSe,
+            'numeroNfse' => (string) $infNFSe->nNFSe,
+            'localEmissao' => (string) $infNFSe->xLocEmi,
+            'localPrestacao' => (string) $infNFSe->xLocPrestacao,
+            'localIncidencia' => (string) $infNFSe->xLocIncid,
+            'tribNac' => (string) $infNFSe->xTribNac,
+            'dataProcessamento' => $this->formatDateTime((string) $infNFSe->dhProc),
+            'numeroDFSe' => (string) $infNFSe->nDFSe,
             'emitente' => [
-                'cnpj' => $this->formatCnpjCpf((string)$infNFSe->emit->CNPJ),
-                'im' => (string)$infNFSe->emit->IM,
-                'nome' => (string)$infNFSe->emit->xNome,
-                'logradouro' => (string)$infNFSe->emit->enderNac->xLgr,
-                'numero' => (string)$infNFSe->emit->enderNac->nro,
-                'bairro' => (string)$infNFSe->emit->enderNac->xBairro,
-                'municipio' => (string)$infNFSe->emit->enderNac->cMun,
-                'uf' => (string)$infNFSe->emit->enderNac->UF,
-                'cep' => $this->formatCep((string)$infNFSe->emit->enderNac->CEP),
-                'fone' => $this->formatPhone((string)$infNFSe->emit->fone),
-                'email' => (string)$infNFSe->emit->email,
+                'cnpj' => $this->formatCnpjCpf((string) $infNFSe->emit->CNPJ),
+                'im' => (string) $infNFSe->emit->IM,
+                'nome' => (string) $infNFSe->emit->xNome,
+                'logradouro' => (string) $infNFSe->emit->enderNac->xLgr,
+                'numero' => (string) $infNFSe->emit->enderNac->nro,
+                'bairro' => (string) $infNFSe->emit->enderNac->xBairro,
+                'municipio' => (string) $infNFSe->emit->enderNac->cMun,
+                'uf' => (string) $infNFSe->emit->enderNac->UF,
+                'cep' => $this->formatCep((string) $infNFSe->emit->enderNac->CEP),
+                'fone' => $this->formatPhone((string) $infNFSe->emit->fone),
+                'email' => (string) $infNFSe->emit->email,
             ],
             'tomador' => [
-                'cnpj' => $this->formatCnpjCpf((string)$dps->toma->CNPJ),
-                'nome' => (string)$dps->toma->xNome,
+                'cnpj' => $this->formatCnpjCpf((string) $dps->toma->CNPJ),
+                'nome' => (string) $dps->toma->xNome,
                 'logradouro' => $this->readFirstValue([
                     $tomaEndereco->xLgr,
                     $tomaEndereco->endNac->xLgr,
@@ -114,33 +119,33 @@ class NfsePdfGenerator
                     $tomaEndereco->endNac->xMun,
                     $tomaEndereco->endNac->cMun,
                 ]),
-                'cep' => $this->formatCep((string)$tomaEndereco->endNac->CEP),
+                'cep' => $this->formatCep((string) $tomaEndereco->endNac->CEP),
             ],
             'servico' => [
-                'codTribNac' => (string)$dps->serv->cServ->cTribNac,
-                'codTribMun' => (string)$dps->serv->cServ->cTribMun,
-                'descricao' => (string)$dps->serv->cServ->xDescServ,
+                'codTribNac' => (string) $dps->serv->cServ->cTribNac,
+                'codTribMun' => (string) $dps->serv->cServ->cTribMun,
+                'descricao' => (string) $dps->serv->cServ->xDescServ,
             ],
             'valores' => [
-                'baseCalculo' => (float)$infNFSe->valores->vBC,
-                'aliquotaAplicada' => (float)$infNFSe->valores->pAliqAplic,
-                'valorIssqn' => (float)$infNFSe->valores->vISSQN,
-                'valorServico' => (float)$dps->valores->vServPrest->vServ,
-                'valorLiquido' => (float)$infNFSe->valores->vLiq,
-                'valorTotalRet' => (float)$infNFSe->valores->vTotalRet,
+                'baseCalculo' => (float) $infNFSe->valores->vBC,
+                'aliquotaAplicada' => (float) $infNFSe->valores->pAliqAplic,
+                'valorIssqn' => (float) $infNFSe->valores->vISSQN,
+                'valorServico' => (float) $dps->valores->vServPrest->vServ,
+                'valorLiquido' => (float) $infNFSe->valores->vLiq,
+                'valorTotalRet' => (float) $infNFSe->valores->vTotalRet,
             ],
             'dps' => [
-                'numero' => (string)$dps->nDPS,
-                'serie' => (string)$dps->serie,
-                'competencia' => $this->formatDate((string)$dps->dCompet),
-                'dataEmissao' => $this->formatDateTime((string)$dps->dhEmi),
+                'numero' => (string) $dps->nDPS,
+                'serie' => (string) $dps->serie,
+                'competencia' => $this->formatDate((string) $dps->dCompet),
+                'dataEmissao' => $this->formatDateTime((string) $dps->dhEmi),
             ],
             'tributacao' => [
-                'tribISSQN' => (string)$dps->valores->trib->tribMun->tribISSQN,
-                'tpRetISSQN' => (string)$dps->valores->trib->tribMun->tpRetISSQN,
-                'totTribFed' => (float)$totaisTributos->vTotTribFed,
-                'totTribEst' => (float)$totaisTributos->vTotTribEst,
-                'totTribMun' => (float)$totaisTributos->vTotTribMun,
+                'tribISSQN' => (string) $dps->valores->trib->tribMun->tribISSQN,
+                'tpRetISSQN' => (string) $dps->valores->trib->tribMun->tpRetISSQN,
+                'totTribFed' => (float) $totaisTributos->vTotTribFed,
+                'totTribEst' => (float) $totaisTributos->vTotTribEst,
+                'totTribMun' => (float) $totaisTributos->vTotTribMun,
             ],
         ];
 
@@ -181,10 +186,10 @@ class NfsePdfGenerator
         $pageWidth = 210; // A4 width in mm
         $pageHeight = 297; // A4 height in mm
 
-        $x1 = $this->margin-3;
-        $y1 = $this->margin-3;
-        $width = $pageWidth - (2 * $this->margin-5);  // Total width minus both margins
-        $height = $pageHeight - (2 * $this->margin-5); // Total height minus both margins
+        $x1 = $this->margin - 3;
+        $y1 = $this->margin - 3;
+        $width = $pageWidth - (2 * $this->margin - 5);  // Total width minus both margins
+        $height = $pageHeight - (2 * $this->margin - 5); // Total height minus both margins
 
         // Set line width for border
         $this->pdf->SetLineWidth(0.1);
@@ -210,7 +215,7 @@ class NfsePdfGenerator
         $startY = $this->pdf->GetY();
 
         // Left column - NFSe logo image (fixed base layout)
-        $logoPath = __DIR__ . '/../assets/logo-nfse-assinatura-horizontal.png';
+        $logoPath = __DIR__.'/../assets/logo-nfse-assinatura-horizontal.png';
         if (file_exists($logoPath)) {
             $this->pdf->Image($logoPath, $this->margin, $startY, 50, 0, 'PNG', '', '', false, 300, '', false, false, 0, false, false, false);
         }
@@ -225,27 +230,27 @@ class NfsePdfGenerator
         $this->pdf->Cell(50, 4, 'Documento Auxiliar da NFS-e', 0, 0, 'C');
 
         // Right column - Municipality coat of arms (SVG) to the LEFT, text block to the RIGHT
-        $rightX        = 125; // base X for the right-side header block
-        $blockWidth    = 55;  // total width originally used for the right header cell
-        $logoWidth     = 18;
-        $gap           = 2;
+        $rightX = 125; // base X for the right-side header block
+        $blockWidth = 55;  // total width originally used for the right header cell
+        $logoWidth = 18;
+        $gap = 2;
         $textBlockWidth = $blockWidth - $logoWidth - $gap;
 
         // Municipality logo on the left of the text block
         $logoX = $rightX; // left edge of the right header block
-        if (!empty($this->logoSvg)) {
+        if (! empty($this->logoSvg)) {
             // TCPDF: '@' prefix means raw SVG content
-            $this->pdf->ImageSVG('@' . $this->logoSvg, $logoX, $startY, $logoWidth, '', '', '', 0, false);
+            $this->pdf->ImageSVG('@'.$this->logoSvg, $logoX, $startY, $logoWidth, '', '', '', 0, false);
         } elseif ($defaultLogoPath = $this->resolveDefaultHeaderLogoPath()) {
-            $this->pdf->Image($defaultLogoPath, $logoX, $startY+2, $logoWidth, 0, 'PNG', '', '', false, 300, '', false, false, 0, false, false, false);
+            $this->pdf->Image($defaultLogoPath, $logoX, $startY + 2, $logoWidth, 0, 'PNG', '', '', false, 300, '', false, false, 0, false, false, false);
         }
 
         // Text block to the RIGHT of the SVG logo
         $textX = $rightX + $logoWidth + $gap;
-        $municipalityLine = $this->headerInfo['municipalityLine'] ?? ('Prefeitura Municipal de ' . $this->data['localEmissao']);
-        $secretariatLine  = $this->headerInfo['secretariatLine']  ?? 'Secretaria Municipal da Fazenda';
-        $phoneLine        = $this->headerInfo['phoneLine']        ?? '';
-        $emailLine        = $this->headerInfo['emailLine']        ?? '';
+        $municipalityLine = $this->headerInfo['municipalityLine'] ?? ('Prefeitura Municipal de '.$this->data['localEmissao']);
+        $secretariatLine = $this->headerInfo['secretariatLine'] ?? 'Secretaria Municipal da Fazenda';
+        $phoneLine = $this->headerInfo['phoneLine'] ?? '';
+        $emailLine = $this->headerInfo['emailLine'] ?? '';
 
         $this->pdf->SetXY($textX, $startY);
         $this->pdf->SetFont('helvetica', 'B', 8);
@@ -299,22 +304,22 @@ class NfsePdfGenerator
         $row1Y = $this->pdf->GetY();
 
         // QR Code positioned FIRST in 4th column (centered, larger, above all text)
-        $qrUrl = 'https://www.nfse.gov.br/ConsultaPublica?tpc=1&chave=' . $this->data['chaveAcesso'];
+        $qrUrl = 'https://www.nfse.gov.br/ConsultaPublica?tpc=1&chave='.$this->data['chaveAcesso'];
         $qrSize = 18; // QR code size
         // Center the QR code horizontally in the 4th column
         $qrX = $col4X + ($col4W - $qrSize) / 1.5;
         // Position QR code higher above row1Y to avoid overlapping with text
         $qrY = $row1Y - 10;
 
-        $style = array(
+        $style = [
             'border' => 0,
             'vpadding' => 'auto',
             'hpadding' => 'auto',
-            'fgcolor' => array(0, 0, 0),
+            'fgcolor' => [0, 0, 0],
             'bgcolor' => false,
             'module_width' => 1,
-            'module_height' => 1
-        );
+            'module_height' => 1,
+        ];
 
         $this->pdf->write2DBarcode($qrUrl, 'QRCODE,L', $qrX, $qrY, $qrSize, $qrSize, $style, 'N');
 
@@ -366,7 +371,7 @@ class NfsePdfGenerator
         $this->pdf->SetXY($col4X, $row4Y);
         $this->pdf->SetFont('helvetica', '', 5);
         $message = 'A autenticidade desta NFS-e pode ser verificada pela leitura deste código QR ou pela consulta da chave de acesso no portal nacional da NFS-e';
-        $this->pdf->MultiCell($col4W - 1, 1, $message, 0, 'L', false, 1, $col4X+5, $row4Y-4);
+        $this->pdf->MultiCell($col4W - 1, 1, $message, 0, 'L', false, 1, $col4X + 5, $row4Y - 4);
         $messageEndY = $this->pdf->GetY();
 
         // Move Y position after QR code area (use the maximum of message end or QR code end)
@@ -433,7 +438,7 @@ class NfsePdfGenerator
         $this->pdf->SetXY($col4X, $row2Y + 4);
         $this->pdf->Cell($col4W, 4, '', 0, 1, 'L');
 
-        $endereco = $emit['logradouro'] . ', ' . $emit['numero'] . ', ' . $emit['bairro'];
+        $endereco = $emit['logradouro'].', '.$emit['numero'].', '.$emit['bairro'];
         // Header row
         $row3Y = $this->pdf->GetY();
         $this->pdf->SetFont('helvetica', 'B', 7);
@@ -453,7 +458,7 @@ class NfsePdfGenerator
         $this->pdf->SetXY($col2X, $row3Y + 4);
         $this->pdf->Cell($col2W, 4, '', 0, 0, 'L');
         $this->pdf->SetXY($col3X, $row3Y + 4);
-        $this->pdf->Cell($col3W, 4, $this->data['localEmissao'] . ' - ' . $emit['uf'], 0, 0, 'L');
+        $this->pdf->Cell($col3W, 4, $this->data['localEmissao'].' - '.$emit['uf'], 0, 0, 'L');
         $this->pdf->SetXY($col4X, $row3Y + 4);
         $this->pdf->Cell($col4W, 4, $emit['cep'], 0, 1, 'L');
 
@@ -610,7 +615,7 @@ class NfsePdfGenerator
         // Data row - Format code as 01.03.02
         $this->pdf->SetFont('helvetica', '', 8);
         $codTribFormatted = $this->formatCodTribNac($serv['codTribNac']);
-        $codTrib = $codTribFormatted . ' - ' . substr($this->data['tribNac'], 0, 40) . '...';
+        $codTrib = $codTribFormatted.' - '.substr($this->data['tribNac'], 0, 40).'...';
         $this->pdf->SetXY($col1X, $startY + 4);
         $this->pdf->Cell($col1W, 4, $codTrib, 0, 0, 'L');
         $this->pdf->SetXY($col2X, $startY + 4);
@@ -715,7 +720,7 @@ class NfsePdfGenerator
         // Data row
         $this->pdf->SetFont('helvetica', '', 8);
         $this->pdf->SetXY($col1X, $row3Y + 4);
-        $this->pdf->Cell($col1W, 4, 'R$ ' . number_format($val['valorServico'], 2, ',', '.'), 0, 0, 'L');
+        $this->pdf->Cell($col1W, 4, 'R$ '.number_format($val['valorServico'], 2, ',', '.'), 0, 0, 'L');
         $this->pdf->SetXY($col2X, $row3Y + 4);
         $this->pdf->Cell($col2W, 4, '-', 0, 0, 'L');
         $this->pdf->SetXY($col3X, $row3Y + 4);
@@ -738,13 +743,13 @@ class NfsePdfGenerator
         // Data row
         $this->pdf->SetFont('helvetica', '', 8);
         $this->pdf->SetXY($col1X, $row4Y + 4);
-        $this->pdf->Cell($col1W, 4, 'R$ ' . number_format($val['baseCalculo'], 2, ',', '.'), 0, 0, 'L');
+        $this->pdf->Cell($col1W, 4, 'R$ '.number_format($val['baseCalculo'], 2, ',', '.'), 0, 0, 'L');
         $this->pdf->SetXY($col2X, $row4Y + 4);
-        $this->pdf->Cell($col2W, 4, number_format($val['aliquotaAplicada'], 2, ',', '.') . ' %', 0, 0, 'L');
+        $this->pdf->Cell($col2W, 4, number_format($val['aliquotaAplicada'], 2, ',', '.').' %', 0, 0, 'L');
         $this->pdf->SetXY($col3X, $row4Y + 4);
         $this->pdf->Cell($col3W, 4, $this->formatRetencaoIssqn($trib['tpRetISSQN']), 0, 0, 'L');
         $this->pdf->SetXY($col4X, $row4Y + 4);
-        $this->pdf->Cell($col4W, 4, 'R$ ' . number_format($val['valorIssqn'], 2, ',', '.'), 0, 1, 'L');
+        $this->pdf->Cell($col4W, 4, 'R$ '.number_format($val['valorIssqn'], 2, ',', '.'), 0, 1, 'L');
 
         $this->pdf->SetFont('helvetica', 'B', 7);
         $this->pdf->Cell(0, 4, 'TRIBUTAÇÃO FEDERAL', 0, 1, 'L');
@@ -830,7 +835,7 @@ class NfsePdfGenerator
         // Data row
         $this->pdf->SetFont('helvetica', '', 8);
         $this->pdf->SetXY($col1X, $startY + 4);
-        $this->pdf->Cell($col1W, 4, 'R$ ' . number_format($val['valorServico'], 2, ',', '.'), 0, 0, 'L');
+        $this->pdf->Cell($col1W, 4, 'R$ '.number_format($val['valorServico'], 2, ',', '.'), 0, 0, 'L');
         $this->pdf->SetXY($col2X, $startY + 4);
         $this->pdf->Cell($col2W, 4, '-', 0, 0, 'L');
         $this->pdf->SetXY($col3X, $startY + 4);
@@ -853,13 +858,13 @@ class NfsePdfGenerator
         // Data row
         $this->pdf->SetFont('helvetica', '', 8);
         $this->pdf->SetXY($col1X, $row2Y + 4);
-        $this->pdf->Cell($col1W, 4, 'R$ ' . number_format($val['valorTotalRet'], 2, ',', '.'), 0, 0, 'L');
+        $this->pdf->Cell($col1W, 4, 'R$ '.number_format($val['valorTotalRet'], 2, ',', '.'), 0, 0, 'L');
         $this->pdf->SetXY($col2X, $row2Y + 4);
         $this->pdf->Cell($col2W, 4, '-', 0, 0, 'L');
         $this->pdf->SetXY($col3X, $row2Y + 4);
         $this->pdf->Cell($col3W, 4, '', 0, 0, 'L');
         $this->pdf->SetXY($col4X, $row2Y + 4);
-        $this->pdf->Cell($col4W, 4, 'R$ ' . number_format($val['valorLiquido'], 2, ',', '.'), 0, 1, 'L');
+        $this->pdf->Cell($col4W, 4, 'R$ '.number_format($val['valorLiquido'], 2, ',', '.'), 0, 1, 'L');
         $this->pdf->Ln(2);
     }
 
@@ -891,11 +896,11 @@ class NfsePdfGenerator
         // Data row
         $this->pdf->SetFont('helvetica', '', 8);
         $this->pdf->SetXY($col1X, $startY + 4);
-        $this->pdf->Cell($col1W, 4, 'R$ ' . number_format($trib['totTribFed'], 2, ',', '.'), 0, 0, 'L');
+        $this->pdf->Cell($col1W, 4, 'R$ '.number_format($trib['totTribFed'], 2, ',', '.'), 0, 0, 'L');
         $this->pdf->SetXY($col2X, $startY + 4);
-        $this->pdf->Cell($col2W, 4, 'R$ ' . number_format($trib['totTribEst'], 2, ',', '.'), 0, 0, 'L');
+        $this->pdf->Cell($col2W, 4, 'R$ '.number_format($trib['totTribEst'], 2, ',', '.'), 0, 0, 'L');
         $this->pdf->SetXY($col3X, $startY + 4);
-        $this->pdf->Cell($col3W, 4, 'R$ ' . number_format($trib['totTribMun'], 2, ',', '.'), 0, 1, 'L');
+        $this->pdf->Cell($col3W, 4, 'R$ '.number_format($trib['totTribMun'], 2, ',', '.'), 0, 1, 'L');
         $this->pdf->Ln(5);
 
         $this->pdf->SetFont('helvetica', 'B', 7);
@@ -921,10 +926,11 @@ class NfsePdfGenerator
     {
         $value = preg_replace('/\D/', '', $value);
         if (strlen($value) == 14) {
-            return substr($value, 0, 2) . '.' . substr($value, 2, 3) . '.' . substr($value, 5, 3) . '/' . substr($value, 8, 4) . '-' . substr($value, 12, 2);
+            return substr($value, 0, 2).'.'.substr($value, 2, 3).'.'.substr($value, 5, 3).'/'.substr($value, 8, 4).'-'.substr($value, 12, 2);
         } elseif (strlen($value) == 11) {
-            return substr($value, 0, 3) . '.' . substr($value, 3, 3) . '.' . substr($value, 6, 3) . '-' . substr($value, 9, 2);
+            return substr($value, 0, 3).'.'.substr($value, 3, 3).'.'.substr($value, 6, 3).'-'.substr($value, 9, 2);
         }
+
         return $value;
     }
 
@@ -932,8 +938,9 @@ class NfsePdfGenerator
     {
         $value = preg_replace('/\D/', '', $value);
         if (strlen($value) == 8) {
-            return substr($value, 0, 5) . '-' . substr($value, 5, 3);
+            return substr($value, 0, 5).'-'.substr($value, 5, 3);
         }
+
         return $value;
     }
 
@@ -941,26 +948,29 @@ class NfsePdfGenerator
     {
         $value = preg_replace('/\D/', '', $value);
         if (strlen($value) == 11) {
-            return '(' . substr($value, 0, 2) . ') ' . substr($value, 2, 5) . '-' . substr($value, 7, 4);
+            return '('.substr($value, 0, 2).') '.substr($value, 2, 5).'-'.substr($value, 7, 4);
         } elseif (strlen($value) == 10) {
-            return '(' . substr($value, 0, 2) . ') ' . substr($value, 2, 4) . '-' . substr($value, 6, 4);
+            return '('.substr($value, 0, 2).') '.substr($value, 2, 4).'-'.substr($value, 6, 4);
         }
+
         return $value;
     }
 
     private function formatDate($value)
     {
         if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $value, $matches)) {
-            return $matches[3] . '/' . $matches[2] . '/' . $matches[1];
+            return $matches[3].'/'.$matches[2].'/'.$matches[1];
         }
+
         return $value;
     }
 
     private function formatDateTime($value)
     {
         if (preg_match('/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/', $value, $matches)) {
-            return $matches[3] . '/' . $matches[2] . '/' . $matches[1] . ' ' . $matches[4] . ':' . $matches[5] . ':' . $matches[6];
+            return $matches[3].'/'.$matches[2].'/'.$matches[1].' '.$matches[4].':'.$matches[5].':'.$matches[6];
         }
+
         return $value;
     }
 
@@ -968,15 +978,16 @@ class NfsePdfGenerator
     {
         $value = preg_replace('/\D/', '', $value);
         if (strlen($value) == 6) {
-            return substr($value, 0, 2) . '.' . substr($value, 2, 2) . '.' . substr($value, 4, 2);
+            return substr($value, 0, 2).'.'.substr($value, 2, 2).'.'.substr($value, 4, 2);
         }
+
         return $value;
     }
 
     private function readFirstValue(array $values)
     {
         foreach ($values as $value) {
-            $stringValue = trim((string)$value);
+            $stringValue = trim((string) $value);
             if ($stringValue !== '') {
                 return $stringValue;
             }
@@ -987,20 +998,20 @@ class NfsePdfGenerator
 
     private function formatRetencaoIssqn($value)
     {
-        return match ((string)$value) {
+        return match ((string) $value) {
             '1' => 'Não Retido',
             '2' => 'Retido',
-            default => (string)$value ?: '-',
+            default => (string) $value ?: '-',
         };
     }
 
     private function buildAddressLine(array $party): string
     {
         $parts = [
-            trim((string)($party['logradouro'] ?? '')),
-            trim((string)($party['numero'] ?? '')),
-            trim((string)($party['complemento'] ?? '')),
-            trim((string)($party['bairro'] ?? '')),
+            trim((string) ($party['logradouro'] ?? '')),
+            trim((string) ($party['numero'] ?? '')),
+            trim((string) ($party['complemento'] ?? '')),
+            trim((string) ($party['bairro'] ?? '')),
         ];
 
         return implode(', ', array_values(array_filter($parts, fn ($part) => $part !== '')));
@@ -1008,7 +1019,7 @@ class NfsePdfGenerator
 
     private function displayValue($value, string $fallback = '-'): string
     {
-        $value = trim((string)$value);
+        $value = trim((string) $value);
 
         return $value !== '' ? $value : $fallback;
     }
@@ -1019,8 +1030,8 @@ class NfsePdfGenerator
 
         foreach ($columns as $column) {
             $text = $this->displayValue($column['text'] ?? '');
-            $width = (float)($column['width'] ?? 0);
-            $lines = max(1, (int)$this->pdf->getNumLines($text, $width));
+            $width = (float) ($column['width'] ?? 0);
+            $lines = max(1, (int) $this->pdf->getNumLines($text, $width));
             $maxLines = max($maxLines, $lines);
         }
 
@@ -1053,7 +1064,7 @@ class NfsePdfGenerator
     private function resolveDefaultHeaderLogoPath(?string $path = null): ?string
     {
         $path ??= public_path('images/application/nfse.png');
-       
+
         return is_file($path) ? $path : null;
     }
 
@@ -1063,7 +1074,7 @@ class NfsePdfGenerator
             return $xmlInput;
         }
 
-        $xmlInput = trim((string)$xmlInput);
+        $xmlInput = trim((string) $xmlInput);
         $previousUseInternalErrors = libxml_use_internal_errors(true);
         libxml_clear_errors();
 
@@ -1077,8 +1088,8 @@ class NfsePdfGenerator
             if ($xml === false) {
                 $message = 'Failed to parse XML';
                 $errors = libxml_get_errors();
-                if (!empty($errors)) {
-                    $message .= ': ' . trim($errors[0]->message);
+                if (! empty($errors)) {
+                    $message .= ': '.trim($errors[0]->message);
                 }
 
                 throw new \Exception($message);

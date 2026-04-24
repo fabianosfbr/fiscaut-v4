@@ -5,28 +5,28 @@ namespace App\Jobs;
 use App\Mail\CobrancaEmail;
 use App\Models\GeneralSetting;
 use App\Models\Issuer;
-use App\Models\Notification;
 use App\Models\SuperLogicaCobrancaNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 
 class SendCobrancaEmailJob implements ShouldQueue
 {
     use Queueable;
 
     public int $issuerId;
+
     public string $recipientEmail;
+
     public array $unidadeData;
 
     /**
      * Create a new job instance.
      *
-     * @param int $issuerId ID of the issuer (company)
-     * @param string $recipientEmail Email address to send the cobranca
-     * @param array $unidadeData Array containing keys like 'numero_unidade', 'bloco_quadra', 'nome_morador', 'titulos_aberto'
+     * @param  int  $issuerId  ID of the issuer (company)
+     * @param  string  $recipientEmail  Email address to send the cobranca
+     * @param  array  $unidadeData  Array containing keys like 'numero_unidade', 'bloco_quadra', 'nome_morador', 'titulos_aberto'
      */
     public function __construct(int $issuerId, string $recipientEmail, array $unidadeData)
     {
@@ -41,13 +41,13 @@ class SendCobrancaEmailJob implements ShouldQueue
     public function handle(): void
     {
         $issuer = Issuer::with('tenant')->find($this->issuerId);
-        
-        if (!$issuer || !$issuer->tenant) {
+
+        if (! $issuer || ! $issuer->tenant) {
             return; // Cannot send without tenant/issuer info
         }
 
         $tenant = $issuer->tenant;
-        
+
         $notification = SuperLogicaCobrancaNotification::create([
             'tenant_id' => $tenant->id,
             'issuer_id' => $this->issuerId,
@@ -56,14 +56,14 @@ class SendCobrancaEmailJob implements ShouldQueue
             'data' => [
                 'recipient_email' => $this->recipientEmail,
                 'unidade_data' => $this->unidadeData,
-                'subject' => "Aviso de Débito - Unidade " . ($this->unidadeData['numero_unidade'] ?? ''),                
+                'subject' => 'Aviso de Débito - Unidade '.($this->unidadeData['numero_unidade'] ?? ''),
                 'recebimento' => $this->unidadeData['recebimento'] ?? null,
-            ]
+            ],
         ]);
 
         try {
             $this->sendEmail($tenant, $issuer);
-            
+
             $notification->update([
                 'status' => 'sent',
                 'sent_at' => now(),
@@ -73,7 +73,7 @@ class SendCobrancaEmailJob implements ShouldQueue
                 'status' => 'failed',
                 'error_message' => $e->getMessage(),
             ]);
-            
+
             throw $e;
         }
     }
@@ -82,7 +82,7 @@ class SendCobrancaEmailJob implements ShouldQueue
     {
 
         // Configure dynamic mailer for this tenant
-        $mailerName = 'tenant_' . $tenant->id;
+        $mailerName = 'tenant_'.$tenant->id;
         Config::set("mail.mailers.{$mailerName}", [
             'transport' => 'smtp',
             'host' => $tenant->smtp_host,
@@ -101,7 +101,7 @@ class SendCobrancaEmailJob implements ShouldQueue
 
         $template = $settings ? ($settings->payload['mensagem'] ?? null) : null;
 
-        if (!$template) {
+        if (! $template) {
             // Default template if not found
             $template = <<<'HTML'
                             <p><strong>Unidade {{numero_unidade}} Bloco {{bloco_quadra}}</strong></p>
@@ -120,11 +120,11 @@ class SendCobrancaEmailJob implements ShouldQueue
         foreach (['numero_unidade', 'bloco_quadra', 'nome_morador', 'titulos_aberto'] as $var) {
             $value = $this->unidadeData[$var] ?? '';
             // Handle both {{var}} and {{ var }}
-            $body = str_replace('{{' . $var . '}}', $value, $body);
-            $body = str_replace('{{ ' . $var . ' }}', $value, $body);
+            $body = str_replace('{{'.$var.'}}', $value, $body);
+            $body = str_replace('{{ '.$var.' }}', $value, $body);
         }
 
-        $subject = "Aviso de Débito - Unidade " . ($this->unidadeData['numero_unidade'] ?? '');
+        $subject = 'Aviso de Débito - Unidade '.($this->unidadeData['numero_unidade'] ?? '');
 
         $fromEmail = (string) ($tenant->smtp_from_email ?: config('mail.from.address', 'noreply@fiscaut.com.br'));
         $fromName = (string) ($tenant->smtp_from_name ?: config('mail.from.name', 'Fiscaut'));
@@ -132,8 +132,8 @@ class SendCobrancaEmailJob implements ShouldQueue
 
         // Tratar múltiplos destinatários separados por ponto e vírgula
         $recipients = collect(explode(';', $this->recipientEmail))
-            ->map(fn($email) => trim($email))
-            ->filter(fn($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
+            ->map(fn ($email) => trim($email))
+            ->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
             ->toArray();
 
         if (empty($recipients)) {

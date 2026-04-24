@@ -39,7 +39,7 @@ class CondominioSync extends Command
             return;
         }
 
-       // $this->syncCondominio($issuer);
+        // $this->syncCondominio($issuer);
 
         // $this->info('Condominios sincronizados com sucesso.');
 
