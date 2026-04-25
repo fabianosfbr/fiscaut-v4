@@ -15,6 +15,9 @@ class UsersTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->recordUrl(null)
+            ->searchPlaceholder('Nome, Email, Grupos')
+            ->searchDebounce('750ms')
             ->columns([
                 TextColumn::make('name')
                     ->label('Nome')
@@ -37,8 +40,8 @@ class UsersTable
                     ->relationship('tenant', 'name')
                     ->searchable()
                     ->preload()
-                    ->query(fn ($query) => $query->distinct()),
- 
+                    ->query(fn($query) => $query->distinct()),
+
             ])
             ->recordActions([
                 EditAction::make(),
