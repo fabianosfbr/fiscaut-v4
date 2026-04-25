@@ -12,6 +12,7 @@ use App\Models\IssuerAssembleia;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 class IssuerAssembleiaResource extends Resource
@@ -107,4 +108,9 @@ class IssuerAssembleiaResource extends Resource
 
         return $data;
     }
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->hasRole('super-admin');
+    }       
 }

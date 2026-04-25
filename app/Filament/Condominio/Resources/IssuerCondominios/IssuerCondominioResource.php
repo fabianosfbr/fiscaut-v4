@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class IssuerCondominioResource extends Resource
 {
@@ -49,4 +50,9 @@ class IssuerCondominioResource extends Resource
             'edit' => EditIssuerCondominio::route('/{record}/edit'),
         ];
     }
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->hasRole('super-admin');
+    }       
 }

@@ -11,6 +11,7 @@ use App\Models\IssuerControlRecorrency;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 class IssuerControlRecorrencyResource extends Resource
@@ -54,4 +55,8 @@ class IssuerControlRecorrencyResource extends Resource
             'edit' => EditIssuerControlRecorrency::route('/{record}/edit'),
         ];
     }
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->hasRole('super-admin');
+    }       
 }

@@ -11,6 +11,7 @@ use App\Models\IssuerControlType;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 class IssuerControlTypeResource extends Resource
@@ -54,4 +55,9 @@ class IssuerControlTypeResource extends Resource
             'edit' => EditIssuerControlType::route('/{record}/edit'),
         ];
     }
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->hasRole('super-admin');
+    }       
 }
