@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Models\User;
+use App\Models\UserPanelPermission;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
@@ -30,6 +32,15 @@ class UsersTable
                     ->label('Grupos')
                     ->searchable()
                     ->badge(),
+
+                TextColumn::make('panels')
+                    ->label('Painéis')
+                    ->getStateUsing(function (User $record) {
+                        return UserPanelPermission::where('user_id', $record->id)
+                            ->pluck('panel')
+                            ->toArray();
+                    })
+                    ->badge(),
                 TextColumn::make('tenant.name')
                     ->label('Empresa')
                     ->sortable(),
@@ -40,7 +51,7 @@ class UsersTable
                     ->relationship('tenant', 'name')
                     ->searchable()
                     ->preload()
-                    ->query(fn($query) => $query->distinct()),
+                    ->query(fn ($query) => $query->distinct()),
 
             ])
             ->recordActions([

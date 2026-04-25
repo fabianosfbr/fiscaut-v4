@@ -55,8 +55,9 @@ class IssuerControlRecorrencyResource extends Resource
             'edit' => EditIssuerControlRecorrency::route('/{record}/edit'),
         ];
     }
+
     public static function canViewAny(): bool
     {
         return Auth::user()->hasRole('super-admin');
-    }       
+    }
 }

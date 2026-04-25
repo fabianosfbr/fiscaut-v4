@@ -62,6 +62,11 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         return true;
     }
 
+    public function panelPermissions()
+    {
+        return $this->hasMany(UserPanelPermission::class);
+    }
+
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);

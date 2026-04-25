@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Akaunting\Money;
+use App\Models\UserPanelPermission;
 use BezhanSalleh\PanelSwitch\PanelSwitch;
 use Filament\Actions\BulkAction;
 use Filament\Forms\Components\TextInput;
@@ -13,6 +14,7 @@ use Filament\Support\Facades\FilamentView;
 use Filament\Tables\View\TablesRenderHook;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
@@ -97,16 +99,15 @@ class AppServiceProvider extends ServiceProvider
                 ->modalWidth('md')
                 ->panels(function () {
 
-                    // $user = Auth::user();
+                    $user = Auth::user();
 
-                    // if ($user?->last_organization_id) {
+                    $panels = UserPanelPermission::getUserPanels($user);
 
-                    //     $panels = UserPanelPermission::getUserPanels(Auth::user(), getOrganizationCached());
+                    if (empty($panels)) {
+                        return ['app'];
+                    }
 
-                    //     return array_values($panels ?? []);
-                    // }
-
-                    return ['app', 'condominio'];
+                    return array_values($panels ?? []);
                 })
                 ->iconSize(16)
                 ->icons([

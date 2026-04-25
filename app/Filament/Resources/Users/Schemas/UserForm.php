@@ -5,6 +5,8 @@ namespace App\Filament\Resources\Users\Schemas;
 use App\Models\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
@@ -55,6 +57,25 @@ class UserForm
                                     ->relationship('roles', 'name', fn ($query, Get $get) => $query->where('tenant_id', $get('tenant_id'))->where('slug', '!=', 'super-admin')),
 
                             ]),
+
+                        Fieldset::make('Painéis')
+                            ->schema([
+                                ToggleButtons::make('panels')
+                                    ->hiddenLabel()
+                                    ->inline()
+                                    ->multiple()
+                                    ->required()
+                                    ->options(config('admin.panels'))
+                                    ->afterStateHydrated(function ($component, $state, $record) {
+                                        if ($record) {
+                                            $component->state($record->panelPermissions->pluck('panel')->toArray());
+                                        }
+                                    })
+                                    ->validationMessages([
+                                        'panels.required' => 'É necessário selecionar pelo menos um painel.',
+                                    ])
+                                    ->columnSpan(2),
+                            ])->columnSpan(2),
                         // Grid::make(1)
                         //     ->schema([
                         //         Select::make('permissions')

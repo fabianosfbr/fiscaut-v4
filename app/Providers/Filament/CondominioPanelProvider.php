@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Condominio\Pages\DashboardPorEmpresa;
+use Filament\Actions\Action;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -83,6 +84,12 @@ class CondominioPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            ->userMenuItems([
+                Action::make('profile')
+                    ->label('Meu Perfil')
+                    ->icon('heroicon-o-user')
+                    ->url(fn (): string => '/app/settings/profile'),
             ])
             ->plugin(
                 \Octopy\Filament\Palette\PaletteSwitcherPlugin::make()

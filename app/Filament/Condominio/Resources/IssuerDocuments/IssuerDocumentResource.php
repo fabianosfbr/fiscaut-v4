@@ -53,5 +53,5 @@ class IssuerDocumentResource extends Resource
     public static function canViewAny(): bool
     {
         return Auth::user()->hasRole('super-admin');
-    }    
+    }
 }

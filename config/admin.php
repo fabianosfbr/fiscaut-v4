@@ -24,6 +24,11 @@ return [
         '8' => 'Planilhas de controle',
     ],
 
+    'panels' => [
+        'app' => 'Fiscal',
+        'condominio' => 'Condomínio',
+    ],
+
     'min_days_to_display' => 15,
     'min_months_to_display' => 12,
     'cnpj_ja_api_key' => env('CNPJ_JA_API_KEY'),
