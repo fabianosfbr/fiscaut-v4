@@ -65,7 +65,20 @@ class NotificaCobrancaSuperLogicaJob implements ShouldQueue
 
         $today = Carbon::today();
 
+        $processosJudiciais = $service
+            ->receita()
+            ->listarProcessosJudiciais([
+                'idCondominio' => $this->issuer->superlogica_condominio_id,
+            ]);
+
+        $processoJudicialIds = collect($processosJudiciais)->pluck('id_unidade_uni')->toArray();
+
         foreach ($inadimplencias as $record) {
+
+            // Ignora se a unidade estiver em processo judicial
+            if (in_array(data_get($record, 'id_unidade_uni'), $processoJudicialIds)) {
+                continue;
+            }
 
             if (! isset($record['recebimento']) || ! is_array($record['recebimento'])) {
                 continue;

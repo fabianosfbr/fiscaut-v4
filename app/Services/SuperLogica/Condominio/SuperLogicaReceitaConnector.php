@@ -12,4 +12,11 @@ class SuperLogicaReceitaConnector
     {
         return $this->get('/inadimplencia/index', $filter);
     }
+
+    public function listarProcessosJudiciais(array $filter = [])
+    {
+        return $this->get('/processos', $filter);
+    }
+
+    
 }
