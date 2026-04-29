@@ -3,6 +3,7 @@
 namespace App\Filament\Clusters\Settings\Pages;
 
 use App\Filament\Clusters\Settings\SettingsCluster;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -36,8 +37,19 @@ class EditTenant extends Page
         return $schema
             ->components([
                 Section::make('Informações da empresa')
-                    ->description('Editar informações da empresa do perfil')
+                    ->description('Editar informações da empresa do perfil')
                     ->schema([
+                        FileUpload::make('logo')
+                            ->label('Logo da Empresa')
+                            ->image()
+                            ->downloadable()
+                            ->imageEditor()
+                            ->disk('public')
+                            ->directory('logos')
+                            ->visibility('public')
+                            ->maxSize(2048)
+                            ->helperText('Usado para relatórios, NFSe e emails (máx 2MB)')
+                            ->columnSpan(2),
                         TextInput::make('name')
                             ->label('Razão Social')
                             ->required()

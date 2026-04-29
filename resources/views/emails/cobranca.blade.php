@@ -121,7 +121,7 @@
             <tr>
                 <td class="header">
                     <a href="{{ config('app.url') }}" target="_blank">
-                        <img src="{{ $logoUrl }}" alt="{{ $tenantName }}" />
+                        <img src="https://app.fiscaut.com.br/logo.png" style="max-width: 180px;"  alt="{{ $tenantName }}" />
                     </a>
                 </td>
             </tr>

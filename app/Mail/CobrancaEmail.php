@@ -27,7 +27,7 @@ class CobrancaEmail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(string $subject, string $body, string $fromEmail, string $fromName, string $tenantName = 'Fiscaut')
+    public function __construct(string $subject, string $body, string $fromEmail, string $fromName, string $tenantName = 'Fiscaut', ?string $logoUrl = null)
     {
         $this->subjectContent = $subject;
         $this->bodyContent = $body;
@@ -35,8 +35,11 @@ class CobrancaEmail extends Mailable
         $this->fromName = $fromName;
         $this->tenantName = $tenantName;
 
-        // Ensure absolute URL for the logo for proper rendering in email clients
-        $this->logoUrl = url('images/application/logo-no-background.png');
+        if ($logoUrl) {
+            $this->logoUrl = $logoUrl;
+        } else {
+            $this->logoUrl = url('images/application/logo-no-background.png');
+        }
     }
 
     /**

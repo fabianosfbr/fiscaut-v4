@@ -130,6 +130,9 @@ class SendCobrancaEmailJob implements ShouldQueue
         $fromName = (string) ($tenant->smtp_from_name ?: config('mail.from.name', 'Fiscaut'));
         $tenantName = $tenant->name ?? 'Fiscaut';
 
+        // Logo URL do tenant (se existir) ou usar padrão
+        $logoUrl = $tenant->logo ? asset('storage/'.$tenant->logo) : null;
+
         // Tratar múltiplos destinatários separados por ponto e vírgula
         $recipients = collect(explode(';', $this->recipientEmail))
             ->map(fn ($email) => trim($email))
@@ -140,6 +143,6 @@ class SendCobrancaEmailJob implements ShouldQueue
             return; // Nenhum e-mail válido encontrado
         }
 
-        Mail::mailer($mailerName)->to($recipients)->send(new CobrancaEmail($subject, $body, $fromEmail, $fromName, $tenantName));
+        Mail::mailer($mailerName)->to($recipients)->send(new CobrancaEmail($subject, $body, $fromEmail, $fromName, $tenantName, $logoUrl));
     }
 }
