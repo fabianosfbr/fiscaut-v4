@@ -99,10 +99,13 @@ class AppServiceProvider extends ServiceProvider
                 ->modalWidth('md')
                 ->panels(function () {
 
+                    /** @var \App\Models\User $user */
                     $user = Auth::user();
-
-                    $panels = UserPanelPermission::getUserPanels($user);
-
+                    
+                    // Utiliza eager loading para carregar os painéis junto com o usuário e evitar N+1 (lazy loading)
+                    $user->loadMissing('panelPermissions');
+                    $panels = $user->panelPermissions->pluck('panel')->toArray();
+                 
                     if (empty($panels)) {
                         return ['app'];
                     }

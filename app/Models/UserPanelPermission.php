@@ -33,14 +33,11 @@ class UserPanelPermission extends Model
 
     public static function getUserPanels(User $user): array
     {
-        $cacheKey = self::getCacheKey($user->id);
-
-        return Cache::remember($cacheKey, now()->addMinutes(60), function () use ($user) {
-            return static::where('user_id', $user->id)
-                ->where('tenant_id', $user->tenant_id)
-                ->pluck('panel')
-                ->toArray();
-        });
+        return $user->loadMissing('panelPermissions')
+            ->panelPermissions
+            ->where('tenant_id', $user->tenant_id)
+            ->pluck('panel')
+            ->toArray();
     }
 
     public static function syncPermissions(User $user, array $panels): void

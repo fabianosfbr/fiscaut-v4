@@ -182,8 +182,7 @@ class Inadimplencia extends Page implements HasTable
                 Action::make('detalhes')
                     ->label('Detalhes')
                     ->icon('heroicon-o-eye')
-                    ->url(function (array $record) {
-                        ds($record);
+                    ->url(function (array $record) {                        
                         $key = 'cobranca_detalhes_' . Str::uuid();
                         Cache::put($key, $record, now()->addMinutes(60));
 
