@@ -69,12 +69,12 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                     ->date('d/m/Y'),
                 TextColumn::make('nNF')
                     ->label(new HtmlString('Nº<br/>NFe')),
+                TextColumn::make('value')
+                    ->label(new HtmlString('Valor<br/>Etiqueta'))
+                    ->money('BRL'),
                 TextColumn::make('vNfe')
                     ->label(new HtmlString('Valor<br/>NFe'))
-                    ->money('BRL')
-                    ->summarize([
-                        Sum::make()->label('Total NFe')->money('BRL'),
-                    ]),
+                    ->money('BRL'),
                 TextColumn::make('vBC')
                     ->label(new HtmlString('Base<br/>Cálculo'))
                     ->money('BRL'),
@@ -135,7 +135,7 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                                 $data['etiqueta'],
                                 function ($q) use ($data) {
                                     return $q->where('code', $data['etiqueta'])
-                                        ->orWhere('tag', 'like', '%'.$data['etiqueta'].'%');
+                                        ->orWhere('tag', 'like', '%' . $data['etiqueta'] . '%');
                                 },
                             );
                     })
@@ -144,7 +144,7 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                             return null;
                         }
 
-                        return 'Etiqueta: '.$data['etiqueta'];
+                        return 'Etiqueta: ' . $data['etiqueta'];
                     })->columnSpan(1),
                 Filter::make('numero')
                     ->schema([
@@ -165,7 +165,7 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                             return null;
                         }
 
-                        return 'Nº NFSe: '.$data['numero'];
+                        return 'Nº NFSe: ' . $data['numero'];
                     })->columnSpan(1),
             ])
             ->filtersFormColumns(4)

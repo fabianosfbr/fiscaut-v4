@@ -63,6 +63,9 @@ class RelatorioResumoEtiquetaNfse extends Page implements HasActions, HasSchemas
                     ->label('Data entrada')
                     ->toggleable()
                     ->date('d/m/Y'),
+                TextColumn::make('value')
+                    ->label(new HtmlString('Valor<br/>Etiqueta'))
+                    ->money('BRL'),
                 TextColumn::make('numero')
                     ->label(new HtmlString('Nº NFSe')),
                 TextColumn::make('valor_servico')
