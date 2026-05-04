@@ -81,11 +81,6 @@ class Issuer extends Model
         return $this->hasMany(IssuerGroupControl::class);
     }
 
-    public function controlFields()
-    {
-        return $this->hasMany(IssuerControlField::class);
-    }
-
     public function controls()
     {
         return $this->hasMany(IssuerControl::class);

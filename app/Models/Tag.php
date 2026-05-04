@@ -56,6 +56,42 @@ class Tag extends Model
         });
     }
 
+    public static function tagsUsedInNfeGroupedByCategory(): array
+    {
+        $issuer = currentIssuer();
+
+        if (! $issuer) {
+            return [];
+        }
+
+        $issuerId = $issuer->id;
+
+        $cacheKey = 'tags_used_in_nfe_grouped_'.$issuerId;
+
+        return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
+            $tagUsed = Tag::rightJoin('tagging_tagged', 'tagging_tags.id', '=', 'tagging_tagged.tag_id')
+                ->where('tagging_tagged.taggable_type', 'App\Models\NotaFiscalEletronica')
+                ->select('tagging_tags.id')
+                ->distinct()
+                ->pluck('id');
+
+            return CategoryTag::with(['tags' => function ($query) use ($tagUsed) {
+                $query->whereIn('tagging_tags.id', $tagUsed)
+                    ->where('tagging_tags.is_enable', true)
+                    ->orderBy('tagging_tags.name');
+            }])
+                ->whereHas('tags', function ($query) use ($tagUsed) {
+                    $query->whereIn('tagging_tags.id', $tagUsed)
+                        ->where('tagging_tags.is_enable', true);
+                })
+                ->where('issuer_id', $issuerId)
+                ->where('is_enable', true)
+                ->orderBy('name')
+                ->get()
+                ->toArray();
+        });
+    }
+
     public static function getTagsUsedInNfe(): array
     {
         $issuer = currentIssuer();

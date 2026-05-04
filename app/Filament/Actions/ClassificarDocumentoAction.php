@@ -64,6 +64,7 @@ class ClassificarDocumentoAction
                 }
 
                 Cache::forget('tags_used_in_nfe_'.currentIssuer()->id);
+                Cache::forget('tags_used_in_nfe_grouped_'.currentIssuer()->id);
 
                 Notification::make()
                     ->success()

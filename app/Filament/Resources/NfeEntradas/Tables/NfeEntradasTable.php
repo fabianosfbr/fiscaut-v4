@@ -16,6 +16,7 @@ use App\Filament\Actions\RemoverClassificaoNfeAction;
 use App\Filament\Actions\SugerirEtiquetaAction;
 use App\Filament\Actions\ToggleEscrituacaoEmLoteAction;
 use App\Filament\Actions\ToggleEscrituracaoAction;
+use App\Filament\Forms\Components\CheckboxListTag;
 use App\Filament\Tables\Columns\TagBadgesColumn;
 use App\Filament\Tables\Columns\ViewChaveColumn;
 use App\Models\GeneralSetting;
@@ -318,12 +319,12 @@ class NfeEntradasTable
                     ->label('Etiquetas Específicas')
                     ->columnSpanFull()
                     ->schema([
-                        CheckboxList::make('etiquetas')
+                        CheckboxListTag::make('etiquetas')
                             ->label('Etiquetas Específicas')
                             ->options(function () {
-                                return Tag::getTagsUsedInNfe();
+                                return Tag::tagsUsedInNfeGroupedByCategory();
                             })
-                            ->columns(4)
+                            ->columns(2)
                             ->searchable()
                             ->helperText('Selecione as etiquetas específicas para filtrar as notas fiscais'),
 
