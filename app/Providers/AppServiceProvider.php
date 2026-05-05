@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use Akaunting\Money;
-use App\Models\UserPanelPermission;
 use BezhanSalleh\PanelSwitch\PanelSwitch;
 use Filament\Actions\BulkAction;
 use Filament\Forms\Components\TextInput;
@@ -101,11 +100,11 @@ class AppServiceProvider extends ServiceProvider
 
                     /** @var \App\Models\User $user */
                     $user = Auth::user();
-                    
+
                     // Utiliza eager loading para carregar os painéis junto com o usuário e evitar N+1 (lazy loading)
                     $user->loadMissing('panelPermissions');
                     $panels = $user->panelPermissions->pluck('panel')->toArray();
-                 
+
                     if (empty($panels)) {
                         return ['app'];
                     }

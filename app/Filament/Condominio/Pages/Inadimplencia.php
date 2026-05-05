@@ -53,7 +53,7 @@ class Inadimplencia extends Page implements HasTable
 
                         return response()->streamDownload(function () use ($pdf) {
                             echo $pdf->stream();
-                        }, 'inadimplentes-' . now()->format('d-m-Y') . '.pdf');
+                        }, 'inadimplentes-'.now()->format('d-m-Y').'.pdf');
                     }),
             ]),
 
@@ -75,49 +75,49 @@ class Inadimplencia extends Page implements HasTable
                     ->label('Bloco'),
                 TextColumn::make('processo_judicial')
                     ->label('Situação')
-                    ->state(fn(array $record): string => (string) (data_get($record, 'processo_judicial') ? 'Jurídico' : ''))
-                    ->color(fn(array $record): string => (string) (data_get($record, 'processo_judicial') ? 'danger' : 'success'))
+                    ->state(fn (array $record): string => (string) (data_get($record, 'processo_judicial') ? 'Jurídico' : ''))
+                    ->color(fn (array $record): string => (string) (data_get($record, 'processo_judicial') ? 'danger' : 'success'))
                     ->badge(),
                 // \Filament\Tables\Columns\IconColumn::make('processo_judicial')
                 //     ->label('Proc. Judicial')
                 //     ->boolean(),
                 TextColumn::make('st_sacado_uni')
                     ->label('Sacado')
-                    ->description(fn(array $record): string => (string) (data_get($record, 'recebimento.0.contatosunidade.0.proprietario.0.cpf') ?? data_get($record, 'recebimento.0.contatosunidade.0.proprietario.0.cnpj') ?? ''))
+                    ->description(fn (array $record): string => (string) (data_get($record, 'recebimento.0.contatosunidade.0.proprietario.0.cpf') ?? data_get($record, 'recebimento.0.contatosunidade.0.proprietario.0.cnpj') ?? ''))
                     ->searchable(),
                 TextColumn::make('principal')
                     ->label('Principal')
-                    ->state(fn(array $record): float => $this->sumRecebimentoValue($record, 'vl_emitido_recb'))
+                    ->state(fn (array $record): float => $this->sumRecebimentoValue($record, 'vl_emitido_recb'))
                     ->numeric(decimalPlaces: 2, decimalSeparator: ',', thousandsSeparator: '.')
                     ->prefix('R$ ')
                     ->sortable(),
                 TextColumn::make('juros')
                     ->label('Juros')
-                    ->state(fn(array $record): float => $this->sumRecebimentoValue($record, 'encargos.0.detalhes.juros'))
+                    ->state(fn (array $record): float => $this->sumRecebimentoValue($record, 'encargos.0.detalhes.juros'))
                     ->numeric(decimalPlaces: 2, decimalSeparator: ',', thousandsSeparator: '.')
                     ->prefix('R$ ')
                     ->sortable(),
                 TextColumn::make('multa')
                     ->label('Multa')
-                    ->state(fn(array $record): float => $this->sumRecebimentoValue($record, 'encargos.0.detalhes.multa'))
+                    ->state(fn (array $record): float => $this->sumRecebimentoValue($record, 'encargos.0.detalhes.multa'))
                     ->numeric(decimalPlaces: 2, decimalSeparator: ',', thousandsSeparator: '.')
                     ->prefix('R$ ')
                     ->sortable(),
                 TextColumn::make('atualiz')
                     ->label('Atualiz.')
-                    ->state(fn(array $record): float => $this->sumRecebimentoValue($record, 'encargos.0.detalhes.atualizacaomonetaria'))
+                    ->state(fn (array $record): float => $this->sumRecebimentoValue($record, 'encargos.0.detalhes.atualizacaomonetaria'))
                     ->numeric(decimalPlaces: 2, decimalSeparator: ',', thousandsSeparator: '.')
                     ->prefix('R$ ')
                     ->sortable(),
                 TextColumn::make('honorarios')
                     ->label('Honorários')
-                    ->state(fn(array $record): float => $this->sumRecebimentoValue($record, 'encargos.0.detalhes.honorarios'))
+                    ->state(fn (array $record): float => $this->sumRecebimentoValue($record, 'encargos.0.detalhes.honorarios'))
                     ->numeric(decimalPlaces: 2, decimalSeparator: ',', thousandsSeparator: '.')
                     ->prefix('R$ ')
                     ->sortable(),
                 TextColumn::make('total')
                     ->label('Total')
-                    ->state(fn(array $record): float => $this->sumRecebimentoValue($record, 'encargos.0.valorcorrigido'))
+                    ->state(fn (array $record): float => $this->sumRecebimentoValue($record, 'encargos.0.valorcorrigido'))
                     ->numeric(decimalPlaces: 2, decimalSeparator: ',', thousandsSeparator: '.')
                     ->prefix('R$ ')
                     ->sortable(),
@@ -138,11 +138,11 @@ class Inadimplencia extends Page implements HasTable
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
                         if ($data['vencimento_de'] ?? null) {
-                            $indicators[] = \Filament\Tables\Filters\Indicator::make('Vencimento a partir de ' . \Illuminate\Support\Carbon::parse($data['vencimento_de'])->format('d/m/Y'))
+                            $indicators[] = \Filament\Tables\Filters\Indicator::make('Vencimento a partir de '.\Illuminate\Support\Carbon::parse($data['vencimento_de'])->format('d/m/Y'))
                                 ->removeField('vencimento_de');
                         }
                         if ($data['vencimento_ate'] ?? null) {
-                            $indicators[] = \Filament\Tables\Filters\Indicator::make('Vencimento até ' . \Illuminate\Support\Carbon::parse($data['vencimento_ate'])->format('d/m/Y'))
+                            $indicators[] = \Filament\Tables\Filters\Indicator::make('Vencimento até '.\Illuminate\Support\Carbon::parse($data['vencimento_ate'])->format('d/m/Y'))
                                 ->removeField('vencimento_ate');
                         }
 
@@ -165,7 +165,7 @@ class Inadimplencia extends Page implements HasTable
                             return null;
                         }
 
-                        return \Filament\Tables\Filters\Indicator::make('Atraso: Mais de ' . $data['dias'] . ' dias')
+                        return \Filament\Tables\Filters\Indicator::make('Atraso: Mais de '.$data['dias'].' dias')
                             ->removeField('dias');
                     }),
 
@@ -182,8 +182,8 @@ class Inadimplencia extends Page implements HasTable
                 Action::make('detalhes')
                     ->label('Detalhes')
                     ->icon('heroicon-o-eye')
-                    ->url(function (array $record) {                        
-                        $key = 'cobranca_detalhes_' . Str::uuid();
+                    ->url(function (array $record) {
+                        $key = 'cobranca_detalhes_'.Str::uuid();
                         Cache::put($key, $record, now()->addMinutes(60));
 
                         return route('filament.condominio.pages.detalhes-cobranca', ['record_key' => $key]);
@@ -198,6 +198,7 @@ class Inadimplencia extends Page implements HasTable
 
         $records = $this->fetchInadimplencias()->map(function ($record) use ($processoJudicialIds) {
             $record['processo_judicial'] = in_array(data_get($record, 'id_unidade_uni'), $processoJudicialIds);
+
             return $record;
         });
 
@@ -277,7 +278,7 @@ class Inadimplencia extends Page implements HasTable
             ]);
 
         return collect($processosJudiciais);
-        
+
     }
 
     protected function applyFilters(\Illuminate\Support\Collection $records, array $filters): \Illuminate\Support\Collection
@@ -355,6 +356,6 @@ class Inadimplencia extends Page implements HasTable
 
     protected function sumRecebimentoValue(array $record, string $key): float
     {
-        return collect($record['recebimento'] ?? [])->sum(fn($recb) => (float) data_get($recb, $key, 0));
+        return collect($record['recebimento'] ?? [])->sum(fn ($recb) => (float) data_get($recb, $key, 0));
     }
 }

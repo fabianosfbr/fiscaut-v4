@@ -91,7 +91,7 @@ class SiegConnect implements ShouldQueue
                     'Skip' => $this->skip,
                     'DataEmissaoInicio' => $this->dataInicial,
                     'DataEmissaoFim' => $this->dataFinal,
-                    'Downloadevent' => true,
+                    'Downloadevent' => $this->tipoDocumento != '4' ? true : false,
                 ];
 
                 // Adicionar o CNPJ conforme o tipo selecionado

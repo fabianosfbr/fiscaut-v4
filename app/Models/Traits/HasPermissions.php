@@ -45,6 +45,13 @@ trait HasPermissions
 
     public function hasPermissionThroughRole($permission)
     {
+        if (is_string($permission)) {
+            $permission = Permission::where('slug', $permission)->first();
+        }
+
+        if (! $permission) {
+            return false;
+        }
 
         foreach ($permission->roles as $role) {
             if ($this->roles->contains($role)) {

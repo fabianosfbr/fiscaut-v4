@@ -12,6 +12,8 @@ class XmlIdentifierService
 
     public const TIPO_NFE_RESUMO = 'NFE_RESUMO';
 
+    public const TIPO_NFCE = 'NFCE';
+
     public const TIPO_CTE = 'CTE';
 
     public const TIPO_NFSE = 'NFSE';
@@ -41,10 +43,13 @@ class XmlIdentifierService
             switch ($rootName) {
                 case 'nfeProc':
                 case 'NFe':
-                    return self::TIPO_NFE;
+                    return self::identificarModeloNFe($xml);
 
                 case 'resNFe':
-                    return self::TIPO_NFE_RESUMO;
+                    return self::identificarModeloNFe($xml);
+
+                case 'resNFCe':
+                    return self::TIPO_NFCE;
 
                 case 'cteProc':
                 case 'CTe':
@@ -87,9 +92,9 @@ class XmlIdentifierService
                         return self::TIPO_NFSE;
                     }
 
-                    // Verificação adicional para NFe dentro de outros elementos
+                    // Verificação adicional para NFe/NFCe dentro de outros elementos
                     if (isset($xml->NFe)) {
-                        return self::TIPO_NFE;
+                        return self::identificarModeloNFe($xml);
                     }
 
                     // Verificação adicional para CTe dentro de outros elementos
@@ -97,11 +102,46 @@ class XmlIdentifierService
                         return self::TIPO_CTE;
                     }
 
-                    throw new Exception('XML não identificado como NFe, CTe, NFSe ou evento');
+                    throw new Exception('XML não identificado como NFe, NFCe, CTe, NFSe ou evento');
             }
         } catch (Exception $e) {
             throw new Exception('Erro ao identificar tipo do XML: '.$e->getMessage());
         }
+    }
+
+    /**
+     * Identifica se é NFe ou NFCe baseado no modelo (55 ou 65)
+     */
+    private static function identificarModeloNFe(SimpleXMLElement $xml): string
+    {
+        // Primeiro tenta obter de NFe/infNFe/ide/mod
+        $nfe = $xml->NFe ?? null;
+        if ($nfe !== null) {
+            $infNFe = $nfe->infNFe ?? null;
+        } else {
+            $infNFe = $xml->infNFe ?? null;
+        }
+
+        if ($infNFe !== null && isset($infNFe->ide->mod)) {
+            $mod = (string) $infNFe->ide->mod;
+            if ($mod === '65') {
+                return self::TIPO_NFCE;
+            }
+        }
+
+        // Para resNFe, verificar a chave (modelo está na posição 22-23 da chave)
+        $chNFe = $xml->chNFe ?? null;
+        if ($chNFe !== null) {
+            $chave = (string) $chNFe;
+            if (strlen($chave) >= 23) {
+                $mod = substr($chave, 21, 2);
+                if ($mod === '65') {
+                    return self::TIPO_NFCE;
+                }
+            }
+        }
+
+        return self::TIPO_NFE;
     }
 
     /**

@@ -60,6 +60,6 @@ class XmlImportJobResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()->hasRole('super-admin');
+        return Auth::user()->hasRole('super-admin', 'admin');
     }
 }

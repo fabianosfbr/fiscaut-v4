@@ -25,7 +25,6 @@ use App\Models\Tag;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\ViewAction;
-use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -49,6 +48,7 @@ class NfeEntradasTable
             ->defaultSort('data_emissao', 'desc')
             ->paginated([10, 25, 50, 100])
             ->recordUrl(null)
+            ->searchDebounce('750ms')
             ->columns([
                 TextColumn::make('nNF')
                     ->label('Nº')
@@ -98,6 +98,10 @@ class NfeEntradasTable
                 TextColumn::make('vNfe')
                     ->label('Valor Total')
                     ->sortable()
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query
+                            ->where('vNfe', str_replace(',', '.', $search));
+                    })
                     ->money('BRL'),
 
                 TagBadgesColumn::make('tagged')

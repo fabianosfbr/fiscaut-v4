@@ -17,6 +17,4 @@ class SuperLogicaReceitaConnector
     {
         return $this->get('/processos', $filter);
     }
-
-    
 }

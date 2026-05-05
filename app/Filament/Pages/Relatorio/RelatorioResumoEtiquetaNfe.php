@@ -10,7 +10,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Pages\Page;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
-use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -135,7 +134,7 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                                 $data['etiqueta'],
                                 function ($q) use ($data) {
                                     return $q->where('code', $data['etiqueta'])
-                                        ->orWhere('tag', 'like', '%' . $data['etiqueta'] . '%');
+                                        ->orWhere('tag', 'like', '%'.$data['etiqueta'].'%');
                                 },
                             );
                     })
@@ -144,7 +143,7 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                             return null;
                         }
 
-                        return 'Etiqueta: ' . $data['etiqueta'];
+                        return 'Etiqueta: '.$data['etiqueta'];
                     })->columnSpan(1),
                 Filter::make('numero')
                     ->schema([
@@ -165,7 +164,7 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                             return null;
                         }
 
-                        return 'Nº NFSe: ' . $data['numero'];
+                        return 'Nº NFSe: '.$data['numero'];
                     })->columnSpan(1),
             ])
             ->filtersFormColumns(4)

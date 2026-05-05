@@ -6,6 +6,7 @@ use App\Models\Issuer;
 use App\Models\XmlImportJob;
 use App\Services\Xml\XmlCteReaderService;
 use App\Services\Xml\XmlIdentifierService;
+use App\Services\Xml\XmlNfceReaderService;
 use App\Services\Xml\XmlNfeReaderService;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -75,6 +76,10 @@ class ProcessXmlSieg implements ShouldQueue
                     // Processar eventos de CT-e
                 case XmlIdentifierService::TIPO_EVENTO_CTE:
                     $this->processEventoCte();
+                    break;
+
+                case XmlIdentifierService::TIPO_NFCE:
+                    $this->processNfce();
                     break;
 
                 default:
@@ -166,5 +171,20 @@ class ProcessXmlSieg implements ShouldQueue
             ->save();
 
         $this->importJob->incrementNumEvents();
+    }
+
+    /**
+     * Processa NFCe
+     */
+    private function processNfce(): void
+    {
+        (new XmlNfceReaderService)
+            ->loadXml($this->xmlContent)
+            ->setOrigem('SIEG')
+            ->setIssuer($this->issuer)
+            ->parse()
+            ->save();
+
+        $this->importJob->incrementNumDocuments();
     }
 }

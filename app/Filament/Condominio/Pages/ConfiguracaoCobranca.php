@@ -90,10 +90,9 @@ class ConfiguracaoCobranca extends Page implements HasSchemas
                                     ->columnSpan(1)
                                     ->afterStateUpdated(fn () => $this->hasChanges = true),
 
-                                                                   
                             ]),
-                            Grid::make(4)
-                            ->schema([                              
+                        Grid::make(4)
+                            ->schema([
                                 Checkbox::make('notificacao_juridico.enabled')
                                     ->label('Notificar jurídico depois do vencimento')
                                     ->live()
@@ -105,8 +104,8 @@ class ConfiguracaoCobranca extends Page implements HasSchemas
                                     ->visible(fn ($get) => $get('notificacao_juridico.enabled'))
                                     ->live()
                                     ->columnSpan(1)
-                                    ->afterStateUpdated(fn () => $this->hasChanges = true),                                    
-                            ]),                            
+                                    ->afterStateUpdated(fn () => $this->hasChanges = true),
+                            ]),
                     ]),
             ])
             ->statePath('data');

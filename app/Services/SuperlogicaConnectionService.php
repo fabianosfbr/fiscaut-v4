@@ -6,7 +6,6 @@ use App\Exceptions\SuperlogicaConnectionException;
 use App\Models\Issuer;
 use App\Services\SuperLogica\Condominio\SuperLogicaCondominioConnector;
 use App\Services\SuperLogica\Condominio\SuperLogicaDespesaConnector;
-use App\Services\SuperLogica\Condominio\SuperLogicaProcessoJudicialConnector;
 use App\Services\SuperLogica\Condominio\SuperLogicaReceitaConnector;
 use App\Services\SuperLogica\Condominio\SuperLogicaUnidadeConnector;
 use Illuminate\Http\Client\ConnectionException;

@@ -82,6 +82,10 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-o-clipboard-document')
                     ->collapsed(),
                 NavigationGroup::make()
+                    ->label('NFCe')
+                    ->icon('heroicon-o-clipboard-document')
+                    ->collapsed(),
+                NavigationGroup::make()
                     ->label('CFe')
                     ->icon('heroicon-o-clipboard-document')
                     ->collapsed(),
