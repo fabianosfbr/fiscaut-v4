@@ -353,6 +353,21 @@ class OptimizedExcelSuperLogicaImport
         return $text;
     }
 
+    private function normalizeMatchText($value): ?string
+    {
+        $text = $this->normalizeText($value);
+
+        if ($text === null) {
+            return null;
+        }
+
+        $text = preg_replace('/[^A-Z0-9]+/', ' ', $text);
+        $text = preg_replace('/\s+/', ' ', $text);
+        $text = trim($text);
+
+        return $text === '' ? null : $text;
+    }
+
     private function cleanText($value): ?string
     {
         if ($value === null) {
@@ -490,22 +505,43 @@ class OptimizedExcelSuperLogicaImport
 
     private function findParametroMatch($parametros, array $row): ?ParametroSuperLogica
     {
-        $categoria = $this->normalizeText($row['categoria'] ?? null);
+        $categoria = $this->normalizeMatchText($row['categoria'] ?? null);
+        $descricao = $this->normalizeMatchText($row['descricao'] ?? null);
 
-        if (! $categoria) {
+        if (! $categoria && ! $descricao) {
             return null;
         }
 
+        $matchTargets = array_filter([$categoria, $descricao]);
+        $bestMatch = null;
+        $bestTermsCount = 0;
+
         foreach ($parametros as $parametro) {
-            $terms = $parametro->params ?? [];
-            foreach ($terms as $term) {
-                $termNormalized = $this->normalizeText($term);
-                if ($termNormalized && $termNormalized === $categoria) {
-                    return $parametro;
+
+            $terms = collect($parametro->params ?? [])
+                ->map(fn ($term) => $this->normalizeMatchText($term))
+                ->filter()
+                ->values()
+                ->all();
+
+            if ($terms === []) {
+                continue;
+            }
+
+            $matchedAllTerms = collect($terms)->every(
+                fn (string $term) => in_array($term, $matchTargets, true)
+            );
+
+            if ($matchedAllTerms) {
+                $termsCount = count($terms);
+
+                if ($termsCount > $bestTermsCount) {
+                    $bestMatch = $parametro;
+                    $bestTermsCount = $termsCount;
                 }
             }
         }
 
-        return null;
+        return $bestMatch;
     }
 }
