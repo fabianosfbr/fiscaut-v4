@@ -52,7 +52,6 @@ class EmailCredential extends Page
                         TextInput::make('smtp_username')
                             ->label('Usuário (E-mail)')
                             ->required()
-                            ->email()
                             ->maxLength(255),
                         TextInput::make('smtp_password')
                             ->label('Senha')
