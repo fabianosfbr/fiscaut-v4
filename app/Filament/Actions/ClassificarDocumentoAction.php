@@ -7,6 +7,7 @@ use App\Models\CategoryTag;
 use App\Models\ConhecimentoTransporteEletronico;
 use App\Models\GeneralSetting;
 use App\Models\NotaFiscalEletronica;
+use App\Models\NotaFiscalServico;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Notifications\Notification;
@@ -63,8 +64,17 @@ class ClassificarDocumentoAction
                     ]);
                 }
 
-                Cache::forget('tags_used_in_nfe_'.currentIssuer()->id);
-                Cache::forget('tags_used_in_nfe_grouped_'.currentIssuer()->id);
+                switch (true) {
+                    case $record instanceof NotaFiscalEletronica:
+                        Cache::forget('tags_used_in_nfe_grouped_' . currentIssuer()->id);
+                        break;
+                    case $record instanceof ConhecimentoTransporteEletronico:
+                        Cache::forget('tags_used_in_cte_grouped_' . currentIssuer()->id);
+                        break;
+                    case $record instanceof NotaFiscalServico:
+                        Cache::forget('tags_used_in_nfse_grouped_' . currentIssuer()->id);
+                        break;
+                }
 
                 Notification::make()
                     ->success()
@@ -104,7 +114,7 @@ class ClassificarDocumentoAction
                 }
             }
 
-            Cache::forget('tags_used_in_cte_'.currentIssuer()->id);
+            Cache::forget('tags_used_in_cte_' . currentIssuer()->id);
         }
     }
 }

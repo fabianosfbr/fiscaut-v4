@@ -12,6 +12,7 @@ use App\Filament\Actions\DownloadXmlAction;
 use App\Filament\Actions\DownloadXmlPdfNfeEmLoteAction;
 use App\Filament\Actions\GerarTxtIntegracaoDominioSistema;
 use App\Filament\Actions\ManifestarNfeAction;
+use App\Filament\Actions\RemoverClassificaoAction;
 use App\Filament\Actions\RemoverClassificaoNfeAction;
 use App\Filament\Actions\SugerirEtiquetaAction;
 use App\Filament\Actions\ToggleEscrituacaoEmLoteAction;
@@ -330,7 +331,7 @@ class NfeEntradasTable
                             })
                             ->columns(2)
                             ->searchable()
-                            ->helperText('Selecione as etiquetas específicas para filtrar as notas fiscais'),
+                            ->helperText('Selecione as etiquetas específicas para filtrar os documentos fiscais'),
 
                     ])
                     ->query(function (Builder $query, array $data): Builder {
@@ -377,7 +378,7 @@ class NfeEntradasTable
                     ManifestarNfeAction::make(),
                     ToggleEscrituracaoAction::make(),
                     ClassificarDocumentoAction::make(),
-                    RemoverClassificaoNfeAction::make(),
+                    RemoverClassificaoAction::make(),
                     DownloadXmlAction::make(),
                     DownloadPdfNfeAction::make(),
 

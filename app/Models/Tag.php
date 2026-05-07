@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\ConhecimentoTransporteEletronico;
+use App\Models\NotaFiscalEletronica;
+use App\Models\NotaFiscalServico;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
@@ -34,7 +37,7 @@ class Tag extends Model
         }
 
         $issuerId = $issuer->id;
-        $cacheKey = 'tags_used_in_upload_file_'.$issuerId;
+        $cacheKey = 'tags_used_in_upload_file_' . $issuerId;
 
         return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
             $tagIds = self::rightJoin('tagging_tagged', 'tagging_tags.id', '=', 'tagging_tagged.tag_id')
@@ -51,7 +54,7 @@ class Tag extends Model
                 ->orderBy('name', 'asc')
                 ->get()
                 ->keyBy('id')
-                ->map(fn ($tag) => $tag->code.' - '.$tag->name)
+                ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
                 ->toArray();
         });
     }
@@ -66,11 +69,11 @@ class Tag extends Model
 
         $issuerId = $issuer->id;
 
-        $cacheKey = 'tags_used_in_nfe_grouped_'.$issuerId;
+        $cacheKey = 'tags_used_in_nfe_grouped_' . $issuerId;
 
         return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
             $tagUsed = Tag::rightJoin('tagging_tagged', 'tagging_tags.id', '=', 'tagging_tagged.tag_id')
-                ->where('tagging_tagged.taggable_type', 'App\Models\NotaFiscalEletronica')
+                ->where('tagging_tagged.taggable_type', NotaFiscalEletronica::class)
                 ->select('tagging_tags.id')
                 ->distinct()
                 ->pluck('id');
@@ -92,6 +95,78 @@ class Tag extends Model
         });
     }
 
+    public static function tagsUsedInCteGroupedByCategory(): array
+    {
+        $issuer = currentIssuer();
+
+        if (! $issuer) {
+            return [];
+        }
+
+        $issuerId = $issuer->id;
+
+        $cacheKey = 'tags_used_in_cte_grouped_' . $issuerId;
+
+        return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
+            $tagUsed = Tag::rightJoin('tagging_tagged', 'tagging_tags.id', '=', 'tagging_tagged.tag_id')
+                ->where('tagging_tagged.taggable_type', ConhecimentoTransporteEletronico::class)
+                ->select('tagging_tags.id')
+                ->distinct()
+                ->pluck('id');
+
+            return CategoryTag::with(['tags' => function ($query) use ($tagUsed) {
+                $query->whereIn('tagging_tags.id', $tagUsed)
+                    ->where('tagging_tags.is_enable', true)
+                    ->orderBy('tagging_tags.name');
+            }])
+                ->whereHas('tags', function ($query) use ($tagUsed) {
+                    $query->whereIn('tagging_tags.id', $tagUsed)
+                        ->where('tagging_tags.is_enable', true);
+                })
+                ->where('issuer_id', $issuerId)
+                ->where('is_enable', true)
+                ->orderBy('name')
+                ->get()
+                ->toArray();
+        });
+    }
+
+    public static function tagsUsedInNfseGroupedByCategory(): array
+    {
+        $issuer = currentIssuer();
+
+        if (! $issuer) {
+            return [];
+        }
+
+        $issuerId = $issuer->id;
+
+        $cacheKey = 'tags_used_in_nfse_grouped_' . $issuerId;
+
+        return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
+            $tagUsed = Tag::rightJoin('tagging_tagged', 'tagging_tags.id', '=', 'tagging_tagged.tag_id')
+                ->where('tagging_tagged.taggable_type', NotaFiscalServico::class)
+                ->select('tagging_tags.id')
+                ->distinct()
+                ->pluck('id');
+
+            return CategoryTag::with(['tags' => function ($query) use ($tagUsed) {
+                $query->whereIn('tagging_tags.id', $tagUsed)
+                    ->where('tagging_tags.is_enable', true)
+                    ->orderBy('tagging_tags.name');
+            }])
+                ->whereHas('tags', function ($query) use ($tagUsed) {
+                    $query->whereIn('tagging_tags.id', $tagUsed)
+                        ->where('tagging_tags.is_enable', true);
+                })
+                ->where('issuer_id', $issuerId)
+                ->where('is_enable', true)
+                ->orderBy('name')
+                ->get()
+                ->toArray();
+        });
+    }    
+
     public static function getTagsUsedInNfe(): array
     {
         $issuer = currentIssuer();
@@ -101,7 +176,7 @@ class Tag extends Model
         }
 
         $issuerId = $issuer->id;
-        $cacheKey = 'tags_used_in_nfe_'.$issuerId;
+        $cacheKey = 'tags_used_in_nfe_' . $issuerId;
 
         return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
             $tagIds = self::rightJoin('tagging_tagged', 'tagging_tags.id', '=', 'tagging_tagged.tag_id')
@@ -118,7 +193,7 @@ class Tag extends Model
                 ->orderBy('name', 'asc')
                 ->get()
                 ->keyBy('id')
-                ->map(fn ($tag) => $tag->code.' - '.$tag->name)
+                ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
                 ->toArray();
         });
     }
@@ -132,7 +207,7 @@ class Tag extends Model
         }
 
         $issuerId = $issuer->id;
-        $cacheKey = 'tags_used_in_cte_'.$issuerId;
+        $cacheKey = 'tags_used_in_cte_' . $issuerId;
 
         return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
             $tagIds = self::rightJoin('tagging_tagged', 'tagging_tags.id', '=', 'tagging_tagged.tag_id')
@@ -149,7 +224,7 @@ class Tag extends Model
                 ->orderBy('name', 'asc')
                 ->get()
                 ->keyBy('id')
-                ->map(fn ($tag) => $tag->code.' - '.$tag->name)
+                ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
                 ->toArray();
         });
     }

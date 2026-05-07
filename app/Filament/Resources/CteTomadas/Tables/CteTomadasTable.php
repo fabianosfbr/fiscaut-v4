@@ -8,13 +8,16 @@ use App\Filament\Actions\DownloadPdfCteAction;
 use App\Filament\Actions\DownloadXmlAction;
 use App\Filament\Actions\DownloadXmlPdfCteEmLoteAction;
 use App\Filament\Actions\ManifestarCteAction;
+use App\Filament\Actions\RemoverClassificaoAction;
 use App\Filament\Actions\RemoverClassificaoNfeAction;
 use App\Filament\Actions\ToggleEscrituracaoAction;
+use App\Filament\Forms\Components\CheckboxListTag;
 use App\Filament\Tables\Columns\TagBadgesColumn;
 use App\Filament\Tables\Columns\ViewChaveColumn;
 use App\Jobs\Sefaz\CheckNfeData;
 use App\Models\ConhecimentoTransporteEletronico;
 use App\Models\GeneralSetting;
+use App\Models\Tag;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -134,7 +137,7 @@ class CteTomadasTable
                 TextColumn::make('tpCTe')
                     ->label('Tipo')
                     ->alignCenter()
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
                         '0' => 'Normal',
                         '1' => 'Compl. de valor',
                         '2' => 'Anulação',
@@ -212,11 +215,11 @@ class CteTomadasTable
                         }
 
                         return $data['value']
-                            ? $query->whereHas('apurada', fn (Builder $query): Builder => $query->where('status', true))
+                            ? $query->whereHas('apurada', fn(Builder $query): Builder => $query->where('status', true))
                             : $query->where(function (Builder $query): Builder {
                                 return $query
                                     ->whereDoesntHave('apurada')
-                                    ->orWhereHas('apurada', fn (Builder $query): Builder => $query->where('status', false));
+                                    ->orWhereHas('apurada', fn(Builder $query): Builder => $query->where('status', false));
                             });
                     }),
 
@@ -235,6 +238,51 @@ class CteTomadasTable
                             ? $query->whereNull('metadata')
                             : $query->whereNotNull('metadata');
                     }),
+                Filter::make('etiquetas_especificas')
+                    ->label('Etiquetas Específicas')
+                    ->columnSpanFull()
+                    ->schema([
+                        CheckboxListTag::make('etiquetas')
+                            ->label('Etiquetas Específicas')
+                            ->options(function () {
+                                return Tag::tagsUsedInCteGroupedByCategory();
+                            })
+                            ->columns(2)
+                            ->searchable()
+                            ->helperText('Selecione as etiquetas específicas para filtrar os documentos fiscais'),
+
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['etiquetas'])) {
+                            return $query;
+                        }
+
+                        // Extrai os IDs das etiquetas selecionadas
+                        $tagIds = collect($data['etiquetas'])
+                            ->map(function ($value) {
+                                return explode(' - ', $value)[0];
+                            })
+                            ->toArray();
+
+                        $query->whereHas('tagged', function ($query) use ($tagIds) {
+                            $query->whereIn('tag_id', $tagIds);
+                        });
+
+                        return $query;
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        if (empty($data['etiquetas'])) {
+                            return null;
+                        }
+
+                        $etiquetas = Tag::whereIn('id', $data['etiquetas'])
+                            ->get()
+                            ->keyBy('id')
+                            ->map(fn ($tag) => $tag->code.' - '.$tag->name)
+                            ->toArray();
+
+                        return 'Etiquetas: '.implode(', ', $etiquetas);
+                    }),
             ])
             ->filtersFormColumns(3)
             ->persistFiltersInSession()
@@ -246,7 +294,7 @@ class CteTomadasTable
                     ManifestarCteAction::make(),
                     ToggleEscrituracaoAction::make(),
                     ClassificarDocumentoAction::make(),
-                    RemoverClassificaoNfeAction::make(),
+                    RemoverClassificaoAction::make(),
                     DownloadXmlAction::make(),
                     DownloadPdfCteAction::make(),
                 ]),

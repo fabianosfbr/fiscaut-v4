@@ -6,11 +6,14 @@ use App\Filament\Actions\ClassificarDocumentoAction;
 use App\Filament\Actions\ClassificarDocumentoEmLoteAction;
 use App\Filament\Actions\ClassificarDocumentoMaisAplicadaEmLoteAction;
 use App\Filament\Actions\DownloadPdfNfseAction;
+use App\Filament\Actions\RemoverClassificaoAction;
 use App\Filament\Actions\RemoverClassificaoNfeAction;
 use App\Filament\Actions\ToggleEscrituacaoEmLoteAction;
 use App\Filament\Actions\ToggleEscrituracaoAction;
+use App\Filament\Forms\Components\CheckboxListTag;
 use App\Filament\Tables\Columns\TagBadgesColumn;
 use App\Models\GeneralSetting;
+use App\Models\Tag;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\ViewAction;
@@ -187,6 +190,51 @@ class NfseEntradasTable
                             ? $query->where('cancelada', false)
                             : $query->where('cancelada', true);
                     }),
+                Filter::make('etiquetas_especificas')
+                    ->label('Etiquetas Específicas')
+                    ->columnSpanFull()
+                    ->schema([
+                        CheckboxListTag::make('etiquetas')
+                            ->label('Etiquetas Específicas')
+                            ->options(function () {
+                                return Tag::tagsUsedInNfseGroupedByCategory();
+                            })
+                            ->columns(2)
+                            ->searchable()
+                            ->helperText('Selecione as etiquetas específicas para filtrar os documentos fiscais'),
+
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['etiquetas'])) {
+                            return $query;
+                        }
+
+                        // Extrai os IDs das etiquetas selecionadas
+                        $tagIds = collect($data['etiquetas'])
+                            ->map(function ($value) {
+                                return explode(' - ', $value)[0];
+                            })
+                            ->toArray();
+
+                        $query->whereHas('tagged', function ($query) use ($tagIds) {
+                            $query->whereIn('tag_id', $tagIds);
+                        });
+
+                        return $query;
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        if (empty($data['etiquetas'])) {
+                            return null;
+                        }
+
+                        $etiquetas = Tag::whereIn('id', $data['etiquetas'])
+                            ->get()
+                            ->keyBy('id')
+                            ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
+                            ->toArray();
+
+                        return 'Etiquetas: ' . implode(', ', $etiquetas);
+                    }),
             ])
             ->filtersFormColumns(4)
             ->persistFiltersInSession()
@@ -198,7 +246,7 @@ class NfseEntradasTable
                     DownloadPdfNfseAction::make(),
                     ToggleEscrituracaoAction::make(),
                     ClassificarDocumentoAction::make(),
-                    RemoverClassificaoNfeAction::make(),
+                    RemoverClassificaoAction::make(),
 
                 ]),
             ])
