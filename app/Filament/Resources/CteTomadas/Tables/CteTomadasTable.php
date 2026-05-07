@@ -9,7 +9,6 @@ use App\Filament\Actions\DownloadXmlAction;
 use App\Filament\Actions\DownloadXmlPdfCteEmLoteAction;
 use App\Filament\Actions\ManifestarCteAction;
 use App\Filament\Actions\RemoverClassificaoAction;
-use App\Filament\Actions\RemoverClassificaoNfeAction;
 use App\Filament\Actions\ToggleEscrituracaoAction;
 use App\Filament\Forms\Components\CheckboxListTag;
 use App\Filament\Tables\Columns\TagBadgesColumn;
@@ -137,7 +136,7 @@ class CteTomadasTable
                 TextColumn::make('tpCTe')
                     ->label('Tipo')
                     ->alignCenter()
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         '0' => 'Normal',
                         '1' => 'Compl. de valor',
                         '2' => 'Anulação',
@@ -215,11 +214,11 @@ class CteTomadasTable
                         }
 
                         return $data['value']
-                            ? $query->whereHas('apurada', fn(Builder $query): Builder => $query->where('status', true))
+                            ? $query->whereHas('apurada', fn (Builder $query): Builder => $query->where('status', true))
                             : $query->where(function (Builder $query): Builder {
                                 return $query
                                     ->whereDoesntHave('apurada')
-                                    ->orWhereHas('apurada', fn(Builder $query): Builder => $query->where('status', false));
+                                    ->orWhereHas('apurada', fn (Builder $query): Builder => $query->where('status', false));
                             });
                     }),
 

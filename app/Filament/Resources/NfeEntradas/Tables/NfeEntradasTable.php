@@ -13,7 +13,6 @@ use App\Filament\Actions\DownloadXmlPdfNfeEmLoteAction;
 use App\Filament\Actions\GerarTxtIntegracaoDominioSistema;
 use App\Filament\Actions\ManifestarNfeAction;
 use App\Filament\Actions\RemoverClassificaoAction;
-use App\Filament\Actions\RemoverClassificaoNfeAction;
 use App\Filament\Actions\SugerirEtiquetaAction;
 use App\Filament\Actions\ToggleEscrituacaoEmLoteAction;
 use App\Filament\Actions\ToggleEscrituracaoAction;

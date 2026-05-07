@@ -7,7 +7,6 @@ use App\Filament\Actions\ClassificarDocumentoEmLoteAction;
 use App\Filament\Actions\ClassificarDocumentoMaisAplicadaEmLoteAction;
 use App\Filament\Actions\DownloadPdfNfseAction;
 use App\Filament\Actions\RemoverClassificaoAction;
-use App\Filament\Actions\RemoverClassificaoNfeAction;
 use App\Filament\Actions\ToggleEscrituacaoEmLoteAction;
 use App\Filament\Actions\ToggleEscrituracaoAction;
 use App\Filament\Forms\Components\CheckboxListTag;
@@ -230,10 +229,10 @@ class NfseEntradasTable
                         $etiquetas = Tag::whereIn('id', $data['etiquetas'])
                             ->get()
                             ->keyBy('id')
-                            ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
+                            ->map(fn ($tag) => $tag->code.' - '.$tag->name)
                             ->toArray();
 
-                        return 'Etiquetas: ' . implode(', ', $etiquetas);
+                        return 'Etiquetas: '.implode(', ', $etiquetas);
                     }),
             ])
             ->filtersFormColumns(4)

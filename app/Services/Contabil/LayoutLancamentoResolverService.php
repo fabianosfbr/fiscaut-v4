@@ -55,7 +55,7 @@ class LayoutLancamentoResolverService
 
         $this->historicosByCodigo = HistoricoContabil::where('issuer_id', $issuerId)
             ->get()
-            ->mapWithKeys(fn($h) => [$h->codigo => $h->descricao])
+            ->mapWithKeys(fn ($h) => [$h->codigo => $h->descricao])
             ->toArray();
     }
 
@@ -304,7 +304,7 @@ class LayoutLancamentoResolverService
 
             $query = Banco::with('plano_de_conta')->where('issuer_id', $this->issuerId);
             if ($condition === 'like') {
-                $query->where($attribute, 'LIKE', '%' . $searchValue . '%');
+                $query->where($attribute, 'LIKE', '%'.$searchValue.'%');
             } else {
                 $query->where($attribute, $searchValue);
             }
@@ -319,7 +319,7 @@ class LayoutLancamentoResolverService
         if ($table === 'contabil_clientes') {
             $query = Cliente::with('plano_de_conta')->where('issuer_id', $this->issuerId);
             if ($condition === 'like') {
-                $query->where($attribute, 'LIKE', '%' . $searchValue . '%');
+                $query->where($attribute, 'LIKE', '%'.$searchValue.'%');
             } else {
                 $query->where($attribute, $searchValue);
             }
@@ -333,7 +333,7 @@ class LayoutLancamentoResolverService
         if ($table === 'contabil_fornecedores') {
             $query = Fornecedor::with('plano_de_conta')->where('issuer_id', $this->issuerId);
             if ($condition === 'like') {
-                $query->where($attribute, 'LIKE', '%' . $searchValue . '%');
+                $query->where($attribute, 'LIKE', '%'.$searchValue.'%');
             } else {
                 $query->where($attribute, $searchValue);
             }
@@ -348,7 +348,7 @@ class LayoutLancamentoResolverService
         if ($table === 'contabil_plano_de_contas') {
             $query = PlanoDeConta::where('issuer_id', $this->issuerId);
             if ($condition === 'like') {
-                $query->where($attribute, 'LIKE', '%' . $searchValue . '%');
+                $query->where($attribute, 'LIKE', '%'.$searchValue.'%');
             } else {
                 $query->where($attribute, $searchValue);
             }
@@ -505,7 +505,7 @@ class LayoutLancamentoResolverService
             return false;
         }
 
-        $pattern = '/(?<![\p{L}\p{N}])' . preg_quote($term, '/') . '(?![\p{L}\p{N}])/u';
+        $pattern = '/(?<![\p{L}\p{N}])'.preg_quote($term, '/').'(?![\p{L}\p{N}])/u';
 
         return preg_match($pattern, $texto) === 1;
     }
@@ -747,7 +747,7 @@ class LayoutLancamentoResolverService
 
         foreach ($this->layoutColumns as $col) {
             $key = $col->excel_column_name;
-            $replacements['#' . $key] = $this->stringifyValue($this->getRowValue($row, $key) ?? ' ');
+            $replacements['#'.$key] = $this->stringifyValue($this->getRowValue($row, $key) ?? ' ');
         }
 
         $date = $resolved['data'] instanceof Carbon ? $resolved['data'] : null;

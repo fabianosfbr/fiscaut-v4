@@ -66,13 +66,13 @@ class ClassificarDocumentoAction
 
                 switch (true) {
                     case $record instanceof NotaFiscalEletronica:
-                        Cache::forget('tags_used_in_nfe_grouped_' . currentIssuer()->id);
+                        Cache::forget('tags_used_in_nfe_grouped_'.currentIssuer()->id);
                         break;
                     case $record instanceof ConhecimentoTransporteEletronico:
-                        Cache::forget('tags_used_in_cte_grouped_' . currentIssuer()->id);
+                        Cache::forget('tags_used_in_cte_grouped_'.currentIssuer()->id);
                         break;
                     case $record instanceof NotaFiscalServico:
-                        Cache::forget('tags_used_in_nfse_grouped_' . currentIssuer()->id);
+                        Cache::forget('tags_used_in_nfse_grouped_'.currentIssuer()->id);
                         break;
                 }
 
@@ -114,7 +114,7 @@ class ClassificarDocumentoAction
                 }
             }
 
-            Cache::forget('tags_used_in_cte_' . currentIssuer()->id);
+            Cache::forget('tags_used_in_cte_'.currentIssuer()->id);
         }
     }
 }

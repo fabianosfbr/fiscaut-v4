@@ -146,7 +146,7 @@ class NotificaCobrancaSuperLogicaJob implements ShouldQueue
 
                     ];
 
-                    SendCobrancaEmailJob::dispatch($this->issuer->id, 'conib40105@inreur.com; gerencia.cont@speedgrupo.com.br; cobranca.adm.2@speedgrupo.com.br', $unidadeData);
+                    SendCobrancaEmailJob::dispatch($this->issuer->id, 'giron61861@ellbit.com', $unidadeData);
                     sleep(10);
                 }
             }
