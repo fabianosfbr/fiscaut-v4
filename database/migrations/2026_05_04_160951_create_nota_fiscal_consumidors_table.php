@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('nfces')) {
+        if (! Schema::hasTable('nfces')) {
             Schema::create('nfces', function (Blueprint $table) {
                 $table->uuid('id')->primary()->unique();
                 $table->string('chave')->nullable();

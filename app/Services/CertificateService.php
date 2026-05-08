@@ -232,7 +232,7 @@ class CertificateService
     {
         try {
             return Crypt::decrypt($encryptedContent);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new Exception('Erro ao descriptografar o certificado armazenado.');
         }
     }

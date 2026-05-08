@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\SuperLogicaCobrancaNotification;
+use Carbon\Carbon;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
@@ -45,7 +46,7 @@ new class extends Component implements HasActions, HasSchemas, HasTable
             ->columns([
                 TextColumn::make('sent_at')
                     ->label('Data de Envio')
-                    ->formatStateUsing(fn ($state) => \Carbon\Carbon::parse($state)->format('d/m/Y H:i:s')),
+                    ->formatStateUsing(fn ($state) => Carbon::parse($state)->format('d/m/Y H:i:s')),
                 TextColumn::make('data.recipient_email')
                     ->label('Enviada para'),
 

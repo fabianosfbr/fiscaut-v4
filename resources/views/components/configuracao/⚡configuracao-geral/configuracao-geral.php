@@ -183,7 +183,7 @@ new class extends Component implements HasSchemas
                 ->body('As configurações foram salvas com sucesso.')
                 ->success()
                 ->send();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Notification::make()
                 ->title('Erro ao salvar')
                 ->body(new HtmlString('Ocorreu um erro ao salvar as configurações.<br>'.$e->getMessage()))

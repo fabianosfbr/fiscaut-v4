@@ -8,6 +8,7 @@ use App\Models\CategoryTag;
 use App\Models\Issuer;
 use App\Models\NotaFiscalEletronica;
 use App\Models\Tag;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -172,7 +173,7 @@ class TagBadgesColumnTest extends TestCase
 
     private function createIssuer(): Issuer
     {
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
 
         return Issuer::create([
             'user_id' => $user->id,

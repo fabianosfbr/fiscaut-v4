@@ -30,7 +30,7 @@ return new class extends Migration
             } elseif ($driver === 'sqlite') {
                 DB::statement('DROP INDEX IF EXISTS uq_statistic_issuers_cache_key');
             }
-        } catch (\Throwable) {
+        } catch (Throwable) {
         }
 
         Schema::table('statistic_issuers', function (Blueprint $table) {
@@ -61,7 +61,7 @@ return new class extends Migration
             } elseif ($driver === 'sqlite') {
                 DB::statement('DROP INDEX IF EXISTS uq_statistic_issuers_cache_key');
             }
-        } catch (\Throwable) {
+        } catch (Throwable) {
         }
 
         try {
@@ -72,7 +72,7 @@ return new class extends Migration
             } elseif ($driver === 'sqlite') {
                 DB::statement('DROP INDEX IF EXISTS idx_statistic_issuers_tenant_issuer_metrica_data');
             }
-        } catch (\Throwable) {
+        } catch (Throwable) {
         }
 
         // Drop orphaned indexes from previous migration
@@ -84,7 +84,7 @@ return new class extends Migration
             } elseif ($driver === 'sqlite') {
                 DB::statement('DROP INDEX IF EXISTS idx_statistic_issuers_tenant_issuer_data');
             }
-        } catch (\Throwable) {
+        } catch (Throwable) {
         }
 
         try {
@@ -95,7 +95,7 @@ return new class extends Migration
             } elseif ($driver === 'sqlite') {
                 DB::statement('DROP INDEX IF EXISTS idx_statistic_issuers_tenant_issuer_data_ref');
             }
-        } catch (\Throwable) {
+        } catch (Throwable) {
         }
 
         Schema::table('statistic_issuers', function (Blueprint $table) {

@@ -2,6 +2,7 @@
 
 namespace App\Integrations\DominioSistemas\Records;
 
+use App\Models\CategoryTag;
 use App\Models\NotaFiscalEletronica;
 
 /**
@@ -388,12 +389,12 @@ class Registro0100 extends RegistroBase
     /**
      * Obtém o CategoryTag do cache ou faz a consulta ao banco de dados
      */
-    private function getCategoryTagFromCache(int $categoryId): ?\App\Models\CategoryTag
+    private function getCategoryTagFromCache(int $categoryId): ?CategoryTag
     {
         // Verifica se já está em cache
         if (! isset(self::$categoryTagCache[$categoryId])) {
             // Busca o CategoryTag e armazena em cache
-            self::$categoryTagCache[$categoryId] = \App\Models\CategoryTag::find($categoryId);
+            self::$categoryTagCache[$categoryId] = CategoryTag::find($categoryId);
         }
 
         return self::$categoryTagCache[$categoryId];

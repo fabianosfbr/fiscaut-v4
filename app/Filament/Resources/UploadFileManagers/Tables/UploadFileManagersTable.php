@@ -8,6 +8,7 @@ use App\Filament\Tables\Columns\TagDocsColumn;
 use App\Jobs\BulkAction\DownloadUploadFileBulkActionJob;
 use App\Models\GeneralSetting;
 use App\Models\Tag;
+use App\Models\UploadFileManager;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -182,7 +183,7 @@ class UploadFileManagersTable
                         ->requiresConfirmation()
                         ->action(function (Collection $records) {
                             foreach ($records as $record) {
-                                /** @var \App\Models\UploadFileManager $record */
+                                /** @var UploadFileManager $record */
                                 $record->update([
                                     'processed' => ! $record->processed,
                                 ]);
@@ -196,7 +197,7 @@ class UploadFileManagersTable
                         ->requiresConfirmation()
                         ->action(function (Collection $records) {
                             foreach ($records as $record) {
-                                /** @var \App\Models\UploadFileManager $record */
+                                /** @var UploadFileManager $record */
                                 if (! $record->processed) {
                                     Storage::delete($record->path);
                                     $record->delete();

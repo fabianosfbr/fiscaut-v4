@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::table('nfes', function (Blueprint $table) {
             try {
                 $table->dropIndex(['aut_xml']);
-            } catch (\Throwable) {
+            } catch (Throwable) {
             }
 
             $table->dropColumn('aut_xml');

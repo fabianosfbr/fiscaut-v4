@@ -20,6 +20,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Octopy\Filament\Palette\PaletteSwitcherPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -127,7 +128,7 @@ class AdminPanelProvider extends PanelProvider
                     ->url(fn (): string => Profile::getUrl()),
             ])
             ->plugin(
-                \Octopy\Filament\Palette\PaletteSwitcherPlugin::make()
+                PaletteSwitcherPlugin::make()
             );
     }
 }

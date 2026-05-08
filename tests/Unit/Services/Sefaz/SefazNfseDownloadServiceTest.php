@@ -37,7 +37,7 @@ class SefazNfseDownloadServiceTest extends TestCase
     {
         // Mock the certificate to avoid actual certificate processing
         $certificateMock = Mockery::mock(Certificate::class);
-        $this->mock(\NFePHP\Common\Certificate::class, function ($mock) use ($certificateMock) {
+        $this->mock(Certificate::class, function ($mock) use ($certificateMock) {
             $mock->shouldReceive('readPfx')->andReturn($certificateMock);
         });
 

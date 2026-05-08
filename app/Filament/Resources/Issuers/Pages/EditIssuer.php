@@ -92,7 +92,7 @@ class EditIssuer extends EditRecord
         ];
     }
 
-    protected function getSaveFormAction(): \Filament\Actions\Action
+    protected function getSaveFormAction(): Action
     {
         return parent::getSaveFormAction()
             ->requiresConfirmation()

@@ -2,16 +2,23 @@
 
 namespace App\Filament\Condominio\Pages;
 
+use App\Services\SuperlogicaConnectionService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\Indicator;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use UnitEnum;
@@ -45,7 +52,7 @@ class Inadimplencia extends Page implements HasTable
                         $records = $this->applyFilters($records, $filters);
                         $records = $this->applySearch($records, $search);
 
-                        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.inadimplentes', [
+                        $pdf = Pdf::loadView('pdf.inadimplentes', [
                             'records' => $records,
                             'issuerName' => currentIssuer()->name ?? 'CONDOMÍNIO',
                             'idCondominio' => currentIssuer()->superlogica_condominio_id,
@@ -138,11 +145,11 @@ class Inadimplencia extends Page implements HasTable
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
                         if ($data['vencimento_de'] ?? null) {
-                            $indicators[] = \Filament\Tables\Filters\Indicator::make('Vencimento a partir de '.\Illuminate\Support\Carbon::parse($data['vencimento_de'])->format('d/m/Y'))
+                            $indicators[] = Indicator::make('Vencimento a partir de '.Carbon::parse($data['vencimento_de'])->format('d/m/Y'))
                                 ->removeField('vencimento_de');
                         }
                         if ($data['vencimento_ate'] ?? null) {
-                            $indicators[] = \Filament\Tables\Filters\Indicator::make('Vencimento até '.\Illuminate\Support\Carbon::parse($data['vencimento_ate'])->format('d/m/Y'))
+                            $indicators[] = Indicator::make('Vencimento até '.Carbon::parse($data['vencimento_ate'])->format('d/m/Y'))
                                 ->removeField('vencimento_ate');
                         }
 
@@ -151,7 +158,7 @@ class Inadimplencia extends Page implements HasTable
 
                 Filter::make('atraso')
                     ->schema([
-                        \Filament\Forms\Components\Select::make('dias')
+                        Select::make('dias')
                             ->label('Atraso')
                             ->options([
                                 '10' => 'Mais de 10 dias',
@@ -160,16 +167,16 @@ class Inadimplencia extends Page implements HasTable
                                 '90' => 'Mais de 90 dias',
                             ]),
                     ])
-                    ->indicateUsing(function (array $data): ?\Filament\Tables\Filters\Indicator {
+                    ->indicateUsing(function (array $data): ?Indicator {
                         if (! ($data['dias'] ?? null)) {
                             return null;
                         }
 
-                        return \Filament\Tables\Filters\Indicator::make('Atraso: Mais de '.$data['dias'].' dias')
+                        return Indicator::make('Atraso: Mais de '.$data['dias'].' dias')
                             ->removeField('dias');
                     }),
 
-                \Filament\Tables\Filters\TernaryFilter::make('processo_judicial')
+                TernaryFilter::make('processo_judicial')
                     ->label('Processo Judicial')
                     ->placeholder('Todos')
                     ->trueLabel('Em processo')
@@ -232,10 +239,10 @@ class Inadimplencia extends Page implements HasTable
         );
     }
 
-    protected function fetchInadimplencias(): \Illuminate\Support\Collection
+    protected function fetchInadimplencias(): Collection
     {
         $issuer = currentIssuer();
-        $service = new \App\Services\SuperlogicaConnectionService($issuer);
+        $service = new SuperlogicaConnectionService($issuer);
 
         $inadimplencias = $service
             ->receita()
@@ -247,10 +254,10 @@ class Inadimplencia extends Page implements HasTable
             if (isset($record['recebimento']) && is_array($record['recebimento'])) {
                 $recebimentos = collect($record['recebimento'])->sortBy(function ($recb) {
                     try {
-                        return \Illuminate\Support\Carbon::createFromFormat('m/d/Y H:i:s', data_get($recb, 'dt_vencimento_recb'))->timestamp;
+                        return Carbon::createFromFormat('m/d/Y H:i:s', data_get($recb, 'dt_vencimento_recb'))->timestamp;
                     } catch (\Exception $e) {
                         try {
-                            return \Illuminate\Support\Carbon::parse(data_get($recb, 'dt_vencimento_recb'))->timestamp;
+                            return Carbon::parse(data_get($recb, 'dt_vencimento_recb'))->timestamp;
                         } catch (\Exception $e) {
                             return 0;
                         }
@@ -266,10 +273,10 @@ class Inadimplencia extends Page implements HasTable
         return $records;
     }
 
-    protected function fetchProcessosJudiciais(): \Illuminate\Support\Collection
+    protected function fetchProcessosJudiciais(): Collection
     {
         $issuer = currentIssuer();
-        $service = new \App\Services\SuperlogicaConnectionService($issuer);
+        $service = new SuperlogicaConnectionService($issuer);
 
         $processosJudiciais = $service
             ->receita()
@@ -281,7 +288,7 @@ class Inadimplencia extends Page implements HasTable
 
     }
 
-    protected function applyFilters(\Illuminate\Support\Collection $records, array $filters): \Illuminate\Support\Collection
+    protected function applyFilters(Collection $records, array $filters): Collection
     {
         $vencimentoDe = data_get($filters, 'vencimento.vencimento_de');
         $vencimentoAte = data_get($filters, 'vencimento.vencimento_ate');
@@ -308,12 +315,12 @@ class Inadimplencia extends Page implements HasTable
 
                 if ($vencimentoDe || $vencimentoAte) {
                     try {
-                        $dtVencimento = \Illuminate\Support\Carbon::parse($recb['dt_vencimento_recb'])->startOfDay();
+                        $dtVencimento = Carbon::parse($recb['dt_vencimento_recb'])->startOfDay();
 
-                        if ($vencimentoDe && $dtVencimento->lt(\Illuminate\Support\Carbon::parse($vencimentoDe)->startOfDay())) {
+                        if ($vencimentoDe && $dtVencimento->lt(Carbon::parse($vencimentoDe)->startOfDay())) {
                             $keep = false;
                         }
-                        if ($vencimentoAte && $dtVencimento->gt(\Illuminate\Support\Carbon::parse($vencimentoAte)->startOfDay())) {
+                        if ($vencimentoAte && $dtVencimento->gt(Carbon::parse($vencimentoAte)->startOfDay())) {
                             $keep = false;
                         }
                     } catch (\Exception $e) {
@@ -339,7 +346,7 @@ class Inadimplencia extends Page implements HasTable
         });
     }
 
-    protected function applySearch(\Illuminate\Support\Collection $records, ?string $search): \Illuminate\Support\Collection
+    protected function applySearch(Collection $records, ?string $search): Collection
     {
         if (! filled($search)) {
             return $records;

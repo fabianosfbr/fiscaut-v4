@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\XmlImportJobs\Tables;
 
+use App\Models\Issuer;
+use App\Models\User;
 use App\Models\XmlImportJob;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
@@ -28,12 +30,12 @@ class XmlImportJobsTable
                         }
 
                         // Se o owner é um User, usa o campo 'name'
-                        if ($record->owner instanceof \App\Models\User) {
+                        if ($record->owner instanceof User) {
                             return $record->owner->name;
                         }
 
                         // Se o owner é um Issuer, usa o campo 'razao_social'
-                        if ($record->owner instanceof \App\Models\Issuer) {
+                        if ($record->owner instanceof Issuer) {
                             return Str::limit($record->owner->razao_social, 25);
                         }
 
@@ -42,23 +44,23 @@ class XmlImportJobsTable
                     })
                     ->searchable(query: function ($query, $search) {
                         return $query->where(function ($query) use ($search) {
-                            $query->whereHasMorph('owner', [\App\Models\User::class], function ($query) use ($search) {
+                            $query->whereHasMorph('owner', [User::class], function ($query) use ($search) {
                                 $query->where('name', 'like', "%{$search}%");
                             })
-                                ->orWhereHasMorph('owner', [\App\Models\Issuer::class], function ($query) use ($search) {
+                                ->orWhereHasMorph('owner', [Issuer::class], function ($query) use ($search) {
                                     $query->where('razao_social', 'like', "%{$search}%");
                                 });
                         });
                     })
                     ->sortable(query: function ($query, $direction) {
                         return $query->orderBy(
-                            \App\Models\User::select('name')
+                            User::select('name')
                                 ->whereColumn('users.id', 'xml_import_jobs.owner_id')
-                                ->where('xml_import_jobs.owner_type', \App\Models\User::class)
+                                ->where('xml_import_jobs.owner_type', User::class)
                                 ->union(
-                                    \App\Models\Issuer::select('razao_social')
+                                    Issuer::select('razao_social')
                                         ->whereColumn('companies.id', 'xml_import_jobs.owner_id')
-                                        ->where('xml_import_jobs.owner_type', \App\Models\Issuer::class)
+                                        ->where('xml_import_jobs.owner_type', Issuer::class)
                                 ),
                             $direction
                         );

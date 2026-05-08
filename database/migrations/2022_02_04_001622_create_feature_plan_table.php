@@ -3,6 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use LucasDotVin\Soulbscription\Models\Feature;
+use LucasDotVin\Soulbscription\Models\Plan;
 
 return new class extends Migration
 {
@@ -16,8 +18,8 @@ return new class extends Migration
         Schema::create('feature_plan', function (Blueprint $table) {
             $table->id();
             $table->decimal('charges')->nullable();
-            $table->foreignIdFor(\LucasDotVin\Soulbscription\Models\Feature::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(\LucasDotVin\Soulbscription\Models\Plan::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Feature::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Plan::class)->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

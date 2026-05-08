@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Layouts\RelationManagers;
 
+use App\Enums\TipoFonteDeDadosEnum;
+use App\Enums\TipoRegraExportacaoEnum;
 use App\Filament\Resources\Layouts\Schemas\LayoutRuleSchema;
 use Filament\Actions\CreateAction;
 use Filament\Actions\EditAction;
@@ -81,11 +83,11 @@ class LayoutRulesRelationManager extends RelationManager
             ->filters([
                 Tables\Filters\SelectFilter::make('rule_type')
                     ->label('Tipo de Regra')
-                    ->options(\App\Enums\TipoRegraExportacaoEnum::class),
+                    ->options(TipoRegraExportacaoEnum::class),
 
                 Tables\Filters\SelectFilter::make('data_source_type')
                     ->label('Tipo de Fonte')
-                    ->options(\App\Enums\TipoFonteDeDadosEnum::class),
+                    ->options(TipoFonteDeDadosEnum::class),
             ])
             ->recordActions([
                 EditAction::make(),

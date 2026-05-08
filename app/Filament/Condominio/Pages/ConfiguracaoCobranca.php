@@ -81,14 +81,14 @@ class ConfiguracaoCobranca extends Page implements HasSchemas
                                     ->label('Notificar depois do vencimento')
                                     ->live()
                                     ->columnSpan(1)
-                                    ->afterStateUpdated(fn() => $this->hasChanges = true),
+                                    ->afterStateUpdated(fn () => $this->hasChanges = true),
 
                                 TextInput::make('notificacao_cobranca_depois.dias')
                                     ->label('Dias depois do vencimento')
-                                    ->visible(fn($get) => $get('notificacao_cobranca_depois.enabled'))
+                                    ->visible(fn ($get) => $get('notificacao_cobranca_depois.enabled'))
                                     ->live()
                                     ->columnSpan(1)
-                                    ->afterStateUpdated(fn() => $this->hasChanges = true),
+                                    ->afterStateUpdated(fn () => $this->hasChanges = true),
 
                             ]),
                         Grid::make(4)
@@ -97,21 +97,21 @@ class ConfiguracaoCobranca extends Page implements HasSchemas
                                     ->label('Notificar jurídico depois do vencimento')
                                     ->live()
                                     ->columnSpan(1)
-                                    ->afterStateUpdated(fn() => $this->hasChanges = true),
+                                    ->afterStateUpdated(fn () => $this->hasChanges = true),
 
                                 TextInput::make('notificacao_juridico.dias')
                                     ->label('Dias depois do vencimento')
-                                    ->visible(fn($get) => $get('notificacao_juridico.enabled'))
+                                    ->visible(fn ($get) => $get('notificacao_juridico.enabled'))
                                     ->live()
                                     ->columnSpan(1)
-                                    ->afterStateUpdated(fn() => $this->hasChanges = true),
+                                    ->afterStateUpdated(fn () => $this->hasChanges = true),
                                 TextInput::make('notificacao_juridico.email')
                                     ->label('Email para notificação jurídica')
-                                    ->visible(fn($get) => $get('notificacao_juridico.enabled'))
+                                    ->visible(fn ($get) => $get('notificacao_juridico.enabled'))
                                     ->email()
                                     ->live()
                                     ->columnSpan(1)
-                                    ->afterStateUpdated(fn() => $this->hasChanges = true),
+                                    ->afterStateUpdated(fn () => $this->hasChanges = true),
                             ]),
                     ]),
             ])
@@ -167,7 +167,7 @@ class ConfiguracaoCobranca extends Page implements HasSchemas
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Erro ao salvar')
-                ->body(new HtmlString('Ocorreu um erro ao salvar as configurações.<br>' . $e->getMessage()))
+                ->body(new HtmlString('Ocorreu um erro ao salvar as configurações.<br>'.$e->getMessage()))
                 ->danger()
                 ->send();
         } finally {

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('ctes', function (Blueprint $table) {
             try {
                 $table->dropIndex('ctes_nfe_chave_index');
-            } catch (\Throwable) {
+            } catch (Throwable) {
             }
             //  $table->json('nfe_chave')->nullable()->change();
         });

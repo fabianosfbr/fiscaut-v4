@@ -2,6 +2,7 @@
 
 namespace App\Filament\Condominio\Pages;
 
+use App\Models\SuperLogicaUnidade;
 use Filament\Actions\Action;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Pages\Page;
@@ -127,7 +128,7 @@ class DetalhesCobranca extends Page implements HasSchemas
             return null;
         }
 
-        $unidade = \App\Models\SuperLogicaUnidade::where('id_unidade_uni', $idUnidade)
+        $unidade = SuperLogicaUnidade::where('id_unidade_uni', $idUnidade)
             ->where('id_condominio', $issuer->superlogica_condominio_id)
             ->first();
 

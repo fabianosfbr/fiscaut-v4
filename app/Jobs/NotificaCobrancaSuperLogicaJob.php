@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\GeneralSetting;
 use App\Models\Issuer;
 use App\Models\SuperLogicaUnidade;
+use App\Services\SuperlogicaConnectionService;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -50,7 +51,7 @@ class NotificaCobrancaSuperLogicaJob implements ShouldQueue
             return;
         }
 
-        $service = new \App\Services\SuperlogicaConnectionService($this->issuer);
+        $service = new SuperlogicaConnectionService($this->issuer);
 
         $inadimplencias = $service
             ->receita()

@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Laravel\Fortify\Fortify;
 
 return new class extends Migration
 {
@@ -22,7 +23,7 @@ return new class extends Migration
                 ->after('two_factor_secret')
                 ->nullable();
 
-            if (class_exists(\Laravel\Fortify\Fortify::class) && \Laravel\Fortify\Fortify::confirmsTwoFactorAuthentication()) {
+            if (class_exists(Fortify::class) && Fortify::confirmsTwoFactorAuthentication()) {
                 $table->timestamp('two_factor_confirmed_at')
                     ->after('two_factor_recovery_codes')
                     ->nullable();
@@ -41,7 +42,7 @@ return new class extends Migration
             $table->dropColumn(array_merge([
                 'two_factor_secret',
                 'two_factor_recovery_codes',
-            ], (class_exists(\Laravel\Fortify\Fortify::class) && \Laravel\Fortify\Fortify::confirmsTwoFactorAuthentication()) ? [
+            ], (class_exists(Fortify::class) && Fortify::confirmsTwoFactorAuthentication()) ? [
                 'two_factor_confirmed_at',
             ] : []));
         });

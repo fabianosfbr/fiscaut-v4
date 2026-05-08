@@ -4,6 +4,7 @@ use App\Console\Scheduling\DynamicTaskCommandExecutor;
 use App\Jobs\SendCobrancaEmailJob;
 use App\Models\Issuer;
 use App\Models\SuperLogicaUnidade;
+use App\Services\SuperlogicaConnectionService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Artisan;
 
@@ -13,7 +14,7 @@ Artisan::command('play', function () {
 
     $diasConfig = [20];
 
-    $service = new \App\Services\SuperlogicaConnectionService($issuer);
+    $service = new SuperlogicaConnectionService($issuer);
 
     $inadimplencias = $service
         ->receita()
@@ -34,10 +35,10 @@ Artisan::command('play', function () {
 
             try {
                 $vencimento = Carbon::createFromFormat('m/d/Y H:i:s', $vencimentoStr)->startOfDay();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 try {
                     $vencimento = Carbon::parse($vencimentoStr)->startOfDay();
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     continue;
                 }
             }
@@ -111,7 +112,7 @@ Artisan::command('play', function () {
 
     dd('enviado');
 
-    $service = new \App\Services\SuperlogicaConnectionService($issuer);
+    $service = new SuperlogicaConnectionService($issuer);
     $condominios = $service
         ->despesa()
         ->listarFornecedor([

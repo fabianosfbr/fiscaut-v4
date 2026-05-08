@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\Carbon;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
@@ -41,10 +42,10 @@ new class extends Component implements HasActions, HasSchemas, HasTable
             ->columns([
                 TextColumn::make('dt_vencimento_recb')
                     ->label('Vencimento')
-                    ->formatStateUsing(fn ($state) => \Carbon\Carbon::parse($state)->format('d/m/Y')),
+                    ->formatStateUsing(fn ($state) => Carbon::parse($state)->format('d/m/Y')),
                 TextColumn::make('dt_competencia_recb')
                     ->label('Competência')
-                    ->formatStateUsing(fn ($state) => \Carbon\Carbon::parse($state)->format('m/Y')),
+                    ->formatStateUsing(fn ($state) => Carbon::parse($state)->format('m/Y')),
                 TextColumn::make('encargos.0.diasatraso')
                     ->label('Atraso'),
                 TextColumn::make('id_recebimento_recb')

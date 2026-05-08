@@ -6,6 +6,10 @@ use App\Integrations\DominioSistemas\DominioSistemasService;
 use App\Integrations\DominioSistemas\Records\Registro0000;
 use App\Integrations\DominioSistemas\Records\Registro0020;
 use App\Integrations\DominioSistemas\Records\Registro0030;
+use App\Integrations\DominioSistemas\Records\Registro0100;
+use App\Integrations\DominioSistemas\Records\Registro0135;
+use App\Integrations\DominioSistemas\Records\Registro0150;
+use App\Integrations\DominioSistemas\Records\Registro1000;
 use App\Integrations\DominioSistemas\Records\Registro1010;
 use App\Integrations\DominioSistemas\Records\Registro1015;
 use App\Integrations\DominioSistemas\Records\Registro1020;
@@ -71,7 +75,7 @@ class GerarTxtIntegracaoDominioSistema
                     $produtos = $notaFiscal->produtos;
                     foreach ($produtos as $produto) {
                         if (isset($produto['cProd']) && isset($produto['xProd'])) {
-                            $registro0100 = new \App\Integrations\DominioSistemas\Records\Registro0100(
+                            $registro0100 = new Registro0100(
                                 $notaFiscal,
                                 $produto,
                                 $inscricaoEmpresa
@@ -82,7 +86,7 @@ class GerarTxtIntegracaoDominioSistema
                             // Cria registro 0135 (Valor Unitário) para o produto
                             if (isset($produto['vUnCom'])) {
 
-                                $registro0135 = new \App\Integrations\DominioSistemas\Records\Registro0135(
+                                $registro0135 = new Registro0135(
                                     $notaFiscal->data_emissao,
                                     (float) $produto['vUnCom']
                                 );
@@ -91,7 +95,7 @@ class GerarTxtIntegracaoDominioSistema
 
                             // Cria registro 0150 (Unidade de Medida) para o produto
                             if (isset($produto['uCom'])) {
-                                $registro0150 = new \App\Integrations\DominioSistemas\Records\Registro0150(
+                                $registro0150 = new Registro0150(
                                     $produto['uCom'],
                                     $produto['uCom'] // Descrição igual à sigla
                                 );
@@ -116,7 +120,7 @@ class GerarTxtIntegracaoDominioSistema
 
                         foreach ($etiquetasValidas as $tagged) {
 
-                            $registro1000 = new \App\Integrations\DominioSistemas\Records\Registro1000(
+                            $registro1000 = new Registro1000(
                                 $notaFiscal,
                                 $valoresSegmento,
                                 $issuer,

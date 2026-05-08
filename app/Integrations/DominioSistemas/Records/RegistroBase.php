@@ -6,6 +6,8 @@ use App\Models\Cest;
 use App\Models\EntradasImpostosEquivalente;
 use App\Models\Issuer;
 use App\Models\NotaFiscalEletronica;
+use App\Models\ProdutoFornecedor;
+use App\Services\Xml\XmlReaderService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -170,7 +172,7 @@ abstract class RegistroBase implements IRegistro
             $xmlContent = gzuncompress($notaFiscal->xml);
 
             // Usar o serviço de leitura de XML para converter para array
-            $xmlService = new \App\Services\Xml\XmlReaderService;
+            $xmlService = new XmlReaderService;
             $dados = $xmlService->read($xmlContent);
 
             $resultados = [];
@@ -520,7 +522,7 @@ abstract class RegistroBase implements IRegistro
 
         // Busca pelo produto do fornecedor usando cnpj, num_nfe e codigo_produto
         // Se não encontrar, cria com os dados adicionais (incluindo external_id aleatório)
-        $produtoFornecedor = \App\Models\ProdutoFornecedor::firstOrCreate(
+        $produtoFornecedor = ProdutoFornecedor::firstOrCreate(
             [
                 'cnpj' => $notaFiscal->emitente_cnpj,
                 'num_nfe' => $notaFiscal->nNF,

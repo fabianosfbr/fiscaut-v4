@@ -7,6 +7,7 @@ use App\Enums\AtaStatusEnum;
 use App\Enums\DeliberacaoStatusEnum;
 use App\Models\IssuerAssembleia;
 use App\Models\IssuerAssembleiaEventLog;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class IssuerAssembleiaObserver
@@ -105,7 +106,7 @@ class IssuerAssembleiaObserver
 
         if ($value instanceof \DateTime || is_string($value)) {
             try {
-                return \Carbon\Carbon::parse($value)->format('d/m/Y');
+                return Carbon::parse($value)->format('d/m/Y');
             } catch (\Exception) {
                 return (string) $value;
             }
@@ -152,7 +153,7 @@ class IssuerAssembleiaObserver
 
         if ($value instanceof \DateTime || is_string($value)) {
             try {
-                return \Carbon\Carbon::parse($value)->format('d/m/Y');
+                return Carbon::parse($value)->format('d/m/Y');
             } catch (\Exception) {
                 return (string) $value;
             }

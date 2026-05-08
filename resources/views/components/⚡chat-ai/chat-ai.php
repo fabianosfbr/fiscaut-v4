@@ -95,7 +95,7 @@ new class extends Component
 
             $this->appendMessage('assistant', $this->normalizeMessageContent($response));
 
-        } catch (\Throwable) {
+        } catch (Throwable) {
             $this->appendMessage(
                 'assistant',
                 'Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente.'

@@ -9,6 +9,7 @@ use App\Enums\RegimesEmpresariaisEnum;
 use App\Models\Municipio;
 use App\Services\CertificateService;
 use App\Services\CnpjJaService;
+use Carbon\Exceptions\InvalidFormatException;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
@@ -32,6 +33,7 @@ use Filament\Support\Enums\Operation;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\HtmlString;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class IssuerForm
 {
@@ -691,12 +693,12 @@ class IssuerForm
                                                             // Obter conteúdo do arquivo de certificado
                                                             if (is_array($certificadoPathArray)) {
                                                                 foreach ($certificadoPathArray as $pathObj) {
-                                                                    if ($pathObj instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile) {
+                                                                    if ($pathObj instanceof TemporaryUploadedFile) {
                                                                         $pfx = $pathObj->get();
                                                                         break;
                                                                     }
                                                                 }
-                                                            } elseif ($certificadoPathArray instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile) {
+                                                            } elseif ($certificadoPathArray instanceof TemporaryUploadedFile) {
                                                                 $pfx = $certificadoPathArray->get();
                                                             }
 
@@ -847,7 +849,7 @@ class IssuerForm
                                             </div>
                                         </div>
                                     ');
-                                                } catch (\Carbon\Exceptions\InvalidFormatException $e) {
+                                                } catch (InvalidFormatException $e) {
                                                     return new HtmlString('
                                         <div style="padding: 16px; border: 1px solid #f87171; background-color: #fef2f2; color: #dc2626; border-radius: 8px;">
                                             <strong>❌ Erro ao processar datas:</strong> Não foi possível interpretar as datas do certificado.
