@@ -95,13 +95,7 @@ new class extends Component implements HasSchemas
 
                             forgetCurrentIssuerCache((int) $user->id, (int) $state);
 
-                            // Feedback visual
-                            Notification::make()
-                                ->title('Empresa alternada com sucesso!')
-                                ->success()
-                                ->duration(2000)
-                                ->send();
-
+    
                             // Recarrega a página para aplicar o contexto
                             return redirect(request()->header('Referer'));
                         }
