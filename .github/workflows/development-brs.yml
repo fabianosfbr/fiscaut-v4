@@ -3,7 +3,7 @@ name: Deploy to Development - BRS
 on:
   push:
     branches:
-      - develop
+      - development
   workflow_dispatch:
 
 concurrency:
