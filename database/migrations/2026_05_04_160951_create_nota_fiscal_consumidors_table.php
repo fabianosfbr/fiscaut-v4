@@ -11,23 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('nfces', function (Blueprint $table) {
-            $table->uuid('id')->primary()->unique();
-            $table->string('chave')->nullable();
-            $table->date('data_emissao')->nullable();
-            $table->integer('mod')->nullable();
-            $table->string('emitente_razao_social')->nullable();
-            $table->string('emitente_ie')->nullable();
-            $table->string('emitente_cnpj')->nullable();
-            $table->string('nProt')->nullable();
-            $table->string('nNF')->nullable();
-            $table->string('origem')->nullable();
-            $table->integer('status_nota')->nullable();
-            $table->decimal('vNfe', 10, 4)->nullable();
-            $table->integer('tpNf')->nullable();
-            $table->binary('xml')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('nfces')) {
+            Schema::create('nfces', function (Blueprint $table) {
+                $table->uuid('id')->primary()->unique();
+                $table->string('chave')->nullable();
+                $table->date('data_emissao')->nullable();
+                $table->integer('mod')->nullable();
+                $table->string('emitente_razao_social')->nullable();
+                $table->string('emitente_ie')->nullable();
+                $table->string('emitente_cnpj')->nullable();
+                $table->string('nProt')->nullable();
+                $table->string('nNF')->nullable();
+                $table->string('origem')->nullable();
+                $table->integer('status_nota')->nullable();
+                $table->decimal('vNfe', 10, 4)->nullable();
+                $table->integer('tpNf')->nullable();
+                $table->binary('xml')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**
