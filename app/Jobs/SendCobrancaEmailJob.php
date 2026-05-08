@@ -124,7 +124,7 @@ class SendCobrancaEmailJob implements ShouldQueue
             $body = str_replace('{{ '.$var.' }}', $value, $body);
         }
 
-        $subject = 'Aviso de Débito - Unidade '.($this->unidadeData['numero_unidade'] ?? '');
+        $subject = 'Aviso de Débito - Condomínio'.($this->unidadeData['razao_social'] ?? '');
 
         $fromEmail = (string) ($tenant->smtp_from_email ?: config('mail.from.address', 'noreply@fiscaut.com.br'));
         $fromName = (string) ($tenant->smtp_from_name ?: config('mail.from.name', 'Fiscaut'));
