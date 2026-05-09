@@ -55,7 +55,7 @@ jobs:
           port: ${{ secrets.SSH_PORT_BRS }}
           key: ${{ secrets.SSH_PRIVATE_KEY_BRS }}
           source: ${{ github.sha }}.tar.gz
-          target: /home/fiscaut/project/v4/artifacts
+          target: /home/fiscaut/project/production/artifacts
 
       - name: Extract archive and config directories
         uses: appleboy/ssh-action@master
