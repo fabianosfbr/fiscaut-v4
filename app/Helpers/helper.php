@@ -2,6 +2,7 @@
 
 use App\Models\Issuer;
 use App\Models\User;
+use App\Services\Xml\XmlReaderService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -157,7 +158,7 @@ if (! function_exists('sanitize')) {
 if (! function_exists('canManageIssuerscanManageIssuers')) {
     function canManageIssuers(): bool
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = Auth::user();
 
         return $user->hasRole('super-admin', 'admin');
@@ -168,7 +169,7 @@ if (! function_exists('canManageIssuerscanManageIssuers')) {
 if (! function_exists('loadXmlReader')) {
     function loadXmlReader($xml)
     {
-        return app(\App\Services\Xml\XmlReaderService::class)->read($xml);
+        return app(XmlReaderService::class)->read($xml);
     }
 }
 

@@ -13,4 +13,6 @@ class DashboardContabil extends BaseDashboard
     protected static ?string $title = 'Painel Contábil';
 
     protected static ?int $navigationSort = 2;
+
+    protected static bool $shouldRegisterNavigation = false;
 }

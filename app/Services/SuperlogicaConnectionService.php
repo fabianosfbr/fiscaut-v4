@@ -30,6 +30,8 @@ class SuperlogicaConnectionService
         $appToken = trim((string) ($tenant?->superlogica_app_token ?? ''));
         $accessToken = trim((string) ($tenant?->superlogica_access_token ?? ''));
 
+        
+
         if ($baseUrl === '') {
             throw new SuperlogicaConnectionException('URL base da Superlógica não configurada.');
         }

@@ -12,6 +12,7 @@ use Filament\Notifications\Notification;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
@@ -95,7 +96,7 @@ new class extends Component implements HasActions, HasSchemas
                             ->options(function () {
                                 $issuer = currentIssuer();
                                 if (! $issuer) {
-                                    return \Illuminate\Database\Eloquent\Collection::make();
+                                    return Collection::make();
                                 }
 
                                 $acumuladores = Acumulador::where('issuer_id', $issuer->id)->get();
@@ -114,7 +115,7 @@ new class extends Component implements HasActions, HasSchemas
                                     })->values(),
                                 ];
 
-                                return \Illuminate\Database\Eloquent\Collection::make([$category]);
+                                return Collection::make([$category]);
                             }),
 
                         SelectTagGrouped::make('valores')
@@ -157,7 +158,7 @@ new class extends Component implements HasActions, HasSchemas
             $currentIssuer = currentIssuer();
 
             if (! $currentIssuer) {
-                throw new \Exception('Nenhum emissor selecionado.');
+                throw new Exception('Nenhum emissor selecionado.');
             }
 
             EntradaAcumuladorEquivalente::where('tipo', self::TIPO)
@@ -182,7 +183,7 @@ new class extends Component implements HasActions, HasSchemas
             $this->hasChanges = false;
             $this->showSuccessNotification();
             $this->refreshFormData();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Erro ao salvar Acumuladores CTe NFe Saída: '.$e->getMessage());
             $this->showErrorNotification($e->getMessage());
         } finally {

@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use Akaunting\Money;
+use App\Filament\Resources\ImportarLancamentoContabilGerals\Pages\ListImportarLancamentoContabilGerals;
+use App\Filament\Resources\ImportarLancamentoContabilSuperLogicas\Pages\ListImportarLancamentoContabilSuperLogicas;
+use App\Models\User;
 use BezhanSalleh\PanelSwitch\PanelSwitch;
 use Filament\Actions\BulkAction;
 use Filament\Forms\Components\TextInput;
@@ -70,13 +73,13 @@ class AppServiceProvider extends ServiceProvider
         FilamentView::registerRenderHook(
             PanelsRenderHook::PAGE_HEADER_WIDGETS_START,
             fn (): string => Blade::render('@livewire(\'job-progress\')'),
-            scopes: \App\Filament\Resources\ImportarLancamentoContabilGerals\Pages\ListImportarLancamentoContabilGerals::class,
+            scopes: ListImportarLancamentoContabilGerals::class,
         );
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::PAGE_START,
             fn (): string => Blade::render('@livewire(\'job-progress-super-logica\')'),
-            scopes: \App\Filament\Resources\ImportarLancamentoContabilSuperLogicas\Pages\ListImportarLancamentoContabilSuperLogicas::class,
+            scopes: ListImportarLancamentoContabilSuperLogicas::class,
         );
 
         FilamentView::registerRenderHook(
@@ -98,7 +101,7 @@ class AppServiceProvider extends ServiceProvider
                 ->modalWidth('md')
                 ->panels(function () {
 
-                    /** @var \App\Models\User $user */
+                    /** @var User $user */
                     $user = Auth::user();
 
                     // Utiliza eager loading para carregar os painéis junto com o usuário e evitar N+1 (lazy loading)

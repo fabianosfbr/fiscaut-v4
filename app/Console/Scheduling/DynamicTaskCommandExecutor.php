@@ -9,6 +9,7 @@ use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Facades\Artisan;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -71,7 +72,7 @@ class DynamicTaskCommandExecutor
                     'parameters' => $parameters,
                 ]);
 
-                \Illuminate\Support\Facades\Artisan::call($commandName, $parameters);
+                Artisan::call($commandName, $parameters);
             }
         } catch (Throwable $e) {
             $this->logger->error('Erro ao executar todos os schedules dinâmicos', [

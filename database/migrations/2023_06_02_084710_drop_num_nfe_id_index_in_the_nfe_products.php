@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::table('nfe_products', function (Blueprint $table) {
             try {
                 $table->dropUnique(['num_nfe']);
-            } catch (\Throwable) {
+            } catch (Throwable) {
             }
         });
     }

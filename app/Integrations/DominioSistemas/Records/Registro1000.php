@@ -5,6 +5,7 @@ namespace App\Integrations\DominioSistemas\Records;
 use App\Models\EntradasAcumuladoresEquivalente;
 use App\Models\EntradasImpostosEquivalente;
 use App\Models\GeneralSetting;
+use App\Models\GrupoEntradaCfopEquivalente;
 use App\Models\Issuer;
 use App\Models\NotaFiscalEletronica;
 use Illuminate\Support\Facades\Cache;
@@ -699,9 +700,9 @@ class Registro1000 extends RegistroBase
     /**
      * Busca o grupo de CFOP equivalente que contém a tag especificada
      */
-    private function buscarGrupoPorTag(Issuer $issuer, int $tagId, string $tipoDocumento): ?\App\Models\GrupoEntradaCfopEquivalente
+    private function buscarGrupoPorTag(Issuer $issuer, int $tagId, string $tipoDocumento): ?GrupoEntradaCfopEquivalente
     {
-        $grupos = \App\Models\GrupoEntradaCfopEquivalente::getAllCached(
+        $grupos = GrupoEntradaCfopEquivalente::getAllCached(
             $issuer->id,
             $issuer->tenant_id,
             $tipoDocumento
@@ -721,7 +722,7 @@ class Registro1000 extends RegistroBase
      * Busca o CFOP equivalente dentro de um grupo
      */
     private function buscarCfopEquivalenteNoGrupo(
-        \App\Models\GrupoEntradaCfopEquivalente $grupo,
+        GrupoEntradaCfopEquivalente $grupo,
         string $cfopOriginal,
         bool $verificarUf,
         ?string $ufIssuer,

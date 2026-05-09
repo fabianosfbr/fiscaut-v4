@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('issuer_control_recorrencies', function (Blueprint $table) {
             $table->id();
             $table->foreignId('issuer_id')->constrained('issuers')->cascadeOnDelete();
-            $table->foreignId('type_control_id')->constrained('tipos_manutencao')->cascadeOnDelete();
+            $table->bigInteger('type_control_id');
             $table->string('titulo_template', 200);
             $table->text('descricao_template')->nullable();
             $table->string('frequencia', 50); // diaria, semanal, quinzenal, mensal, bimestral, trimestral, semestral, anual

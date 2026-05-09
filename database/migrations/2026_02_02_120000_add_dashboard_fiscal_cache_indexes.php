@@ -98,7 +98,7 @@ return new class extends Migration
                 } elseif ($driver === 'sqlite') {
                     DB::statement('DROP INDEX IF EXISTS uq_statistic_issuers_cache_key');
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
             }
 
             try {
@@ -109,7 +109,7 @@ return new class extends Migration
                 } elseif ($driver === 'sqlite') {
                     DB::statement('DROP INDEX IF EXISTS idx_statistic_issuers_tenant_issuer_data');
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
             }
 
             if (Schema::hasColumn('statistic_issuers', 'data_ref')) {
@@ -121,7 +121,7 @@ return new class extends Migration
                     } elseif ($driver === 'sqlite') {
                         DB::statement('DROP INDEX IF EXISTS idx_statistic_issuers_tenant_issuer_data_ref');
                     }
-                } catch (\Throwable) {
+                } catch (Throwable) {
                 }
 
                 Schema::table('statistic_issuers', function (Blueprint $table) {
@@ -139,7 +139,7 @@ return new class extends Migration
                 } elseif ($driver === 'sqlite') {
                     DB::statement('DROP INDEX IF EXISTS idx_nfes_tenant_emitente_data_emissao');
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
             }
 
             try {
@@ -150,7 +150,7 @@ return new class extends Migration
                 } elseif ($driver === 'sqlite') {
                     DB::statement('DROP INDEX IF EXISTS idx_nfes_tenant_destinatario_data_entrada');
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
             }
 
             try {
@@ -161,7 +161,7 @@ return new class extends Migration
                 } elseif ($driver === 'sqlite') {
                     DB::statement('DROP INDEX IF EXISTS idx_nfes_tenant_destinatario_data_emissao');
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
             }
         }
 
@@ -174,7 +174,7 @@ return new class extends Migration
                 } elseif ($driver === 'sqlite') {
                     DB::statement('DROP INDEX IF EXISTS idx_ctes_tenant_emitente_data_emissao');
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
             }
 
             try {
@@ -185,7 +185,7 @@ return new class extends Migration
                 } elseif ($driver === 'sqlite') {
                     DB::statement('DROP INDEX IF EXISTS idx_ctes_tenant_destinatario_data_entrada');
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
             }
 
             try {
@@ -196,7 +196,7 @@ return new class extends Migration
                 } elseif ($driver === 'sqlite') {
                     DB::statement('DROP INDEX IF EXISTS idx_ctes_tenant_destinatario_data_emissao');
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
             }
         }
 
@@ -209,7 +209,7 @@ return new class extends Migration
                 } elseif ($driver === 'sqlite') {
                     DB::statement('DROP INDEX IF EXISTS idx_nfses_tenant_tomador_data_entrada');
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
             }
 
             try {
@@ -220,7 +220,7 @@ return new class extends Migration
                 } elseif ($driver === 'sqlite') {
                     DB::statement('DROP INDEX IF EXISTS idx_nfses_tenant_tomador_data_emissao');
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
             }
 
             try {
@@ -231,7 +231,7 @@ return new class extends Migration
                 } elseif ($driver === 'sqlite') {
                     DB::statement('DROP INDEX IF EXISTS idx_nfses_tenant_tomador_cancelada');
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
             }
         }
     }

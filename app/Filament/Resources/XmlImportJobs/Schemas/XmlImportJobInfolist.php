@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\XmlImportJobs\Schemas;
 
+use App\Models\Company;
+use App\Models\User;
 use App\Models\XmlImportJob;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
@@ -31,12 +33,12 @@ class XmlImportJobInfolist
                                         }
 
                                         // Se o owner é um User, usa o campo 'name'
-                                        if ($record->owner instanceof \App\Models\User) {
+                                        if ($record->owner instanceof User) {
                                             return $record->owner->name;
                                         }
 
                                         // Se o owner é um Issuer, usa o campo 'razao_social'
-                                        if ($record->owner instanceof \App\Models\Company) {
+                                        if ($record->owner instanceof Company) {
                                             return $record->owner->razao_social;
                                         }
 

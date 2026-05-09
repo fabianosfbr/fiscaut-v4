@@ -27,13 +27,13 @@ class LayoutLancamentoResolverService
 
     private string $jobProgressId;
 
-    /** @var \Illuminate\Support\Collection<int, LayoutRule> */
+    /** @var Collection<int, LayoutRule> */
     private Collection $rules;
 
-    /** @var \Illuminate\Support\Collection<int, LayoutColumn> */
+    /** @var Collection<int, LayoutColumn> */
     private Collection $layoutColumns;
 
-    /** @var \Illuminate\Support\Collection<int, ParametroGeral> */
+    /** @var Collection<int, ParametroGeral> */
     private Collection $parametros;
 
     /** @var array<int, string> */

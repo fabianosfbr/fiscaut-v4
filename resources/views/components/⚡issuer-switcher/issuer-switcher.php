@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Issuer;
 use App\Services\FiscautConnectorService;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
@@ -56,7 +57,7 @@ new class extends Component implements HasSchemas
                         }
 
                         if ($user->hasRole('super-admin')) {
-                            return \App\Models\Issuer::where('tenant_id', $user->tenant_id)
+                            return Issuer::where('tenant_id', $user->tenant_id)
                                 ->where('is_enabled', true)
                                 ->pluck('razao_social', 'id');
                         }
@@ -94,13 +95,7 @@ new class extends Component implements HasSchemas
 
                             forgetCurrentIssuerCache((int) $user->id, (int) $state);
 
-                            // Feedback visual
-                            Notification::make()
-                                ->title('Empresa alternada com sucesso!')
-                                ->success()
-                                ->duration(2000)
-                                ->send();
-
+    
                             // Recarrega a página para aplicar o contexto
                             return redirect(request()->header('Referer'));
                         }

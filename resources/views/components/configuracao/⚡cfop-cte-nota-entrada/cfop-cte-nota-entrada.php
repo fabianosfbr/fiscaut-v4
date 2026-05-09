@@ -161,7 +161,7 @@ new class extends Component implements HasActions, HasSchemas
             $currentIssuer = currentIssuer();
 
             if (! $currentIssuer) {
-                throw new \Exception('Nenhum emissor selecionado.');
+                throw new Exception('Nenhum emissor selecionado.');
             }
 
             DB::transaction(function () use ($formData, $currentIssuer) {
@@ -175,7 +175,7 @@ new class extends Component implements HasActions, HasSchemas
             $this->hasChanges = false;
             $this->showSuccessNotification();
             $this->refreshFormData();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Erro ao salvar CFOPs equivalentes: '.$e->getMessage());
             $this->showErrorNotification($e->getMessage());
         } finally {

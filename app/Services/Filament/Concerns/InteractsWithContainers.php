@@ -4,13 +4,14 @@ namespace App\Services\Filament\Concerns;
 
 use Closure;
 use Filament\Schemas\Components\Component;
+use Filament\Support\Concerns\CanBeContained;
 
 trait InteractsWithContainers
 {
     /**
      * Specifies if the form is containered.
      */
-    protected bool|\Closure $isContained = false;
+    protected bool|Closure $isContained = false;
 
     /**
      * The form container.
@@ -20,7 +21,7 @@ trait InteractsWithContainers
     /**
      * Set the form container type
      *
-     * @param  \Filament\Schemas\Components\Component  $container
+     * @param  Component  $container
      */
     public function container(
         Component|string|Closure $container
@@ -37,7 +38,7 @@ trait InteractsWithContainers
             $formContainer = new $container;
         }
 
-        if (! in_array(\Filament\Support\Concerns\CanBeContained::class, class_uses($formContainer))) { // @phpstan-ignore-line
+        if (! in_array(CanBeContained::class, class_uses($formContainer))) { // @phpstan-ignore-line
             throw new \Exception('The container must be a valid container.');
         }
 

@@ -6,6 +6,7 @@ use App\Models\HistoricoContabil;
 use App\Models\ParametroSuperLogica;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Rap2hpoutre\FastExcel\FastExcel;
 
 class OptimizedExcelSuperLogicaImport
@@ -389,7 +390,7 @@ class OptimizedExcelSuperLogicaImport
 
         if (is_numeric($value)) {
             try {
-                return Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject((float) $value));
+                return Carbon::instance(Date::excelToDateTimeObject((float) $value));
             } catch (\Throwable $e) {
                 return null;
             }

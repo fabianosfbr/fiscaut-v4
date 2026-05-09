@@ -31,22 +31,22 @@ return new class extends Migration
         Schema::table('nfes', function (Blueprint $table) {
             try {
                 $table->dropIndex('emitente_cnpj');
-            } catch (\Throwable) {
+            } catch (Throwable) {
             }
 
             try {
                 $table->dropIndex('destinatario_cnpj');
-            } catch (\Throwable) {
+            } catch (Throwable) {
             }
 
             try {
                 $table->dropIndex('transportador_cnpj');
-            } catch (\Throwable) {
+            } catch (Throwable) {
             }
 
             try {
                 $table->dropIndex('aut_xml');
-            } catch (\Throwable) {
+            } catch (Throwable) {
             }
         });
     }

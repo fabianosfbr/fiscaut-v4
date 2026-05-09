@@ -8,6 +8,7 @@ use App\Models\SuperLogicaContaBancaria;
 use App\Models\SuperLogicaFornecedor;
 use App\Models\SuperLogicaPlanoDeConta;
 use App\Models\SuperLogicaUnidade;
+use App\Services\SuperlogicaConnectionService;
 use Illuminate\Console\Command;
 
 class CondominioSync extends Command
@@ -59,7 +60,7 @@ class CondominioSync extends Command
 
     private function syncCondominio(Issuer $issuer)
     {
-        $service = new \App\Services\SuperlogicaConnectionService($issuer);
+        $service = new SuperlogicaConnectionService($issuer);
 
         $havePagination = true;
         $pagina = 1;
@@ -94,7 +95,7 @@ class CondominioSync extends Command
 
     private function syncUnidade(Issuer $issuer)
     {
-        $service = new \App\Services\SuperlogicaConnectionService($issuer);
+        $service = new SuperlogicaConnectionService($issuer);
 
         $condominios = SuperLogicaCondominio::where('id_condominio_cond', $issuer->superlogica_condominio_id)->get();
 
@@ -135,7 +136,7 @@ class CondominioSync extends Command
 
     private function syncContaBancaria(Issuer $issuer)
     {
-        $service = new \App\Services\SuperlogicaConnectionService($issuer);
+        $service = new SuperlogicaConnectionService($issuer);
 
         $condominios = SuperLogicaCondominio::where('id_condominio_cond', $issuer->superlogica_condominio_id)->get();
 
@@ -178,7 +179,7 @@ class CondominioSync extends Command
 
     private function syncPlanoDeContas(Issuer $issuer)
     {
-        $service = new \App\Services\SuperlogicaConnectionService($issuer);
+        $service = new SuperlogicaConnectionService($issuer);
 
         $condominios = SuperLogicaCondominio::where('id_condominio_cond', $issuer->superlogica_condominio_id)->get();
 
@@ -221,7 +222,7 @@ class CondominioSync extends Command
     private function syncFornecedor(Issuer $issuer)
     {
 
-        $service = new \App\Services\SuperlogicaConnectionService($issuer);
+        $service = new SuperlogicaConnectionService($issuer);
 
         $havePagination = true;
         $pagina = 1;

@@ -65,11 +65,11 @@ jobs:
           port: ${{ secrets.SSH_PORT_BRS }}
           key: ${{ secrets.SSH_PRIVATE_KEY_BRS }}
           script: |
-            mkdir -p /home/fiscaut/project/production/releases/${{ github.sha }}
-            tar -xzf /home/fiscaut/project/production/artifacts/${{ github.sha }}.tar.gz -C /home/fiscaut/project/production/releases/${{ github.sha }}
-            mkdir -p /home/fiscaut/project/production/storage/{app,public,framework,logs}
-            mkdir -p /home/fiscaut/project/production/storage/framework/{cache,sessions,testing,views}
-            mkdir -p /home/fiscaut/project/production/releases/${{ github.sha }}/public/downloads
+            mkdir -p /home/fiscaut/project/v4/releases/${{ github.sha }}
+            tar -xzf /home/fiscaut/project/v4/artifacts/${{ github.sha }}.tar.gz -C /home/fiscaut/project/v4/releases/${{ github.sha }}
+            mkdir -p /home/fiscaut/project/v4/storage/{app,public,framework,logs}
+            mkdir -p /home/fiscaut/project/v4/storage/framework/{cache,sessions,testing,views}
+            mkdir -p /home/fiscaut/project/v4/releases/${{ github.sha }}/public/downloads
 
 
   activate-release:
@@ -80,10 +80,10 @@ jobs:
       - name: Activate release
         uses: appleboy/ssh-action@master
         env:
-          RELEASE_PATH: /home/fiscaut/project/production/releases/${{ github.sha }}
-          ACTIVE_RELEASE_PATH: /var/www/fiscaut.com.br/current
-          STORAGE_PATH: /home/fiscaut/project/production/storage
-          BASE_PATH: /home/fiscaut/project/production
+          RELEASE_PATH: /home/fiscaut/project/v4/releases/${{ github.sha }}
+          ACTIVE_RELEASE_PATH: /var/www/v4.fiscaut.com.br/current
+          STORAGE_PATH: /home/fiscaut/project/v4/storage
+          BASE_PATH: /home/fiscaut/project/v4
           LARAVEL_ENV: ${{ secrets.PROD_ENV_BRS }}
         with:
           host: ${{ secrets.SSH_HOST_BRS }}
@@ -92,9 +92,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY_BRS }}
           envs: RELEASE_PATH,ACTIVE_RELEASE_PATH,STORAGE_PATH,BASE_PATH,LARAVEL_ENV
           script: |
-            printf "%s" "$LARAVEL_ENV" > ${BASE_PATH}/.env
-            cp -r /home/fiscaut/project/production/releases/${{ github.sha }}/* $ACTIVE_RELEASE_PATH
             cd $ACTIVE_RELEASE_PATH
+            printf "%s" "$LARAVEL_ENV" > ${BASE_PATH}/.env
+            cp -r /home/fiscaut/project/v4/releases/${{ github.sha }}/* $ACTIVE_RELEASE_PATH
             ln -s -n -f $STORAGE_PATH storage
             ln -s -n -f $BASE_PATH/.env .env
 
@@ -108,8 +108,8 @@ jobs:
       - name: Run scripts
         uses: appleboy/ssh-action@master
         env:
-          ACTIVE_RELEASE_PATH: /var/www/fiscaut.com.br/current
-          STORAGE_PATH: /home/fiscaut/project/production/storage
+          ACTIVE_RELEASE_PATH: /var/www/v4.fiscaut.com.br/current
+          STORAGE_PATH: /home/fiscaut/project/v4/storage
 
         with:
           host: ${{ secrets.SSH_HOST_BRS }}
@@ -126,27 +126,8 @@ jobs:
             /usr/bin/php8.4 artisan clear-compiled
             /usr/bin/php8.4 artisan optimize
             /usr/bin/php8.4 composer dump-autoload
-            chown -R www-data:www-data /home/fiscaut/project/production/releases
+            chown -R www-data:www-data /home/fiscaut/project/v4/releases
             chown -R www-data:www-data $STORAGE_PATH
             echo "Deployed!"
-  clean-up:
-    name: Clean up release files
-    runs-on: ubuntu-latest
-    needs: [ activate-release ]
-    steps:
-      - name: Clean directories
-        uses: appleboy/ssh-action@master
-        env:
-          RELEASE_PATH: /home/fiscaut/project/production/releases
-          ARTIFACT_PATH: /home/fiscaut/project/production/artifacts
-        with:
-          host: ${{ secrets.SSH_HOST_BRS }}
-          username: ${{ secrets.SSH_USERNAME_BRS }}
-          port: ${{ secrets.SSH_PORT_BRS }}
-          key: ${{ secrets.SSH_PRIVATE_KEY_BRS }}
-          envs: RELEASE_PATH,ARTIFACT_PATH
-          script: |
-            cd $RELEASES_PATH && ls -t -1 | tail -n +3 | xargs rm -rf
-            cd $ARTIFACTS_PATH && ls -t -1 | tail -n +3 | xargs rm -rf            
 
 

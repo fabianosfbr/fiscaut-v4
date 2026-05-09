@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\GeneralSetting;
 use App\Models\Issuer;
 use App\Models\SuperLogicaUnidade;
+use App\Services\SuperlogicaConnectionService;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -50,7 +51,7 @@ class NotificaCobrancaSuperLogicaJob implements ShouldQueue
             return;
         }
 
-        $service = new \App\Services\SuperlogicaConnectionService($this->issuer);
+        $service = new SuperlogicaConnectionService($this->issuer);
 
         $inadimplencias = $service
             ->receita()
@@ -135,6 +136,7 @@ class NotificaCobrancaSuperLogicaJob implements ShouldQueue
                     $titulosHtml .= '</ul>';
 
                     $unidadeData = [
+                        'razao_social' => $this->issuer->razao_social,
                         'numero_unidade' => data_get($record, 'st_unidade_uni', ''),
                         'bloco_quadra' => data_get($record, 'st_bloco_uni', ''),
                         'nome_morador' => data_get($record, 'st_sacado_uni', ''),
@@ -146,7 +148,7 @@ class NotificaCobrancaSuperLogicaJob implements ShouldQueue
 
                     ];
 
-                    SendCobrancaEmailJob::dispatch($this->issuer->id, 'giron61861@ellbit.com', $unidadeData);
+                    SendCobrancaEmailJob::dispatch($this->issuer->id, 'giron61861@ellbit.com; gerencia.cont@speedgrupo.com.br;cobranca.adm.2@speedgrupo.com.br ', $unidadeData);
                     sleep(10);
                 }
             }

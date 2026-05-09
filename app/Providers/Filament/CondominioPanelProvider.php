@@ -19,6 +19,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Octopy\Filament\Palette\PaletteSwitcherPlugin;
 
 class CondominioPanelProvider extends PanelProvider
 {
@@ -92,7 +93,7 @@ class CondominioPanelProvider extends PanelProvider
                     ->url(fn (): string => '/app/settings/profile'),
             ])
             ->plugin(
-                \Octopy\Filament\Palette\PaletteSwitcherPlugin::make()
+                PaletteSwitcherPlugin::make()
             );
     }
 }

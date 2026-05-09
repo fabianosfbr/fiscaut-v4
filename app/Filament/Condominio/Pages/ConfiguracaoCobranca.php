@@ -105,6 +105,13 @@ class ConfiguracaoCobranca extends Page implements HasSchemas
                                     ->live()
                                     ->columnSpan(1)
                                     ->afterStateUpdated(fn () => $this->hasChanges = true),
+                                TextInput::make('notificacao_juridico.email')
+                                    ->label('Email para notificação jurídica')
+                                    ->visible(fn ($get) => $get('notificacao_juridico.enabled'))
+                                    ->email()
+                                    ->live()
+                                    ->columnSpan(1)
+                                    ->afterStateUpdated(fn () => $this->hasChanges = true),
                             ]),
                     ]),
             ])
