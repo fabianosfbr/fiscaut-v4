@@ -51,7 +51,7 @@ class ProcessXmlFileBatch implements ShouldQueue
         protected array $xmlContents,
         protected XmlImportJob $importJob
     ) {
-        $this->onQueue('low');
+        
     }
 
     /**
@@ -82,6 +82,7 @@ class ProcessXmlFileBatch implements ShouldQueue
 
             Bus::batch($jobs)
                 ->name('Processamento de XMLs')
+                ->onQueue('low')
                 ->allowFailures()
                 ->then(function (Batch $batch) use ($importJobId) {
                     // All jobs completed successfully

@@ -27,6 +27,7 @@ class FiscalDashboardEtlService
 
         $batch = Bus::batch($jobs)
             ->name("dashboard-fiscal:tenant={$tenantId}:{$months[0]}-{$months[count($months) - 1]}")
+            ->onQueue('low')
             ->allowFailures()
             ->then(function (Batch $batch) use ($tenantId, $months): void {
                 Log::info('Dashboard fiscal atualizado', [

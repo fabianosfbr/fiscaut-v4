@@ -80,6 +80,7 @@ class ProcessXmlSiegBatch implements ShouldQueue
 
             Bus::batch($jobs)
                 ->name('Processamento de XMLs SIEG')
+                ->onQueue('sieg')
                 ->allowFailures()
                 ->then(function (Batch $batch) use ($importJobId) {
                     // All jobs completed successfully

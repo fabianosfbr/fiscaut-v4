@@ -67,6 +67,7 @@ class SefazCteDownloadBatchJob implements ShouldQueue
             // Create a batch of jobs for processing
             Bus::batch($jobs)
                 ->name('Processamento de CTes SEFAZ - Issuer '.$this->issuer->id)
+                ->onQueue('sefaz')
                 ->allowFailures()
                 ->then(function () use ($totalFiles, $importJobId) {
                     // All jobs completed successfully

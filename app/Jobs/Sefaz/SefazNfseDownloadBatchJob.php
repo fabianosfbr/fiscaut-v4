@@ -42,6 +42,7 @@ class SefazNfseDownloadBatchJob implements ShouldQueue
 
             Bus::batch($jobs)
                 ->name('Processamento de NFSe SEFAZ - Issuer '.$this->issuer->id)
+                ->onQueue('sefaz')
                 ->allowFailures()
                 ->then(function () use ($totalFiles, $importJobId) {
                     $importJob = XmlImportJob::find($importJobId);

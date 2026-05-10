@@ -67,6 +67,7 @@ class SefazNfeDownloadBatchJob implements ShouldQueue
             // Create a batch of jobs for processing
             Bus::batch($jobs)
                 ->name('Processamento de NFes SEFAZ - Issuer '.$this->issuer->id)
+                ->onQueue('sefaz')
                 ->allowFailures()
                 ->then(function () use ($totalFiles, $importJobId) {
                     // All jobs completed successfully
@@ -79,6 +80,7 @@ class SefazNfeDownloadBatchJob implements ShouldQueue
                         ]);
                     }
                 })
+                ->onQueue('sefaz')
                 ->catch(function (\Throwable $e) {
                     $mensagemErro = 'Erro no processamento em lote de documentos SEFAZ: '.$e->getMessage();
                     Log::error('Erro no processamento em lote de NFes SEFAZ: '.$mensagemErro);
