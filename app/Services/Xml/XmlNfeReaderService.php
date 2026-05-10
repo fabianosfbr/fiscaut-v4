@@ -375,17 +375,21 @@ class XmlNfeReaderService
     protected function preparaAutXml()
     {
         $autXmlContent = [];
+        $autXml = $this->data['nfeProc']['NFe']['infNFe']['autXML'] ?? null;
 
-        if (is_array($this->data['nfeProc']['NFe']['infNFe']['autXML'])) {
-            foreach ($this->data['nfeProc']['NFe']['infNFe']['autXML'] as $key => $value) {
+        if ($autXml === null) {
+            return [];
+        }
 
+        if (is_array($autXml)) {
+            foreach ($autXml as $key => $value) {
                 $autXmlContent[] = $value;
             }
 
             return $autXmlContent;
         }
 
-        return [$this->data['nfeProc']['NFe']['infNFe']['autXML']];
+        return [$autXml];
     }
 
     public function verificaTipoDePessoaDestinatario()
@@ -405,7 +409,19 @@ class XmlNfeReaderService
     public function checkTipoFrete()
     {
         $texto = '';
-        switch ($this->data['nfeProc']['NFe']['infNFe']['transp']['modFrete']) {
+        $modFrete = null;
+
+        if (isset($this->data['nfeProc']['NFe']['infNFe']['transp']['modFrete'])) {
+            $modFrete = $this->data['nfeProc']['NFe']['infNFe']['transp']['modFrete'];
+        } elseif (isset($this->data['resNFe'][0]['modFrete'])) {
+            $modFrete = $this->data['resNFe'][0]['modFrete'];
+        }
+
+        if ($modFrete === null) {
+            return $texto;
+        }
+
+        switch ($modFrete) {
             case 0:
                 $texto = '0-Por conta do Emit';
                 break;
