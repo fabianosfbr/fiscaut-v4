@@ -394,9 +394,15 @@ class XmlNfeReaderService
 
     public function verificaTipoDePessoaDestinatario()
     {
-        $dest = $this->data['nfeProc']['NFe']['infNFe']['dest'] ?? [];
+        if(isset($this->data['nfeProc'])){
 
-        return $dest['CNPJ'] ?? $dest['CPF'] ?? null;
+            $dest = $this->data['nfeProc']['NFe']['infNFe']['dest'] ?? [];
+
+            return $dest['CNPJ'] ?? $dest['CPF'] ?? null;
+        }
+
+        return null;
+
     }
 
     public function verificaTipoDePessoaEmitente()

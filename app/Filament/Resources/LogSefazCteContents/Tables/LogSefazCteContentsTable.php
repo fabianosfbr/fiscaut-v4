@@ -12,7 +12,8 @@ class LogSefazCteContentsTable
     {
         return $table
             ->recordUrl(null)
-            ->modifyQueryUsing(fn ($query) => $query->where('issuer_id', currentIssuer()->id))
+            ->modifyQueryUsing(fn($query) => $query->where('issuer_id', currentIssuer()->id))
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('nsu')
                     ->label('NSU')
@@ -27,7 +28,7 @@ class LogSefazCteContentsTable
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->sortable()
-                    ->formatStateUsing(fn ($state) => $state->format('d/m/Y H:i:s')),
+                    ->formatStateUsing(fn($state) => $state->format('d/m/Y H:i:s')),
             ])
             ->filters([
                 //

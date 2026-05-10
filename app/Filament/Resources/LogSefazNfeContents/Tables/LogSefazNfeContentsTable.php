@@ -13,6 +13,7 @@ class LogSefazNfeContentsTable
         return $table
             ->recordUrl(null)
             ->modifyQueryUsing(fn ($query) => $query->where('issuer_id', currentIssuer()->id))
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('nsu')
                     ->label('NSU')
