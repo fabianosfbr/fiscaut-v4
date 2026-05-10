@@ -45,7 +45,7 @@ class ConsultaDocumentosEmLote extends Command
         $issuers = Issuer::with('tenant')
             ->where('is_enabled', true)
             ->where('sync_sieg', true)
-            ->when($issuerId !== null, fn ($q) => $q->where('id', $issuerId))
+            ->when($issuerId !== null, fn($q) => $q->where('id', $issuerId))
             ->get();
 
         foreach ($issuers as $issuer) {
@@ -59,7 +59,7 @@ class ConsultaDocumentosEmLote extends Command
                 $end,
                 $issuer->id,
                 $importJob->id,
-            );
+            )->onQueue('default');
 
             SiegConnect::dispatch(
                 1, //  tipo documento
@@ -68,7 +68,7 @@ class ConsultaDocumentosEmLote extends Command
                 $end,
                 $issuer->id,
                 $importJob->id,
-            );
+            )->onQueue('default');
 
             SiegConnect::dispatch(
                 2, //  tipo documento
@@ -77,7 +77,7 @@ class ConsultaDocumentosEmLote extends Command
                 $end,
                 $issuer->id,
                 $importJob->id,
-            );
+            )->onQueue('default');
 
             SiegConnect::dispatch(
                 2, //  tipo documento
@@ -86,7 +86,7 @@ class ConsultaDocumentosEmLote extends Command
                 $end,
                 $issuer->id,
                 $importJob->id,
-            );
+            )->onQueue('default');
 
             SiegConnect::dispatch(
                 2, //  tipo documento
@@ -95,7 +95,7 @@ class ConsultaDocumentosEmLote extends Command
                 $end,
                 $issuer->id,
                 $importJob->id,
-            );
+            )->onQueue('default');
 
             SiegConnect::dispatch(
                 2, //  tipo documento
@@ -104,10 +104,46 @@ class ConsultaDocumentosEmLote extends Command
                 $end,
                 $issuer->id,
                 $importJob->id,
-            );
+            )->onQueue('default');
+
+            SiegConnect::dispatch(
+                3, //  tipo documento
+                'CnpjEmit', // Tipo CNPJ
+                $start,
+                $end,
+                $issuer->id,
+                $importJob->id,
+            )->onQueue('default');
+
+            SiegConnect::dispatch(
+                3, //  tipo documento
+                'CnpjDest', // Tipo CNPJ
+                $start,
+                $end,
+                $issuer->id,
+                $importJob->id,
+            )->onQueue('default');
+
+            SiegConnect::dispatch(
+                4, //  tipo documento
+                'CnpjEmit', // Tipo CNPJ
+                $start,
+                $end,
+                $issuer->id,
+                $importJob->id,
+            )->onQueue('default');
+
+            SiegConnect::dispatch(
+                4, //  tipo documento
+                'CnpjDest', // Tipo CNPJ
+                $start,
+                $end,
+                $issuer->id,
+                $importJob->id,
+            )->onQueue('default');
         }
 
-        $this->info('Sincronização de documentos SIEG em lote concluída');
+        $this->info('Sincronização de documentos SIEG em lote concluída nas datas de '.$start.' a '.$end);
 
         return self::SUCCESS;
     }

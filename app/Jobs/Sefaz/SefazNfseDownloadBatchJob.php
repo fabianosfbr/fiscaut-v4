@@ -26,7 +26,7 @@ class SefazNfseDownloadBatchJob implements ShouldQueue
         protected Issuer $issuer,
         protected ?string $ultNsu = null
     ) {
-        $this->onQueue('sefaz');
+        
     }
 
     public function handle(): void
@@ -34,7 +34,7 @@ class SefazNfseDownloadBatchJob implements ShouldQueue
         try {
             $jobs = [];
             foreach ($this->documentos as $documento) {
-                $jobs[] = new SefazNfseProcessDocumentJob($documento, $this->issuer, $this->importJob);
+                $jobs[] = new SefazNfseProcessDocumentJob($documento, $this->issuer, $this->importJob)->onQueue('sefaz');
             }
 
             $importJobId = $this->importJob->id;

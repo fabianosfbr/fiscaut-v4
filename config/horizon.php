@@ -13,7 +13,7 @@ return [
 
     'prefix' => env(
         'HORIZON_PREFIX',
-        Str::slug(env('APP_NAME', 'laravel'), '_').'_horizon:'
+        Str::slug(env('APP_NAME', 'laravel'), '_') . '_horizon:'
     ),
 
     'middleware' => ['web'],
@@ -34,11 +34,9 @@ return [
         'monitored' => 10080,
     ],
 
-    'silenced' => [
-    ],
+    'silenced' => [],
 
-    'silenced_tags' => [
-    ],
+    'silenced_tags' => [],
 
     'metrics' => [
         'trim_snapshots' => [
@@ -111,48 +109,138 @@ return [
 
     'environments' => [
         'production' => [
-            'supervisor-sefaz' => [
-                'maxProcesses' => (int) env('HORIZON_SEFAZ_MAX_PROCESSES', 8),
-                'balanceMaxShift' => (int) env('HORIZON_BALANCE_MAX_SHIFT', 1),
-                'balanceCooldown' => (int) env('HORIZON_BALANCE_COOLDOWN', 3),
+            'horizon-workers-high-prod' => [
+                'connection' => 'redis',
+                'queue' => ['high'],
+                'balance' => 'auto',
+                'minProcesses' => 1,
+                'maxProcesses' => 5,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+                'tries' => 2,
+                'timeout' => (60 * 10) - 10,
             ],
-
-            'supervisor-sieg' => [
-                'maxProcesses' => (int) env('HORIZON_SIEG_MAX_PROCESSES', 4),
-                'balanceMaxShift' => (int) env('HORIZON_BALANCE_MAX_SHIFT', 1),
-                'balanceCooldown' => (int) env('HORIZON_BALANCE_COOLDOWN', 3),
+            'horizon-workers-default-prod' => [
+                'connection' => 'redis',
+                'queue' => ['default'],
+                'balance' => 'auto',
+                'minProcesses' => 1,
+                'maxProcesses' => 3,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+                'tries' => 2,
+                'timeout' => (60 * 10) - 10,
             ],
-
-            'supervisor-default' => [
-                'maxProcesses' => (int) env('HORIZON_DEFAULT_MAX_PROCESSES', 4),
-                'balanceMaxShift' => (int) env('HORIZON_BALANCE_MAX_SHIFT', 1),
-                'balanceCooldown' => (int) env('HORIZON_BALANCE_COOLDOWN', 3),
+            'horizon-workers-low-prod' => [
+                'connection' => 'redis',
+                'queue' => ['low'],
+                'balance' => 'auto',
+                'minProcesses' => 1,
+                'maxProcesses' => 2,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 2,
+                'tries' => 2,
+                'timeout' => (90 * 10),
             ],
+            'horizon-workers-sieg-prod' => [
+                'connection' => 'redis',
+                'queue' => ['sieg'],
+                'balance' => 'auto',
+                'minProcesses' => 1,
+                'maxProcesses' => 2,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 2,
+                'tries' => 2,
+                'timeout' => (90 * 10),
+            ],
+            'horizon-workers-sefaz-prod' => [
+                'connection' => 'redis',
+                'queue' => ['sefaz'],
+                'balance' => 'auto',
+                'minProcesses' => 1,
+                'maxProcesses' => 2,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 2,
+                'tries' => 2,
+                'timeout' => (90 * 10),
+            ],
+        ],
 
-            'supervisor-low' => [
-                'maxProcesses' => (int) env('HORIZON_LOW_MAX_PROCESSES', 2),
-                'balanceMaxShift' => (int) env('HORIZON_BALANCE_MAX_SHIFT', 1),
-                'balanceCooldown' => (int) env('HORIZON_BALANCE_COOLDOWN', 3),
+        'development' => [
+            'horizon-workers-high-dev' => [
+                'connection' => 'redis',
+                'queue' => ['high'],
+                'balance' => 'auto',
+                'minProcesses' => 1,
+                'maxProcesses' => 5,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+                'tries' => 2,
+                'timeout' => (60 * 10) - 10,
+            ],
+            'horizon-workers-default-dev' => [
+                'connection' => 'redis',
+                'queue' => ['default'],
+                'balance' => 'auto',
+                'minProcesses' => 1,
+                'maxProcesses' => 3,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+                'tries' => 2,
+                'timeout' => (60 * 10) - 10,
+            ],
+            'horizon-workers-low-dev' => [
+                'connection' => 'redis',
+                'queue' => ['low'],
+                'balance' => 'auto',
+                'minProcesses' => 1,
+                'maxProcesses' => 2,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 2,
+                'tries' => 2,
+                'timeout' => (90 * 10),
             ],
         ],
 
         'local' => [
-            'supervisor-sefaz' => [
-                'maxProcesses' => (int) env('HORIZON_SEFAZ_MAX_PROCESSES_LOCAL', 2),
+            'horizon-workers-high' => [
+                'connection' => 'redis',
+                'queue' => ['high'],
+                'balance' => 'auto',
+                'processes' => 5,
+                'minProcesses' => 1,
+                'maxProcesses' => 5,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+                'tries' => 2,
+                'timeout' => 60,
             ],
-
-            'supervisor-sieg' => [
-                'maxProcesses' => (int) env('HORIZON_SIEG_MAX_PROCESSES_LOCAL', 1),
+            'horizon-workers-default' => [
+                'connection' => 'redis',
+                'queue' => ['default'],
+                'balance' => 'auto',
+                'processes' => 5,
+                'minProcesses' => 1,
+                'maxProcesses' => 5,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+                'tries' => 2,
+                'timeout' => 60,
             ],
-
-            'supervisor-default' => [
-                'maxProcesses' => (int) env('HORIZON_DEFAULT_MAX_PROCESSES_LOCAL', 2),
-            ],
-
-            'supervisor-low' => [
-                'maxProcesses' => (int) env('HORIZON_LOW_MAX_PROCESSES_LOCAL', 1),
+            'horizon-workers-low' => [
+                'connection' => 'redis',
+                'queue' => ['low'],
+                'balance' => 'auto',
+                'processes' => 5,
+                'minProcesses' => 1,
+                'maxProcesses' => 5,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+                'tries' => 2,
+                'timeout' => 60,
             ],
         ],
+
     ],
 
     'watch' => [

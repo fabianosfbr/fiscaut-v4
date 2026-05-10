@@ -41,7 +41,7 @@ class SefazCteProcessDocumentJob implements ShouldQueue
         protected Issuer $issuer,
         protected XmlImportJob $importJob
     ) {
-        $this->onQueue('sefaz');
+        
     }
 
     /**

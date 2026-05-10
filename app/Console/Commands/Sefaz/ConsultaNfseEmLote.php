@@ -35,7 +35,7 @@ class ConsultaNfseEmLote extends Command
             ->get();
 
         foreach ($issuers as $issuer) {
-            SefazNfseDownloadAndProcessBatchJob::dispatch($issuer);
+            SefazNfseDownloadAndProcessBatchJob::dispatch($issuer)->onQueue('default');
         }
 
         $this->info('Sincronização de NFSE com a SEFAZ concluída');

@@ -28,7 +28,7 @@ class ConsultaCteEmLote extends Command
 
         foreach ($issuers as $issuer) {
             // Dispatch the batch job
-            SefazCteDownloadAndProcessBatchJob::dispatch($issuer);
+            SefazCteDownloadAndProcessBatchJob::dispatch($issuer)->onQueue('default');
         }
 
         return self::SUCCESS;

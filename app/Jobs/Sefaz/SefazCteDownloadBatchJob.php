@@ -46,7 +46,7 @@ class SefazCteDownloadBatchJob implements ShouldQueue
         protected Issuer $issuer,
         protected ?string $ultNsu = null
     ) {
-        $this->onQueue('sefaz');
+        
     }
 
     /**
@@ -58,7 +58,7 @@ class SefazCteDownloadBatchJob implements ShouldQueue
             // Create individual jobs for each document
             $jobs = [];
             foreach ($this->documentos as $documento) {
-                $jobs[] = new SefazCteProcessDocumentJob($documento, $this->issuer, $this->importJob);
+                $jobs[] = new SefazCteProcessDocumentJob($documento, $this->issuer, $this->importJob)->onQueue('sefaz');
             }
 
             $importJobId = $this->importJob->id;

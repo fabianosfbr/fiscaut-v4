@@ -205,7 +205,7 @@ class SiegConnect implements ShouldQueue
         ]);
 
         // Cria um job de processamento em lote para todos os XMLs
-        ProcessXmlSiegBatch::dispatch($xmls, $importJob, $issuer);
+        ProcessXmlSiegBatch::dispatch($xmls, $importJob, $issuer)->onQueue('sieg');
 
         // Registra no log o início do processamento
         Log::info('Iniciado processamento em lote de '.count($xmls).' documentos XML do SIEG');

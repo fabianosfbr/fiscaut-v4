@@ -25,7 +25,7 @@ class SefazNfseDownloadAndProcessBatchJob implements ShouldQueue
         protected Issuer $issuer,
         protected ?string $ultNsu = null
     ) {
-        $this->onQueue('sefaz');
+        
     }
 
     public function handle(): void
@@ -42,7 +42,7 @@ class SefazNfseDownloadAndProcessBatchJob implements ShouldQueue
                     $result['documentos'],
                     $this->issuer,
                     $result['ultimo_nsu']
-                );
+                )->onQueue('default');
 
                 return;
             }

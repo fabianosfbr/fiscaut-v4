@@ -27,7 +27,7 @@ class ConsultaNfeEmLote extends Command
 
         foreach ($issuers as $issuer) {
             // Dispatch the batch job
-            SefazNfeDownloadAndProcessBatchJob::dispatch($issuer);
+            SefazNfeDownloadAndProcessBatchJob::dispatch($issuer)->onQueue('default');
         }
 
         $this->info('Sincronização de NFes com a SEFAZ concluída');

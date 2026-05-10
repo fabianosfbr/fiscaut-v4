@@ -70,7 +70,7 @@ class ProcessXmlSiegBatch implements ShouldQueue
                     $xmlContent = base64_decode($xmlBase64);
 
                     // Criar um job para processar o XML
-                    $jobs[] = new ProcessXmlSieg($xmlContent, $this->importJob, $this->issuer);
+                    $jobs[] = new ProcessXmlSieg($xmlContent, $this->importJob, $this->issuer)->onQueue('sieg');
                 }
             }
 

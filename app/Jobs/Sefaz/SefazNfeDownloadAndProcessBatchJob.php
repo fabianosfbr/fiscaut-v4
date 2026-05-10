@@ -66,7 +66,7 @@ class SefazNfeDownloadAndProcessBatchJob implements ShouldQueue
                     $result['documentos'],
                     $this->issuer,
                     $result['ultimo_nsu']
-                );
+                )->onQueue('default');
             } else {
                 Log::info('Nenhum documento encontrado para processamento', [
                     'issuer_id' => $this->issuer->id,
