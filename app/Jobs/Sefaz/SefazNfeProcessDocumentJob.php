@@ -154,6 +154,8 @@ class SefazNfeProcessDocumentJob implements ShouldQueue
             ]
         );
 
+        Log::info("Log de conteúdo registrado no banco de dados para NSU {$numnsu} do emissor {$issuer->razao_social}");
+
         return $logContent;
     }
 }

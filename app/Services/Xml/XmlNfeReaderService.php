@@ -98,6 +98,11 @@ class XmlNfeReaderService
                 $this->processNfeEvento();
                 break;
 
+            case XmlIdentifierService::TIPO_EVENTO_NFSE:
+                Log::info('Evento de NFSe detectado, pulando processamento de evento NFe');
+
+                return;
+
             default:
                 throw new Exception('Tipo de XML não suportado: '.$tipoXml);
         }
@@ -183,6 +188,12 @@ class XmlNfeReaderService
     private function processNfeEvento(): void
     {
         $evento = $this->extractEventoNfeData();
+
+        if (empty($evento['chave']) || $evento['chave'] === '') {
+            Log::info('Evento NFSe detectado, pulando processamento de NFe');
+
+            return;
+        }
 
         $chave = $evento['chave'];
         $tpEvento = $evento['tpEvento'];

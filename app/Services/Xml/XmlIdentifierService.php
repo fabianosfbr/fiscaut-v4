@@ -23,6 +23,8 @@ class XmlIdentifierService
 
     public const TIPO_EVENTO_CTE = 'EVENTO_CTE';
 
+    public const TIPO_EVENTO_NFSE = 'EVENTO_NFSE';
+
     public const TIPO_EVENTO = 'EVENTO'; // Mantido para compatibilidade
 
     /**
@@ -46,7 +48,9 @@ class XmlIdentifierService
                     return self::identificarModeloNFe($xml);
 
                 case 'resNFe':
-                    return self::identificarModeloNFe($xml);
+                    $modelo = self::identificarModeloNFe($xml);
+
+                    return $modelo === self::TIPO_NFCE ? self::TIPO_NFCE : self::TIPO_NFE_RESUMO;
 
                 case 'resNFCe':
                     return self::TIPO_NFCE;
@@ -57,8 +61,10 @@ class XmlIdentifierService
 
                 case 'procEventoNFe':
                 case 'resEvento':
-                    // Para resEvento, verificar se contém chNFe ou chCTe
-                    if (isset($xml->chNFe) || (isset($xml->infEvento) && isset($xml->infEvento->chNFe))) {
+                    // Para resEvento, verificar se contém chNFe ou chCTe ou chNFSe
+                    if (isset($xml->chNFSe) || (isset($xml->infEvento) && isset($xml->infEvento->chNFSe))) {
+                        return self::TIPO_EVENTO_NFSE;
+                    } elseif (isset($xml->chNFe) || (isset($xml->infEvento) && isset($xml->infEvento->chNFe))) {
                         return self::TIPO_EVENTO_NFE;
                     } elseif (isset($xml->chCTe) || (isset($xml->infEvento) && isset($xml->infEvento->chCTe))) {
                         return self::TIPO_EVENTO_CTE;
@@ -70,12 +76,14 @@ class XmlIdentifierService
                     return self::TIPO_EVENTO_CTE;
 
                 case 'evento':
-                    // Verificar se é evento de NFe ou CTe baseado na chave
+                    // Verificar se é evento de NFe, CTe ou NFSe baseado na chave
                     if (isset($xml->infEvento)) {
                         if (isset($xml->infEvento->chNFe)) {
                             return self::TIPO_EVENTO_NFE;
                         } elseif (isset($xml->infEvento->chCTe)) {
                             return self::TIPO_EVENTO_CTE;
+                        } elseif (isset($xml->infEvento->chNFSe)) {
+                            return self::TIPO_EVENTO_NFSE;
                         }
                     }
 

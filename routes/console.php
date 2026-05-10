@@ -5,10 +5,18 @@ use App\Jobs\SendCobrancaEmailJob;
 use App\Models\Issuer;
 use App\Models\SuperLogicaUnidade;
 use App\Services\SuperlogicaConnectionService;
+use App\Services\Xml\XmlIdentifierService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Artisan;
 
 Artisan::command('play', function () {
+
+
+    $xmlContent = '<resNFe xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" versao="1.01" xmlns="http://www.portalfiscal.inf.br/nfe"><chNFe>35260504995902000166550010000023671598499111</chNFe><CNPJ>04995902000166</CNPJ><xNome>J.R LIMA PERFIS PLASTICOS E TERC. DE TRANSP. ME</xNome><IE>206124672115</IE><dhEmi>2026-05-08T10:37:00-03:00</dhEmi><tpNF>1</tpNF><vNF>5928.00</vNF><digVal>2xA6/e7QRoe7p6lqRg6J52NojBE=</digVal><dhRecbto>2026-05-08T11:14:04-03:00</dhRecbto><nProt>135261765551143</nProt><cSitNFe>1</cSitNFe></resNFe>';
+
+    $type = XmlIdentifierService::identificarTipoXml($xmlContent);
+
+    dd($type);
 
     $issuer = Issuer::find(62);
 
@@ -156,7 +164,7 @@ $argv = $_SERVER['argv'] ?? [];
 // Tenta encontrar o comando ignorando opções globais (ex: -v, --ansi)
 $artisanCommand = collect($argv)
     ->slice(1)
-    ->filter(fn ($arg) => ! str_starts_with($arg, '-'))
+    ->filter(fn($arg) => ! str_starts_with($arg, '-'))
     ->first();
 
 app(DynamicTaskCommandExecutor::class)->registerFromDatabase($artisanCommand);
