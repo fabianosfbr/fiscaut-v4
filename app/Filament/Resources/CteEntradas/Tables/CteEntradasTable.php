@@ -38,7 +38,7 @@ class CteEntradasTable
                 TextColumn::make('emitente_razao_social')
                     ->label('Emitente')
                     ->limit(30)
-                    ->searchable(['emitente_nome', 'emitente_cnpj'])
+                    ->searchable(['emitente_razao_social', 'emitente_cnpj'])
                     ->size('sm')
                     ->description(function (ConhecimentoTransporteEletronico $record) {
                         return $record->emitente_cnpj;

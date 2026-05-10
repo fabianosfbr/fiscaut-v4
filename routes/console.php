@@ -6,17 +6,17 @@ use App\Models\Issuer;
 use App\Models\SuperLogicaUnidade;
 use App\Services\SuperlogicaConnectionService;
 use App\Services\Xml\XmlIdentifierService;
+use App\Services\Xml\XmlNfeReaderService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Artisan;
 
 Artisan::command('play', function () {
 
 
-    $xmlContent = '<resNFe xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" versao="1.01" xmlns="http://www.portalfiscal.inf.br/nfe"><chNFe>35260504995902000166550010000023671598499111</chNFe><CNPJ>04995902000166</CNPJ><xNome>J.R LIMA PERFIS PLASTICOS E TERC. DE TRANSP. ME</xNome><IE>206124672115</IE><dhEmi>2026-05-08T10:37:00-03:00</dhEmi><tpNF>1</tpNF><vNF>5928.00</vNF><digVal>2xA6/e7QRoe7p6lqRg6J52NojBE=</digVal><dhRecbto>2026-05-08T11:14:04-03:00</dhRecbto><nProt>135261765551143</nProt><cSitNFe>1</cSitNFe></resNFe>';
+    $xmlContent = '<resNFe xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" versao="1.01" xmlns="http://www.portalfiscal.inf.br/nfe"><chNFe>15260519290945000202550010000560801200136050</chNFe><CNPJ>19290945000202</CNPJ><xNome>FERMAQUINAS - PARAFUSOS - FILIAL 02</xNome><IE>155843648</IE><dhEmi>2026-05-08T12:00:57-03:00</dhEmi><tpNF>1</tpNF><vNF>3870.00</vNF><digVal>jGG0K2i0ovO3XSQ2UX/wtCM8Pig=</digVal><dhRecbto>2026-05-08T12:02:24-03:00</dhRecbto><nProt>215260024615128</nProt><cSitNFe>1</cSitNFe></resNFe>';
 
-    $type = XmlIdentifierService::identificarTipoXml($xmlContent);
-
-    dd($type);
+    $serviceNfe = app(XmlNfeReaderService::class)->loadXml($xmlContent);
+    dd($serviceNfe->parse());
 
     $issuer = Issuer::find(62);
 

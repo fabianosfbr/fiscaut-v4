@@ -32,7 +32,7 @@ class AtualizarStatusCteCancelada implements ShouldQueue
                 $detalhes = XmlIdentifierService::obterDetalhesEvento($event->event->xml);
 
                 if ($detalhes['tpEvento'] == 110111) {
-                    $xml = Complements::cancelRegister($cte->xml_content, $event->event->xml);
+                    $xml = Complements::cancelRegister(gzuncompress($cte->xml), $event->event->xml);
                     $cte->updateQuietly([
                         'xml_content' => $xml,
                         'status_cte' => StatusCteEnum::CANCELADA,

@@ -34,7 +34,7 @@ class XmlNfeReaderService
 
             return $this;
         } catch (Exception $e) {
-            Log::error('Erro ao carregar XML NFe: '.$e->getMessage());
+            Log::error('Erro ao carregar XML NFe: ' . $e->getMessage());
             throw new Exception('XML inválido ou mal formatado');
         }
     }
@@ -104,7 +104,7 @@ class XmlNfeReaderService
                 return;
 
             default:
-                throw new Exception('Tipo de XML não suportado: '.$tipoXml);
+                throw new Exception('Tipo de XML não suportado: ' . $tipoXml);
         }
     }
 
@@ -112,7 +112,7 @@ class XmlNfeReaderService
     {
 
         $params = $this->preparaDadosNfe();
-        Log::info('Registrando/Atualizando NFe no Fiscaut - Chave:  '.$params['chave']);
+        Log::info('Registrando/Atualizando NFe no Fiscaut - Chave:  ' . $params['chave']);
 
         $params['origem'] = $this->origem;
 
@@ -151,7 +151,7 @@ class XmlNfeReaderService
         if ($ctes->count() > 0) {
             $ctes->each(function (ConhecimentoTransporteEletronico $cte) {
                 // Disparar evento de verificar NFe associada
-                info('Disparando evento de verificar NFe associada - CTE: '.$cte->id);
+                info('Disparando evento de verificar NFe associada - CTE: ' . $cte->id);
                 CheckNfeData::dispatch($cte);
             });
         }
@@ -177,7 +177,7 @@ class XmlNfeReaderService
                 'tipo_nfe' => $resumo['tpNF'],
                 'valor_nfe' => $resumo['vNF'],
                 'created_at' => date('Y-m-d h:i:s'),
-                'dh_emissao' => explode('T', $resumo['dhRecbto'])[0].' '.explode('-', explode('T', $resumo['dhRecbto'])[1])[0],
+                'dh_emissao' => explode('T', $resumo['dhRecbto'])[0] . ' ' . explode('-', explode('T', $resumo['dhRecbto'])[1])[0],
                 'issuer_id' => $this->issuer->id,
                 'tenant_id' => $this->issuer->tenant_id,
                 'xml' => $this->xml,
@@ -394,7 +394,7 @@ class XmlNfeReaderService
 
     public function verificaTipoDePessoaDestinatario()
     {
-        if(isset($this->data['nfeProc'])){
+        if (isset($this->data['nfeProc'])) {
 
             $dest = $this->data['nfeProc']['NFe']['infNFe']['dest'] ?? [];
 
@@ -402,14 +402,18 @@ class XmlNfeReaderService
         }
 
         return null;
-
     }
 
     public function verificaTipoDePessoaEmitente()
     {
-        $emit = $this->data['nfeProc']['NFe']['infNFe']['emit'] ?? [];
+        if (isset($this->data['nfeProc'])) {
 
-        return $emit['CNPJ'] ?? $emit['CPF'] ?? null;
+            $emit = $this->data['nfeProc']['NFe']['infNFe']['emit'] ?? [];
+
+            return $emit['CNPJ'] ?? $emit['CPF'] ?? null;
+        }
+
+        return null;
     }
 
     public function checkTipoFrete()
@@ -465,7 +469,7 @@ class XmlNfeReaderService
         $date = $parts[0];
         $time = explode('-', $parts[1], 2)[0];
 
-        return $date.' '.$time;
+        return $date . ' ' . $time;
     }
 
     private function preparaCfops()
@@ -475,7 +479,7 @@ class XmlNfeReaderService
             $cfops[] = $value['prod']['CFOP'] ?? null;
         });
 
-        $cfops = array_filter($cfops ?? [], fn ($cfop) => ! is_null($cfop) && $cfop !== '');
+        $cfops = array_filter($cfops ?? [], fn($cfop) => ! is_null($cfop) && $cfop !== '');
         $values = array_unique($cfops);
         rsort($values);
 
