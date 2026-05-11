@@ -200,39 +200,10 @@ Integração com API SIEG para download em massa de XMLs, com paginação e cont
 
 **Responsabilidade:** conectar e coordenar a coleta paginada.
 
-**Fluxo:**
-- chama endpoint `BaixarXmlsV2` usando a API key do tenant;
-- pagina resultados com `Skip`/`Take`;
-- cria tracking (`XmlImportJob`);
-- despacha `ProcessXmlSiegBatch` com os XMLs baixados;
-- aplica **rate limit** via `sleep(300ms)` entre requisições.
 
----
 
-### `App\Jobs\Sieg\ProcessXmlSiegBatch` (Batch Manager)
 
-**Responsabilidade:** orquestrar processamento em batch.
 
-**Fluxo:**
-- recebe XMLs em base64;
-- “chunk” em grupos menores (tamanho 50);
-- decodifica base64;
-- despacha jobs `ProcessXmlSieg` (1 por XML) em **Bus Batch**;
-- ao concluir: atualiza status do `XmlImportJob` e notifica usuário.
-
----
-
-### `App\Jobs\Sieg\ProcessXmlSieg` (Worker)
-
-**Responsabilidade:** processar um XML (origem SIEG).
-
-**Fluxo:**
-- identifica tipo via `XmlIdentifierService`;
-- parsa via `XmlNfeReaderService` (NFe/Resumo/Evento) ou `XmlCteReaderService` (CTe/Evento);
-- marca origem como `SIEG`;
-- persiste no banco.
-
----
 
 ## Cross-referencing / Enriquecimento de dados
 

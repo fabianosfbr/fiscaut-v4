@@ -56,7 +56,7 @@ class SyncNfce extends Command
                 dataFinal: $end,
                 issuerId: $issuer->id,
                 importJobId: $importJob->id,
-                event: true,
+                event: false,
             )->onQueue('default');
 
             SiegConnect::dispatch(
@@ -66,7 +66,7 @@ class SyncNfce extends Command
                 dataFinal: $end,
                 issuerId: $issuer->id,
                 importJobId: $importJob->id,
-                event: true,
+                event: false,
             )->onQueue('default');
         }
 

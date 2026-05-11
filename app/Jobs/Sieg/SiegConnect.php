@@ -198,17 +198,19 @@ class SiegConnect implements ShouldQueue
 
                     if ($response->status() === 404) {
                         $errorMessage = 'Nenhum arquivo XML localizado.';
+                        Log::channel('sieg_log')->info($errorMessage);
 
                         $this->importJob->updateQuietly(['status' => XmlImportJob::STATUS_COMPLETED]);
-                        $this->enviarNotificacao('Consulta Finalizada', $errorMessage, 'danger');
+                        
                     } else {
                         $responseData = $response->json();
+                        Log::channel('sieg_log')->error('Erro na consulta do SIEG: ' . $errorMessage);
                         if (is_array($responseData) && !empty($responseData[0])) {
                             $errorMessage = $responseData[0];
                         }
                         $this->importJob->addError($errorMessage);
                         $this->importJob->updateQuietly(['status' => XmlImportJob::STATUS_FAILED]);
-                        $this->enviarNotificacao('Erro', $errorMessage, 'danger');
+                        
                     }
 
                     // Interrompe o loop em caso de erro
@@ -224,20 +226,15 @@ class SiegConnect implements ShouldQueue
                 'total_files' => $totalDocumentos,
                 'status' => XmlImportJob::STATUS_COMPLETED
             ]);
-            Log::info('Importação SIEG concluída. Total de documentos: ' . $totalDocumentos);
+            Log::channel('sieg_log')->info('Importação SIEG concluída. Total de documentos: ' . $totalDocumentos);
         } catch (Exception $e) {
-            Log::error('Erro na importação SIEG: ' . $e->getMessage());
+            Log::channel('sieg_log')->error('Erro na importação SIEG: ' . $e->getMessage());
 
             if (isset($this->importJob)) {
                 $this->importJob->addError('Erro na importação: ' . $e->getMessage());
                 $this->importJob->updateQuietly(['status' => XmlImportJob::STATUS_FAILED]);
             }
 
-            $this->enviarNotificacao(
-                'Erro',
-                'Ocorreu um erro ao processar a requisição: ' . $e->getMessage(),
-                'danger'
-            );
         }
     }
 

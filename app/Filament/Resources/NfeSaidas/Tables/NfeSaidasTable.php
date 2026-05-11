@@ -37,9 +37,9 @@ class NfeSaidasTable
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $issuer = currentIssuer();
-
                 return $query->where('emitente_cnpj', $issuer->cnpj);
             })
+            ->defaultSort('data_emissao', 'desc')
             ->recordUrl(null)
             ->columns([
                 TextColumn::make('nNF')
