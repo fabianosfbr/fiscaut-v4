@@ -32,7 +32,8 @@ class MonitoraNsuCteFaltante extends Command
         $issuerId = $this->option('issuer');
         $nsu = $this->option('nsu');
 
-        $issuers = Issuer::where('validade_certificado', '>', now())
+        $issuers = Issuer::whereNotNull('path_certificado')
+            ->where('validade_certificado', '>', now())
             ->where('is_enabled', true)
             ->where('cte_servico', true)
             ->when($issuerId !== null, fn ($q) => $q->where('id', $issuerId))

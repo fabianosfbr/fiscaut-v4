@@ -58,15 +58,13 @@ new class extends Component implements HasSchemas
 
                         if ($user->hasRole('super-admin')) {
                             return Issuer::where('tenant_id', $user->tenant_id)
-                                ->where('is_enabled', true)
                                 ->pluck('razao_social', 'id');
                         }
 
                         $issuers = $user->issuers()
                             ->wherePivot('active', true) // Garante que o vínculo está ativo
-                            ->where('is_enabled', true)  // Garante que a empresa está ativa
                             ->pluck('razao_social', 'issuers.id');
-
+                        
                         return $issuers;
                     })
                     // 2. Tratamento de Estados:

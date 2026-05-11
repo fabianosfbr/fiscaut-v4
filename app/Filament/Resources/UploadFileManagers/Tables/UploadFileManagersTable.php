@@ -38,6 +38,7 @@ class UploadFileManagersTable
             ->modifyQueryUsing(function ($query) {
                 $query->where('issuer_id', currentIssuer()->id);
             })
+            ->defaultSort('created_at', 'desc')
             ->recordUrl(null)
             ->columns([
                 TextColumn::make('id')

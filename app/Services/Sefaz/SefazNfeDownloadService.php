@@ -52,7 +52,7 @@ class SefazNfeDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha na inicialização do serviço: '.$e->getMessage());
+            throw new Exception('Falha na inicialização do serviço: ' . $e->getMessage());
         }
     }
 
@@ -104,7 +104,7 @@ class SefazNfeDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha ao carregar certificado digital: '.$e->getMessage());
+            throw new Exception('Falha ao carregar certificado digital: ' . $e->getMessage());
         }
     }
 
@@ -207,7 +207,7 @@ class SefazNfeDownloadService
                 'iterations' => $iterations,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha no download: '.$e->getMessage());
+            throw new Exception('Falha no download: ' . $e->getMessage());
         }
     }
 
@@ -238,8 +238,8 @@ class SefazNfeDownloadService
 
             Log::channel('sefaz_log')->info(
                 $nsu ?
-                    'Log de consulta NFe - SEFAZ - registro específico - '.explode(':', $this->issuer->razao_social)[0]." : \n".$response :
-                    'Log de consulta NFe - SEFAZ - registro em lote - '.explode(':', $this->issuer->razao_social)[0]." : \n".$response
+                    'Log de consulta NFe - SEFAZ - registro específico - ' . explode(':', $this->issuer->razao_social)[0] . " : \n" . $response :
+                    'Log de consulta NFe - SEFAZ - registro em lote - ' . explode(':', $this->issuer->razao_social)[0] . " : \n" . $response
             );
             // Processa a resposta
             $result = $this->processDistDFeResponse($response);
@@ -257,7 +257,7 @@ class SefazNfeDownloadService
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            throw new Exception('Falha no download de NFe: '.$e->getMessage());
+            throw new Exception('Falha no download de NFe: ' . $e->getMessage());
         }
     }
 
@@ -374,7 +374,7 @@ class SefazNfeDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha ao processar resposta: '.$e->getMessage());
+            throw new Exception('Falha ao processar resposta: ' . $e->getMessage());
         }
     }
 
@@ -502,44 +502,36 @@ class SefazNfeDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha ao verificar status SEFAZ: '.$e->getMessage());
+            throw new Exception('Falha ao verificar status SEFAZ: ' . $e->getMessage());
         }
     }
 
     /**
      * Realiza a manifestação de uma NF-e.
      */
-    public function sefazManifesta(string $chNFe, string $tpEvento, string $xJust = '', int $nSeqEvento = 1): bool
+    public function sefazManifesta(string $chNFe, string $tpEvento, string $xJust = '', int $nSeqEvento = 1)
     {
-        $response = $this->getTools()->sefazManifesta($chNFe, $tpEvento, $xJust, $nSeqEvento);
+        $response = null;
+        try {
+            $response = $this->tools->sefazManifesta($chNFe, $tpEvento, $xJust, $nSeqEvento = 1);
+        	
+        } catch (Exception $e) {
+            $mensagem = $e->getMessage();
 
-        Log::info('Log de manifestação NFe - SEFAZ', [
-            'issuer' => $this->issuer->razao_social,
-            'chave' => $chNFe,
-            'response' => $response,
-        ]);
+            if (
+                str_contains($mensagem, 'certificate') ||
+                str_contains($mensagem, 'certificado') ||
+                str_contains($mensagem, 'SSL') ||
+                str_contains($mensagem, 'vencido')
+            ) {
+                $nomeEmpresa = explode(':', $this->issuer->razao_social)[0];
+                throw new Exception("O certificado digital da empresa {$nomeEmpresa} está vencido ou inválido. Por favor, atualize o certificado para continuar.");
+            }
 
-        $standardize = new Standardize($response);
-        $std = $standardize->toStd();
-
-        $logSefaz = LogSefazManifestoEvent::create([
-            'issuer_id' => $this->issuer->id,
-            'chave' => $chNFe,
-            'type' => 'nfe',
-            'tpEvento' => $std->retEvento->infEvento->tpEvento,
-            'cStat' => $std->cStat,
-            'xMotivo' => $std->xMotivo,
-            'justificativa' => $xJust,
-            'infEvento_cStat' => $std->retEvento->infEvento->cStat,
-            'infEvento_xMotivo' => $std->retEvento->infEvento->xMotivo,
-            'xml' => $response,
-        ]);
-
-        if ($logSefaz->cStat == '128' && $std->retEvento->infEvento->tpEvento == '210200') {
-            return true;
+            throw $e;
         }
-
-        return false;
+    	
+        return $response;
     }
 
     /**
@@ -555,6 +547,7 @@ class SefazNfeDownloadService
             try {
                 $response = $this->sefazManifesta($resumo->chave, '210210'); // Ciência da Operação
 
+         
                 Log::info('Log de manifestação NFe - SEFAZ', [
                     'issuer' => $this->issuer->razao_social,
                     'chave' => $resumo->chave,
@@ -580,6 +573,8 @@ class SefazNfeDownloadService
                     'data_ciencia_manifesto' => now(),
                     'is_ciente_operacao' => true,
                 ]);
+            
+            	
             } catch (Exception $e) {
                 Log::error('Erro ao manifestar ciência da operação', [
                     'issuer_id' => $this->issuer->id,

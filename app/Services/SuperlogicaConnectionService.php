@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\SuperlogicaConnectionException;
-use App\Models\Issuer;
+use App\Models\Tenant;
 use App\Services\SuperLogica\Condominio\SuperLogicaCondominioConnector;
 use App\Services\SuperLogica\Condominio\SuperLogicaDespesaConnector;
 use App\Services\SuperLogica\Condominio\SuperLogicaReceitaConnector;
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Log;
 class SuperlogicaConnectionService
 {
     public function __construct(
-        protected Issuer $issuer
+        protected Tenant $tenant
     ) {}
 
     /**
@@ -23,9 +23,9 @@ class SuperlogicaConnectionService
      *
      * @throws SuperlogicaConnectionException
      */
-    public function validateConnection(Issuer $issuer): array|bool
+    public function validateConnection(Tenant $tenant): array|bool
     {
-        $tenant = $issuer->tenant()->first();
+    
         $baseUrl = trim((string) ($tenant?->superlogica_base_url ?? ''));
         $appToken = trim((string) ($tenant?->superlogica_app_token ?? ''));
         $accessToken = trim((string) ($tenant?->superlogica_access_token ?? ''));
@@ -59,7 +59,6 @@ class SuperlogicaConnectionService
             if (! $response->successful()) {
                 Log::error('Falha na validação Superlógica', [
                     'tenant_id' => $tenant?->id,
-                    'issuer_id' => $issuer->id,
                     'status' => $response->status(),
                 ]);
 
@@ -76,7 +75,6 @@ class SuperlogicaConnectionService
         } catch (ConnectionException $exception) {
             Log::error('Timeout/erro de rede na validação Superlógica', [
                 'tenant_id' => $tenant?->id,
-                'issuer_id' => $issuer->id,
             ]);
 
             throw new SuperlogicaConnectionException('Não foi possível conectar na Superlógica (timeout/rede).', 0, $exception);
@@ -85,7 +83,6 @@ class SuperlogicaConnectionService
         } catch (\Throwable $exception) {
             Log::error('Erro inesperado na validação Superlógica', [
                 'tenant_id' => $tenant?->id,
-                'issuer_id' => $issuer->id,
                 'error' => $exception->getMessage(),
             ]);
 
@@ -95,22 +92,22 @@ class SuperlogicaConnectionService
 
     public function condominio()
     {
-        return new SuperLogicaCondominioConnector($this->issuer);
+        return new SuperLogicaCondominioConnector($this->tenant);
     }
 
     public function unidade()
     {
-        return new SuperLogicaUnidadeConnector($this->issuer);
+        return new SuperLogicaUnidadeConnector($this->tenant);
     }
 
     public function despesa()
     {
-        return new SuperLogicaDespesaConnector($this->issuer);
+        return new SuperLogicaDespesaConnector($this->tenant);
 
     }
 
     public function receita()
     {
-        return new SuperLogicaReceitaConnector($this->issuer);
+        return new SuperLogicaReceitaConnector($this->tenant);
     }
 }

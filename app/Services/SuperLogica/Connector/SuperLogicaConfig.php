@@ -3,7 +3,7 @@
 namespace App\Services\SuperLogica\Connector;
 
 use App\Exceptions\SuperlogicaConnectionException;
-use App\Models\Issuer;
+use App\Models\Tenant;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
@@ -11,11 +11,10 @@ use Illuminate\Support\Facades\Http;
 trait SuperLogicaConfig
 {
     public function __construct(
-        protected Issuer $issuer,
+        protected Tenant $tenant,
         protected ?PendingRequest $http = null
     ) {
 
-        $tenant = $issuer->tenant()->first();
         $baseUrl = trim((string) ($tenant?->superlogica_base_url ?? ''));
         $appToken = trim((string) ($tenant?->superlogica_app_token ?? ''));
         $accessToken = trim((string) ($tenant?->superlogica_access_token ?? ''));

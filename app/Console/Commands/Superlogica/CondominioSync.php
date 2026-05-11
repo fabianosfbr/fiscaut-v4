@@ -8,6 +8,7 @@ use App\Models\SuperLogicaContaBancaria;
 use App\Models\SuperLogicaFornecedor;
 use App\Models\SuperLogicaPlanoDeConta;
 use App\Models\SuperLogicaUnidade;
+use App\Models\Tenant;
 use App\Services\SuperlogicaConnectionService;
 use Illuminate\Console\Command;
 
@@ -18,7 +19,7 @@ class CondominioSync extends Command
      *
      * @var string
      */
-    protected $signature = 'app:condominio-sync';
+    protected $signature = 'app:condominio-sync {--tenant= : ID do emitente para download específico}';
 
     /**
      * The console command description.
@@ -32,20 +33,28 @@ class CondominioSync extends Command
      */
     public function handle()
     {
-        $issuer = Issuer::find(62);
+        $tenantId = $this->option('tenant');
 
-        if (! isset($issuer->superlogica_condominio_id)) {
-            $this->error('Empresa não vinculada ao condomínio no Superlogica.');
+        $tenants = Tenant::whereNotNull('superlogica_base_url')
+            ->whereNotNull('superlogica_app_token')
+            ->whereNotNull('superlogica_access_token')
+            ->when($tenantId !== null, fn($q) => $q->where('id', $tenantId))
+            ->get();
 
-            return;
+
+        foreach ($tenants as $tenant) {
+            
+
+            $this->syncCondominio($tenant);
+
+            // $this->info('Condominios sincronizados com sucesso.');
+
         }
 
-        // $this->syncCondominio($issuer);
 
-        // $this->info('Condominios sincronizados com sucesso.');
 
-        $this->syncUnidade($issuer);
-        $this->info('Unidades sincronizadas com sucesso.');
+        // $this->syncUnidade($tenant);
+        // $this->info('Unidades sincronizadas com sucesso.');
 
         // $this->syncFornecedor($issuer);
         // $this->info('Fornecedores sincronizados com sucesso.');
@@ -58,9 +67,9 @@ class CondominioSync extends Command
 
     }
 
-    private function syncCondominio(Issuer $issuer)
+    private function syncCondominio(Tenant $tenant)
     {
-        $service = new SuperlogicaConnectionService($issuer);
+        $service = new SuperlogicaConnectionService($tenant);
 
         $havePagination = true;
         $pagina = 1;
@@ -81,179 +90,169 @@ class CondominioSync extends Command
             foreach ($condominios as $condominio) {
 
                 SuperLogicaCondominio::updateOrCreate([
+                    'tenant_id' => $tenant->id,
                     'id_condominio_cond' => $condominio['id_condominio_cond'],
                     'st_cpf_cond' => sanitize($condominio['st_cpf_cond']),
                 ], [
                     'metadados' => $condominio,
                 ]);
-
             }
-
-        }
-
-    }
-
-    private function syncUnidade(Issuer $issuer)
-    {
-        $service = new SuperlogicaConnectionService($issuer);
-
-        $condominios = SuperLogicaCondominio::where('id_condominio_cond', $issuer->superlogica_condominio_id)->get();
-
-        foreach ($condominios as $condominio) {
-
-            $havePagination = true;
-            $pagina = 1;
-            while ($havePagination) {
-                $unidades = $service->unidade()->listar([
-                    'idCondominio' => $condominio->id_condominio_cond,
-                    'exibirDadosDosContatos' => 1,
-                    'exibirGruposDasUnidades' => 1,
-                    'exibirInadimplencia' => 1,
-                    'itensPorPagina' => 50,
-                    'pagina' => $pagina,
-                ]);
-
-                if (count($unidades) == 0) {
-                    $havePagination = false;
-                }
-
-                $pagina++;
-
-                foreach ($unidades as $unidade) {
-
-                    SuperLogicaUnidade::updateOrCreate([
-                        'id_condominio' => $condominio->id_condominio_cond,
-                        'id_unidade_uni' => $unidade['id_unidade_uni'],
-                    ], [
-                        'metadados' => $unidade,
-                    ]);
-
-                }
-            }
-
         }
     }
 
-    private function syncContaBancaria(Issuer $issuer)
-    {
-        $service = new SuperlogicaConnectionService($issuer);
+    // private function syncUnidade(Tenant $tenant)
+    // {
+    //     $service = new SuperlogicaConnectionService($tenant);
 
-        $condominios = SuperLogicaCondominio::where('id_condominio_cond', $issuer->superlogica_condominio_id)->get();
+    //     $condominios = SuperLogicaCondominio::where('id_condominio_cond', $tenant->superlogica_condominio_id)->get();
 
-        foreach ($condominios as $condominio) {
+    //     foreach ($condominios as $condominio) {
 
-            $havePagination = true;
-            $pagina = 1;
-            while ($havePagination) {
-                $contas = $service->condominio()
-                    ->contaBancaria()
-                    ->listar([
-                        'idCondominio' => $issuer->superlogica_condominio_id,
-                        'exibirDadosAgencia' => 1,
-                        'exibirContasFechadas' => 1,
-                        'exibirDadosBanco' => 1,
-                        'itensPorPagina' => 50,
-                        'pagina' => $pagina,
-                    ]);
+    //         $havePagination = true;
+    //         $pagina = 1;
+    //         while ($havePagination) {
+    //             $unidades = $service->unidade()->listar([
+    //                 'idCondominio' => $condominio->id_condominio_cond,
+    //                 'exibirDadosDosContatos' => 1,
+    //                 'exibirGruposDasUnidades' => 1,
+    //                 'exibirInadimplencia' => 1,
+    //                 'itensPorPagina' => 50,
+    //                 'pagina' => $pagina,
+    //             ]);
 
-                if (count($contas) == 0) {
-                    $havePagination = false;
-                }
+    //             if (count($unidades) == 0) {
+    //                 $havePagination = false;
+    //             }
 
-                $pagina++;
+    //             $pagina++;
 
-                foreach ($contas as $conta) {
+    //             foreach ($unidades as $unidade) {
 
-                    SuperLogicaContaBancaria::updateOrCreate([
-                        'id_condominio' => $condominio->id_condominio_cond,
-                        'st_conta_cb' => $conta['st_conta_cb'],
-                    ], [
-                        'metadados' => $conta,
-                    ]);
+    //                 SuperLogicaUnidade::updateOrCreate([
+    //                     'id_condominio' => $condominio->id_condominio_cond,
+    //                     'id_unidade_uni' => $unidade['id_unidade_uni'],
+    //                 ], [
+    //                     'metadados' => $unidade,
+    //                 ]);
+    //             }
+    //         }
+    //     }
+    // }
 
-                }
-            }
+    // private function syncContaBancaria(Issuer $issuer)
+    // {
+    //     $service = new SuperlogicaConnectionService($issuer);
 
-        }
-    }
+    //     $condominios = SuperLogicaCondominio::where('id_condominio_cond', $issuer->superlogica_condominio_id)->get();
 
-    private function syncPlanoDeContas(Issuer $issuer)
-    {
-        $service = new SuperlogicaConnectionService($issuer);
+    //     foreach ($condominios as $condominio) {
 
-        $condominios = SuperLogicaCondominio::where('id_condominio_cond', $issuer->superlogica_condominio_id)->get();
+    //         $havePagination = true;
+    //         $pagina = 1;
+    //         while ($havePagination) {
+    //             $contas = $service->condominio()
+    //                 ->contaBancaria()
+    //                 ->listar([
+    //                     'idCondominio' => $issuer->superlogica_condominio_id,
+    //                     'exibirDadosAgencia' => 1,
+    //                     'exibirContasFechadas' => 1,
+    //                     'exibirDadosBanco' => 1,
+    //                     'itensPorPagina' => 50,
+    //                     'pagina' => $pagina,
+    //                 ]);
 
-        foreach ($condominios as $condominio) {
+    //             if (count($contas) == 0) {
+    //                 $havePagination = false;
+    //             }
 
-            $havePagination = true;
-            $pagina = 1;
-            while ($havePagination) {
-                $contas = $service->condominio()
-                    ->planoDeConta()
-                    ->listar([
-                        'ID_CONDOMINIO_COND' => $issuer->superlogica_condominio_id,
-                        'itensPorPagina' => 50,
-                        'pagina' => $pagina,
-                    ]);
+    //             $pagina++;
 
-                if (count($contas) == 0) {
-                    $havePagination = false;
-                }
+    //             foreach ($contas as $conta) {
 
-                $pagina++;
+    //                 SuperLogicaContaBancaria::updateOrCreate([
+    //                     'id_condominio' => $condominio->id_condominio_cond,
+    //                     'st_conta_cb' => $conta['st_conta_cb'],
+    //                 ], [
+    //                     'metadados' => $conta,
+    //                 ]);
+    //             }
+    //         }
+    //     }
+    // }
 
-                foreach ($contas as $conta) {
+    // private function syncPlanoDeContas(Issuer $issuer)
+    // {
+    //     $service = new SuperlogicaConnectionService($issuer);
 
-                    SuperLogicaPlanoDeConta::updateOrCreate([
-                        'id_condominio' => $condominio->id_condominio_cond,
-                        'st_conta_cont' => $conta['st_conta_cont'],
-                        'st_descricao_cont' => $conta['st_descricao_cont'],
-                        'st_ordenacao_cont' => $conta['st_ordenacao_cont'],
-                    ], [
-                        'metadados' => $conta,
-                    ]);
+    //     $condominios = SuperLogicaCondominio::where('id_condominio_cond', $issuer->superlogica_condominio_id)->get();
 
-                }
-            }
+    //     foreach ($condominios as $condominio) {
 
-        }
-    }
+    //         $havePagination = true;
+    //         $pagina = 1;
+    //         while ($havePagination) {
+    //             $contas = $service->condominio()
+    //                 ->planoDeConta()
+    //                 ->listar([
+    //                     'ID_CONDOMINIO_COND' => $issuer->superlogica_condominio_id,
+    //                     'itensPorPagina' => 50,
+    //                     'pagina' => $pagina,
+    //                 ]);
 
-    private function syncFornecedor(Issuer $issuer)
-    {
+    //             if (count($contas) == 0) {
+    //                 $havePagination = false;
+    //             }
 
-        $service = new SuperlogicaConnectionService($issuer);
+    //             $pagina++;
 
-        $havePagination = true;
-        $pagina = 1;
-        while ($havePagination) {
-            $fornecedores = $service
-                ->despesa()
-                ->listarFornecedor([
-                    'contatosDoTipo' => 'fornecedores',
-                    'itensPorPagina' => 50,
-                    'pagina' => $pagina,
-                ]);
+    //             foreach ($contas as $conta) {
 
-            if (count($fornecedores) == 0) {
-                $havePagination = false;
-            }
+    //                 SuperLogicaPlanoDeConta::updateOrCreate([
+    //                     'id_condominio' => $condominio->id_condominio_cond,
+    //                     'st_conta_cont' => $conta['st_conta_cont'],
+    //                     'st_descricao_cont' => $conta['st_descricao_cont'],
+    //                     'st_ordenacao_cont' => $conta['st_ordenacao_cont'],
+    //                 ], [
+    //                     'metadados' => $conta,
+    //                 ]);
+    //             }
+    //         }
+    //     }
+    // }
 
-            $pagina++;
+    // private function syncFornecedor(Issuer $issuer)
+    // {
 
-            foreach ($fornecedores as $fornecedor) {
+    //     $service = new SuperlogicaConnectionService($issuer);
 
-                SuperLogicaFornecedor::updateOrCreate([
-                    'id_contato_con' => $fornecedor['id_contato_con'],
-                    'id_condominio' => $fornecedor['id_condominio_cond'],
-                    'st_nome_con' => $fornecedor['st_nome_con'],
-                    'st_cpf_con' => $fornecedor['st_cpf_con'] ?? null,
-                ], [
-                    'metadados' => $fornecedor,
-                ]);
+    //     $havePagination = true;
+    //     $pagina = 1;
+    //     while ($havePagination) {
+    //         $fornecedores = $service
+    //             ->despesa()
+    //             ->listarFornecedor([
+    //                 'contatosDoTipo' => 'fornecedores',
+    //                 'itensPorPagina' => 50,
+    //                 'pagina' => $pagina,
+    //             ]);
 
-            }
-        }
+    //         if (count($fornecedores) == 0) {
+    //             $havePagination = false;
+    //         }
 
-    }
+    //         $pagina++;
+
+    //         foreach ($fornecedores as $fornecedor) {
+
+    //             SuperLogicaFornecedor::updateOrCreate([
+    //                 'id_contato_con' => $fornecedor['id_contato_con'],
+    //                 'id_condominio' => $fornecedor['id_condominio_cond'],
+    //                 'st_nome_con' => $fornecedor['st_nome_con'],
+    //                 'st_cpf_con' => $fornecedor['st_cpf_con'] ?? null,
+    //             ], [
+    //                 'metadados' => $fornecedor,
+    //             ]);
+    //         }
+    //     }
+    // }
 }
