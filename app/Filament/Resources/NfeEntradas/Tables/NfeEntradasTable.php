@@ -12,6 +12,7 @@ use App\Filament\Actions\DownloadXmlAction;
 use App\Filament\Actions\DownloadXmlPdfNfeEmLoteAction;
 use App\Filament\Actions\GerarTxtIntegracaoDominioSistema;
 use App\Filament\Actions\ManifestarNfeAction;
+use App\Filament\Actions\ManifestarNfeEmLoteAction;
 use App\Filament\Actions\RemoverClassificaoAction;
 use App\Filament\Actions\SugerirEtiquetaAction;
 use App\Filament\Actions\ToggleEscrituacaoEmLoteAction;
@@ -387,6 +388,7 @@ class NfeEntradasTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     ToggleEscrituacaoEmLoteAction::make(),
+                    ManifestarNfeEmLoteAction::make(),
                     DownloadXmlPdfNfeEmLoteAction::make(),
                     ClassificarDocumentoEmLoteAction::make()
                         ->after(function () {
