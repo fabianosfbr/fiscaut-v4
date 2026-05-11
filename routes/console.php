@@ -4,19 +4,66 @@ use App\Console\Scheduling\DynamicTaskCommandExecutor;
 use App\Jobs\SendCobrancaEmailJob;
 use App\Models\Issuer;
 use App\Models\SuperLogicaUnidade;
-use App\Services\SuperlogicaConnectionService;
 use App\Services\Xml\XmlIdentifierService;
 use App\Services\Xml\XmlNfeReaderService;
+use App\Services\SuperlogicaConnectionService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Http;
 
 Artisan::command('play', function () {
+    $issuer = Issuer::find(62);
 
+    $totalDocumentos = 0;
+    $apiUrl = 'https://api.sieg.com/BaixarXmlsV2';
+    $apiKey = 'ghQW%2bI2NaeKwM6iaAAYghw%3d%3d';
+    $payload = [
+        'XmlType' => 1,
+        'CnpjEmit' => '67439638000285',
+        'Take' => 50,
+        'Skip' => 0,
+        'DataEmissaoInicio' => '2026-05-08',
+        'DataEmissaoFim' => '2026-05-08',
+        'Downloadevent' => false,
+    ];
 
-    $xmlContent = '<resNFe xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" versao="1.01" xmlns="http://www.portalfiscal.inf.br/nfe"><chNFe>15260519290945000202550010000560801200136050</chNFe><CNPJ>19290945000202</CNPJ><xNome>FERMAQUINAS - PARAFUSOS - FILIAL 02</xNome><IE>155843648</IE><dhEmi>2026-05-08T12:00:57-03:00</dhEmi><tpNF>1</tpNF><vNF>3870.00</vNF><digVal>jGG0K2i0ovO3XSQ2UX/wtCM8Pig=</digVal><dhRecbto>2026-05-08T12:02:24-03:00</dhRecbto><nProt>215260024615128</nProt><cSitNFe>1</cSitNFe></resNFe>';
+    // Realizar a requisição para a API
+    $response = Http::withHeaders([
+        'Content-Type' => 'application/json',
+        'Accept' => 'application/json',
+    ])->post($apiUrl . '?api_key=' . $apiKey, $payload);
 
-    $serviceNfe = app(XmlNfeReaderService::class)->loadXml($xmlContent);
-    dd($serviceNfe->parse());
+    if ($response->successful()) {
+        $responseData = $response->json();
+
+        if (isset($responseData['xmls']) && is_array($responseData['xmls'])) {
+            $resultados = $responseData['xmls'];
+
+            $totalDocumentos += count($resultados);
+
+            // Verifica se retornou o número máximo de resultados, indicando que pode haver mais
+            if (count($resultados) == $payload['Take']) {
+                $this->skip += $payload['Take'];
+                $temMaisResultados = true;
+            } else {
+                // Se retornou menos que o máximo, não há mais resultados
+                $temMaisResultados = false;
+            }
+
+            foreach ($resultados as $value) {
+                $xmlContents = base64_decode($value);
+
+                if (1 == 1) {
+                    $parsed =(new XmlNfeReaderService)
+                        ->loadXml($xmlContents)
+                        ->setOrigem('SIEG')
+                        ->setIssuer($issuer)
+                        ->parse();
+               
+                }
+            }
+        }
+    }
 
     $issuer = Issuer::find(62);
 
@@ -31,13 +78,11 @@ Artisan::command('play', function () {
         ]);
 
     foreach ($inadimplencias as $record) {
-
         $titulosAtrasados = [];
 
         foreach ($record['recebimento'] as $recb) {
-
             $vencimentoStr = data_get($recb, 'dt_vencimento_recb');
-            if (! $vencimentoStr) {
+            if (!$vencimentoStr) {
                 continue;
             }
 
@@ -54,7 +99,7 @@ Artisan::command('play', function () {
             $diasAtraso = data_get($recb, 'encargos.0.diasatraso');
 
             $valor = number_format((float) data_get($recb, 'encargos.0.valorcorrigido', data_get($recb, 'vl_emitido_recb', 0)), 2, ',', '.');
-            $titulosAtrasados[] = "Vencimento: {$vencimento->format('d/m/Y')} - Valor: R$ {$valor}";
+            $titulosAtrasados[] = "Vencimento: {$vencimento->format('d/m/Y')} - Valor: R\$ {$valor}";
 
             if (in_array((string) $diasAtraso, $diasConfig)) {
                 $deveNotificar = true;
@@ -63,7 +108,7 @@ Artisan::command('play', function () {
 
         $email = data_get($record, 'recebimento.0.contatosunidade.0.proprietario.0.email');
 
-        if (! $email) {
+        if (!$email) {
             $idUnidade = data_get($record, 'id_unidade_uni') ?? data_get($record, 'st_unidade_uni');
             $unidade = SuperLogicaUnidade::where('id_unidade_uni', $idUnidade)
                 ->where('id_condominio', $this->issuer->superlogica_condominio_id)
@@ -88,7 +133,6 @@ Artisan::command('play', function () {
                 'id_recebimento_recb' => data_get($recb, 'id_recebimento_recb'),
                 'id_unidade_uni' => data_get($recb, 'id_unidade_uni'),
                 'recebimento' => $recb,
-
             ];
 
             SendCobrancaEmailJob::dispatch($issuer->id, 'conib40105@inreur.com', $unidadeData);
@@ -145,7 +189,6 @@ Artisan::command('play', function () {
 });
 
 Artisan::command('schedule:run-dynamic {--force}', function (DynamicTaskCommandExecutor $executor) {
-
     if ((bool) $this->option('force')) {
         $this->info('Forçando a execução de todas as tarefas dinâmicas...');
         $executor->runAllNow();
@@ -164,7 +207,7 @@ $argv = $_SERVER['argv'] ?? [];
 // Tenta encontrar o comando ignorando opções globais (ex: -v, --ansi)
 $artisanCommand = collect($argv)
     ->slice(1)
-    ->filter(fn($arg) => ! str_starts_with($arg, '-'))
+    ->filter(fn($arg) => !str_starts_with($arg, '-'))
     ->first();
 
 app(DynamicTaskCommandExecutor::class)->registerFromDatabase($artisanCommand);

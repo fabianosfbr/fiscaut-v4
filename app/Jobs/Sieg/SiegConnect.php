@@ -8,7 +8,9 @@ use App\Models\XmlImportJob;
 use App\Services\Xml\XmlCteReaderService;
 use App\Services\Xml\XmlNfceReaderService;
 use App\Services\Xml\XmlNfeReaderService;
+use App\Services\Xml\XmlNfseReaderService;
 use Carbon\Carbon;
+use Exception;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Bus\Queueable;
@@ -18,7 +20,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Exception;
 
 class SiegConnect implements ShouldQueue
 {
@@ -156,6 +157,17 @@ class SiegConnect implements ShouldQueue
                                     ->save();
 
                                 Log::channel('sieg_log')->info('CTe importada com sucesso');
+                            }
+
+                            if ($this->tipoDocumento == 3) {
+                                (new XmlNfseReaderService)
+                                    ->loadXml($xml)
+                                    ->setOrigem('SIEG')
+                                    ->setIssuer($issuer)
+                                    ->parse()
+                                    ->save();
+
+                                Log::channel('sieg_log')->info('NFS-e importada com sucesso');
                             }
 
                             if ($this->tipoDocumento == 4) {
