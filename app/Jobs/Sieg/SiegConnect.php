@@ -78,8 +78,8 @@ class SiegConnect implements ShouldQueue
             $issuer = Issuer::with('tenant')->find($this->issuerId);
             $tenant = $issuer->tenant;
 
-            if (!isset($tenant->sieg_key)) {
-                throw new Exception('Chave de API SIEG não configurada para o tenant ' . $tenant->name);
+            if (! isset($tenant->sieg_key)) {
+                throw new Exception('Chave de API SIEG não configurada para o tenant '.$tenant->name);
             }
             $cnpj = $issuer->cnpj;
 
@@ -112,14 +112,17 @@ class SiegConnect implements ShouldQueue
                 $response = Http::withHeaders([
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
-                ])->post($this->apiUrl . '?api_key=' . $tenant->sieg_key, $payload);
+                ])
+                    ->timeout(120) // 2 minutos paratimeout da requisição
+                    ->connectTimeout(30) // 30 segundos para timeout de conexão
+                    ->post($this->apiUrl.'?api_key='.$tenant->sieg_key, $payload);
 
                 // Verificar se a requisição foi bem-sucedida
                 if ($response->successful()) {
                     $responseData = $response->json();
                     $totalDocumentosPagina = count($responseData ?? []);
 
-                    Log::channel('sieg_log')->info('Consulta tipo: ' . $castXmlType[$this->tipoDocumento] . ' - Sieg - total de documentos na página ' . $totalDocumentosPagina);
+                    Log::channel('sieg_log')->info('Consulta tipo: '.$castXmlType[$this->tipoDocumento].' - Sieg - total de documentos na página '.$totalDocumentosPagina);
 
                     if (isset($responseData['xmls']) && is_array($responseData['xmls'])) {
                         $resultados = $responseData['xmls'];
@@ -201,16 +204,16 @@ class SiegConnect implements ShouldQueue
                         Log::channel('sieg_log')->info($errorMessage);
 
                         $this->importJob->updateQuietly(['status' => XmlImportJob::STATUS_COMPLETED]);
-                        
+
                     } else {
                         $responseData = $response->json();
-                        Log::channel('sieg_log')->error('Erro na consulta do SIEG: ' . $errorMessage);
-                        if (is_array($responseData) && !empty($responseData[0])) {
+                        Log::channel('sieg_log')->error('Erro na consulta do SIEG: '.$errorMessage);
+                        if (is_array($responseData) && ! empty($responseData[0])) {
                             $errorMessage = $responseData[0];
                         }
                         $this->importJob->addError($errorMessage);
                         $this->importJob->updateQuietly(['status' => XmlImportJob::STATUS_FAILED]);
-                        
+
                     }
 
                     // Interrompe o loop em caso de erro
@@ -224,14 +227,14 @@ class SiegConnect implements ShouldQueue
 
             $this->importJob->updateQuietly([
                 'total_files' => $totalDocumentos,
-                'status' => XmlImportJob::STATUS_COMPLETED
+                'status' => XmlImportJob::STATUS_COMPLETED,
             ]);
-            Log::channel('sieg_log')->info('Importação SIEG concluída. Total de documentos: ' . $totalDocumentos);
+            Log::channel('sieg_log')->info('Importação SIEG concluída. Total de documentos: '.$totalDocumentos);
         } catch (Exception $e) {
-            Log::channel('sieg_log')->error('Erro na importação SIEG: ' . $e->getMessage());
+            Log::channel('sieg_log')->error('Erro na importação SIEG: '.$e->getMessage());
 
             if (isset($this->importJob)) {
-                $this->importJob->addError('Erro na importação: ' . $e->getMessage());
+                $this->importJob->addError('Erro na importação: '.$e->getMessage());
                 $this->importJob->updateQuietly(['status' => XmlImportJob::STATUS_FAILED]);
             }
 
@@ -253,7 +256,7 @@ class SiegConnect implements ShouldQueue
             // Dispatch um job separado para enviar a notificação
             dispatch(function () use ($titulo, $mensagem, $tipo, $jobId, $userId) {
                 $user = User::find($userId);
-                if (!$user) {
+                if (! $user) {
                     return;
                 }
 
