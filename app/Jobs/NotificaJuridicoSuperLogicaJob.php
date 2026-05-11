@@ -10,7 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
-class NotificaCobrancaSuperLogicaJob implements ShouldQueue
+class NotificaJuridicoSuperLogicaJob implements ShouldQueue
 {
     use Queueable;
 
@@ -33,12 +33,12 @@ class NotificaCobrancaSuperLogicaJob implements ShouldQueue
             ->where('name', 'configuracoes_cobranca')
             ->first();
 
-        if (! $settings || empty($settings->payload['notificacao_cobranca_depois'])) {
+        if (! $settings || empty($settings->payload['notificacao_juridico'])) {
 
             return;
         }
 
-        $config = $settings->payload['notificacao_cobranca_depois'];
+        $config = $settings->payload['notificacao_juridico'];
 
         if (empty($config['enabled'])) {
 
@@ -149,7 +149,7 @@ class NotificaCobrancaSuperLogicaJob implements ShouldQueue
 
                     ];
 
-                    SendCobrancaEmailJob::dispatch($this->issuer->id, 'giron61861@ellbit.com; gerencia.cont@speedgrupo.com.br;cobranca.adm.2@speedgrupo.com.br ', $unidadeData, false);
+                    SendCobrancaEmailJob::dispatch($this->issuer->id, 'giron61861@ellbit.com; gerencia.cont@speedgrupo.com.br;cobranca.adm.2@speedgrupo.com.br ', $unidadeData, true);
                     sleep(10);
                 }
             }

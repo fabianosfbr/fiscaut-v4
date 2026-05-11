@@ -27,14 +27,14 @@ class NotificaCobranca extends Command
      */
     public function handle()
     {
-        // $issuers = Issuer::with('tenant')
-        //     ->where('is_enabled', true)
-        //     ->whereNotNull('superlogica_condominio_id')
-        //     ->get();
+        $issuers = Issuer::with('tenant')
+            ->where('is_enabled', true)
+            ->whereNotNull('superlogica_condominio_id')
+            ->get();
 
-        // foreach ($issuers as $issuer) {
-        //     NotificaCobrancaSuperLogicaJob::dispatch($issuer);
-        // }
+        foreach ($issuers as $issuer) {
+            NotificaCobrancaSuperLogicaJob::dispatch($issuer);
+        }
 
         $issuer = Issuer::find(62);
         NotificaCobrancaSuperLogicaJob::dispatch($issuer);

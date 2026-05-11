@@ -21,18 +21,22 @@ class SendCobrancaEmailJob implements ShouldQueue
 
     public array $unidadeData;
 
+    public bool $isJuridico;
+
     /**
      * Create a new job instance.
      *
      * @param  int  $issuerId  ID of the issuer (company)
      * @param  string  $recipientEmail  Email address to send the cobranca
      * @param  array  $unidadeData  Array containing keys like 'numero_unidade', 'bloco_quadra', 'nome_morador', 'titulos_aberto'
+     * @param  bool  $isJuridico  Whether to use the legal/juridico template
      */
-    public function __construct(int $issuerId, string $recipientEmail, array $unidadeData)
+    public function __construct(int $issuerId, string $recipientEmail, array $unidadeData, bool $isJuridico = false)
     {
         $this->issuerId = $issuerId;
         $this->recipientEmail = $recipientEmail;
         $this->unidadeData = $unidadeData;
+        $this->isJuridico = $isJuridico;
     }
 
     /**
@@ -56,8 +60,11 @@ class SendCobrancaEmailJob implements ShouldQueue
             'data' => [
                 'recipient_email' => $this->recipientEmail,
                 'unidade_data' => $this->unidadeData,
-                'subject' => 'Aviso de Débito - Unidade '.($this->unidadeData['numero_unidade'] ?? ''),
+                'subject' => $this->isJuridico
+                    ? 'Cobrança Encaminhada ao Jurídico - Unidade '.($this->unidadeData['numero_unidade'] ?? '')
+                    : 'Aviso de Débito - Unidade '.($this->unidadeData['numero_unidade'] ?? ''),
                 'recebimento' => $this->unidadeData['recebimento'] ?? null,
+                'is_juridico' => $this->isJuridico,
             ],
         ]);
 
@@ -95,15 +102,30 @@ class SendCobrancaEmailJob implements ShouldQueue
         ]);
 
         // Fetch the template from GeneralSetting
+        $settingName = $this->isJuridico ? 'template_cobranca_juridico' : 'template_cobranca';
+        $settingKey = $this->isJuridico ? 'mensagem_juridico' : 'mensagem';
+
         $settings = GeneralSetting::where('issuer_id', $this->issuerId)
-            ->where('name', 'template_cobranca')
+            ->where('name', $settingName)
             ->first();
 
-        $template = $settings ? ($settings->payload['mensagem'] ?? null) : null;
+        $template = $settings ? ($settings->payload[$settingKey] ?? null) : null;
 
         if (! $template) {
-            // Default template if not found
-            $template = <<<'HTML'
+            // Default templates if not found
+            if ($this->isJuridico) {
+                $template = <<<'HTML'
+                            <p><strong>Unidade {{numero_unidade}} Bloco {{bloco_quadra}}</strong></p>
+                            <p>Prezado(a) {{nome_morador}},</p>
+                            <p>Após múltiplas tentativas de contato e notificação, lamentamos informar que até o momento não recebemos resposta ou pagamento.</p>
+                            <p>Detalhes da(s) pendência(s):</p>
+                            <p>{{titulos_aberto}}</p>
+                            <p>Por esta razão, o caso será encaminhharado para o departamento jurídico do condomínio.</p>
+                            <p>Caso deseja evitar medidas judiciais, entre em contato conosco urgentemente.</p>
+                            <p>Atenciosamente,</p>
+                            HTML;
+            } else {
+                $template = <<<'HTML'
                             <p><strong>Unidade {{numero_unidade}} Bloco {{bloco_quadra}}</strong></p>
                             <p>Prezado(a) {{nome_morador}},</p>
                             <p>Esperamos que esteja bem.</p>
@@ -113,6 +135,7 @@ class SendCobrancaEmailJob implements ShouldQueue
                             <p>Pedimos a gentileza de verificar e, se possível, regularizar o(s) débito(s) o quanto antes.</p>
                             <p>Atenciosamente,</p>
                             HTML;
+            }
         }
 
         // Replace variables
@@ -124,7 +147,9 @@ class SendCobrancaEmailJob implements ShouldQueue
             $body = str_replace('{{ '.$var.' }}', $value, $body);
         }
 
-        $subject = 'Aviso de Débito - Condomínio'.($this->unidadeData['razao_social'] ?? '');
+        $subject = $this->isJuridico
+            ? 'Cobrança Encaminhada ao Jurídico - Condomínio'.($this->unidadeData['razao_social'] ?? '')
+            : 'Aviso de Débito - Condomínio'.($this->unidadeData['razao_social'] ?? '');
 
         $fromEmail = (string) ($tenant->smtp_from_email ?: config('mail.from.address', 'noreply@fiscaut.com.br'));
         $fromName = (string) ($tenant->smtp_from_name ?: config('mail.from.name', 'Fiscaut'));

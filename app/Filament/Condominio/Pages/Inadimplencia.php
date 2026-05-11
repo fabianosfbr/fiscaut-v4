@@ -242,7 +242,8 @@ class Inadimplencia extends Page implements HasTable
     protected function fetchInadimplencias(): Collection
     {
         $issuer = currentIssuer();
-        $service = new SuperlogicaConnectionService($issuer);
+
+        $service = new SuperlogicaConnectionService($issuer->tenant);
 
         $inadimplencias = $service
             ->receita()
@@ -276,7 +277,8 @@ class Inadimplencia extends Page implements HasTable
     protected function fetchProcessosJudiciais(): Collection
     {
         $issuer = currentIssuer();
-        $service = new SuperlogicaConnectionService($issuer);
+
+        $service = new SuperlogicaConnectionService($issuer->tenant);
 
         $processosJudiciais = $service
             ->receita()

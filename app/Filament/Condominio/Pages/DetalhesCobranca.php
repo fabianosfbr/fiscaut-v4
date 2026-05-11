@@ -2,7 +2,6 @@
 
 namespace App\Filament\Condominio\Pages;
 
-use App\Models\SuperLogicaUnidade;
 use Filament\Actions\Action;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Pages\Page;
@@ -39,8 +38,9 @@ class DetalhesCobranca extends Page implements HasSchemas
     public function mount(): void
     {
         $this->record = $this->resolveRecord();
-        //  dd($this->record);
+
         $this->unidade = $this->resolveUnidade();
+
     }
 
     public function form(Schema $schema): Schema
@@ -76,7 +76,7 @@ class DetalhesCobranca extends Page implements HasSchemas
                             ->label('Email'),
                         TextEntry::make('celular')
                             ->state(function () {
-                                return $this->unidade['celular'] ?? '-';
+                                return filled($this->unidade['celular']) ? $this->unidade['celular'] : '-';
                             })
                             ->label('Celular'),
 
@@ -116,43 +116,19 @@ class DetalhesCobranca extends Page implements HasSchemas
 
     protected function resolveUnidade(): ?array
     {
-        $idUnidade = data_get($this->record, 'id_unidade_uni') ?? data_get($this->record, 'st_unidade_uni');
-
-        if (! $idUnidade) {
-            return null;
-        }
-
-        $issuer = currentIssuer();
-
-        if (! $issuer) {
-            return null;
-        }
-
-        $unidade = SuperLogicaUnidade::where('id_unidade_uni', $idUnidade)
-            ->where('id_condominio', $issuer->superlogica_condominio_id)
-            ->first();
 
         $values = [];
 
-        if ($unidade) {
-            $values = [
-                'id' => $unidade->id_unidade_uni,
-                'bloco' => data_get($unidade, 'metadados.st_bloco_uni'),
-                'unidade' => data_get($unidade, 'metadados.st_unidade_uni'),
-                'nome' => data_get($unidade, 'metadados.nome_proprietario'),
-                'cpf' => data_get($unidade, 'metadados.cpf_proprietario'),
-                'email' => data_get($unidade, 'metadados.email_proprietario'),
-                'telefone' => data_get($unidade, 'metadados.telefone_proprietario'),
-                'celular' => data_get($unidade, 'metadados.celular_proprietario'),
-            ];
-        } else {
-            $values = [
-                'id' => $idUnidade,
-                'bloco' => data_get($this->record, 'st_bloco_uni'),
-                'unidade' => data_get($this->record, 'st_unidade_uni'),
-                'nome' => data_get($this->record, 'st_sacado_uni'),
-            ];
-        }
+        $values = [
+            'id' => data_get($this->record, 'id_unidade_uni') ?? data_get($this->record, 'st_unidade_uni'),
+            'bloco' => $st_bloco_uni = data_get($this->record, 'st_bloco_uni') ?? null,
+            'unidade' => $st_bloco_uni = data_get($this->record, 'st_unidade_uni') ?? null,
+            'nome' => data_get($this->record, 'recebimento.0.contatosunidade.0.proprietario.0.nome'),
+            'cpf' => data_get($this->record, 'recebimento.0.contatosunidade.0.proprietario.0.cpf'),
+            'email' => data_get($this->record, 'recebimento.0.contatosunidade.0.proprietario.0.email'),
+            'telefone' => data_get($this->record, 'recebimento.0.contatosunidade.0.proprietario.0.fone'),
+            'celular' => data_get($this->record, 'recebimento.0.contatosunidade.0.proprietario.0.fax'),
+        ];
 
         return $values;
     }
