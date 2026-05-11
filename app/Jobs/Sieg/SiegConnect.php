@@ -56,6 +56,7 @@ class SiegConnect implements ShouldQueue
         protected string $dataFinal,
         protected int $issuerId,
         protected int $importJobId,
+        protected bool $event = true,
     ) {
         $this->onQueue('sieg');
     }
@@ -87,28 +88,14 @@ class SiegConnect implements ShouldQueue
                 // Preparar o payload da requisição
                 $payload = [
                     'XmlType' => (int) $this->tipoDocumento,
+                    $this->tipoCnpj => $cnpj,
                     'Take' => $this->take,
                     'Skip' => $this->skip,
                     'DataEmissaoInicio' => $this->dataInicial,
                     'DataEmissaoFim' => $this->dataFinal,
-                    'Downloadevent' => $this->tipoDocumento != '4' ? true : false,
+                    'Downloadevent' => $this->event,
                 ];
 
-                // Adicionar o CNPJ conforme o tipo selecionado
-                switch ($this->tipoCnpj) {
-                    case 'emitente':
-                        $payload['CnpjEmit'] = $cnpj;
-                        break;
-                    case 'destinatario':
-                        $payload['CnpjDest'] = $cnpj;
-                        break;
-                    case 'tomador':
-                        $payload['CnpjToma'] = $cnpj;
-                        break;
-                    case 'remetente':
-                        $payload['CnpjReme'] = $cnpj;
-                        break;
-                }
 
                 // Realizar a requisição para a API
                 $response = Http::withHeaders([
