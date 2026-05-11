@@ -66,12 +66,12 @@ class GerarArquivoTxtLancamentoContabilSuperLogica
     {
 
         $linhas = $lancamentos
-            ->map(fn ($lancamento) => $this->formatarConteudo($lancamento, $data, $separador));
+            ->map(fn ($lancamento) => self::formatarConteudo($lancamento, $data, $separador));
 
         return $linhas->implode(PHP_EOL).PHP_EOL;
     }
 
-    private function formatarConteudo($lancamento, array $params, string $separador): string
+    private static function formatarConteudo($lancamento, array $params, string $separador): string 
     {
 
         $data = $lancamento->data?->format('d/m/Y') ?? '';
