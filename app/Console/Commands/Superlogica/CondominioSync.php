@@ -41,6 +41,7 @@ class CondominioSync extends Command
             ->when($tenantId !== null, fn($q) => $q->where('id', $tenantId))
             ->get();
 
+            
 
         foreach ($tenants as $tenant) {
             
