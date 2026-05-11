@@ -5,8 +5,10 @@ namespace App\Jobs\Sieg;
 use App\Models\Issuer;
 use App\Models\User;
 use App\Models\XmlImportJob;
+use App\Services\Xml\XmlCteReaderService;
+use App\Services\Xml\XmlNfceReaderService;
+use App\Services\Xml\XmlNfeReaderService;
 use Carbon\Carbon;
-use Exception;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Bus\Queueable;
@@ -16,6 +18,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Exception;
 
 class SiegConnect implements ShouldQueue
 {
@@ -74,10 +77,18 @@ class SiegConnect implements ShouldQueue
             $issuer = Issuer::with('tenant')->find($this->issuerId);
             $tenant = $issuer->tenant;
 
-            if (! isset($tenant->sieg_key)) {
-                throw new Exception('Chave de API SIEG não configurada para o tenant '.$tenant->name);
+            if (!isset($tenant->sieg_key)) {
+                throw new Exception('Chave de API SIEG não configurada para o tenant ' . $tenant->name);
             }
             $cnpj = $issuer->cnpj;
+
+            $castXmlType = [
+                '1' => 'NFe',
+                '2' => 'CTe',
+                '3' => 'NFS-e',
+                '4' => 'NFCe',
+                '5' => 'CF-e',
+            ];
 
             $this->importJob = XmlImportJob::find($this->importJobId);
             $totalDocumentos = 0;
@@ -96,16 +107,18 @@ class SiegConnect implements ShouldQueue
                     'Downloadevent' => $this->event,
                 ];
 
-
                 // Realizar a requisição para a API
                 $response = Http::withHeaders([
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
-                ])->post($this->apiUrl.'?api_key='.$tenant->sieg_key, $payload);
+                ])->post($this->apiUrl . '?api_key=' . $tenant->sieg_key, $payload);
 
                 // Verificar se a requisição foi bem-sucedida
                 if ($response->successful()) {
                     $responseData = $response->json();
+                    $totalDocumentosPagina = count($responseData ?? []);
+
+                    Log::channel('sieg_log')->info('Consulta tipo: ' . $castXmlType[$this->tipoDocumento] . ' - Sieg - total de documentos na página ' . $totalDocumentosPagina);
 
                     if (isset($responseData['xmls']) && is_array($responseData['xmls'])) {
                         $resultados = $responseData['xmls'];
@@ -120,8 +133,45 @@ class SiegConnect implements ShouldQueue
                             $temMaisResultados = false;
                         }
 
-                        // Processar os XMLs retornados
-                        $this->processarXmls($resultados, $this->importJob);
+                        foreach ($resultados as $value) {
+                            $xml = base64_decode($value);
+
+                            if ($this->tipoDocumento == 1) {
+                                (new XmlNfeReaderService)
+                                    ->loadXml($xml)
+                                    ->setOrigem('SIEG')
+                                    ->setIssuer($issuer)
+                                    ->parse()
+                                    ->save();
+
+                                Log::channel('sieg_log')->info('NFe importada com sucesso');
+                            }
+
+                            if ($this->tipoDocumento == 2) {
+                                (new XmlCteReaderService)
+                                    ->loadXml($xml)
+                                    ->setOrigem('SIEG')
+                                    ->setIssuer($issuer)
+                                    ->parse()
+                                    ->save();
+
+                                Log::channel('sieg_log')->info('CTe importada com sucesso');
+                            }
+
+                            if ($this->tipoDocumento == 4) {
+                                (new XmlNfceReaderService)
+                                    ->loadXml($xml)
+                                    ->setOrigem('SIEG')
+                                    ->setIssuer($issuer)
+                                    ->parse()
+                                    ->save();
+
+                                Log::channel('sieg_log')->info('NFCe importada com sucesso');
+                            }
+
+                            $this->importJob->updateQuietly(['total_files' => $totalDocumentos]);
+                            $this->importJob->updateQuietly(['status' => XmlImportJob::STATUS_PROCESSING]);
+                        }
                     } else {
                         $this->enviarNotificacao(
                             'Atenção',
@@ -141,7 +191,7 @@ class SiegConnect implements ShouldQueue
                         $this->enviarNotificacao('Consulta Finalizada', $errorMessage, 'danger');
                     } else {
                         $responseData = $response->json();
-                        if (is_array($responseData) && ! empty($responseData[0])) {
+                        if (is_array($responseData) && !empty($responseData[0])) {
                             $errorMessage = $responseData[0];
                         }
                         $this->importJob->addError($errorMessage);
@@ -155,47 +205,28 @@ class SiegConnect implements ShouldQueue
 
                 // Aguarda um breve intervalo para não sobrecarregar a API
                 // (limite de 30 requisições por minuto)
-                usleep(300000); // 300ms
+                usleep(300000);  // 300ms
             } while ($temMaisResultados);
 
-            Log::info('Importação SIEG concluída. Total de documentos: '.$totalDocumentos);
+            $this->importJob->updateQuietly([
+                'total_files' => $totalDocumentos,
+                'status' => XmlImportJob::STATUS_COMPLETED
+            ]);
+            Log::info('Importação SIEG concluída. Total de documentos: ' . $totalDocumentos);
         } catch (Exception $e) {
-            Log::error('Erro na importação SIEG: '.$e->getMessage());
+            Log::error('Erro na importação SIEG: ' . $e->getMessage());
 
             if (isset($this->importJob)) {
-                $this->importJob->addError('Erro na importação: '.$e->getMessage());
+                $this->importJob->addError('Erro na importação: ' . $e->getMessage());
                 $this->importJob->updateQuietly(['status' => XmlImportJob::STATUS_FAILED]);
             }
 
             $this->enviarNotificacao(
                 'Erro',
-                'Ocorreu um erro ao processar a requisição: '.$e->getMessage(),
+                'Ocorreu um erro ao processar a requisição: ' . $e->getMessage(),
                 'danger'
             );
         }
-    }
-
-    /**
-     * Processa os XMLs retornados pela API em lote
-     */
-    protected function processarXmls(array $xmls, XmlImportJob $importJob): void
-    {
-        // Atualiza o total de arquivos no job de importação
-        $totalAtual = $importJob->total_files ?? 0;
-        $novoTotal = $totalAtual + count($xmls);
-
-        $issuer = Issuer::find($this->issuerId);
-
-        $importJob->updateQuietly([
-            'total_files' => $novoTotal,
-            'status' => XmlImportJob::STATUS_PROCESSING,
-        ]);
-
-        // Cria um job de processamento em lote para todos os XMLs
-        ProcessXmlSiegBatch::dispatch($xmls, $importJob, $issuer)->onQueue('sieg');
-
-        // Registra no log o início do processamento
-        Log::info('Iniciado processamento em lote de '.count($xmls).' documentos XML do SIEG');
     }
 
     /**
@@ -213,7 +244,7 @@ class SiegConnect implements ShouldQueue
             // Dispatch um job separado para enviar a notificação
             dispatch(function () use ($titulo, $mensagem, $tipo, $jobId, $userId) {
                 $user = User::find($userId);
-                if (! $user) {
+                if (!$user) {
                     return;
                 }
 

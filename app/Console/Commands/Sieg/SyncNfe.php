@@ -15,7 +15,7 @@ class SyncNfe extends Command
      *
      * @var string
      */
-    protected $signature = 'app:sync-nfe 
+    protected $signature = 'app:sync-nfe-sieg 
                     {--issuer= : ID do emitente para download específico}
                     {--start= : Data de início do tratamento (YYYY-MM-DD)}
                     {--end= : Data de término do tratamento (YYYY-MM-DD)}';
@@ -50,25 +50,29 @@ class SyncNfe extends Command
             $importJob = $this->createImportJob($issuer);
 
             SiegConnect::dispatch(
-                tipoDocumento:1,  //  tipo documento
-                tipoCnpj:'CnpjEmit',  // Tipo CNPJ
-                dataInicial:$start,
-                dataFinal:$end,
-                issuerId:$issuer->id,
-                importJobId:$importJob->id,
-                event:true,
+                tipoDocumento: 1,  //  tipo documento
+                tipoCnpj: 'CnpjEmit',  // Tipo CNPJ
+                dataInicial: $start,
+                dataFinal: $end,
+                issuerId: $issuer->id,
+                importJobId: $importJob->id,
+                event: true,
             )->onQueue('default');
 
             SiegConnect::dispatch(
-                tipoDocumento:1,  //  tipo documento
-                tipoCnpj:'CnpjDest',  // Tipo CNPJ
-                dataInicial:$start,
-                dataFinal:$end,
-                issuerId:$issuer->id,
-                importJobId:$importJob->id,
-                event:true,
+                tipoDocumento: 1,  //  tipo documento
+                tipoCnpj: 'CnpjDest',  // Tipo CNPJ
+                dataInicial: $start,
+                dataFinal: $end,
+                issuerId: $issuer->id,
+                importJobId: $importJob->id,
+                event: true,
             )->onQueue('default');
         }
+
+        $this->info('Sincronização de documentos SIEG para NFes emitidas e recebidas em lote concluída nas datas de ' . $start . ' a ' . $end);
+
+        return self::SUCCESS;
     }
 
     private function createImportJob(Issuer $issuer): XmlImportJob
