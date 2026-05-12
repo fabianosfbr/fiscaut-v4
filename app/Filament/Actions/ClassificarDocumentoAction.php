@@ -28,7 +28,6 @@ class ClassificarDocumentoAction
             ->closeModalByEscaping(false)
             ->modalSubmitActionLabel('Sim, etiquetar')
             ->schema([
-
                 DatePicker::make('data_entrada')
                     ->label('Data Entrada')
                     ->required()
@@ -46,7 +45,6 @@ class ClassificarDocumentoAction
                             issuerId: $issuerId
                         );
                     }),
-
                 SelectTagGrouped::make('tag_id')
                     ->label('Etiqueta')
                     ->multiple(false)
@@ -58,11 +56,9 @@ class ClassificarDocumentoAction
 
                 self::applySameTagToCte($record, $data);
 
-                if (isset($data['data_entrada'])) {
-                    $record->updateQuietly([
-                        'data_entrada' => $data['data_entrada'],
-                    ]);
-                }
+                $record->update([
+                    'data_entrada' => isset($data['data_entrada']) ? $data['data_entrada'] : now(),
+                ]);
 
                 switch (true) {
                     case $record instanceof NotaFiscalEletronica:

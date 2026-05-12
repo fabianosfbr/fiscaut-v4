@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Sefaz;
 
 use App\Jobs\Sefaz\AutenticidadeNfeJob;
+use App\Jobs\Sefaz\AutenticidadeNfseJob;
 use App\Models\Issuer;
 use App\Models\LogSefazNfseEvent;
 use App\Models\NotaFiscalServico;
@@ -61,7 +62,7 @@ class CheckAutenticidadeNfse extends Command
 
             foreach ($issuers as $issuer) {
 
-                AutenticidadeNfeJob::dispatch($issuer);
+                AutenticidadeNfseJob::dispatch($issuer);
             }
         }
 
