@@ -33,16 +33,19 @@ class NfseEntradasTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                return $query->distinct()
+                return $query
+                    ->distinct()
                     ->where('tomador_cnpj', currentIssuer()->cnpj);
             })
             ->defaultSort('data_emissao', 'desc')
+            ->paginated([10, 25, 50, 100])
+            ->recordUrl(null)
+            ->searchDebounce('750ms')
             ->columns([
                 TextColumn::make('numero')
                     ->label('Nº')
                     ->searchable()
                     ->sortable(),
-
                 TextColumn::make('prestador_servico')
                     ->label('Empresa')
                     ->limit(30)
@@ -61,24 +64,20 @@ class NfseEntradasTable
                         // Only render the tooltip if the column contents exceeds the length limit.
                         return $state;
                     }),
-
                 IconColumn::make('apurada.status')
                     ->label('Apurada')
                     ->boolean()
                     ->default(false)
                     ->alignment(Alignment::Center)
                     ->toggleable(),
-
                 TextColumn::make('valor_servico')
                     ->label('Valor')
                     ->money('BRL'),
-
                 TextColumn::make('data_entrada')
                     ->label('Entrada')
                     ->sortable()
                     ->toggleable()
                     ->date('d/m/Y'),
-
                 TagBadgesColumn::make('tagged')
                     ->label('Etiqueta')
                     ->alignCenter()
@@ -94,7 +93,6 @@ class NfseEntradasTable
                         );
                     })
                     ->toggleable(),
-
                 TextColumn::make('cancelada')
                     ->label('Status')
                     ->toggleable()
@@ -102,7 +100,6 @@ class NfseEntradasTable
                         return $record->cancelada ? 'Cancelada' : 'Ativa';
                     })
                     ->badge(),
-
                 TextColumn::make('data_emissao')
                     ->label('Emissão')
                     ->sortable()
@@ -120,7 +117,8 @@ class NfseEntradasTable
                         DatePicker::make('data_emissao_fim')
                             ->label('Data Emissão Final')
                             ->columnSpan(1),
-                    ])->columns(2)
+                    ])
+                    ->columns(2)
                     ->indicateUsing(function (array $data): ?string {
                         if (empty($data['data_emissao_inicio']) && empty($data['data_emissao_fim'])) {
                             return null;
@@ -132,16 +130,15 @@ class NfseEntradasTable
                         return "Emissão: {$inicio} até {$fim}";
                     })
                     ->query(function (Builder $query, array $data): Builder {
-                        if (! empty($data['data_emissao_inicio'])) {
+                        if (!empty($data['data_emissao_inicio'])) {
                             $query->whereDate('data_emissao', '>=', $data['data_emissao_inicio']);
                         }
-                        if (! empty($data['data_emissao_fim'])) {
+                        if (!empty($data['data_emissao_fim'])) {
                             $query->whereDate('data_emissao', '<=', $data['data_emissao_fim']);
                         }
 
                         return $query;
                     }),
-
                 Filter::make('data_entrada')
                     ->label('Data de Entrada')
                     ->columnSpan(2)
@@ -152,7 +149,8 @@ class NfseEntradasTable
                         DatePicker::make('data_entrada_fim')
                             ->label('Data Entrada Final')
                             ->columnSpan(1),
-                    ])->columns(2)
+                    ])
+                    ->columns(2)
                     ->indicateUsing(function (array $data): ?string {
                         if (empty($data['data_entrada_inicio']) && empty($data['data_entrada_fim'])) {
                             return null;
@@ -164,16 +162,15 @@ class NfseEntradasTable
                         return "Entrada: {$inicio} até {$fim}";
                     })
                     ->query(function (Builder $query, array $data): Builder {
-                        if (! empty($data['data_entrada_inicio'])) {
+                        if (!empty($data['data_entrada_inicio'])) {
                             $query->whereDate('data_entrada', '>=', $data['data_entrada_inicio']);
                         }
-                        if (! empty($data['data_entrada_fim'])) {
+                        if (!empty($data['data_entrada_fim'])) {
                             $query->whereDate('data_entrada', '<=', $data['data_entrada_fim']);
                         }
 
                         return $query;
                     }),
-
                 TernaryFilter::make('status_nota')
                     ->label('Status da Nota')
                     ->columnSpan(1)
@@ -201,7 +198,6 @@ class NfseEntradasTable
                             ->columns(2)
                             ->searchable()
                             ->helperText('Selecione as etiquetas específicas para filtrar os documentos fiscais'),
-
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (empty($data['etiquetas'])) {
@@ -229,10 +225,10 @@ class NfseEntradasTable
                         $etiquetas = Tag::whereIn('id', $data['etiquetas'])
                             ->get()
                             ->keyBy('id')
-                            ->map(fn ($tag) => $tag->code.' - '.$tag->name)
+                            ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
                             ->toArray();
 
-                        return 'Etiquetas: '.implode(', ', $etiquetas);
+                        return 'Etiquetas: ' . implode(', ', $etiquetas);
                     }),
             ])
             ->filtersFormColumns(4)
@@ -246,16 +242,13 @@ class NfseEntradasTable
                     ToggleEscrituracaoAction::make(),
                     ClassificarDocumentoAction::make(),
                     RemoverClassificaoAction::make(),
-
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     ToggleEscrituacaoEmLoteAction::make(),
-
                     ClassificarDocumentoEmLoteAction::make()
                         ->after(function () {
-
                             Notification::make()
                                 ->title('Etiquetas aplicadas com sucesso')
                                 ->success()
