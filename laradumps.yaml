@@ -19,7 +19,7 @@ observers:
     mail: false
     logs: true
     http: false
-    jobs: false
+    jobs: true
     commands: false
     scheduled_commands: false
     gate: false

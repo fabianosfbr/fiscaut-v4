@@ -13,6 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
+        if (Schema::hasColumn('issuers', 'user_id')) {
+            return;
+        }
+
         Schema::table('issuers', function (Blueprint $table) {
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
         });
@@ -25,6 +29,19 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('issuers', function (Blueprint $table) {});
+        if (! Schema::hasColumn('issuers', 'user_id')) {
+            return;
+        }
+
+        Schema::table('issuers', function (Blueprint $table) {
+            try {
+                $table->dropConstrainedForeignId('user_id');
+            } catch (Throwable $e) {
+                try {
+                    $table->dropColumn('user_id');
+                } catch (Throwable $e) {
+                }
+            }
+        });
     }
 };

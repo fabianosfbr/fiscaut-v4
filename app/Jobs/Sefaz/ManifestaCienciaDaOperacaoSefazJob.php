@@ -34,6 +34,6 @@ class ManifestaCienciaDaOperacaoSefazJob implements ShouldQueue
 
         $service->manifestaCienciaDaOperacao();
 
-        Log::info('Manifesta Ciência da Operação Automática - Empresa:  ' . explode(':', $this->issuer->razao_social)[0] . ' em: ' . date('d-m-y H:i:s'));
+        Log::info('Manifesta Ciência da Operação Automática - Empresa:  '.explode(':', $this->issuer->razao_social)[0].' em: '.date('d-m-y H:i:s'));
     }
 }

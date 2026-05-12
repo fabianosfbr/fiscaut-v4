@@ -14,11 +14,15 @@ return new class extends Migration
      */
     public function up()
     {
+        if (! class_exists(Feature::class)) {
+            return;
+        }
+
         Schema::create('feature_tickets', function (Blueprint $table) {
             $table->id();
             $table->decimal('charges')->nullable();
             $table->timestamp('expired_at')->nullable();
-            $table->foreignIdFor(Feature::class)->constrained()->cascadeOnDelete();
+            $table->unsignedBigInteger('feature_id');
             $table->timestamps();
 
             if (config('soulbscription.models.subscriber.uses_uuid')) {

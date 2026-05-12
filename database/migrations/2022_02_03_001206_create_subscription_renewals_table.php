@@ -14,11 +14,15 @@ return new class extends Migration
      */
     public function up()
     {
+        if (! class_exists(Subscription::class)) {
+            return;
+        }
+
         Schema::create('subscription_renewals', function (Blueprint $table) {
             $table->id();
             $table->boolean('overdue');
             $table->boolean('renewal');
-            $table->foreignIdFor(Subscription::class);
+            $table->foreignId('subscription_id');
             $table->timestamps();
         });
     }

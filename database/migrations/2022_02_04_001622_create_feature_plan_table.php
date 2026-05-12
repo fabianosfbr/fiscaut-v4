@@ -15,11 +15,15 @@ return new class extends Migration
      */
     public function up()
     {
+        if (! class_exists(Feature::class) || ! class_exists(Plan::class)) {
+            return;
+        }
+
         Schema::create('feature_plan', function (Blueprint $table) {
             $table->id();
             $table->decimal('charges')->nullable();
-            $table->foreignIdFor(Feature::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(Plan::class)->constrained()->cascadeOnDelete();
+            $table->unsignedBigInteger('feature_id');
+            $table->unsignedBigInteger('plan_id');
             $table->timestamps();
         });
     }
