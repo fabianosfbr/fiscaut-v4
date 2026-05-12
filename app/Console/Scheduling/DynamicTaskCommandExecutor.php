@@ -152,9 +152,6 @@ class DynamicTaskCommandExecutor
             ->cron($expression)
             ->description("DB #{$dbSchedule->id} {$commandName}");
 
-        $historyOutputPath = storage_path("logs/schedule-history-{$dbSchedule->id}.log");
-        $event->sendOutputTo($historyOutputPath);
-
         $logFilename = is_string($dbSchedule->log_filename) ? trim($dbSchedule->log_filename) : '';
         $logFilePath = $logFilename !== '' ? storage_path('logs/'.basename($logFilename)) : null;
 
@@ -211,7 +208,6 @@ class DynamicTaskCommandExecutor
             commandName: $commandName,
             argumentTokens: $argumentTokens,
             optionTokens: $optionTokens,
-            historyOutputPath: $historyOutputPath,
             logFilePath: $logFilePath,
             context: $context,
         );
@@ -286,18 +282,14 @@ class DynamicTaskCommandExecutor
         string $commandName,
         array $argumentTokens,
         array $optionTokens,
-        string $historyOutputPath,
         ?string $logFilePath,
         array $context,
     ): void {
-        $createHistory = function (string $result) use ($dbSchedule, $commandName, $argumentTokens, $optionTokens, $historyOutputPath, $logFilePath) {
+        $createHistory = function (string $result) use ($dbSchedule, $commandName, $argumentTokens, $optionTokens, $logFilePath) {
             $output = '';
-            if ($this->files->exists($historyOutputPath)) {
-                $output = (string) $this->files->get($historyOutputPath);
-            }
 
-            if ($logFilePath !== null && $logFilePath !== '' && $logFilePath !== $historyOutputPath && $output !== '') {
-                $this->files->append($logFilePath, $output);
+            if ($logFilePath !== null && $logFilePath !== '') {
+                $output = $this->files->exists($logFilePath) ? (string) $this->files->get($logFilePath) : '';
             }
 
             if ($result !== '') {
