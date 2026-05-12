@@ -333,8 +333,8 @@ class NfseEntradaInfolist
                                                     ->label('Data de Cancelamento')
                                                     ->state(function ($record) {
                                                         $cancelamento = LogSefazNfseEvent::query()
-                                                            ->where('chave', $record->chave)
-                                                            ->where('.x_desc', 'like', '%Cancelamento%')
+                                                            ->where('chave_acesso', $record->chave)
+                                                            ->where('x_desc', 'like', '%Cancelamento%')
                                                             ->first();
 
                                                         return $cancelamento?->dh_evento ? $cancelamento->dh_evento->format('d/m/Y') : null;
@@ -346,8 +346,8 @@ class NfseEntradaInfolist
                                                     ->label('Motivo do Cancelamento')
                                                     ->state(function ($record) {
                                                         $cancelamento = LogSefazNfseEvent::query()
-                                                            ->where('chave', $record->chave)
-                                                            ->where('.x_desc', 'like', '%Cancelamento%')
+                                                            ->where('chave_acesso', $record->chave)
+                                                            ->where('x_desc', 'like', '%Cancelamento%')
                                                             ->first();
 
                                                         return $cancelamento?->x_motivo ?? null;
