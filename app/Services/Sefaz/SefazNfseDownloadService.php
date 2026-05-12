@@ -399,9 +399,9 @@ class SefazNfseDownloadService
     }
 
     /**
-     * Consulta o DF-e no ADN SEFAZ
+     * Consulta o DF-e no ADN SEFAZ com retry para rate limiting
      */
-    private function getDistDfe($ultNsu = 0)
+    private function getDistDfe($ultNsu = 0, int $maxRetries = 3)
     {
         $certificadoContent = Crypt::decrypt($this->issuer->certificado_content);
         $certificado = Certificate::readPfx($certificadoContent, Crypt::decrypt($this->issuer->senha_certificado));
@@ -410,42 +410,59 @@ class SefazNfseDownloadService
 
         $url = "https://adn.nfse.gov.br/contribuintes/dfe/$ultNsu?cnpjConsulta=$cnpjConsulta";
 
-        $ch = curl_init();
+        $attempt = 0;
 
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSLCERT_BLOB, $certificado->publicKey);
-        curl_setopt($ch, CURLOPT_SSLKEY_BLOB, $certificado->privateKey);
+        while ($attempt <= $maxRetries) {
+            $attempt++;
 
-        // Configuração para não verificar o certificado do servidor (em ambiente de desenvolvimento)
-        // Em produção, é recomendável manter a verificação
-        if (config('app.env') === 'local' || config('app.env') === 'development') {
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        }
+            $ch = curl_init();
 
-        $serverResponse = curl_exec($ch);
-        $error = curl_error($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSLCERT_BLOB, $certificado->publicKey);
+            curl_setopt($ch, CURLOPT_SSLKEY_BLOB, $certificado->privateKey);
 
-        curl_close($ch);
-
-        if ($httpCode === 404) {
-            if (! is_string($serverResponse) || trim($serverResponse) === '') {
-                return json_encode([
-                    'StatusProcessamento' => 'NENHUM_DOCUMENTO_LOCALIZADO',
-                    'Descricao' => 'Nenhum documento localizado (HTTP 404)',
-                ], JSON_UNESCAPED_UNICODE);
+            // Configuração para não verificar o certificado do servidor (em ambiente de desenvolvimento)
+            // Em produção, é recomendável manter a verificação
+            if (config('app.env') === 'local' || config('app.env') === 'development') {
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
             }
+
+            $serverResponse = curl_exec($ch);
+            $error = curl_error($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+            curl_close($ch);
+
+            // Retry para rate limiting (429)
+            if ($httpCode === 429 && $attempt <= $maxRetries) {
+                $waitTime = pow(2, $attempt); // 2, 4, 8 segundos
+
+                sleep($waitTime);
+
+                continue;
+            }
+
+            if ($httpCode === 404) {
+                if (! is_string($serverResponse) || trim($serverResponse) === '') {
+                    return json_encode([
+                        'StatusProcessamento' => 'NENHUM_DOCUMENTO_LOCALIZADO',
+                        'Descricao' => 'Nenhum documento localizado (HTTP 404)',
+                    ], JSON_UNESCAPED_UNICODE);
+                }
+            }
+
+            if ($httpCode != 200 && $httpCode != 404) {
+                throw new Exception("Erro na consulta DFe ADN: HTTP Code $httpCode - Error: $error - Response: $serverResponse");
+            }
+
+            sleep(2);
+
+            return (string) $serverResponse;
         }
 
-        if ($httpCode != 200 && $httpCode != 404) {
-            throw new Exception("Erro na consulta DFe ADN: HTTP Code $httpCode - Error: $error - Response: $serverResponse");
-        }
-
-        sleep(2);
-
-        return (string) $serverResponse;
+        throw new Exception("Erro na consulta DFe ADN: Rate limit excedido após $maxRetries retries");
     }
 
     /**

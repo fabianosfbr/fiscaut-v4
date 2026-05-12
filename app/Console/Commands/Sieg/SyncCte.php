@@ -43,7 +43,7 @@ class SyncCte extends Command
         $issuers = Issuer::with('tenant')
             ->where('is_enabled', true)
             ->where('sync_sieg', true)
-            ->when($issuerId !== null, fn($q) => $q->where('id', $issuerId))
+            ->when($issuerId !== null, fn ($q) => $q->where('id', $issuerId))
             ->get();
 
         foreach ($issuers as $issuer) {
@@ -57,7 +57,7 @@ class SyncCte extends Command
                 issuerId: $issuer->id,
                 importJobId: $importJob->id,
                 event: true,
-            )->onQueue('default');
+            )->onQueue('sieg');
 
             SiegConnect::dispatch(
                 tipoDocumento: 2,  //  tipo documento
@@ -67,7 +67,7 @@ class SyncCte extends Command
                 issuerId: $issuer->id,
                 importJobId: $importJob->id,
                 event: true,
-            )->onQueue('default');
+            )->onQueue('sieg');
 
             SiegConnect::dispatch(
                 tipoDocumento: 2,  //  tipo documento
@@ -77,7 +77,7 @@ class SyncCte extends Command
                 issuerId: $issuer->id,
                 importJobId: $importJob->id,
                 event: true,
-            )->onQueue('default');
+            )->onQueue('sieg');
 
             SiegConnect::dispatch(
                 tipoDocumento: 2,  //  tipo documento
@@ -87,10 +87,10 @@ class SyncCte extends Command
                 issuerId: $issuer->id,
                 importJobId: $importJob->id,
                 event: true,
-            )->onQueue('default');
+            )->onQueue('sieg');
         }
 
-        $this->info('Sincronização de documentos SIEG para Ctes emitidas e recebidas em lote concluída nas datas de ' . $start . ' a ' . $end);
+        $this->info('Sincronização de documentos SIEG para Ctes emitidas e recebidas em lote concluída nas datas de '.$start.' a '.$end);
 
         return self::SUCCESS;
     }

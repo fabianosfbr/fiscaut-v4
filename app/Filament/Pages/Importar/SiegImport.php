@@ -13,8 +13,6 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -43,9 +41,9 @@ class SiegImport extends Page
 
     public ?array $data = [];
 
-    public $tipoDocumento = 1; // Padrão: NFe
+    public array $tipoDocumento = [];  // Padrão: vazio (todos)
 
-    public $tipoCnpj = 'emitente';
+    public array $tipoCnpj = [];
 
     public $cnpj = '';
 
@@ -63,7 +61,14 @@ class SiegImport extends Page
 
     public bool $temMaisResultados = false;
 
-    public int $totalDocumentos = 0; // Contador para o total de documentos importados
+    public int $totalDocumentos = 0;  // Contador para o total de documentos importados
+
+    public function mount(): void
+    {
+        $this->form->fill([
+            'tipoCnpj' => ['emitente'],
+        ]);
+    }
 
     public function form(Schema $schema): Schema
     {
@@ -85,56 +90,27 @@ class SiegImport extends Page
                                     ->displayFormat('d/m/Y')
                                     ->required(),
                             ]),
-
                         Grid::make(2)
                             ->schema([
                                 Select::make('tipoDocumento')
                                     ->label('Tipo de documento')
                                     ->options(self::getTiposDocumento())
-                                    ->required()
-                                    ->reactive()
-                                    ->afterStateUpdated(function (Set $set, Get $get, $state) {
-                                        if (filled($state)) {
-                                            $this->tipoDocumento = $state;
-
-                                            if ($this->tipoDocumento == self::XML_TYPE_CTE) {
-                                                $set('tipoCnpj', 'tomador');
-                                                $this->tipoCnpj = 'tomador';
-                                            } else {
-                                                $set('tipoCnpj', 'emitente');
-                                                $this->tipoCnpj = 'emitente';
-                                            }
-                                        }
-                                    }),
+                                    ->multiple()
+                                    ->native(false)
+                                    ->placeholder('Selecione os tipos de documento'),
                                 Select::make('tipoCnpj')
                                     ->label('Tipo de CNPJ')
-                                    ->options(function (Get $get) {
-                                        $tipoDoc = $get('tipoDocumento');
-
-                                        if ($tipoDoc == self::XML_TYPE_CTE) {
-                                            return [
-                                                'tomador' => 'CNPJ do Tomador',
-                                                'remetente' => 'CNPJ do Remetente',
-                                                'emitente' => 'CNPJ do Emitente',
-                                                'destinatario' => 'CNPJ do Destinatário',
-                                            ];
-                                        }
-
-                                        return [
-                                            'emitente' => 'CNPJ do Emitente',
-                                            'destinatario' => 'CNPJ do Destinatário',
-                                        ];
-                                    })
-                                    ->default('emitente')
-                                    ->reactive()
-                                    ->afterStateUpdated(function (Set $set, Get $get, $state) {
-                                        if (filled($state)) {
-                                            $this->tipoCnpj = $state;
-                                        }
-                                    })
-                                    ->required(),
+                                    ->options([
+                                        'CnpjEmit' => 'CNPJ do Emitente',
+                                        'CnpjDest' => 'CNPJ do Destinatário',
+                                        'CnpjTom' => 'CNPJ do Tomador (CT-e)',
+                                        'CnpjRem' => 'CNPJ do Remetente (CT-e)',
+                                    ])
+                                    ->multiple()
+                                    ->native(false)
+                                    ->placeholder('Selecione os tipos de CNPJ')
+                                    ->default(['CnpjEmit']),
                             ]),
-
                     ]),
             ])
             ->statePath('data');
@@ -146,11 +122,11 @@ class SiegImport extends Page
         $data = $this->form->getState();
 
         try {
-            // Validar se o emissor atual está configurado
-            if (! currentIssuer()) {
+            // Validar se há tipos de documento selecionados
+            if (empty($data['tipoDocumento'])) {
                 Notification::make()
                     ->title('Erro')
-                    ->body('Empresa atual não configurada. Por favor, selecione uma empresa.')
+                    ->body('Selecione pelo menos um tipo de documento.')
                     ->danger()
                     ->send();
 
@@ -159,16 +135,23 @@ class SiegImport extends Page
 
             $user = Auth::user();
             $issuer = currentIssuer($user);
-            $importJob = $this->createImportJob($issuer, $user);
-            // Dispatch o job para processar a conexão com a API SIEG de forma assíncrona
-            SiegConnect::dispatch(
-                (int) $data['tipoDocumento'],
-                $this->tipoCnpj,
-                $data['dataInicial'],
-                $data['dataFinal'],
-                $issuer->id,
-                $importJob->id,
-            );
+
+            // Dispatch um job para cada combinação de tipo de documento e CNPJ
+            foreach ($data['tipoDocumento'] as $tipoDoc) {
+                // Criar job de importação principal
+                $importJob = $this->createImportJob($issuer, $user);
+                foreach ($data['tipoCnpj'] as $tipoCnpj) {
+                    // Dispatch o job para processar a conexão com a API SIEG de forma assíncrona
+                    SiegConnect::dispatch(
+                        (int) $tipoDoc,
+                        $tipoCnpj,
+                        $data['dataInicial'],
+                        $data['dataFinal'],
+                        $issuer->id,
+                        $importJob->id,
+                    )->onQueue('sieg');
+                }
+            }
 
             // Exibe uma notificação informando que o processo foi iniciado
             Notification::make()
@@ -179,11 +162,11 @@ class SiegImport extends Page
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Erro')
-                ->body('Ocorreu um erro ao iniciar o processamento: '.$e->getMessage())
+                ->body('Ocorreu um erro ao iniciar o processamento: ' . $e->getMessage())
                 ->danger()
                 ->send();
 
-            Log::error('Erro ao iniciar importação SIEG: '.$e->getMessage());
+            Log::error('Erro ao iniciar importação SIEG: ' . $e->getMessage());
         } finally {
             $this->isLoading = false;
         }
