@@ -66,7 +66,7 @@ class SiegImport extends Page
     public function mount(): void
     {
         $this->form->fill([
-            'tipoCnpj' => ['emitente'],
+            'tipoCnpj' => ['CnpjEmit'],
         ]);
     }
 
