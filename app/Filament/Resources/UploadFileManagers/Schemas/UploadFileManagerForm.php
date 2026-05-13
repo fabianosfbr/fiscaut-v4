@@ -53,11 +53,12 @@ class UploadFileManagerForm
                             ->columnSpan(1)
                             ->placeholder(function ($get, $set) {
                                 $fields = $get('tags');
+                                ds($fields);
                                 $sum = 0.0;
                                 if (is_array($fields)) {
                                     foreach ($fields as $field) {
                                         if (isset($field['valor'])) {
-                                            $valor = str_replace(',', '.', str_replace('.', '', $field['valor']));
+                                            $valor = $field['valor'];
                                             $sum += floatval($valor);
                                         }
                                     }
