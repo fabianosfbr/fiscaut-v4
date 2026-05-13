@@ -82,9 +82,13 @@ class ClassificarDocumentoNfeAvancadoAction
         $total = 0.0;
 
         foreach ($produtosNfe as $item) {
+            $nItem = $item['nItem'] ?? $item['cProd'];
             foreach ($produtosSelecionados as $prodSelecionado) {
-                if ($item['cProd'] == $prodSelecionado) {
-                    $total += (float) ($item['vProd'] ?? 0);
+                if ($nItem == $prodSelecionado) {
+                    $vProd = (float) ($item['vProd'] ?? 0);
+                    $vIcmsSt = (float) ($item['impostos']['vICMSST'] ?? 0);
+                    $vIpi = (float) ($item['impostos']['vIPI'] ?? 0);
+                    $total += $vProd + $vIcmsSt + $vIpi;
                 }
             }
         }
@@ -204,8 +208,13 @@ class ClassificarDocumentoNfeAvancadoAction
                                     foreach ($produtos as $item) {
                                         if (is_array($item)) {
                                             $produtoLabel = $item['xProd'] ?? $item['cProd'];
-                                            $valorProd = isset($item['vProd']) ? ' - R$ ' . number_format((float) $item['vProd'], 2, ',', '.') : '';
-                                            $itens[$item['cProd']] = (string) $produtoLabel . $valorProd;
+                                            $nItem = $item['nItem'] ?? $item['cProd'];
+                                            $vProd = (float) ($item['vProd'] ?? 0);
+                                            $vIcmsSt = (float) ($item['impostos']['vICMSST'] ?? 0);
+                                            $vIpi = (float) ($item['impostos']['vIPI'] ?? 0);
+                                            $valorTotal = $vProd + $vIcmsSt + $vIpi;
+                                            $valorProd = ' - R$ ' . number_format($valorTotal, 2, ',', '.');
+                                            $itens[$nItem] = (string) $produtoLabel . $valorProd;
                                         }
                                     }
 

@@ -145,7 +145,7 @@ class NfeEntradaInfolist
                                                         TextEntry::make('vBCST')
                                                             ->label('Base Calc. ST')
                                                             ->money('BRL'),
-                                                        TextEntry::make('vBCST')
+                                                        TextEntry::make('vST')
                                                             ->label('Valor ICMS ST')
                                                             ->money('BRL'),
                                                         TextEntry::make('vBCST')
