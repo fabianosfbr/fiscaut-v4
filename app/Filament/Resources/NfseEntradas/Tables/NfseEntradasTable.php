@@ -7,6 +7,7 @@ use App\Filament\Actions\ClassificarDocumentoEmLoteAction;
 use App\Filament\Actions\ClassificarDocumentoMaisAplicadaEmLoteAction;
 use App\Filament\Actions\DownloadPdfNfseAction;
 use App\Filament\Actions\DownloadXmlNfseAction;
+use App\Filament\Actions\DownloadXmlNfseEmLoteAction;
 use App\Filament\Actions\RemoverClassificaoAction;
 use App\Filament\Actions\ToggleEscrituacaoEmLoteAction;
 use App\Filament\Actions\ToggleEscrituracaoAction;
@@ -257,6 +258,7 @@ class NfseEntradasTable
                                 ->send();
                         }),
                     ClassificarDocumentoMaisAplicadaEmLoteAction::make(),
+                    DownloadXmlNfseEmLoteAction::make(),
                 ]),
             ]);
     }
