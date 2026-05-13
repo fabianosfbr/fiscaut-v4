@@ -15,6 +15,8 @@ class Tag extends Model
 
     protected $appends = ['namecode'];
 
+    public $timestamps = false;
+
     public function category()
     {
         return $this->belongsTo(CategoryTag::class, 'category_id');
@@ -34,7 +36,7 @@ class Tag extends Model
         }
 
         $issuerId = $issuer->id;
-        $cacheKey = 'tags_used_in_upload_file_'.$issuerId;
+        $cacheKey = 'tags_used_in_upload_file_' . $issuerId;
 
         return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
             $tagIds = self::rightJoin('tagging_tagged', 'tagging_tags.id', '=', 'tagging_tagged.tag_id')
@@ -51,7 +53,7 @@ class Tag extends Model
                 ->orderBy('name', 'asc')
                 ->get()
                 ->keyBy('id')
-                ->map(fn ($tag) => $tag->code.' - '.$tag->name)
+                ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
                 ->toArray();
         });
     }
@@ -66,7 +68,7 @@ class Tag extends Model
 
         $issuerId = $issuer->id;
 
-        $cacheKey = 'tags_used_in_nfe_grouped_'.$issuerId;
+        $cacheKey = 'tags_used_in_nfe_grouped_' . $issuerId;
 
         return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
             $tagUsed = Tag::rightJoin('tagging_tagged', 'tagging_tags.id', '=', 'tagging_tagged.tag_id')
@@ -102,7 +104,7 @@ class Tag extends Model
 
         $issuerId = $issuer->id;
 
-        $cacheKey = 'tags_used_in_cte_grouped_'.$issuerId;
+        $cacheKey = 'tags_used_in_cte_grouped_' . $issuerId;
 
         return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
             $tagUsed = Tag::rightJoin('tagging_tagged', 'tagging_tags.id', '=', 'tagging_tagged.tag_id')
@@ -138,7 +140,7 @@ class Tag extends Model
 
         $issuerId = $issuer->id;
 
-        $cacheKey = 'tags_used_in_nfse_grouped_'.$issuerId;
+        $cacheKey = 'tags_used_in_nfse_grouped_' . $issuerId;
 
         return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
             $tagUsed = Tag::rightJoin('tagging_tagged', 'tagging_tags.id', '=', 'tagging_tagged.tag_id')
@@ -173,7 +175,7 @@ class Tag extends Model
         }
 
         $issuerId = $issuer->id;
-        $cacheKey = 'tags_used_in_nfe_'.$issuerId;
+        $cacheKey = 'tags_used_in_nfe_' . $issuerId;
 
         return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
             $tagIds = self::rightJoin('tagging_tagged', 'tagging_tags.id', '=', 'tagging_tagged.tag_id')
@@ -190,7 +192,7 @@ class Tag extends Model
                 ->orderBy('name', 'asc')
                 ->get()
                 ->keyBy('id')
-                ->map(fn ($tag) => $tag->code.' - '.$tag->name)
+                ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
                 ->toArray();
         });
     }
@@ -204,7 +206,7 @@ class Tag extends Model
         }
 
         $issuerId = $issuer->id;
-        $cacheKey = 'tags_used_in_cte_'.$issuerId;
+        $cacheKey = 'tags_used_in_cte_' . $issuerId;
 
         return Cache::remember($cacheKey, now()->addDay(), function () use ($issuerId) {
             $tagIds = self::rightJoin('tagging_tagged', 'tagging_tags.id', '=', 'tagging_tagged.tag_id')
@@ -221,7 +223,7 @@ class Tag extends Model
                 ->orderBy('name', 'asc')
                 ->get()
                 ->keyBy('id')
-                ->map(fn ($tag) => $tag->code.' - '.$tag->name)
+                ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
                 ->toArray();
         });
     }
