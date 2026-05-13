@@ -109,18 +109,24 @@ class ClassificarDocumentoNfeAvancadoAction
                     TextInput::make('valor_total_etiquetas')
                         ->label('Valor Total Etiquetas')
                         ->prefix('R$')
+                        ->disabled()
+                        ->hiddenOn('edit')
+                        ->columnSpan(1)
                         ->placeholder(function ($get, $set) {
-                            $etiquetas = $get('etiquetas');
-                            $totalCents = 0;
-                            foreach ($etiquetas as $etiqueta) {
-                                $valorEtiqueta = $etiqueta['valor'] ?? '';
-                                $valorLimpo = preg_replace('/[^\d]/', '', $valorEtiqueta);
-                                $totalCents += (int) ($valorLimpo ?: 0);
+                            $fields = $get('etiquetas');
+                            ds($fields);
+                            $sum = 0.0;
+                            if (is_array($fields)) {
+                                foreach ($fields as $field) {
+                                    if (isset($field['valor'])) {
+                                        $valor = $field['valor'];
+                                        $sum += floatval($valor);
+                                    }
+                                }
                             }
-                            $total = $totalCents / 100;
-                            $set('valor_total_etiquetas', number_format($total, 2, ',', '.'));
+                            $set('valor_total_etiquetas', number_format($sum, 2, ',', '.'));
 
-                            return number_format($total, 2, ',', '.');
+                            return number_format($sum, 2, ',', '.');
                         })
                         ->rules([
                             fn($get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
@@ -132,6 +138,32 @@ class ClassificarDocumentoNfeAvancadoAction
                             },
                         ])
                         ->disabled(),
+                    // TextInput::make('valor_total_etiquetas')
+                    //     ->label('Valor Total Etiquetas')
+                    //     ->prefix('R$')
+                    //     ->placeholder(function ($get, $set) {
+                    //         $etiquetas = $get('etiquetas');
+                    //         $totalCents = 0;
+                    //         foreach ($etiquetas as $etiqueta) {
+                    //             $valorEtiqueta = $etiqueta['valor'] ?? '';
+                    //             $valorLimpo = preg_replace('/[^\d]/', '', $valorEtiqueta);
+                    //             $totalCents += (int) ($valorLimpo ?: 0);
+                    //             ds($totalCents);
+                    //         }
+                    //         $total = $totalCents / 100;
+                    //         $set('valor_total_etiquetas', number_format($total, 2, ',', '.'));
+                    //         return number_format($total, 2, ',', '.');
+                    //     })
+                    //     ->rules([
+                    //         fn($get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                    //             $value = str_replace(',', '.', str_replace('.', '', $value));
+                    //             $totalNfe = str_replace(',', '.', str_replace('.', '', $get('total_nfe')));
+                    //             if ($value != $totalNfe) {
+                    //                 $fail('O valor deve ser igual o valor da nota');
+                    //             }
+                    //         },
+                    //     ])
+                    //     ->disabled(),
                     DatePicker::make('data_entrada')
                         ->label('Data Entrada')
                         ->visible(function () {
