@@ -6,6 +6,7 @@ use App\Filament\Actions\ClassificarDocumentoAction;
 use App\Filament\Actions\ClassificarDocumentoEmLoteAction;
 use App\Filament\Actions\ClassificarDocumentoMaisAplicadaEmLoteAction;
 use App\Filament\Actions\DownloadPdfNfseAction;
+use App\Filament\Actions\DownloadXmlNfseAction;
 use App\Filament\Actions\RemoverClassificaoAction;
 use App\Filament\Actions\ToggleEscrituacaoEmLoteAction;
 use App\Filament\Actions\ToggleEscrituracaoAction;
@@ -238,6 +239,7 @@ class NfseEntradasTable
                 ActionGroup::make([
                     ViewAction::make()
                         ->label('Detalhes'),
+                    DownloadXmlNfseAction::make(),
                     DownloadPdfNfseAction::make(),
                     ToggleEscrituracaoAction::make(),
                     ClassificarDocumentoAction::make(),
