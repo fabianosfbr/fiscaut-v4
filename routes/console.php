@@ -1,15 +1,9 @@
 <?php
 
 use App\Console\Scheduling\DynamicTaskCommandExecutor;
-use App\Jobs\SendCobrancaEmailJob;
-use App\Models\GeneralSetting;
 use App\Models\Issuer;
-use App\Models\SuperLogicaUnidade;
 use App\Services\SuperlogicaConnectionService;
-use App\Services\Xml\XmlNfeReaderService;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Http;
 
 Artisan::command('play', function () {
     $issuer = Issuer::find(60);
@@ -17,18 +11,16 @@ Artisan::command('play', function () {
     $service = new SuperlogicaConnectionService($issuer->tenant);
 
     $params = [
-        'NM_PROCESSO_PROC'               => 'S/N',
-        'ID_UNIDADE_UNI'                 => '26797',
-        'ID_CONDOMINIO_COND'             => '253',
-        'DT_ABERTURA_PROC'               => now()->format('m/d/Y'),
-        'FL_STATUS_PROC'                 => '1',
-        'COBRANCAS[0][ID_CONDOMINIO_COND]'  => '253',
+        'NM_PROCESSO_PROC' => 'S/N',
+        'ID_UNIDADE_UNI' => '26797',
+        'ID_CONDOMINIO_COND' => '253',
+        'DT_ABERTURA_PROC' => now()->format('m/d/Y'),
+        'FL_STATUS_PROC' => '1',
+        'COBRANCAS[0][ID_CONDOMINIO_COND]' => '253',
         'COBRANCAS[0][ID_RECEBIMENTO_RECB]' => '1161235',
-        'COBRANCAS[0][DT_VENCIMENTO_RECB]'  => '11/05/2026',
-        'COBRANCAS[0][VL_EMITIDO_RECB]'     => '377.58',
+        'COBRANCAS[0][DT_VENCIMENTO_RECB]' => '11/05/2026',
+        'COBRANCAS[0][VL_EMITIDO_RECB]' => '377.58',
     ];
-
-
 
     $processo = $service
         ->receita()
@@ -68,7 +60,7 @@ $argv = $_SERVER['argv'] ?? [];
 // Tenta encontrar o comando ignorando opções globais (ex: -v, --ansi)
 $artisanCommand = collect($argv)
     ->slice(1)
-    ->filter(fn($arg) => ! str_starts_with($arg, '-'))
+    ->filter(fn ($arg) => ! str_starts_with($arg, '-'))
     ->first();
 
 app(DynamicTaskCommandExecutor::class)->registerFromDatabase($artisanCommand);

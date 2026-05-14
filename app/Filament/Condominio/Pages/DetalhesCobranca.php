@@ -30,7 +30,7 @@ class DetalhesCobranca extends Page implements HasSchemas
         return [
             Action::make('voltar')
                 ->label('Voltar')
-                ->url(fn(): string => route('filament.condominio.pages.inadimplencia'))
+                ->url(fn (): string => route('filament.condominio.pages.inadimplencia'))
                 ->color('gray'),
         ];
     }

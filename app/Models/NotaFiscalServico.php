@@ -21,8 +21,6 @@ class NotaFiscalServico extends Model
         'cancelada' => 'boolean',
     ];
 
-
-
     private bool $nfseXmlDataLoaded = false;
 
     private ?array $nfseXmlData = null;

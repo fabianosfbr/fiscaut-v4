@@ -71,7 +71,7 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                     ->label(new HtmlString('Nº<br/>NFe')),
                 TextColumn::make('value')
                     ->label(new HtmlString('Valor<br/>Etiqueta'))
-                     ->summarize(Sum::make()->label('Etiqueta')->money('BRL'))
+                    ->summarize(Sum::make()->label('Etiqueta')->money('BRL'))
                     ->money('BRL'),
                 TextColumn::make('vNfe')
                     ->label(new HtmlString('Valor<br/>NFe'))
@@ -137,7 +137,7 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                                 $data['etiqueta'],
                                 function ($q) use ($data) {
                                     return $q->where('code', $data['etiqueta'])
-                                        ->orWhere('tag', 'like', '%' . $data['etiqueta'] . '%');
+                                        ->orWhere('tag', 'like', '%'.$data['etiqueta'].'%');
                                 },
                             );
                     })
@@ -146,7 +146,7 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                             return null;
                         }
 
-                        return 'Etiqueta: ' . $data['etiqueta'];
+                        return 'Etiqueta: '.$data['etiqueta'];
                     })->columnSpan(1),
                 Filter::make('numero')
                     ->schema([
@@ -167,7 +167,7 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                             return null;
                         }
 
-                        return 'Nº NFSe: ' . $data['numero'];
+                        return 'Nº NFSe: '.$data['numero'];
                     })->columnSpan(1),
             ])
             ->filtersFormColumns(4)

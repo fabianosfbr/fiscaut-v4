@@ -10,7 +10,7 @@ use Spatie\Activitylog\Support\LogOptions;
 class NfeApurada extends Model implements HasActivityLogTitle
 {
     use LogsActivity;
-    
+
     protected $table = 'nfe_apuradas';
 
     protected $guarded = ['id'];
@@ -35,6 +35,7 @@ class NfeApurada extends Model implements HasActivityLogTitle
             ->logAll()
             ->setDescriptionForEvent(function () {
                 $status = $this->status ? 'Apurada' : 'Não Apurada';
+
                 return "Status da NFe: {$status}";
             });
     }

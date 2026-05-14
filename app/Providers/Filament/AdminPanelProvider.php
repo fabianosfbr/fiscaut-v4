@@ -126,14 +126,14 @@ class AdminPanelProvider extends PanelProvider
                 Action::make('profile')
                     ->label('Meu Perfil')
                     ->icon('heroicon-o-user')
-                    ->url(fn(): string => Profile::getUrl()),
+                    ->url(fn (): string => Profile::getUrl()),
             ])
             ->plugins([
                 PaletteSwitcherPlugin::make(),
                 ActivityLogPlugin::make()
                     ->label('Log')
                     ->pluralLabel('Logs')
-                    ->navigationGroup('Administração')
+                    ->navigationGroup('Administração'),
             ]);
     }
 }

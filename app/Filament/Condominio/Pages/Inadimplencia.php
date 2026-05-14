@@ -278,7 +278,6 @@ class Inadimplencia extends Page implements HasTable
     {
         $issuer = currentIssuer();
 
-
         $service = new SuperlogicaConnectionService($issuer->tenant);
 
         $processosJudiciais = $service
@@ -288,7 +287,6 @@ class Inadimplencia extends Page implements HasTable
             ]);
 
         return collect($processosJudiciais);
-
     }
 
     protected function applyFilters(Collection $records, array $filters): Collection

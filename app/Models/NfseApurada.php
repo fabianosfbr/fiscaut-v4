@@ -2,17 +2,16 @@
 
 namespace App\Models;
 
+use AlizHarb\ActivityLog\Contracts\HasActivityLogTitle;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
-use AlizHarb\ActivityLog\Contracts\HasActivityLogTitle;
 
 class NfseApurada extends Model implements HasActivityLogTitle
 {
     use LogsActivity;
-    
-    protected $guarded = ['id'];
 
+    protected $guarded = ['id'];
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -20,6 +19,7 @@ class NfseApurada extends Model implements HasActivityLogTitle
             ->logAll()
             ->setDescriptionForEvent(function () {
                 $status = $this->status ? 'Apurada' : 'Não Apurada';
+
                 return "Status da NFSe: {$status}";
             });
     }

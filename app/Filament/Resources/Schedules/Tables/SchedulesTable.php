@@ -119,7 +119,7 @@ class SchedulesTable
                         ->action(function ($record) {
                             $command = $record->command == 'custom' ? $record->command_custom : $record->command;
                             $params = $record->getArguments();
-                          
+
                             Artisan::call($command, $params);
 
                             Notification::make()

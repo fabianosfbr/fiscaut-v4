@@ -2,7 +2,6 @@
 
 namespace App\Filament\Condominio\Resources\SuperLogicaUnidades\Schemas;
 
-use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -128,12 +127,11 @@ class SuperLogicaUnidadeInfolist
                                 ->state($metadados['st_tipo_uni']);
                         }
 
-
                         return $entries;
                     })
                     ->columnSpanFull(),
 
-                    Section::make('Auditoria')
+                Section::make('Auditoria')
                     ->collapsible()
                     ->collapsed()
                     ->schema([
@@ -146,7 +144,6 @@ class SuperLogicaUnidadeInfolist
                             ->dateTime(),
                     ])
                     ->columnSpanFull(),
-
 
             ]);
     }

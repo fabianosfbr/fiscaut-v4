@@ -22,14 +22,13 @@ class CorrectIssuerCondominioId extends Command
         $tenantId = $this->option('tenant');
 
         $issuers = Issuer::query()
-            ->when($tenantId, fn($q) => $q->where('tenant_id', $tenantId))
+            ->when($tenantId, fn ($q) => $q->where('tenant_id', $tenantId))
             ->whereNotNull('cnpj')
             ->where('cnpj', '!=', '')
             ->get();
 
         $this->info("Processando {$issuers->count()} issuers...");
 
-    
         $updated = 0;
         $notFound = 0;
 
@@ -40,6 +39,7 @@ class CorrectIssuerCondominioId extends Command
                 ->get()
                 ->first(function ($cond) use ($issuerCnpj) {
                     $condominioCnpj = $this->normalizeCnpj($cond->id_condominio_cond ?? '');
+
                     return $condominioCnpj === $issuerCnpj;
                 });
 
