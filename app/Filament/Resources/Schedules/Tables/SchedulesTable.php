@@ -12,8 +12,10 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Artisan;
 
 class SchedulesTable
 {
@@ -107,7 +109,27 @@ class SchedulesTable
                     DeleteAction::make()
                         ->button()
                         ->hiddenLabel(),
+                    Action::make('runNow')
+                        ->label('Executar agora')
+                        ->tooltip('Executar agendamento manualmente')
+                        ->icon('heroicon-o-play-circle')
+                        ->color('warning')
+                        ->button()
+                        ->hiddenLabel()
+                        ->action(function ($record) {
+                            $command = $record->command == 'custom' ? $record->command_custom : $record->command;
+                            $params = $record->getArguments();
+                          
+                            Artisan::call($command, $params);
+
+                            Notification::make()
+                                ->title('Comando executado')
+                                ->body(Artisan::output())
+                                ->success()
+                                ->send();
+                        }),
                 ]),
+
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
