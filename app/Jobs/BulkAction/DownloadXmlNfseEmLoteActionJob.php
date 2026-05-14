@@ -39,16 +39,16 @@ class DownloadXmlNfseEmLoteActionJob implements ShouldQueue
         try {
 
             // Ensure the downloads directory exists with proper permissions
-            $directory = 'downloads/' . now()->format('m-Y');
-            $directoryPath = storage_path('app/private/' . $directory);
+            $directory = 'downloads/'.now()->format('m-Y');
+            $directoryPath = storage_path('app/private/'.$directory);
 
             if (! is_dir($directoryPath)) {
                 mkdir($directoryPath, 0755, true);
             }
 
-            $randomName = Str::random(8) . '.zip';
-            $filename = $directory . '/' . $randomName;
-            $pathFile = storage_path('app/private/' . $filename);
+            $randomName = Str::random(8).'.zip';
+            $filename = $directory.'/'.$randomName;
+            $pathFile = storage_path('app/private/'.$filename);
 
             $zip = new ZipArchive;
             $result = $zip->open($pathFile, ZipArchive::CREATE | ZipArchive::OVERWRITE);
@@ -71,7 +71,7 @@ class DownloadXmlNfseEmLoteActionJob implements ShouldQueue
                     $xml_content = $record->xml;
 
                     $xmlFileName = "{$record->chave}.xml";
-                    $zip->addFromString($subPath . $xmlFileName, $xml_content);
+                    $zip->addFromString($subPath.$xmlFileName, $xml_content);
                 } catch (\Exception $e) {
                     $erros[] = "Erro ao gerar DANFCE para a nota {$record->numero}: {$e->getMessage()}";
                     Log::warning('Error generating DANFCE for nota', [
@@ -121,7 +121,7 @@ class DownloadXmlNfseEmLoteActionJob implements ShouldQueue
             $secureDownload = SecureDownload::create([
                 'user_id' => $this->userId,
                 'file_path' => $filename,
-                'file_name' => 'nfse_' . now()->format('Ymd_His') . '.zip',
+                'file_name' => 'nfse_'.now()->format('Ymd_His').'.zip',
                 'mime_type' => 'application/zip',
                 'size' => $fileSize,
                 'job_class' => self::class,
@@ -144,8 +144,8 @@ class DownloadXmlNfseEmLoteActionJob implements ShouldQueue
 
             if (! empty($erros)) {
                 $notification->body(
-                    'Seus arquivos foram processados com sucesso, mas ocorreram alguns erros:' .
-                        PHP_EOL . implode(PHP_EOL, $erros)
+                    'Seus arquivos foram processados com sucesso, mas ocorreram alguns erros:'.
+                        PHP_EOL.implode(PHP_EOL, $erros)
                 );
             }
 

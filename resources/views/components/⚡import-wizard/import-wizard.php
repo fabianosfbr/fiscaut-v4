@@ -2,21 +2,17 @@
 
 use App\Jobs\ImportIssuersJob;
 use App\Models\JobProgress;
-use App\Models\Issuer;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
-use Livewire\Features\SupportPolling;
 use Livewire\WithFileUploads;
 use Rap2hpoutre\FastExcel\FastExcel;
-use Illuminate\Support\Facades\Log;
 
 new class extends Component
 {
     use WithFileUploads;
-
 
     #[Validate(['uploadedFile' => 'required|file|mimes:xlsx,xls'])]
     public $uploadedFile;
@@ -62,7 +58,7 @@ new class extends Component
         if ($step >= 1 && $step <= 3) {
             $this->step = $step;
         }
-        
+
     }
 
     public function nextStep()
@@ -110,7 +106,6 @@ new class extends Component
         // Dispatch the import job
         ImportIssuersJob::dispatch($normalizedPath, $jobProgress->id, $tenantId)->onQueue('low');
 
-
         $this->importStatus = 'processing';
     }
 
@@ -126,7 +121,7 @@ new class extends Component
 
     public function refreshProgress(): void
     {
-        
+
         $jobProgress = $this->jobProgress;
 
         if (! $jobProgress) {
@@ -139,9 +134,6 @@ new class extends Component
 
         ds($this->importProgress);
     }
-
-
-
 
     public function getFilePath(mixed $file): ?string
     {
@@ -181,7 +173,7 @@ new class extends Component
 
             $requiredColumns = ['razao_social', 'cnpj', 'users'];
             $missingColumns = [];
-            $normalizedHeaders = array_map(fn($h) => strtolower(trim($h)), $headers);
+            $normalizedHeaders = array_map(fn ($h) => strtolower(trim($h)), $headers);
 
             foreach ($requiredColumns as $column) {
                 if (! in_array($column, $normalizedHeaders)) {
@@ -191,7 +183,7 @@ new class extends Component
 
             if (! empty($missingColumns)) {
                 $this->fileValidation = [
-                    'errors' => ['Colunas obrigatórias ausentes: ' . implode(', ', $missingColumns)],
+                    'errors' => ['Colunas obrigatórias ausentes: '.implode(', ', $missingColumns)],
                 ];
 
                 return;
@@ -208,7 +200,7 @@ new class extends Component
                 'headers' => $headers,
             ];
         } catch (Exception $e) {
-            $this->fileValidation = ['errors' => ['Erro ao ler arquivo: ' . $e->getMessage()]];
+            $this->fileValidation = ['errors' => ['Erro ao ler arquivo: '.$e->getMessage()]];
         }
     }
 };

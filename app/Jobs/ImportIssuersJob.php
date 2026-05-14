@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Issuer;
 use App\Models\JobProgress;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -27,10 +28,10 @@ class ImportIssuersJob implements ShouldQueue
         $jobProgress = JobProgress::find($this->jobProgressId);
 
         if (! $jobProgress) {
-            Log::error('JobProgress não encontrado: ' . $this->jobProgressId);
+            Log::error('JobProgress não encontrado: '.$this->jobProgressId);
+
             return;
         }
-
 
         try {
             $jobProgress->update([
@@ -44,11 +45,10 @@ class ImportIssuersJob implements ShouldQueue
             $data = $collection->toArray();
 
             $jobProgress->update([
-                'message' => 'Processando ' . $totalRows . ' registros...',
+                'message' => 'Processando '.$totalRows.' registros...',
             ]);
 
             $processed = 0;
-
 
             foreach ($data as $row) {
                 $razaoSocial = $row['razao_social'] ?? null;
@@ -57,6 +57,7 @@ class ImportIssuersJob implements ShouldQueue
 
                 if (empty($razaoSocial) || empty($cnpj) || empty($users)) {
                     $processed++;
+
                     continue;
                 }
 
@@ -76,7 +77,7 @@ class ImportIssuersJob implements ShouldQueue
 
                 if ($issuer) {
                     $userIds = array_map('trim', explode(';', $users));
-                    $usersModel = \App\Models\User::whereIn('id', $userIds)->get();
+                    $usersModel = User::whereIn('id', $userIds)->get();
                     if ($usersModel->isNotEmpty()) {
                         $issuer->users()->sync($usersModel->pluck('id')->toArray());
                     }
@@ -92,13 +93,13 @@ class ImportIssuersJob implements ShouldQueue
                         'message' => "Processando {$processed} de {$totalRows} registros...",
                     ]);
                 }
-                
+
             }
 
             $jobProgress->update([
                 'status' => 'completed',
                 'progress' => 100,
-                'message' => "Importação concluída.",
+                'message' => 'Importação concluída.',
             ]);
 
             // Remove arquivo temporário
@@ -106,7 +107,7 @@ class ImportIssuersJob implements ShouldQueue
                 unlink($this->filePath);
             }
         } catch (\Exception $e) {
-            Log::error('Erro na importação de issuers: ' . $e->getMessage(), [
+            Log::error('Erro na importação de issuers: '.$e->getMessage(), [
                 'file' => $this->filePath,
                 'job_progress_id' => $this->jobProgressId,
                 'trace' => $e->getTraceAsString(),
@@ -114,7 +115,7 @@ class ImportIssuersJob implements ShouldQueue
 
             $jobProgress->update([
                 'status' => 'failed',
-                'message' => 'Erro: ' . $e->getMessage(),
+                'message' => 'Erro: '.$e->getMessage(),
             ]);
         }
     }

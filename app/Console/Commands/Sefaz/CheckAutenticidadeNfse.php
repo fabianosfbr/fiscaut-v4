@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands\Sefaz;
 
-use App\Jobs\Sefaz\AutenticidadeNfeJob;
 use App\Jobs\Sefaz\AutenticidadeNfseJob;
 use App\Models\Issuer;
 use App\Models\LogSefazNfseEvent;

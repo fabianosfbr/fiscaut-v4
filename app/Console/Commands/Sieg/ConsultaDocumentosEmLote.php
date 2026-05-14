@@ -45,7 +45,7 @@ class ConsultaDocumentosEmLote extends Command
         $issuers = Issuer::with('tenant')
             ->where('is_enabled', true)
             ->where('sync_sieg', true)
-            ->when($issuerId !== null, fn($q) => $q->where('id', $issuerId))
+            ->when($issuerId !== null, fn ($q) => $q->where('id', $issuerId))
             ->get();
 
         foreach ($issuers as $issuer) {

@@ -21,7 +21,6 @@ class ListIssuers extends ListRecords
                 ImportIssuersAction::make(),
             ]),
 
-
         ];
     }
 }

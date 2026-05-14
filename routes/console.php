@@ -4,9 +4,8 @@ use App\Console\Scheduling\DynamicTaskCommandExecutor;
 use App\Jobs\SendCobrancaEmailJob;
 use App\Models\Issuer;
 use App\Models\SuperLogicaUnidade;
-use App\Services\Xml\XmlIdentifierService;
-use App\Services\Xml\XmlNfeReaderService;
 use App\Services\SuperlogicaConnectionService;
+use App\Services\Xml\XmlNfeReaderService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
@@ -31,7 +30,7 @@ Artisan::command('play', function () {
     $response = Http::withHeaders([
         'Content-Type' => 'application/json',
         'Accept' => 'application/json',
-    ])->post($apiUrl . '?api_key=' . $apiKey, $payload);
+    ])->post($apiUrl.'?api_key='.$apiKey, $payload);
 
     if ($response->successful()) {
         $responseData = $response->json();
@@ -54,12 +53,12 @@ Artisan::command('play', function () {
                 $xmlContents = base64_decode($value);
 
                 if (1 == 1) {
-                    $parsed =(new XmlNfeReaderService)
+                    $parsed = (new XmlNfeReaderService)
                         ->loadXml($xmlContents)
                         ->setOrigem('SIEG')
                         ->setIssuer($issuer)
                         ->parse();
-               
+
                 }
             }
         }
@@ -82,7 +81,7 @@ Artisan::command('play', function () {
 
         foreach ($record['recebimento'] as $recb) {
             $vencimentoStr = data_get($recb, 'dt_vencimento_recb');
-            if (!$vencimentoStr) {
+            if (! $vencimentoStr) {
                 continue;
             }
 
@@ -108,7 +107,7 @@ Artisan::command('play', function () {
 
         $email = data_get($record, 'recebimento.0.contatosunidade.0.proprietario.0.email');
 
-        if (!$email) {
+        if (! $email) {
             $idUnidade = data_get($record, 'id_unidade_uni') ?? data_get($record, 'st_unidade_uni');
             $unidade = SuperLogicaUnidade::where('id_unidade_uni', $idUnidade)
                 ->where('id_condominio', $this->issuer->superlogica_condominio_id)
@@ -207,7 +206,7 @@ $argv = $_SERVER['argv'] ?? [];
 // Tenta encontrar o comando ignorando opções globais (ex: -v, --ansi)
 $artisanCommand = collect($argv)
     ->slice(1)
-    ->filter(fn($arg) => !str_starts_with($arg, '-'))
+    ->filter(fn ($arg) => ! str_starts_with($arg, '-'))
     ->first();
 
 app(DynamicTaskCommandExecutor::class)->registerFromDatabase($artisanCommand);

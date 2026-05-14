@@ -5,11 +5,17 @@ namespace App\Models;
 use App\Models\Traits\HasTags;
 use App\Services\Xml\XmlReaderService;
 use Illuminate\Database\Eloquent\Model;
+use Relaticle\ActivityLog\Concerns\InteractsWithTimeline;
+use Relaticle\ActivityLog\Contracts\HasTimeline;
+use Relaticle\ActivityLog\Timeline\TimelineBuilder;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Throwable;
 
-class NotaFiscalServico extends Model
+class NotaFiscalServico extends Model implements HasTimeline
 {
     use HasTags;
+    use InteractsWithTimeline;
+    use LogsActivity;
 
     protected $table = 'nfses';
 
@@ -20,6 +26,11 @@ class NotaFiscalServico extends Model
         'import_data' => 'array',
         'cancelada' => 'boolean',
     ];
+
+    public function timeline(): TimelineBuilder
+    {
+        return TimelineBuilder::make($this)->fromActivityLog();
+    }
 
     private bool $nfseXmlDataLoaded = false;
 

@@ -38,21 +38,16 @@ class CondominioSync extends Command
         $tenants = Tenant::whereNotNull('superlogica_base_url')
             ->whereNotNull('superlogica_app_token')
             ->whereNotNull('superlogica_access_token')
-            ->when($tenantId !== null, fn($q) => $q->where('id', $tenantId))
+            ->when($tenantId !== null, fn ($q) => $q->where('id', $tenantId))
             ->get();
 
-            
-
         foreach ($tenants as $tenant) {
-            
 
             $this->syncCondominio($tenant);
 
             // $this->info('Condominios sincronizados com sucesso.');
 
         }
-
-
 
         // $this->syncUnidade($tenant);
         // $this->info('Unidades sincronizadas com sucesso.');

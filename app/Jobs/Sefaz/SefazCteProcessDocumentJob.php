@@ -40,9 +40,7 @@ class SefazCteProcessDocumentJob implements ShouldQueue
         protected array $documento,
         protected Issuer $issuer,
         protected XmlImportJob $importJob
-    ) {
-        
-    }
+    ) {}
 
     /**
      * Execute the job.

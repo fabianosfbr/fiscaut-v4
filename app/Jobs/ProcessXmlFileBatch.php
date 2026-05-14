@@ -50,9 +50,7 @@ class ProcessXmlFileBatch implements ShouldQueue
     public function __construct(
         protected array $xmlContents,
         protected XmlImportJob $importJob
-    ) {
-        
-    }
+    ) {}
 
     /**
      * Execute the job.

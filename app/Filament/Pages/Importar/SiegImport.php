@@ -162,11 +162,11 @@ class SiegImport extends Page
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Erro')
-                ->body('Ocorreu um erro ao iniciar o processamento: ' . $e->getMessage())
+                ->body('Ocorreu um erro ao iniciar o processamento: '.$e->getMessage())
                 ->danger()
                 ->send();
 
-            Log::error('Erro ao iniciar importação SIEG: ' . $e->getMessage());
+            Log::error('Erro ao iniciar importação SIEG: '.$e->getMessage());
         } finally {
             $this->isLoading = false;
         }

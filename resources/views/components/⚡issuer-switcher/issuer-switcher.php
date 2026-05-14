@@ -64,7 +64,7 @@ new class extends Component implements HasSchemas
                         $issuers = $user->issuers()
                             ->wherePivot('active', true) // Garante que o vínculo está ativo
                             ->pluck('razao_social', 'issuers.id');
-                        
+
                         return $issuers;
                     })
                     // 2. Tratamento de Estados:
@@ -93,7 +93,6 @@ new class extends Component implements HasSchemas
 
                             forgetCurrentIssuerCache((int) $user->id, (int) $state);
 
-    
                             // Recarrega a página para aplicar o contexto
                             return redirect(request()->header('Referer'));
                         }

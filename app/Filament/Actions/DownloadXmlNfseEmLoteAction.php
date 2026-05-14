@@ -3,11 +3,8 @@
 namespace App\Filament\Actions;
 
 use App\Jobs\BulkAction\DownloadXmlNfseEmLoteActionJob;
-use App\Jobs\BulkAction\DownloadXmlPdfNfceEmLoteActionJob;
 use Filament\Actions\BulkAction;
-use Filament\Forms\Components\Checkbox;
 use Filament\Notifications\Notification;
-use Filament\Schemas\Components\Grid;
 use Filament\Support\Exceptions\Halt;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -32,7 +29,7 @@ class DownloadXmlNfseEmLoteAction
             ->action(function (Collection $records, array $data) {
 
                 // Filtra apenas os registros que têm conteúdo XML
-                $recordsWithXml = $records->filter(fn($record) => ! empty($record->xml));
+                $recordsWithXml = $records->filter(fn ($record) => ! empty($record->xml));
 
                 if ($recordsWithXml->isEmpty()) {
 

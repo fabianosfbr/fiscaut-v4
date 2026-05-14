@@ -25,12 +25,10 @@ class SuperlogicaConnectionService
      */
     public function validateConnection(Tenant $tenant): array|bool
     {
-    
+
         $baseUrl = trim((string) ($tenant?->superlogica_base_url ?? ''));
         $appToken = trim((string) ($tenant?->superlogica_app_token ?? ''));
         $accessToken = trim((string) ($tenant?->superlogica_access_token ?? ''));
-
-        
 
         if ($baseUrl === '') {
             throw new SuperlogicaConnectionException('URL base da Superlógica não configurada.');

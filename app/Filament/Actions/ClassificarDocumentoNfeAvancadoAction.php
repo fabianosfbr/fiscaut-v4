@@ -5,6 +5,7 @@ namespace App\Filament\Actions;
 use App\Filament\Forms\Components\SelectTagGrouped;
 use App\Models\CategoryTag;
 use App\Models\GeneralSetting;
+use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
@@ -13,7 +14,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Grid;
 use Illuminate\Database\Eloquent\Model;
-use Closure;
 
 class ClassificarDocumentoNfeAvancadoAction
 {
@@ -43,7 +43,7 @@ class ClassificarDocumentoNfeAvancadoAction
                 $totalProdutosNfe = count($produtosNfe);
                 $totalProdutosMarcados = count($produtosMarcados);
 
-                if (!empty($produtosMarcados) && $totalProdutosNfe > 0 && $totalProdutosMarcados < $totalProdutosNfe) {
+                if (! empty($produtosMarcados) && $totalProdutosNfe > 0 && $totalProdutosMarcados < $totalProdutosNfe) {
                     Notification::make()
                         ->warning()
                         ->title('Não foi possível etiquetar')
@@ -51,6 +51,7 @@ class ClassificarDocumentoNfeAvancadoAction
                         ->send();
 
                     $action->halt();
+
                     return;
                 }
 
@@ -133,7 +134,7 @@ class ClassificarDocumentoNfeAvancadoAction
                             return number_format($sum, 2, ',', '.');
                         })
                         ->rules([
-                            fn($get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                            fn ($get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
                                 $value = str_replace(',', '.', str_replace('.', '', $value));
                                 $totalNfe = str_replace(',', '.', str_replace('.', '', $get('total_nfe')));
                                 if ($value != $totalNfe) {
@@ -213,8 +214,8 @@ class ClassificarDocumentoNfeAvancadoAction
                                             $vIcmsSt = (float) ($item['impostos']['vICMSST'] ?? 0);
                                             $vIpi = (float) ($item['impostos']['vIPI'] ?? 0);
                                             $valorTotal = $vProd + $vIcmsSt + $vIpi;
-                                            $valorProd = ' - R$ ' . number_format($valorTotal, 2, ',', '.');
-                                            $itens[$nItem] = (string) $produtoLabel . $valorProd;
+                                            $valorProd = ' - R$ '.number_format($valorTotal, 2, ',', '.');
+                                            $itens[$nItem] = (string) $produtoLabel.$valorProd;
                                         }
                                     }
 
@@ -225,7 +226,7 @@ class ClassificarDocumentoNfeAvancadoAction
 
                                     $produtosSelecionados = $state ?? [];
 
-                                    if (!empty($produtosSelecionados) && !empty($produtosNfe)) {
+                                    if (! empty($produtosSelecionados) && ! empty($produtosNfe)) {
                                         $valorCalculado = self::calcularValorProdutos($produtosNfe, $produtosSelecionados);
 
                                         $set('valor', $valorCalculado);

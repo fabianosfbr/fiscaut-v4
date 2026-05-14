@@ -23,7 +23,7 @@ class ConsultaCteEmLote extends Command
         $issuers = Issuer::where('validade_certificado', '>', now())
             ->where('is_enabled', true)
             ->where('cte_servico', true)
-            ->when($issuerId !== null, fn($q) => $q->where('id', $issuerId))
+            ->when($issuerId !== null, fn ($q) => $q->where('id', $issuerId))
             ->get();
 
         foreach ($issuers as $issuer) {

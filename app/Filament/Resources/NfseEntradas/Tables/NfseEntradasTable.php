@@ -132,10 +132,10 @@ class NfseEntradasTable
                         return "Emissão: {$inicio} até {$fim}";
                     })
                     ->query(function (Builder $query, array $data): Builder {
-                        if (!empty($data['data_emissao_inicio'])) {
+                        if (! empty($data['data_emissao_inicio'])) {
                             $query->whereDate('data_emissao', '>=', $data['data_emissao_inicio']);
                         }
-                        if (!empty($data['data_emissao_fim'])) {
+                        if (! empty($data['data_emissao_fim'])) {
                             $query->whereDate('data_emissao', '<=', $data['data_emissao_fim']);
                         }
 
@@ -164,10 +164,10 @@ class NfseEntradasTable
                         return "Entrada: {$inicio} até {$fim}";
                     })
                     ->query(function (Builder $query, array $data): Builder {
-                        if (!empty($data['data_entrada_inicio'])) {
+                        if (! empty($data['data_entrada_inicio'])) {
                             $query->whereDate('data_entrada', '>=', $data['data_entrada_inicio']);
                         }
-                        if (!empty($data['data_entrada_fim'])) {
+                        if (! empty($data['data_entrada_fim'])) {
                             $query->whereDate('data_entrada', '<=', $data['data_entrada_fim']);
                         }
 
@@ -227,10 +227,10 @@ class NfseEntradasTable
                         $etiquetas = Tag::whereIn('id', $data['etiquetas'])
                             ->get()
                             ->keyBy('id')
-                            ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
+                            ->map(fn ($tag) => $tag->code.' - '.$tag->name)
                             ->toArray();
 
-                        return 'Etiquetas: ' . implode(', ', $etiquetas);
+                        return 'Etiquetas: '.implode(', ', $etiquetas);
                     }),
             ])
             ->filtersFormColumns(4)
