@@ -46,7 +46,6 @@ class UnidadeSync extends Command
 
             $this->syncUnidade($tenant);
             $this->info('Unidades sincronizadas com sucesso.');
-
         }
 
 
@@ -61,42 +60,49 @@ class UnidadeSync extends Command
 
     }
 
-    
+
 
     private function syncUnidade(Tenant $tenant)
     {
         $service = new SuperlogicaConnectionService($tenant);
 
-        $condominios = SuperLogicaCondominio::where('id_condominio_cond', $tenant->superlogica_condominio_id)->get();
+        $issuers = Issuer::whereNotNull('superlogica_condominio_id')->get();
 
-        foreach ($condominios as $condominio) {
 
-            $havePagination = true;
-            $pagina = 1;
-            while ($havePagination) {
-                $unidades = $service->unidade()->listar([
-                    'idCondominio' => $condominio->id_condominio_cond,
-                    'exibirDadosDosContatos' => 1,
-                    'exibirGruposDasUnidades' => 1,
-                    'exibirInadimplencia' => 1,
-                    'itensPorPagina' => 50,
-                    'pagina' => $pagina,
-                ]);
+        foreach ($issuers as $issuer) {
 
-                if (count($unidades) == 0) {
-                    $havePagination = false;
-                }
+            $condominios = SuperLogicaCondominio::where('id_condominio_cond', $issuer->superlogica_condominio_id)->get();
 
-                $pagina++;
+            foreach ($condominios as $condominio) {
 
-                foreach ($unidades as $unidade) {
-
-                    SuperLogicaUnidade::updateOrCreate([
-                        'id_condominio' => $condominio->id_condominio_cond,
-                        'id_unidade_uni' => $unidade['id_unidade_uni'],
-                    ], [
-                        'metadados' => $unidade,
+                $havePagination = true;
+                $pagina = 1;
+                while ($havePagination) {
+                    $unidades = $service->unidade()->listar([
+                        'idCondominio' => $condominio->id_condominio_cond,
+                        'exibirDadosDosContatos' => 1,
+                        'exibirGruposDasUnidades' => 1,
+                        'exibirInadimplencia' => 1,
+                        'itensPorPagina' => 50,
+                        'pagina' => $pagina,
                     ]);
+
+                    if (count($unidades) == 0) {
+                        $havePagination = false;
+                    }
+
+                    $pagina++;
+
+                    foreach ($unidades as $unidade) {
+
+                        $unidade = SuperLogicaUnidade::updateOrCreate([
+                            'id_condominio' => $condominio->id_condominio_cond,
+                            'id_unidade_uni' => $unidade['id_unidade_uni'],
+                        ], [
+                            'metadados' => $unidade,
+                        ]);
+                        
+                    }
                 }
             }
         }
