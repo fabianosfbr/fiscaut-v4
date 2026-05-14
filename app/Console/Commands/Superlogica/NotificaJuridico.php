@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands\Superlogica;
 
-use App\Jobs\NotificaCobrancaSuperLogicaJob;
+use App\Jobs\NotificaJuridicoSuperLogicaJob;
 use App\Models\Issuer;
 use Illuminate\Console\Command;
 
-class NotificaCobranca extends Command
+class NotificaJuridico extends Command
 {
     /**
      * The name and signature of the console command.
@@ -33,7 +33,7 @@ class NotificaCobranca extends Command
             ->get();
 
         foreach ($issuers as $issuer) {
-            NotificaCobrancaSuperLogicaJob::dispatch($issuer);
+            NotificaJuridicoSuperLogicaJob::dispatch($issuer);
         }
 
     }

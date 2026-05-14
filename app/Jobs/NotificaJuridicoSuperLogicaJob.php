@@ -77,8 +77,8 @@ class NotificaJuridicoSuperLogicaJob implements ShouldQueue
 
         foreach ($inadimplencias as $record) {
 
-            // Ignora se a unidade estiver em processo judicial
-            if (in_array(data_get($record, 'id_unidade_uni'), $processoJudicialIds)) {
+            // Processa somente unidades em processo judicial
+            if (! in_array(data_get($record, 'id_unidade_uni'), $processoJudicialIds)) {
                 continue;
             }
 
@@ -150,7 +150,7 @@ class NotificaJuridicoSuperLogicaJob implements ShouldQueue
                     ];
 
                     SendCobrancaEmailJob::dispatch($this->issuer->id, 'giron61861@ellbit.com; gerencia.cont@speedgrupo.com.br;cobranca.adm.2@speedgrupo.com.br ', $unidadeData, true);
-                    sleep(10);
+                   
                 }
             }
         }
