@@ -65,11 +65,13 @@ class RelatorioResumoEtiquetaNfse extends Page implements HasActions, HasSchemas
                     ->date('d/m/Y'),
                 TextColumn::make('value')
                     ->label(new HtmlString('Valor<br/>Etiqueta'))
+                    ->summarize(Sum::make()->label('Etiqueta')->money('BRL'))
                     ->money('BRL'),
                 TextColumn::make('numero')
                     ->label(new HtmlString('Nº NFSe')),
                 TextColumn::make('valor_servico')
                     ->label(new HtmlString('Valor NFSe'))
+                    ->summarize(Sum::make()->label('Nota')->money('BRL'))
                     ->money('BRL')
                     ->summarize([
                         Sum::make()->label('Total NFSe')->money('BRL'),
