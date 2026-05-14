@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use AlizHarb\ActivityLog\ActivityLogPlugin;
 use App\Filament\Clusters\Settings\Pages\Profile;
 use Filament\Actions\Action;
 use Filament\Http\Middleware\Authenticate;
@@ -125,10 +126,14 @@ class AdminPanelProvider extends PanelProvider
                 Action::make('profile')
                     ->label('Meu Perfil')
                     ->icon('heroicon-o-user')
-                    ->url(fn (): string => Profile::getUrl()),
+                    ->url(fn(): string => Profile::getUrl()),
             ])
-            ->plugin(
-                PaletteSwitcherPlugin::make()
-            );
+            ->plugins([
+                PaletteSwitcherPlugin::make(),
+                ActivityLogPlugin::make()
+                    ->label('Log')
+                    ->pluralLabel('Logs')
+                    ->navigationGroup('Administração')
+            ]);
     }
 }
