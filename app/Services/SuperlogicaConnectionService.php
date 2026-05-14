@@ -18,6 +18,26 @@ class SuperlogicaConnectionService
         protected Tenant $tenant
     ) {}
 
+    public function condominio()
+    {
+        return new SuperLogicaCondominioConnector($this->tenant);
+    }
+
+    public function unidade()
+    {
+        return new SuperLogicaUnidadeConnector($this->tenant);
+    }
+
+    public function despesa()
+    {
+        return new SuperLogicaDespesaConnector($this->tenant);
+    }
+
+    public function receita()
+    {
+        return new SuperLogicaReceitaConnector($this->tenant);
+    }
+
     /**
      * @return array<string, mixed>|bool
      *
@@ -86,26 +106,5 @@ class SuperlogicaConnectionService
 
             throw new SuperlogicaConnectionException('Erro ao validar conexão com a Superlógica.', 0, $exception);
         }
-    }
-
-    public function condominio()
-    {
-        return new SuperLogicaCondominioConnector($this->tenant);
-    }
-
-    public function unidade()
-    {
-        return new SuperLogicaUnidadeConnector($this->tenant);
-    }
-
-    public function despesa()
-    {
-        return new SuperLogicaDespesaConnector($this->tenant);
-
-    }
-
-    public function receita()
-    {
-        return new SuperLogicaReceitaConnector($this->tenant);
     }
 }

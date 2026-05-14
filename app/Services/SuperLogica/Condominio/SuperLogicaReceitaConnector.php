@@ -17,4 +17,9 @@ class SuperLogicaReceitaConnector
     {
         return $this->get('/processos', $filter);
     }
+
+    public function novoProcessoJudicial(array $params = [])
+    {
+        return $this->postForm('/processos', $params);
+    }
 }

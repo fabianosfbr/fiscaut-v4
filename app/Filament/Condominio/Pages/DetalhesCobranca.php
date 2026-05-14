@@ -30,7 +30,7 @@ class DetalhesCobranca extends Page implements HasSchemas
         return [
             Action::make('voltar')
                 ->label('Voltar')
-                ->url(fn (): string => route('filament.condominio.pages.inadimplencia'))
+                ->url(fn(): string => route('filament.condominio.pages.inadimplencia'))
                 ->color('gray'),
         ];
     }
@@ -39,8 +39,9 @@ class DetalhesCobranca extends Page implements HasSchemas
     {
         $this->record = $this->resolveRecord();
 
-        $this->unidade = $this->resolveUnidade();
+        ds($this->record);
 
+        $this->unidade = $this->resolveUnidade();
     }
 
     public function form(Schema $schema): Schema
@@ -49,6 +50,16 @@ class DetalhesCobranca extends Page implements HasSchemas
             ->components([
                 Section::make('Detalhes da Unidade')
                     ->schema([
+                        TextEntry::make('id_condominio_cond')
+                            ->state(function () {
+                                return $this->record['id_condominio_cond'];
+                            })
+                            ->label('Condominio'),
+                        TextEntry::make('id_unidade_uni')
+                            ->state(function () {
+                                return $this->record['id_unidade_uni'];
+                            })
+                            ->label('Unidade'),
                         TextEntry::make('unidade.unidade')
                             ->state(function () {
                                 return $this->unidade['unidade'];

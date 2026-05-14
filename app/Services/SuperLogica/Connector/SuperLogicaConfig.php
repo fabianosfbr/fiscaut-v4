@@ -70,6 +70,21 @@ trait SuperLogicaConfig
         }
     }
 
+    public function postForm(string $url, ?array $params = null)
+    {
+        try {
+            return $this->http
+                ->asForm()
+                ->post($url, $params)
+                ->throw()
+                ->json();
+        } catch (RequestException  $e) {
+            $response = $e->response;
+
+            return $response->json();
+        }
+    }
+
     public function delete(string $url)
     {
         try {

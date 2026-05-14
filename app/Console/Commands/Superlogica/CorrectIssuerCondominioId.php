@@ -29,8 +29,7 @@ class CorrectIssuerCondominioId extends Command
 
         $this->info("Processando {$issuers->count()} issuers...");
 
-        dd($issuers);
-
+    
         $updated = 0;
         $notFound = 0;
 
@@ -40,7 +39,7 @@ class CorrectIssuerCondominioId extends Command
             $condominio = SuperLogicaCondominio::where('tenant_id', $issuer->tenant_id)
                 ->get()
                 ->first(function ($cond) use ($issuerCnpj) {
-                    $condominioCnpj = $this->normalizeCnpj($cond->metadados['st_cpf_cond'] ?? '');
+                    $condominioCnpj = $this->normalizeCnpj($cond->id_condominio_cond ?? '');
                     return $condominioCnpj === $issuerCnpj;
                 });
 

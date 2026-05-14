@@ -19,6 +19,7 @@ class CteApurada extends Model implements HasActivityLogTitle
             ->logAll()
             ->setDescriptionForEvent(function () {
                 $status = $this->status ? 'Apurada' : 'Não Apurada';
+
                 return "Status da CTe: {$status}";
             });
     }

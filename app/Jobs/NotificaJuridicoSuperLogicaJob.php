@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Jobs\RegisterSuperLogicaJuridicoJob;
 use App\Models\GeneralSetting;
 use App\Models\Issuer;
 use App\Models\SuperLogicaUnidade;
@@ -40,7 +41,7 @@ class NotificaJuridicoSuperLogicaJob implements ShouldQueue
 
         $config = $settings->payload['notificacao_juridico'];
 
-        if (empty($config['enabled'])) {
+        if (empty($config['enabled']) || empty($config['email'])) {            
 
             return;
         }
@@ -118,7 +119,7 @@ class NotificaJuridicoSuperLogicaJob implements ShouldQueue
 
             if ($deveNotificar) {
 
-                $email = data_get($record, 'recebimento.0.contatosunidade.0.proprietario.0.email');
+                $email = $config['email'];
 
                 if (! $email) {
                     $idUnidade = data_get($record, 'id_unidade_uni') ?? data_get($record, 'st_unidade_uni');
@@ -149,7 +150,9 @@ class NotificaJuridicoSuperLogicaJob implements ShouldQueue
 
                     ];
 
-                    SendCobrancaEmailJob::dispatch($this->issuer->id, 'giron61861@ellbit.com; gerencia.cont@speedgrupo.com.br;cobranca.adm.2@speedgrupo.com.br ', $unidadeData, true);
+                    SendCobrancaEmailJob::dispatch($this->issuer->id, $email, $unidadeData, true);
+
+                    RegisterSuperLogicaJuridicoJob::dispatch($this->issuer->id, $email, $unidadeData, true);
                    
                 }
             }

@@ -5,7 +5,9 @@ namespace App\Filament\Condominio\Resources\SuperLogicaUnidades;
 use App\Filament\Condominio\Resources\SuperLogicaUnidades\Pages\CreateSuperLogicaUnidade;
 use App\Filament\Condominio\Resources\SuperLogicaUnidades\Pages\EditSuperLogicaUnidade;
 use App\Filament\Condominio\Resources\SuperLogicaUnidades\Pages\ListSuperLogicaUnidades;
+use App\Filament\Condominio\Resources\SuperLogicaUnidades\Pages\ViewSuperLogicaUnidade;
 use App\Filament\Condominio\Resources\SuperLogicaUnidades\Schemas\SuperLogicaUnidadeForm;
+use App\Filament\Condominio\Resources\SuperLogicaUnidades\Schemas\SuperLogicaUnidadeInfolist;
 use App\Filament\Condominio\Resources\SuperLogicaUnidades\Tables\SuperLogicaUnidadesTable;
 use App\Models\SuperLogicaUnidade;
 use Filament\Resources\Resource;
@@ -28,6 +30,11 @@ class SuperLogicaUnidadeResource extends Resource
         return SuperLogicaUnidadeForm::configure($schema);
     }
 
+    public static function infolist(Schema $schema): Schema
+    {
+        return SuperLogicaUnidadeInfolist::configure($schema);
+    }
+
     public static function table(Table $table): Table
     {
         return SuperLogicaUnidadesTable::configure($table);
@@ -46,6 +53,7 @@ class SuperLogicaUnidadeResource extends Resource
             'index' => ListSuperLogicaUnidades::route('/'),
             'create' => CreateSuperLogicaUnidade::route('/create'),
             'edit' => EditSuperLogicaUnidade::route('/{record}/edit'),
+            'view' => ViewSuperLogicaUnidade::route('/{record}'),
         ];
     }
 }

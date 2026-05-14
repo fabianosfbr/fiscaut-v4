@@ -251,6 +251,8 @@ class Inadimplencia extends Page implements HasTable
                 'idCondominio' => $issuer->superlogica_condominio_id,
             ]);
 
+        dd($issuer->superlogica_condominio_id, $inadimplencias);
+
         $records = collect($inadimplencias)->map(function ($record) {
             if (isset($record['recebimento']) && is_array($record['recebimento'])) {
                 $recebimentos = collect($record['recebimento'])->sortBy(function ($recb) {
@@ -277,6 +279,7 @@ class Inadimplencia extends Page implements HasTable
     protected function fetchProcessosJudiciais(): Collection
     {
         $issuer = currentIssuer();
+
 
         $service = new SuperlogicaConnectionService($issuer->tenant);
 

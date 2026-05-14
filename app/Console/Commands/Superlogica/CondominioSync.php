@@ -38,10 +38,11 @@ class CondominioSync extends Command
         $tenants = Tenant::whereNotNull('superlogica_base_url')
             ->whereNotNull('superlogica_app_token')
             ->whereNotNull('superlogica_access_token')
-            ->when($tenantId !== null, fn ($q) => $q->where('id', $tenantId))
+            ->when($tenantId !== null, fn($q) => $q->where('id', $tenantId))
             ->get();
 
         foreach ($tenants as $tenant) {
+
 
             $this->syncCondominio($tenant);
 
@@ -84,7 +85,7 @@ class CondominioSync extends Command
             $pagina++;
 
             foreach ($condominios as $condominio) {
-
+             
                 SuperLogicaCondominio::updateOrCreate([
                     'tenant_id' => $tenant->id,
                     'id_condominio_cond' => $condominio['id_condominio_cond'],

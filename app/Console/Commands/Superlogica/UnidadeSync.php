@@ -38,16 +38,14 @@ class UnidadeSync extends Command
         $tenants = Tenant::whereNotNull('superlogica_base_url')
             ->whereNotNull('superlogica_app_token')
             ->whereNotNull('superlogica_access_token')
-            ->when($tenantId !== null, fn($q) => $q->where('id', $tenantId))
+            ->when($tenantId !== null, fn ($q) => $q->where('id', $tenantId))
             ->get();
-
 
         foreach ($tenants as $tenant) {
 
             $this->syncUnidade($tenant);
             $this->info('Unidades sincronizadas com sucesso.');
         }
-
 
         // $this->syncFornecedor($issuer);
         // $this->info('Fornecedores sincronizados com sucesso.');
@@ -60,14 +58,11 @@ class UnidadeSync extends Command
 
     }
 
-
-
     private function syncUnidade(Tenant $tenant)
     {
         $service = new SuperlogicaConnectionService($tenant);
 
         $issuers = Issuer::whereNotNull('superlogica_condominio_id')->get();
-
 
         foreach ($issuers as $issuer) {
 
@@ -101,7 +96,7 @@ class UnidadeSync extends Command
                         ], [
                             'metadados' => $unidade,
                         ]);
-                        
+
                     }
                 }
             }
