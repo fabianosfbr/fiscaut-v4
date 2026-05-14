@@ -211,7 +211,7 @@ return [
     |
     */
     'permissions' => [
-        'enabled' => false,
+        'enabled' => true,
 
         /**
          * Custom invokable authorizer class for accessing the activity log.
@@ -221,7 +221,7 @@ return [
          *
          * Example: 'App\Support\ActivityLogAuthorization' (class with __invoke(User $user): bool)
          */
-        'custom_authorization' => null,
+        'custom_authorization' =>  fn($user) => $user->hasRole('super-admin'),
 
         'view_any' => 'view_any_activity',
         'view' => 'view_activity',
