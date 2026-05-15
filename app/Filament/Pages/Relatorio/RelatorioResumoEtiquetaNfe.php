@@ -63,8 +63,12 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                     ->label('Código'),
                 TextColumn::make('tag')
                     ->label('Etiqueta'),
+                TextColumn::make('data_emissao')
+                    ->label('Data Emissão')
+                    ->toggleable()
+                    ->date('d/m/Y'),
                 TextColumn::make('data_entrada')
-                    ->label('Data entrada')
+                    ->label('Data Entrada')
                     ->toggleable()
                     ->date('d/m/Y'),
                 TextColumn::make('nNF')
@@ -94,6 +98,38 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                     ->money('BRL'),
             ])
             ->filters([
+                Filter::make('data_emissao')
+                    ->label('Data de Emissão')
+                    ->columnSpan(2)
+                    ->schema([
+                        DatePicker::make('data_emissao_inicio')
+                            ->label('Data Emissão Início')
+                            ->columnSpan(1),
+                        DatePicker::make('data_emissao_fim')
+                            ->label('Data Emissão Final')
+                            ->columnSpan(1),
+                    ])->columns(2)
+                    ->indicateUsing(function (array $data): ?string {
+                        if (empty($data['data_emissao_inicio']) && empty($data['data_emissao_fim'])) {
+                            return null;
+                        }
+
+                        $inicio = $data['data_emissao_inicio'] ? date('d/m/Y', strtotime($data['data_emissao_inicio'])) : '...';
+                        $fim = $data['data_emissao_fim'] ? date('d/m/Y', strtotime($data['data_emissao_fim'])) : '...';
+
+                        return "Emissão: {$inicio} até {$fim}";
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (! empty($data['data_emissao_inicio'])) {
+                            $query->whereDate('data_emissao', '>=', $data['data_emissao_inicio']);
+                        }
+                        if (! empty($data['data_emissao_fim'])) {
+                            $query->whereDate('data_emissao', '<=', $data['data_emissao_fim']);
+                        }
+
+                        return $query;
+                    }),
+
                 Filter::make('data_entrada')
                     ->label('Data de Entrada')
                     ->columnSpan(2)
@@ -137,7 +173,7 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                                 $data['etiqueta'],
                                 function ($q) use ($data) {
                                     return $q->where('code', $data['etiqueta'])
-                                        ->orWhere('tag', 'like', '%'.$data['etiqueta'].'%');
+                                        ->orWhere('tag', 'like', '%' . $data['etiqueta'] . '%');
                                 },
                             );
                     })
@@ -146,28 +182,28 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                             return null;
                         }
 
-                        return 'Etiqueta: '.$data['etiqueta'];
+                        return 'Etiqueta: ' . $data['etiqueta'];
                     })->columnSpan(1),
-                Filter::make('numero')
+                Filter::make('nNF')
                     ->schema([
-                        TextInput::make('numero')
-                            ->label('Nº NFSe'),
+                        TextInput::make('nNF')
+                            ->label('Nº NFe'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
-                                $data['numero'],
+                                $data['nNF'],
                                 function ($q) use ($data) {
-                                    return $q->where('numero', $data['numero']);
+                                    return $q->where('nNF', $data['nNF']);
                                 },
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
-                        if (! $data['numero']) {
+                        if (! $data['nNF']) {
                             return null;
                         }
 
-                        return 'Nº NFSe: '.$data['numero'];
+                        return 'Nº NFe: ' . $data['nNF'];
                     })->columnSpan(1),
             ])
             ->filtersFormColumns(4)
