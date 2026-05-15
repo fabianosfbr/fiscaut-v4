@@ -74,6 +74,7 @@ class DownloadXmlPdfNfeEmLoteActionJob implements ShouldQueue
             $organizarPorEtiquetas = (bool) ($this->data['organizar_por_etiquetas'] ?? false);
             $adicionarEtiquetasPdf = (bool) ($this->data['adicionar_etiquetas_pdf'] ?? false);
             $erros = [];
+            $csvRows = [];
 
             foreach ($this->records as $record) {
                 try {
@@ -109,15 +110,35 @@ class DownloadXmlPdfNfeEmLoteActionJob implements ShouldQueue
                         $xmlFileName = "{$record->chave}.xml";
                         $zip->addFromString($subPath.$xmlFileName, $xml_content);
                     }
+
+                    if ($organizarPorEtiquetas) {
+                        $valorNota = $record->vNfe ?? 0;
+                        $valorEtiquetas = $record->tagged->sum(function ($tagged) {
+                            return $tagged->value ?? 0;
+                        });
+
+                        $csvRows[] = [
+                            'Chave' => '="'.($record->chave ?? '').'"',
+                            'Data de Emissao' => $record->data_emissao ? $record->data_emissao->format('d/m/Y') : '',
+                            'Data de Entrada' => $record->data_entrada ? $record->data_entrada->format('d/m/Y') : '',
+                            'Valor da Nota' => number_format((float) $valorNota, 2, ',', '.'),
+                            'Valor das Etiquetas' => number_format((float) $valorEtiquetas, 2, ',', '.'),
+                        ];
+                    }
                 } catch (\Exception $e) {
                     $erros[] = "Erro ao gerar DANFE para a nota {$record->numero}: {$e->getMessage()}";
                     Log::warning('Error generating DANFE for note', [
-                        'chave' => $record->chave,
+                        'chave' => (string) $record->chave,
                         'numero' => $record->numero,
                         'error' => $e->getMessage(),
                         'job_class' => self::class,
                     ]);
                 }
+            }
+
+            if ($organizarPorEtiquetas && ! empty($csvRows)) {
+                $csvContent = $this->buildCsvContent($csvRows);                
+                $zip->addFromString('_resumo_etiquetas.csv', $csvContent);
             }
 
             // Properly close the zip archive with error checking
@@ -177,6 +198,35 @@ class DownloadXmlPdfNfeEmLoteActionJob implements ShouldQueue
             // Re-throw the exception to fail the job appropriately
             throw $e;
         }
+    }
+
+    /**
+     * Builds a CSV string from an array of associative arrays.
+     *
+     * @param  array<int, array<string, mixed>>  $rows
+     */
+    protected function buildCsvContent(array $rows): string
+    {
+        if (empty($rows)) {
+            return '';
+        }
+
+        $delimiter = ';';
+        $enclosure = '"';
+        $output = fopen('php://temp', 'r+');
+
+        $headers = array_keys($rows[0]);
+        fputcsv($output, $headers, $delimiter, $enclosure);
+
+        foreach ($rows as $row) {
+            fputcsv($output, $row, $delimiter, $enclosure);
+        }
+
+        rewind($output);
+        $content = stream_get_contents($output);
+        fclose($output);
+
+        return $content !== false ? $content : '';
     }
 
     /**
