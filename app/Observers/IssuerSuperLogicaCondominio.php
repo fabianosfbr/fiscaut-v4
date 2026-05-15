@@ -10,21 +10,19 @@ class IssuerSuperLogicaCondominio
     public function created(Issuer $issuer): void
     {
         $this->syncSuperLogicaCondominioId($issuer);
-
     }
 
     public function updated(Issuer $issuer): void
     {
 
         $this->syncSuperLogicaCondominioId($issuer);
-
     }
 
     private function syncSuperLogicaCondominioId(Issuer $issuer): void
     {
         $cnpj = sanitize($issuer->cnpj);
 
-        if (empty($cnpj)) {
+        if (empty($cnpj) && $issuer->ignorar_sync_superlogica === true) {
             return;
         }
 

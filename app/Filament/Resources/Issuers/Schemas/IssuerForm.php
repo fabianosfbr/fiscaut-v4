@@ -164,6 +164,18 @@ class IssuerForm
                                             ->default(false)
                                             ->columnSpan(3),
 
+                                        Checkbox::make('ignorar_sync_superlogica')
+                                            ->label('Ignorar importação de dados do Superlógica')
+                                            ->live()
+                                            ->columnSpan(6),
+
+                                        TextInput::make('superlogica_condominio_id')
+                                            ->label('ID do Condomínio Superlógica')
+                                            ->numeric()
+                                            ->disabled(fn(Get $get): bool => ! $get('ignorar_sync_superlogica'))
+                                            ->required(fn(Get $get): bool => ! $get('ignorar_sync_superlogica'))                                          
+                                            ->columnSpan(6),                                            
+
                                         TextEntry::make('placeholder_is_enabled')
                                             ->label('Status no sistema')
                                             ->state(function (Get $get): ?HtmlString {
@@ -291,18 +303,7 @@ class IssuerForm
                                             ->placeholder('Ex: 40')
                                             ->columnSpan(3),
 
-                                        Checkbox::make('ignorar_sync_superlogica')
-                                            ->label('Ignorar importação de dados do Superlógica')
-                                            ->live()
-                                            ->columnSpan(3),
-
-                                        TextInput::make('superlogica_condominio_id')
-                                            ->label('ID do Condomínio Superlógica')
-                                            ->numeric()
-                                            ->disabled(fn(Get $get): bool => ! $get('ignorar_sync_superlogica'))
-                                            ->required(fn(Get $get): bool => ! $get('ignorar_sync_superlogica'))
-                                            ->placeholder('Ex: 12345')
-                                            ->columnSpan(3),
+                                        
                                     ])
                                     ->columns(6),
 
