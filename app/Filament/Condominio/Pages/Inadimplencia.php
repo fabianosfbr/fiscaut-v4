@@ -190,10 +190,10 @@ class Inadimplencia extends Page implements HasTable
                     ->label('Detalhes')
                     ->icon('heroicon-o-eye')
                     ->url(function (array $record) {
-                        $key = 'cobranca_detalhes_'.Str::uuid();
+                        $key = 'inadimplencia_detalhes_'.Str::uuid();
                         Cache::put($key, $record, now()->addMinutes(60));
 
-                        return route('filament.condominio.pages.detalhes-cobranca', ['record_key' => $key]);
+                        return route('filament.condominio.pages.detalhes-inadimplencia', ['record_key' => $key]);
                     }),
             ]);
     }

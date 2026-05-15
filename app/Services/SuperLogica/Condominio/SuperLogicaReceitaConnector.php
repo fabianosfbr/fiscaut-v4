@@ -22,4 +22,9 @@ class SuperLogicaReceitaConnector
     {
         return $this->postForm('/processos', $params);
     }
+
+    public function listarCobranca(array $filter = [])
+    {
+        return $this->get('/cobranca/index', $filter);
+    }
 }
