@@ -5,6 +5,8 @@ namespace App\Filament\Pages\Relatorio;
 use App\Models\NfseTagAgregadorView;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\TextInput;
 use Filament\Pages\Page;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
@@ -12,8 +14,10 @@ use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\HtmlString;
 use UnitEnum;
 
@@ -78,8 +82,116 @@ class RelatorioResumoEtiquetaNfse extends Page implements HasActions, HasSchemas
                     ]),
             ])
             ->filters([
-                // ...
+                Filter::make('data_emissao')
+                    ->label('Data de Emissão')
+                    ->columnSpan(2)
+                    ->schema([
+                        DatePicker::make('data_emissao_inicio')
+                            ->label('Data Emissão Início')
+                            ->columnSpan(1),
+                        DatePicker::make('data_emissao_fim')
+                            ->label('Data Emissão Final')
+                            ->columnSpan(1),
+                    ])->columns(2)
+                    ->indicateUsing(function (array $data): ?string {
+                        if (empty($data['data_emissao_inicio']) && empty($data['data_emissao_fim'])) {
+                            return null;
+                        }
+
+                        $inicio = $data['data_emissao_inicio'] ? date('d/m/Y', strtotime($data['data_emissao_inicio'])) : '...';
+                        $fim = $data['data_emissao_fim'] ? date('d/m/Y', strtotime($data['data_emissao_fim'])) : '...';
+
+                        return "Emissão: {$inicio} até {$fim}";
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (! empty($data['data_emissao_inicio'])) {
+                            $query->whereDate('data_emissao', '>=', $data['data_emissao_inicio']);
+                        }
+                        if (! empty($data['data_emissao_fim'])) {
+                            $query->whereDate('data_emissao', '<=', $data['data_emissao_fim']);
+                        }
+
+                        return $query;
+                    }),
+
+                Filter::make('data_entrada')
+                    ->label('Data de Entrada')
+                    ->columnSpan(2)
+                    ->schema([
+                        DatePicker::make('data_entrada_inicio')
+                            ->label('Data Entrada Início')
+                            ->columnSpan(1),
+                        DatePicker::make('data_entrada_fim')
+                            ->label('Data Entrada Final')
+                            ->columnSpan(1),
+                    ])->columns(2)
+                    ->indicateUsing(function (array $data): ?string {
+                        if (empty($data['data_entrada_inicio']) && empty($data['data_entrada_fim'])) {
+                            return null;
+                        }
+
+                        $inicio = $data['data_entrada_inicio'] ? date('d/m/Y', strtotime($data['data_entrada_inicio'])) : '...';
+                        $fim = $data['data_entrada_fim'] ? date('d/m/Y', strtotime($data['data_entrada_fim'])) : '...';
+
+                        return "Entrada: {$inicio} até {$fim}";
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (! empty($data['data_entrada_inicio'])) {
+                            $query->whereDate('data_entrada', '>=', $data['data_entrada_inicio']);
+                        }
+                        if (! empty($data['data_entrada_fim'])) {
+                            $query->whereDate('data_entrada', '<=', $data['data_entrada_fim']);
+                        }
+
+                        return $query;
+                    }),
+
+                Filter::make('etiqueta')
+                    ->schema([
+                        TextInput::make('etiqueta')
+                            ->label('Etiqueta'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['etiqueta'],
+                                function ($q) use ($data) {
+                                    return $q->where('code', $data['etiqueta'])->orWhere('tag', 'like', '%' . $data['etiqueta'] . '%');
+                                },
+                            );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        if (!$data['etiqueta']) {
+                            return null;
+                        }
+
+                        return 'Etiqueta: ' . $data['etiqueta'];
+                    })->columnSpan(1),
+                Filter::make('numero')
+                    ->schema([
+                        TextInput::make('numero')
+                            ->label('Nº NFSe'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['numero'],
+                                function ($q) use ($data) {
+                                    return $q->where('numero', $data['numero']);
+                                },
+                            );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        if (!$data['numero']) {
+                            return null;
+                        }
+
+                        return 'Nº NFSe: ' . $data['numero'];
+                    })->columnSpan(1),
             ])
+            ->filtersFormColumns(4)
+            ->persistFiltersInSession()
+            ->deferFilters(true)
             ->recordActions([
                 // ...
             ])
