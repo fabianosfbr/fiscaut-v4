@@ -4,7 +4,9 @@ namespace App\Filament\Actions;
 
 use App\Jobs\BulkAction\DownloadXmlNfseEmLoteActionJob;
 use Filament\Actions\BulkAction;
+use Filament\Forms\Components\Checkbox;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Grid;
 use Filament\Support\Exceptions\Halt;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -23,6 +25,14 @@ class DownloadXmlNfseEmLoteAction
             ->modalDescription(function () {
                 return new HtmlString('<p>Dica: Faça o download apenas dos arquivos que esteja precisando no momento. </p><p>O download de muitos arquivos dificulta na manipulação dos mesmos e pode deixar a internet lenta.</p>');
             })
+            ->schema([
+                Grid::make(1)
+                    ->schema([
+                        Checkbox::make('organizar_por_etiquetas')
+                            ->label('Organizar em pastas conforme as etiquetas')
+                            ->default(false),
+                    ]),
+            ])
             ->closeModalByClickingAway(false)
             ->closeModalByEscaping(false)
             ->modalSubmitActionLabel('Sim, download')
@@ -43,6 +53,7 @@ class DownloadXmlNfseEmLoteAction
 
                 DownloadXmlNfseEmLoteActionJob::dispatch(
                     $records,
+                    $data,
                     Auth::user()->id
                 );
 

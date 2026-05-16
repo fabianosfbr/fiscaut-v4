@@ -42,7 +42,8 @@ class CteTomadasTable
             ->defaultSort('data_emissao', 'desc')
             ->modifyQueryUsing(function (Builder $query) {
                 $issuer = currentIssuer();
-                $query->with('tagged')
+                $query
+                    ->with('tagged')
                     ->with('apurada')
                     ->where('ctes.tomador_cnpj', $issuer->cnpj)
                     ->orderBy('ctes.data_emissao', 'DESC');
@@ -53,9 +54,7 @@ class CteTomadasTable
                     ->searchable()
                     ->sortable()
                     ->icon(function (ConhecimentoTransporteEletronico $record) {
-
                         if (is_null($record['metadata'])) {
-
                             return 'heroicon-o-document-text';
                         }
 
@@ -64,19 +63,15 @@ class CteTomadasTable
                     ->iconColor('success')
                     ->iconPosition('after')
                     ->tooltip(function (ConhecimentoTransporteEletronico $record) {
-
                         if (is_null($record['metadata'])) {
-
                             return 'Aguardando NFe';
                         }
 
                         return null;
                     }),
-
                 TextColumn::make('serie')
                     ->label('Série')
                     ->toggleable(isToggledHiddenByDefault: false),
-
                 TextColumn::make('emitente_razao_social')
                     ->label('Emitente')
                     ->limit(30)
@@ -85,33 +80,31 @@ class CteTomadasTable
                     ->description(function (ConhecimentoTransporteEletronico $record) {
                         return $record->emitente_cnpj;
                     }),
-
                 TextColumn::make('cfop')
                     ->label('CFOP')
                     ->toggleable()
                     ->alignCenter(),
-
                 ViewColumn::make('nfe_chave')
                     ->view('filament.tables.columns.view-cte-chave-nfe')
                     ->alignCenter()
                     ->label('Chave NFe'),
-
                 IconColumn::make('apurada.status')
                     ->label('Apurada')
                     ->boolean()
                     ->default(false)
                     ->alignment(Alignment::Center)
                     ->toggleable(),
-
                 TextColumn::make('vCTe')
                     ->label('Valor Total')
                     ->money('BRL'),
-
                 TextColumn::make('data_emissao')
                     ->label('Emissão')
                     ->date('d/m/Y')
                     ->toggleable(),
-
+                TextColumn::make('data_entrada')
+                    ->label('Entrada')
+                    ->date('d/m/Y')
+                    ->toggleable(),
                 TagBadgesColumn::make('tagged')
                     ->label('Etiqueta')
                     ->alignCenter()
@@ -127,23 +120,20 @@ class CteTomadasTable
                         );
                     })
                     ->toggleable(),
-
                 TextColumn::make('status_cte')
                     ->label('Status')
                     ->badge()
                     ->toggleable(),
-
                 TextColumn::make('tpCTe')
                     ->label('Tipo')
                     ->alignCenter()
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
                         '0' => 'Normal',
                         '1' => 'Compl. de valor',
                         '2' => 'Anulação',
                         '3' => 'Substituição',
                     })
                     ->badge(),
-
                 ViewChaveColumn::make('chave')
                     ->label('Chave Acesso')
                     ->tooltip('Chave Acesso do CT-e')
@@ -162,7 +152,8 @@ class CteTomadasTable
                         DatePicker::make('data_emissao_fim')
                             ->label('Data Emissão Final')
                             ->columnSpan(1),
-                    ])->columns(2)
+                    ])
+                    ->columns(2)
                     ->indicateUsing(function (array $data): ?string {
                         if (empty($data['data_emissao_inicio']) && empty($data['data_emissao_fim'])) {
                             return null;
@@ -174,16 +165,15 @@ class CteTomadasTable
                         return "Emissão: {$inicio} até {$fim}";
                     })
                     ->query(function (Builder $query, array $data): Builder {
-                        if (! empty($data['data_emissao_inicio'])) {
+                        if (!empty($data['data_emissao_inicio'])) {
                             $query->whereDate('data_emissao', '>=', $data['data_emissao_inicio']);
                         }
-                        if (! empty($data['data_emissao_fim'])) {
+                        if (!empty($data['data_emissao_fim'])) {
                             $query->whereDate('data_emissao', '<=', $data['data_emissao_fim']);
                         }
 
                         return $query;
                     }),
-
                 SelectFilter::make('status_cte')
                     ->label('Status CT-e')
                     ->options([
@@ -192,7 +182,6 @@ class CteTomadasTable
                         '302' => 'Denegada',
                     ])
                     ->placeholder('Todos os status'),
-
                 SelectFilter::make('tipo_cte')
                     ->label('Tipo')
                     ->options([
@@ -201,7 +190,6 @@ class CteTomadasTable
                         '2' => 'Anulação',
                         '3' => 'Substituição',
                     ]),
-
                 TernaryFilter::make('escriturada')
                     ->label('Escriturada')
                     ->columnSpan(1)
@@ -214,14 +202,13 @@ class CteTomadasTable
                         }
 
                         return $data['value']
-                            ? $query->whereHas('apurada', fn (Builder $query): Builder => $query->where('status', true))
+                            ? $query->whereHas('apurada', fn(Builder $query): Builder => $query->where('status', true))
                             : $query->where(function (Builder $query): Builder {
                                 return $query
                                     ->whereDoesntHave('apurada')
-                                    ->orWhereHas('apurada', fn (Builder $query): Builder => $query->where('status', false));
+                                    ->orWhereHas('apurada', fn(Builder $query): Builder => $query->where('status', false));
                             });
                     }),
-
                 TernaryFilter::make('aguardando_nfe')
                     ->label('Aguardando NFe')
                     ->columnSpan(1)
@@ -249,7 +236,6 @@ class CteTomadasTable
                             ->columns(2)
                             ->searchable()
                             ->helperText('Selecione as etiquetas específicas para filtrar os documentos fiscais'),
-
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (empty($data['etiquetas'])) {
@@ -277,10 +263,10 @@ class CteTomadasTable
                         $etiquetas = Tag::whereIn('id', $data['etiquetas'])
                             ->get()
                             ->keyBy('id')
-                            ->map(fn ($tag) => $tag->code.' - '.$tag->name)
+                            ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
                             ->toArray();
 
-                        return 'Etiquetas: '.implode(', ', $etiquetas);
+                        return 'Etiquetas: ' . implode(', ', $etiquetas);
                     }),
             ])
             ->filtersFormColumns(3)

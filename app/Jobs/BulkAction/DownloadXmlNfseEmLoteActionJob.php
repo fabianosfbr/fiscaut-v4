@@ -29,6 +29,7 @@ class DownloadXmlNfseEmLoteActionJob implements ShouldQueue
      */
     public function __construct(
         public Collection $records,
+        public array $data,
         public int $userId
     ) {
         $this->onQueue('low');
@@ -37,6 +38,7 @@ class DownloadXmlNfseEmLoteActionJob implements ShouldQueue
     public function handle(): void
     {
         try {
+            $this->records->loadMissing('tagged.tag');
 
             // Ensure the downloads directory exists with proper permissions
             $directory = 'downloads/'.now()->format('m-Y');
@@ -49,6 +51,10 @@ class DownloadXmlNfseEmLoteActionJob implements ShouldQueue
             $randomName = Str::random(8).'.zip';
             $filename = $directory.'/'.$randomName;
             $pathFile = storage_path('app/private/'.$filename);
+
+            $organizarPorEtiquetas = (bool) ($this->data['organizar_por_etiquetas'] ?? false);
+            $erros = [];
+            $csvRows = [];
 
             $zip = new ZipArchive;
             $result = $zip->open($pathFile, ZipArchive::CREATE | ZipArchive::OVERWRITE);
@@ -67,20 +73,62 @@ class DownloadXmlNfseEmLoteActionJob implements ShouldQueue
             foreach ($this->records as $record) {
                 try {
                     $subPath = '';
+                    if ($organizarPorEtiquetas) {
+                        $tagCount = count($record->tagged);
+                        if ($tagCount > 1) {
+                            $subPath = '#Multiplas Etiquetas/';
+                        } elseif ($tagCount === 1) {
+                            $tags = $record->tagNamesWithCode();
+                            $subPath = ($tags[0] ?? 'Sem Etiqueta').'/';
+                        } else {
+                            $subPath = 'Sem Etiqueta/';
+                        }
+                    }
 
                     $xml_content = $record->xml;
 
                     $xmlFileName = "{$record->chave}.xml";
                     $zip->addFromString($subPath.$xmlFileName, $xml_content);
+
+                    if ($organizarPorEtiquetas) {
+                        $valorNfse = $record->valor_servico ?? 0;
+
+                        if ($record->tagged->isEmpty()) {
+                            $csvRows[] = [
+                                'Chave' => '="'.($record->chave ?? '').'"',
+                                'Data de Emissao' => $this->formatDateSafe($record->data_emissao),
+                                'Data de Entrada' => $this->formatDateSafe($record->data_entrada),
+                                'Valor Servico' => number_format((float) $valorNfse, 2, ',', '.'),
+                                'Etiqueta' => '',
+                                'Valor Etiqueta' => number_format(0, 2, ',', '.'),
+                            ];
+                        } else {
+                            foreach ($record->tagged as $tagged) {
+                                $csvRows[] = [
+                                    'Chave' => '="'.($record->chave ?? '').'"',
+                                    'Data de Emissao' => $this->formatDateSafe($record->data_emissao),
+                                    'Data de Entrada' => $this->formatDateSafe($record->data_entrada),
+                                    'Valor Servico' => number_format((float) $valorNfse, 2, ',', '.'),
+                                    'Etiqueta' => $tagged->tag ? ($tagged->tag->code.' - '.$tagged->tag_name) : $tagged->tag_name,
+                                    'Valor Etiqueta' => number_format((float) ($tagged->value ?? 0), 2, ',', '.'),
+                                ];
+                            }
+                        }
+                    }
                 } catch (\Exception $e) {
-                    $erros[] = "Erro ao gerar DANFCE para a nota {$record->numero}: {$e->getMessage()}";
-                    Log::warning('Error generating DANFCE for nota', [
+                    $erros[] = "Erro ao gerar DANFSE para a nota {$record->numero}: {$e->getMessage()}";
+                    Log::warning('Error generating DANFSE for nota', [
                         'chave' => $record->chave,
-                        'numero' => $record->nNF,
+                        'numero' => $record->numero,
                         'error' => $e->getMessage(),
                         'job_class' => self::class,
                     ]);
                 }
+            }
+
+            if ($organizarPorEtiquetas && ! empty($csvRows)) {
+                $csvContent = $this->buildCsvContent($csvRows);
+                $zip->addFromString('_resumo_etiquetas.csv', $csvContent);
             }
 
             // Properly close the zip archive with error checking
@@ -161,5 +209,53 @@ class DownloadXmlNfseEmLoteActionJob implements ShouldQueue
             // Re-throw the exception to fail the job appropriately
             throw $e;
         }
+    }
+
+    /**
+     * Formats a date value safely, handling Carbon, DateTime, or string inputs.
+     */
+    protected function formatDateSafe(mixed $value): string
+    {
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('d/m/Y');
+        }
+
+        if (is_string($value) && $value !== '') {
+            return \Carbon\Carbon::parse($value)->format('d/m/Y');
+        }
+
+        return '';
+    }
+
+    /**
+     * Builds a CSV string from an array of associative arrays.
+     *
+     * @param  array<int, array<string, mixed>>  $rows
+     */
+    protected function buildCsvContent(array $rows): string
+    {
+        if (empty($rows)) {
+            return '';
+        }
+
+        $delimiter = ';';
+        $enclosure = '"';
+        $output = fopen('php://temp', 'r+');
+
+        // Force UTF-8 BOM for Excel compatibility
+        fwrite($output, "\xEF\xBB\xBF");
+
+        $headers = array_keys($rows[0]);
+        fputcsv($output, $headers, $delimiter, $enclosure);
+
+        foreach ($rows as $row) {
+            fputcsv($output, $row, $delimiter, $enclosure);
+        }
+
+        rewind($output);
+        $content = stream_get_contents($output);
+        fclose($output);
+
+        return $content !== false ? $content : '';
     }
 }

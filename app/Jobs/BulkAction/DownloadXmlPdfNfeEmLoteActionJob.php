@@ -113,17 +113,28 @@ class DownloadXmlPdfNfeEmLoteActionJob implements ShouldQueue
 
                     if ($organizarPorEtiquetas) {
                         $valorNota = $record->vNfe ?? 0;
-                        $valorEtiquetas = $record->tagged->sum(function ($tagged) {
-                            return $tagged->value ?? 0;
-                        });
 
-                        $csvRows[] = [
-                            'Chave' => '="'.($record->chave ?? '').'"',
-                            'Data de Emissao' => $record->data_emissao ? $record->data_emissao->format('d/m/Y') : '',
-                            'Data de Entrada' => $record->data_entrada ? $record->data_entrada->format('d/m/Y') : '',
-                            'Valor da Nota' => number_format((float) $valorNota, 2, ',', '.'),
-                            'Valor das Etiquetas' => number_format((float) $valorEtiquetas, 2, ',', '.'),
-                        ];
+                        if ($record->tagged->isEmpty()) {
+                            $csvRows[] = [
+                                'Chave' => '="'.($record->chave ?? '').'"',
+                                'Data de Emissao' => $this->formatDateSafe($record->data_emissao),
+                                'Data de Entrada' => $this->formatDateSafe($record->data_entrada),
+                                'Valor Contabil' => number_format((float) $valorNota, 2, ',', '.'),
+                                'Etiqueta' => '',
+                                'Valor Etiqueta' => number_format(0, 2, ',', '.'),
+                            ];
+                        } else {
+                            foreach ($record->tagged as $tagged) {
+                                $csvRows[] = [
+                                    'Chave' => '="'.($record->chave ?? '').'"',
+                                    'Data de Emissao' => $this->formatDateSafe($record->data_emissao),
+                                    'Data de Entrada' => $this->formatDateSafe($record->data_entrada),
+                                    'Valor Contabil' => number_format((float) $valorNota, 2, ',', '.'),
+                                    'Etiqueta' => $tagged->tag ? ($tagged->tag->code.' - '.$tagged->tag_name) : $tagged->tag_name,
+                                    'Valor Etiqueta' => number_format((float) ($tagged->value ?? 0), 2, ',', '.'),
+                                ];
+                            }
+                        }
                     }
                 } catch (\Exception $e) {
                     $erros[] = "Erro ao gerar DANFE para a nota {$record->numero}: {$e->getMessage()}";
@@ -201,6 +212,22 @@ class DownloadXmlPdfNfeEmLoteActionJob implements ShouldQueue
     }
 
     /**
+     * Formats a date value safely, handling Carbon, DateTime, or string inputs.
+     */
+    protected function formatDateSafe(mixed $value): string
+    {
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('d/m/Y');
+        }
+
+        if (is_string($value) && $value !== '') {
+            return \Carbon\Carbon::parse($value)->format('d/m/Y');
+        }
+
+        return '';
+    }
+
+    /**
      * Builds a CSV string from an array of associative arrays.
      *
      * @param  array<int, array<string, mixed>>  $rows
@@ -214,6 +241,9 @@ class DownloadXmlPdfNfeEmLoteActionJob implements ShouldQueue
         $delimiter = ';';
         $enclosure = '"';
         $output = fopen('php://temp', 'r+');
+
+        // Force UTF-8 BOM for Excel compatibility
+        fwrite($output, "\xEF\xBB\xBF");
 
         $headers = array_keys($rows[0]);
         fputcsv($output, $headers, $delimiter, $enclosure);

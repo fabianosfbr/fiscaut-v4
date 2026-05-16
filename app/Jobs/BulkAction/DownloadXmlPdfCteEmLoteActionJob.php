@@ -71,6 +71,7 @@ class DownloadXmlPdfCteEmLoteActionJob implements ShouldQueue
             $organizarPorEtiquetas = (bool) ($this->data['organizar_por_etiquetas'] ?? false);
             $adicionarEtiquetasPdf = (bool) ($this->data['adicionar_etiquetas_pdf'] ?? false);
             $erros = [];
+            $csvRows = [];
 
             foreach ($this->records as $record) {
                 try {
@@ -106,6 +107,32 @@ class DownloadXmlPdfCteEmLoteActionJob implements ShouldQueue
                         $xmlFileName = "{$record->chave}.xml";
                         $zip->addFromString($subPath.$xmlFileName, $xml_content);
                     }
+
+                    if ($organizarPorEtiquetas) {
+                        $valorCte = $record->vCTe ?? 0;
+
+                        if ($record->tagged->isEmpty()) {
+                            $csvRows[] = [
+                                'Chave' => '="'.($record->chave ?? '').'"',
+                                'Data de Emissao' => $this->formatDateSafe($record->data_emissao),
+                                'Data de Entrada' => $this->formatDateSafe($record->data_entrada),
+                                'Valor Contabil' => number_format((float) $valorCte, 2, ',', '.'),
+                                'Etiqueta' => '',
+                                'Valor Etiqueta' => number_format(0, 2, ',', '.'),
+                            ];
+                        } else {
+                            foreach ($record->tagged as $tagged) {
+                                $csvRows[] = [
+                                    'Chave' => '="'.($record->chave ?? '').'"',
+                                    'Data de Emissao' => $this->formatDateSafe($record->data_emissao),
+                                    'Data de Entrada' => $this->formatDateSafe($record->data_entrada),
+                                    'Valor Contabil' => number_format((float) $valorCte, 2, ',', '.'),
+                                    'Etiqueta' => $tagged->tag ? ($tagged->tag->code.' - '.$tagged->tag_name) : $tagged->tag_name,
+                                    'Valor Etiqueta' => number_format((float) ($tagged->value ?? 0), 2, ',', '.'),
+                                ];
+                            }
+                        }
+                    }
                 } catch (\Exception $e) {
                     $erros[] = "Erro ao gerar DACTE para o CT-e {$record->nCTe}: {$e->getMessage()}";
                     Log::warning('Error generating DACTE for CTe', [
@@ -115,6 +142,11 @@ class DownloadXmlPdfCteEmLoteActionJob implements ShouldQueue
                         'job_class' => self::class,
                     ]);
                 }
+            }
+
+            if ($organizarPorEtiquetas && ! empty($csvRows)) {
+                $csvContent = $this->buildCsvContent($csvRows);
+                $zip->addFromString('_resumo_etiquetas.csv', $csvContent);
             }
 
             // Properly close the zip archive with error checking
@@ -173,6 +205,54 @@ class DownloadXmlPdfCteEmLoteActionJob implements ShouldQueue
             // Re-throw the exception to fail the job appropriately
             throw $e;
         }
+    }
+
+    /**
+     * Formats a date value safely, handling Carbon, DateTime, or string inputs.
+     */
+    protected function formatDateSafe(mixed $value): string
+    {
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('d/m/Y');
+        }
+
+        if (is_string($value) && $value !== '') {
+            return \Carbon\Carbon::parse($value)->format('d/m/Y');
+        }
+
+        return '';
+    }
+
+    /**
+     * Builds a CSV string from an array of associative arrays.
+     *
+     * @param  array<int, array<string, mixed>>  $rows
+     */
+    protected function buildCsvContent(array $rows): string
+    {
+        if (empty($rows)) {
+            return '';
+        }
+
+        $delimiter = ';';
+        $enclosure = '"';
+        $output = fopen('php://temp', 'r+');
+
+        // Force UTF-8 BOM for Excel compatibility
+        fwrite($output, "\xEF\xBB\xBF");
+
+        $headers = array_keys($rows[0]);
+        fputcsv($output, $headers, $delimiter, $enclosure);
+
+        foreach ($rows as $row) {
+            fputcsv($output, $row, $delimiter, $enclosure);
+        }
+
+        rewind($output);
+        $content = stream_get_contents($output);
+        fclose($output);
+
+        return $content !== false ? $content : '';
     }
 
     /**
