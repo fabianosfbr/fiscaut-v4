@@ -4,11 +4,46 @@ use App\Console\Scheduling\DynamicTaskCommandExecutor;
 use App\Models\Issuer;
 use App\Services\SuperlogicaConnectionService;
 use Illuminate\Support\Facades\Artisan;
+use League\Uri\Http;
 
 Artisan::command('play', function () {
-    $issuer = Issuer::find(60);
+    // $response = Http::withHeaders([
+    //     'app_token' => 'ea3d95dc-0497-4ff1-8ced-d8f975a7fa0d',
+    //     'access_token' => '8bf684b7-ef02-46e6-9038-bd9842f06d26',
+    // ])
+    //     ->timeout(0)  // Sem timeout (0 = infinito)
+    //     ->get('https://api.superlogica.net/v2/condor/publico/downloadarquivo/?id=739167&hash=93dd66c71600e72a15d647cb7c4aa7947b66d278');
+
+    // // Retorna o corpo da resposta como string
+    // dd($response->body());
+
+    $issuer = Issuer::find(155);
 
     $service = new SuperlogicaConnectionService($issuer->tenant);
+
+    $params = [
+        'id' => 739167,
+        'hash' => '93dd66c71600e72a15d647cb7c4aa7947b66d278',
+    ];
+
+    $documento = $service
+        ->documento()
+        ->download($params);
+
+    dd($documento);
+
+    $params = [
+        'idCondominio' => $issuer->superlogica_condominio_id,
+        'dtInicio' => '05/01/2026',
+        'comStatus' => 'pendentes',
+    ];
+
+    $despesas = $service
+        ->despesa()
+        ->listarDespesa($params);
+
+    ds($despesas[0]);
+    dd($despesas[0]);
 
     $params = [
         'NM_PROCESSO_PROC' => 'S/N',
@@ -60,7 +95,7 @@ $argv = $_SERVER['argv'] ?? [];
 // Tenta encontrar o comando ignorando opções globais (ex: -v, --ansi)
 $artisanCommand = collect($argv)
     ->slice(1)
-    ->filter(fn ($arg) => ! str_starts_with($arg, '-'))
+    ->filter(fn($arg) => !str_starts_with($arg, '-'))
     ->first();
 
 app(DynamicTaskCommandExecutor::class)->registerFromDatabase($artisanCommand);
