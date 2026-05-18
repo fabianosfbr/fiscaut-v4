@@ -13,8 +13,13 @@ class SuperLogicaDespesaConnector
         return $this->get('/despesas/index', $filter);
     }
 
+    public function listarDespesa(array $filter = [])
+    {
+        return $this->get('/despesas/index', $filter);
+    }
+
     public function listarFornecedor(array $filter = [])
     {
         return $this->get('/fornecedores/index', $filter);
-    }
+    }    
 }

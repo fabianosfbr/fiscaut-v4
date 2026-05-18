@@ -28,7 +28,7 @@ class ConfiguracaoCobranca extends Page implements HasSchemas
 
     protected static string $settingName = 'configuracoes_cobranca';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
 
     public ?array $data = [];
 

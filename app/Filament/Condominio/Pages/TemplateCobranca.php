@@ -36,7 +36,7 @@ class TemplateCobranca extends Page implements HasSchemas
 
     protected static ?string $slug = 'template-cobranca';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 4;
 
     public ?array $data = [];
 

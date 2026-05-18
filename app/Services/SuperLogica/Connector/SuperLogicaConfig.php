@@ -33,11 +33,10 @@ trait SuperLogicaConfig
 
         $this->http = Http::withToken($accessToken)
             ->withHeaders([
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
                 'app_token' => $appToken,
                 'access_token' => $accessToken,
             ])
+            ->timeout(0)  // Sem timeout (0 = infinito)
             ->baseUrl($baseUrl);
     }
 
@@ -49,6 +48,21 @@ trait SuperLogicaConfig
                 ->get($url, $params)
                 ->throw()
                 ->json();
+        } catch (RequestException  $e) {
+            $response = $e->response;
+
+            return $response->json();
+        }
+    }
+
+        public function getFile(string $url, ?array $params = null)
+    {
+
+        try {
+            return $this->http
+                ->get($url, $params)
+                ->throw()
+                ->body();
         } catch (RequestException  $e) {
             $response = $e->response;
 

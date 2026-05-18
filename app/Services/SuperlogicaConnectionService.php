@@ -6,6 +6,7 @@ use App\Exceptions\SuperlogicaConnectionException;
 use App\Models\Tenant;
 use App\Services\SuperLogica\Condominio\SuperLogicaCondominioConnector;
 use App\Services\SuperLogica\Condominio\SuperLogicaDespesaConnector;
+use App\Services\SuperLogica\Condominio\SuperLogicaDocumentoConnector;
 use App\Services\SuperLogica\Condominio\SuperLogicaReceitaConnector;
 use App\Services\SuperLogica\Condominio\SuperLogicaUnidadeConnector;
 use Illuminate\Http\Client\ConnectionException;
@@ -33,6 +34,11 @@ class SuperlogicaConnectionService
         return new SuperLogicaDespesaConnector($this->tenant);
     }
 
+    public function documento()
+    {
+        return new SuperLogicaDocumentoConnector($this->tenant);
+    }
+
     public function receita()
     {
         return new SuperLogicaReceitaConnector($this->tenant);
@@ -45,7 +51,6 @@ class SuperlogicaConnectionService
      */
     public function validateConnection(Tenant $tenant): array|bool
     {
-
         $baseUrl = trim((string) ($tenant?->superlogica_base_url ?? ''));
         $appToken = trim((string) ($tenant?->superlogica_app_token ?? ''));
         $accessToken = trim((string) ($tenant?->superlogica_access_token ?? ''));
@@ -62,7 +67,7 @@ class SuperlogicaConnectionService
             throw new SuperlogicaConnectionException('access_token da Superlógica não configurado.');
         }
 
-        $endpoint = rtrim($baseUrl, '/').'/health/check';
+        $endpoint = rtrim($baseUrl, '/') . '/health/check';
 
         try {
             $response = Http::timeout(15)
@@ -74,18 +79,18 @@ class SuperlogicaConnectionService
                 ])
                 ->get($endpoint);
 
-            if (! $response->successful()) {
+            if (!$response->successful()) {
                 Log::error('Falha na validação Superlógica', [
                     'tenant_id' => $tenant?->id,
                     'status' => $response->status(),
                 ]);
 
-                throw new SuperlogicaConnectionException('Falha de conexão com a Superlógica (HTTP '.$response->status().').');
+                throw new SuperlogicaConnectionException('Falha de conexão com a Superlógica (HTTP ' . $response->status() . ').');
             }
 
             $payload = $response->json();
 
-            if (! is_array($payload) || $payload === []) {
+            if (!is_array($payload) || $payload === []) {
                 throw new SuperlogicaConnectionException('Resposta inválida da Superlógica no health check.');
             }
 
