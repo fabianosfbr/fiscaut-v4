@@ -45,7 +45,6 @@ class ListarContaPagar extends Page implements HasTable
             ->columns([
                 TextColumn::make('id_despesa_des')
                     ->label('ID')
-                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
                 TextColumn::make('dt_vencimento_pdes')
@@ -58,10 +57,8 @@ class ListarContaPagar extends Page implements HasTable
                         return data_get($record, 'apropriacao.0.st_descricao_cont', '') . ' ' . data_get($record, 'apropriacao.0.st_complemento_apro', '');
                     })
                     ->description(function (array $record) {
-                        ds($record);
                         return new HtmlString('<span style="color: #b3b3b6ff;">Despesa </span>' . $record['id_parcela_pdes'] . '<span style="color: #b3b3b6ff;"> para o favorecido </span>' . $record['st_nomerecebedor_fav'] ?? '');
                     })
-                    ->searchable(['st_descricao_cont', 'st_nomerecebedor_fav'])
                     ->sortable(),
                 TextColumn::make('forma_pagamento_text')
                     ->label('Forma de Pagamento')
@@ -70,7 +67,6 @@ class ListarContaPagar extends Page implements HasTable
                     ->sortable(),
                 TextColumn::make('st_descricao_cb')
                     ->label('Conta Bancária')
-                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false)
                     ->sortable(),
                 TextColumn::make('vl_valor_pdes')
@@ -107,7 +103,15 @@ class ListarContaPagar extends Page implements HasTable
                     }),
                 SelectFilter::make('id_forma_pag')
                     ->label('Forma de Pagamento')
-                    ->options($this->getFormaPagamentoOptions()),
+                    ->options($this->getFormaPagamentoOptions())
+                    ->indicateUsing(function(array $data){
+                        $indicators = [];
+                        if ($data['id_forma_pag'] ?? null) {
+                            $indicators[] = Indicator::make('Forma de Pagamento: ' . $this->mapFormaPagamento($data['id_forma_pag']))
+                                ->removeField('id_forma_pag');
+                        }
+                        return $indicators;
+                    }),
                 Filter::make('st_nomerecebedor_fav')
                     ->label('Favorecido')
                     ->schema([
@@ -120,12 +124,20 @@ class ListarContaPagar extends Page implements HasTable
                         }
 
                         return $query;
+                    })
+                    ->indicateUsing(function(array $data){
+                        $indicators = [];
+                        if ($data['favorecido'] ?? null) {
+                            $indicators[] = Indicator::make('Favorecido: ' . $data['favorecido'])
+                                ->removeField('favorecido');
+                        }
+                        return $indicators;
                     }),
                 Filter::make('st_descricao_cont')
                     ->label('Descrição')
                     ->schema([
                         TextInput::make('descricao')
-                            ->label('Texto da Descrição')
+                            ->label('Descrição')
                     ])
                     ->query(function ($query, array $data) {
                         if ($data['descricao'] ?? null) {
@@ -133,6 +145,14 @@ class ListarContaPagar extends Page implements HasTable
                         }
 
                         return $query;
+                    })
+                    ->indicateUsing(function (array $data) {
+                        $indicators = [];
+                        if ($data['descricao'] ?? null) {
+                            $indicators[] = Indicator::make('Descrição: ' . $data['descricao'])
+                                ->removeField('descricao');
+                        }
+                        return $indicators;
                     }),
             ])
             ->filtersFormColumns(3)
@@ -195,6 +215,7 @@ class ListarContaPagar extends Page implements HasTable
 
     protected function applyFilters(Collection $records, array $filters): Collection
     {
+        ds($filters);
         $despesaDe = data_get($filters, 'data_despesa.despesa_de');
         $despesaAte = data_get($filters, 'data_despesa.despesa_ate');
         $formaPagamento = data_get($filters, 'id_forma_pag.value');
@@ -287,6 +308,8 @@ class ListarContaPagar extends Page implements HasTable
     {
         $map = $this->getFormaPagamentoMap();
 
+        ds($map);
+
         return $map[(string) ($id ?? '')] ?? 'Indefinido';
     }
 
@@ -310,9 +333,10 @@ class ListarContaPagar extends Page implements HasTable
             '8' => 'Trans. Bancária',
             '9' => 'Doc/Ted',
             '10' => 'Outros',
+            '11' => 'Tributo sem código de barras ',
             '12' => 'Pix',
             '13' => 'DCTFWeb',
-            '14' => 'Débito Automático',
+            '14' => 'Pix Copia e Cola',
         ];
     }
 
