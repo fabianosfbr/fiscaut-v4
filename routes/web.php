@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CondosrContaPagarArquivoController;
 use App\Http\Controllers\IssuerAssembleiaDocumentController;
 use App\Http\Controllers\IssuerRagDocumentController;
 use App\Http\Controllers\PlanoDeContaSelectController;
@@ -27,8 +28,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('filament/remote-select/search', [PlanoDeContaSelectController::class, 'search'])
         ->name('filament.remote-select.search');
 
-    // Route::get('nfse/pdf/{id}', [NfsePdfController::class, 'showPdf'])
-    //     ->name('nfse.pdf.show');
+    Route::get('/condominio/conta-pagar/download-arquivo/{id}/{hash}', [CondosrContaPagarArquivoController::class, 'download'])
+        ->name('condominio.conta-pagar.download-arquivo');
 
     // // Rota para download do PDF de faturamento mensal
     // Route::get('app/relatorio-faturamento-mensal/download-pdf', function () {

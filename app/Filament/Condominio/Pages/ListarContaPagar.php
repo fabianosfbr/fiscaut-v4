@@ -3,9 +3,11 @@
 namespace App\Filament\Condominio\Pages;
 
 use App\Services\SuperlogicaConnectionService;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Pages\Page;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -13,6 +15,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\Indicator;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Contracts\View\View;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -81,6 +84,22 @@ class ListarContaPagar extends Page implements HasTable
                     ->numeric(decimalPlaces: 2, decimalSeparator: ',', thousandsSeparator: '.')
                     ->prefix('R$ ')
                     ->sortable(),
+            ])
+            ->recordActions([
+                Action::make('verArquivos')
+                    ->label('Arquivos')
+                    ->icon(Heroicon::PaperClip)
+                    ->visible(fn(array $record): bool => !empty(data_get($record, 'arquivos')))
+                    ->modalHeading('Arquivos da Cobrança')
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Fechar')
+                    ->schema([
+                        // We'll handle the display of files in the modal content below
+                    ])
+                    ->modalContent(function (array $record): View {
+                        $arquivos = data_get($record, 'arquivos', []);
+                        return view('filament.condominio.pages.partials.arquivos-cobranca', ['arquivos' => $arquivos]);
+                    })
             ])
             ->filters([
                 Filter::make('data_despesa')
@@ -216,14 +235,13 @@ class ListarContaPagar extends Page implements HasTable
                 'dtInicio' => '01/01/2026',
                 'comStatus' => 'pendentes',
             ]);
-        //dd($despesas[0]);
+  
 
         return collect($despesas);
     }
 
     protected function applyFilters(Collection $records, array $filters): Collection
     {
-        ds($filters);
         $despesaDe = data_get($filters, 'data_despesa.despesa_de');
         $despesaAte = data_get($filters, 'data_despesa.despesa_ate');
         $formaPagamento = data_get($filters, 'id_forma_pag.value');
@@ -346,7 +364,7 @@ class ListarContaPagar extends Page implements HasTable
             '8' => 'Trans. Bancária',
             '9' => 'Doc/Ted',
             '10' => 'Outros',
-            '11' => 'Tributo sem código de barras ',
+            '11' => 'Tributo sem código de barras',
             '12' => 'Pix',
             '13' => 'DCTFWeb',
             '14' => 'Pix Copia e Cola',

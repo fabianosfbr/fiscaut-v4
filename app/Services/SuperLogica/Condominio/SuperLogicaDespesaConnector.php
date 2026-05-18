@@ -18,8 +18,13 @@ class SuperLogicaDespesaConnector
         return $this->get('/despesas/index', $filter);
     }
 
-    public function listarFornecedor(array $filter = [])
+    public function listarFavorecido(array $filter = [])
     {
         return $this->get('/fornecedores/index', $filter);
-    }    
+    }
+
+    public function listarDadosPagamentoFavorecido(array $filter = [])
+    {
+        return $this->get('/contatofavorecido/index', $filter);
+    }
 }
