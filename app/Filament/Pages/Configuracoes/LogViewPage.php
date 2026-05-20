@@ -63,7 +63,7 @@ class LogViewPage extends Page
                             ->reactive()
                             ->hiddenLabel()
                             ->placeholder('Buscar arquivo de log...')
-                            ->options(fn (): Collection => $this->getFileNames($this->getFinder())->take(10))
+                            ->options(fn (): Collection => $this->getFileNames($this->getFinder())->take(30))
                             ->getSearchResultsUsing(fn (string $query): Collection => $this->getFileNames($this->getFinder()->name("*{$query}*"))),
 
                         TextInput::make('searchTerm')

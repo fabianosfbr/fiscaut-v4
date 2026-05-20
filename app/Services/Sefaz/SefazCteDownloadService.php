@@ -405,7 +405,7 @@ class SefazCteDownloadService
 
     public function sefazManifesta(string $chCTe, string $tpEvento, string $xJust, int $nSeqEvento, string $uf)
     {
-        $response = $this->tools->sefazManifesta($chCTe, $tpEvento, $xJust, $nSeqEvento, $uf);
+        $response = $this->tools->sefazManifesta($chCte, $tpEvento, $xJust, $nSeqEvento,  $uf);
 
         Log::info('Log de manifestação CTe - SEFAZ', [
             'issuer' => $this->issuer->razao_social,
