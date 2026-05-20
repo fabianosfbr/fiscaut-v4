@@ -63,6 +63,11 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         return true;
     }
 
+    public static function canAccessFilamentActivityLog(\App\Models\User $user): bool
+    {
+        return $user->hasRole('super-admin');
+    }
+
     public function panelPermissions()
     {
         return $this->hasMany(UserPanelPermission::class);

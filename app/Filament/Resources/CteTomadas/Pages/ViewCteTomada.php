@@ -19,8 +19,15 @@ class ViewCteTomada extends ViewRecord
             Action::make('cte-list')
                 ->label('Voltar para lista')
                 ->color('gray')
-                ->url(fn (): string => CteTomadaResource::getUrl('index')),
-
+                ->url(fn(): string => CteTomadaResource::getUrl('index')),
+            Action::make('manifestar-cte')
+                ->label('Manifestar CTE')
+                ->icon('heroicon-o-book-open')
+                ->button()
+                ->color('primary')
+                ->action(function () {
+                    dd('fiscaut');
+                }),
             ActionGroup::make([
                 DownloadXmlAction::make(),
                 DownloadPdfCteAction::make(),
