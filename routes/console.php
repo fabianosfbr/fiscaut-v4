@@ -4,18 +4,31 @@ use App\Console\Scheduling\DynamicTaskCommandExecutor;
 use App\Models\Issuer;
 use App\Services\SuperlogicaConnectionService;
 use Illuminate\Support\Facades\Artisan;
-use League\Uri\Http;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 Artisan::command('play', function () {
-    // $response = Http::withHeaders([
-    //     'app_token' => 'ea3d95dc-0497-4ff1-8ced-d8f975a7fa0d',
-    //     'access_token' => '8bf684b7-ef02-46e6-9038-bd9842f06d26',
-    // ])
-    //     ->timeout(0)  // Sem timeout (0 = infinito)
-    //     ->get('https://api.superlogica.net/v2/condor/publico/downloadarquivo/?id=739167&hash=93dd66c71600e72a15d647cb7c4aa7947b66d278');
+    $filePath = 'documentos-superlogica/cd4ede0ac28b6e02a157fa609a1392bd107cd783.pdf';
+    $fileContent = Storage::disk('local')->get($filePath);
+    $fileName = basename($filePath);
 
-    // // Retorna o corpo da resposta como string
-    // dd($response->body());
+    ds($fileContent);
+
+    $response = Http::withHeaders([
+        'app_token' => 'ea3d95dc-0497-4ff1-8ced-d8f975a7fa0d',
+        'access_token' => '8bf684b7-ef02-46e6-9038-bd9842f06d26',
+    ])
+        ->attach(
+            'ARQUIVO',
+            $fileContent,
+            $fileName
+        )
+        ->post('https://api.superlogica.net/v2/condor/arquivos/', [
+            'ID_RESPONSAVEL_ARQ' => '983',
+            'FL_TIPO_ARQ' => '9',
+        ]);
+
+    dd($response->json());
 
     $issuer = Issuer::find(155);
 

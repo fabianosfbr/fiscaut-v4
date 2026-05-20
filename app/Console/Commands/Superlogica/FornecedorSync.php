@@ -38,7 +38,7 @@ class FornecedorSync extends Command
         $tenants = Tenant::whereNotNull('superlogica_base_url')
             ->whereNotNull('superlogica_app_token')
             ->whereNotNull('superlogica_access_token')
-            ->when($tenantId !== null, fn($q) => $q->where('id', $tenantId))
+            ->when($tenantId !== null, fn ($q) => $q->where('id', $tenantId))
             ->get();
 
         foreach ($tenants as $tenant) {
@@ -187,7 +187,7 @@ class FornecedorSync extends Command
         $havePagination = true;
         $pagina = 1;
         while ($havePagination) {
-            $fornecedores = $service->despesa()->listarFavorecido([                
+            $fornecedores = $service->despesa()->listarFavorecido([
                 'itensPorPagina' => 50,
                 'pagina' => $pagina,
             ]);
@@ -202,7 +202,7 @@ class FornecedorSync extends Command
                 SuperLogicaFornecedor::updateOrCreate([
                     'id_contato_con' => $fornecedor['id_contato_con'],
                     'id_condominio' => $fornecedor['id_condominio_cond'],
-                    'st_nome_con' => $fornecedor['st_nome_con'],
+                    'st_nome_con' => $fornecedor['st_fantasia_con'],
                     'st_cpf_con' => $fornecedor['st_cpf_con'] ?? null,
                 ], [
                     'metadados' => $fornecedor,

@@ -14,7 +14,6 @@ trait SuperLogicaConfig
         protected Tenant $tenant,
         protected ?PendingRequest $http = null
     ) {
-
         $baseUrl = trim((string) ($tenant?->superlogica_base_url ?? ''));
         $appToken = trim((string) ($tenant?->superlogica_app_token ?? ''));
         $accessToken = trim((string) ($tenant?->superlogica_access_token ?? ''));
@@ -42,28 +41,28 @@ trait SuperLogicaConfig
 
     public function get(string $url, ?array $params = null)
     {
-
         try {
-            return $this->http
+            return $this
+                ->http
                 ->get($url, $params)
                 ->throw()
                 ->json();
-        } catch (RequestException  $e) {
+        } catch (RequestException $e) {
             $response = $e->response;
 
             return $response->json();
         }
     }
 
-        public function getFile(string $url, ?array $params = null)
+    public function getFile(string $url, ?array $params = null)
     {
-
         try {
-            return $this->http
+            return $this
+                ->http
                 ->get($url, $params)
                 ->throw()
                 ->body();
-        } catch (RequestException  $e) {
+        } catch (RequestException $e) {
             $response = $e->response;
 
             return $response->json();
@@ -73,11 +72,32 @@ trait SuperLogicaConfig
     public function post(string $url, ?array $params = null)
     {
         try {
-            return $this->http
+            return $this
+                ->http
                 ->post($url, $params)
                 ->throw()
                 ->json();
-        } catch (RequestException  $e) {
+        } catch (RequestException $e) {
+            $response = $e->response;
+
+            return $response->json();
+        }
+    }
+
+    public function attach(string $url, array $file, array $params)
+    {
+        try {
+            return $this
+                ->http
+                ->attach(
+                    'ARQUIVO',
+                    $file['conteudo'],
+                    $file['nm_arquivo']
+                )
+                ->post($url, $params)
+                ->throw()
+                ->json();
+        } catch (RequestException $e) {
             $response = $e->response;
 
             return $response->json();
@@ -87,12 +107,13 @@ trait SuperLogicaConfig
     public function postForm(string $url, ?array $params = null)
     {
         try {
-            return $this->http
+            return $this
+                ->http
                 ->asForm()
                 ->post($url, $params)
                 ->throw()
                 ->json();
-        } catch (RequestException  $e) {
+        } catch (RequestException $e) {
             $response = $e->response;
 
             return $response->json();
@@ -102,11 +123,12 @@ trait SuperLogicaConfig
     public function delete(string $url)
     {
         try {
-            return $this->http
+            return $this
+                ->http
                 ->delete($url)
                 ->throw()
                 ->json();
-        } catch (RequestException  $e) {
+        } catch (RequestException $e) {
             $response = $e->response;
 
             return $response->json();
@@ -116,11 +138,28 @@ trait SuperLogicaConfig
     public function put(string $url, array $params)
     {
         try {
-            return $this->http
+            return $this
+                ->http
                 ->put($url, $params)
                 ->throw()
                 ->json();
-        } catch (RequestException  $e) {
+        } catch (RequestException $e) {
+            $response = $e->response;
+
+            return $response->json();
+        }
+    }
+
+    public function putForm(string $url, array $params)
+    {
+        try {
+            return $this
+                ->http
+                ->asForm()
+                ->put($url, $params)
+                ->throw()
+                ->json();
+        } catch (RequestException $e) {
             $response = $e->response;
 
             return $response->json();
@@ -130,11 +169,12 @@ trait SuperLogicaConfig
     public function patch(string $url)
     {
         try {
-            return $this->http
+            return $this
+                ->http
                 ->patch($url)
                 ->throw()
                 ->json();
-        } catch (RequestException  $e) {
+        } catch (RequestException $e) {
             $response = $e->response;
 
             return $response->json();

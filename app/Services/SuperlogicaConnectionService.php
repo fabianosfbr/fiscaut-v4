@@ -4,7 +4,9 @@ namespace App\Services;
 
 use App\Exceptions\SuperlogicaConnectionException;
 use App\Models\Tenant;
+use App\Services\SuperLogica\Condominio\SuperLogicaArquivoConnector;
 use App\Services\SuperLogica\Condominio\SuperLogicaCondominioConnector;
+use App\Services\SuperLogica\Condominio\SuperLogicaCondominioPlanoDeContaConnector;
 use App\Services\SuperLogica\Condominio\SuperLogicaDespesaConnector;
 use App\Services\SuperLogica\Condominio\SuperLogicaDocumentoConnector;
 use App\Services\SuperLogica\Condominio\SuperLogicaReceitaConnector;
@@ -39,9 +41,19 @@ class SuperlogicaConnectionService
         return new SuperLogicaDocumentoConnector($this->tenant);
     }
 
+    public function arquivo()
+    {
+        return new SuperLogicaArquivoConnector($this->tenant);
+    }
+
     public function receita()
     {
         return new SuperLogicaReceitaConnector($this->tenant);
+    }
+
+    public function planoDeContas()
+    {
+        return new SuperLogicaCondominioPlanoDeContaConnector($this->tenant);
     }
 
     /**

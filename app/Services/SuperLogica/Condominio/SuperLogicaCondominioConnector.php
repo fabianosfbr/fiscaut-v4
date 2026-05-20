@@ -25,11 +25,11 @@ class SuperLogicaCondominioConnector
 
     public function contaBancaria()
     {
-        return new SuperLogicaCondominioContaBancariaConnector($this->issuer);
+        return new SuperLogicaCondominioContaBancariaConnector($this->tenant);
     }
 
     public function planoDeConta()
     {
-        return new SuperLogicaCondominioPlanoDeContaConnector($this->issuer);
+        return new SuperLogicaCondominioPlanoDeContaConnector($this->tenant);
     }
 }

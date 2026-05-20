@@ -2,12 +2,9 @@
 
 namespace App\Console\Commands\Superlogica;
 
-use App\Models\Issuer;
 use App\Models\SuperLogicaCondominio;
-use App\Models\SuperLogicaContaBancaria;
 use App\Models\SuperLogicaFornecedor;
 use App\Models\SuperLogicaPlanoDeConta;
-use App\Models\SuperLogicaUnidade;
 use App\Models\Tenant;
 use App\Services\SuperlogicaConnectionService;
 use Illuminate\Console\Command;
@@ -38,7 +35,7 @@ class PlanoDeContaSync extends Command
         $tenants = Tenant::whereNotNull('superlogica_base_url')
             ->whereNotNull('superlogica_app_token')
             ->whereNotNull('superlogica_access_token')
-            ->when($tenantId !== null, fn($q) => $q->where('id', $tenantId))
+            ->when($tenantId !== null, fn ($q) => $q->where('id', $tenantId))
             ->get();
 
         foreach ($tenants as $tenant) {
