@@ -82,7 +82,7 @@ class UnidadeSync extends Command
                         'pagina' => $pagina,
                     ]);
 
-                    if (count($unidades) == 0) {
+                    if (empty($unidades)) {
                         $havePagination = false;
                     }
 

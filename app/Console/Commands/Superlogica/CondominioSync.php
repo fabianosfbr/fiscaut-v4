@@ -77,7 +77,7 @@ class CondominioSync extends Command
                 'pagina' => $pagina,
             ]);
 
-            if (count($condominios) == 0) {
+             if (empty($condominios)) {
                 $havePagination = false;
             }
 

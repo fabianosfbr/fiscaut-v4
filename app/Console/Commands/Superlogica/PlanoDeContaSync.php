@@ -63,7 +63,7 @@ class PlanoDeContaSync extends Command
                     'pagina' => $pagina,
                 ]);
 
-                if (count($contas) == 0) {
+                if (empty($contas)) {
                     $havePagination = false;
                 }
 
