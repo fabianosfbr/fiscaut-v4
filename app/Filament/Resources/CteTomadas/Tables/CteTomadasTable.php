@@ -130,7 +130,7 @@ class CteTomadasTable
                 TextColumn::make('tpCTe')
                     ->label('Tipo')
                     ->alignCenter()
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
                         '0' => 'Normal',
                         '1' => 'Compl. de valor',
                         '2' => 'Anulação',
@@ -168,10 +168,10 @@ class CteTomadasTable
                         return "Emissão: {$inicio} até {$fim}";
                     })
                     ->query(function (Builder $query, array $data): Builder {
-                        if (! empty($data['data_emissao_inicio'])) {
+                        if (!empty($data['data_emissao_inicio'])) {
                             $query->whereDate('data_emissao', '>=', $data['data_emissao_inicio']);
                         }
-                        if (! empty($data['data_emissao_fim'])) {
+                        if (!empty($data['data_emissao_fim'])) {
                             $query->whereDate('data_emissao', '<=', $data['data_emissao_fim']);
                         }
 
@@ -183,6 +183,13 @@ class CteTomadasTable
                         '100' => 'Ativa',
                         '101' => 'Cancelada',
                         '302' => 'Denegada',
+                    ])
+                    ->placeholder('Todos os status'),
+                SelectFilter::make('status_manifestacao')
+                    ->label('Manifestação')
+                    ->options([
+                        '0' => 'Ativa',
+                        '610110' => 'Servico em desacordo',
                     ])
                     ->placeholder('Todos os status'),
                 SelectFilter::make('tipo_cte')
@@ -205,11 +212,11 @@ class CteTomadasTable
                         }
 
                         return $data['value']
-                            ? $query->whereHas('apurada', fn (Builder $query): Builder => $query->where('status', true))
+                            ? $query->whereHas('apurada', fn(Builder $query): Builder => $query->where('status', true))
                             : $query->where(function (Builder $query): Builder {
                                 return $query
                                     ->whereDoesntHave('apurada')
-                                    ->orWhereHas('apurada', fn (Builder $query): Builder => $query->where('status', false));
+                                    ->orWhereHas('apurada', fn(Builder $query): Builder => $query->where('status', false));
                             });
                     }),
                 TernaryFilter::make('aguardando_nfe')
@@ -266,10 +273,10 @@ class CteTomadasTable
                         $etiquetas = Tag::whereIn('id', $data['etiquetas'])
                             ->get()
                             ->keyBy('id')
-                            ->map(fn ($tag) => $tag->code.' - '.$tag->name)
+                            ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
                             ->toArray();
 
-                        return 'Etiquetas: '.implode(', ', $etiquetas);
+                        return 'Etiquetas: ' . implode(', ', $etiquetas);
                     }),
             ])
             ->filtersFormColumns(3)

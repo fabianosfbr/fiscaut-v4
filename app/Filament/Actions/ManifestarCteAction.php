@@ -40,7 +40,7 @@ class ManifestarCteAction
                     ->required()
                     ->default(610110)
                     ->options([
-                        '610110' => 'Prestação de serviço em desarcordo',
+                        '610110' => 'Prestação de serviço em desacordo',
                     ]),
                 Textarea::make('justificativa')
                     ->label('Justificativa')
