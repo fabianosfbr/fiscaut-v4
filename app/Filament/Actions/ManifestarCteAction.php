@@ -5,7 +5,6 @@ namespace App\Filament\Actions;
 use App\Models\Estado;
 use App\Services\Sefaz\SefazCteDownloadService;
 use App\Services\Xml\XmlReaderService;
-use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -13,6 +12,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Support\Exceptions\Halt;
 use Illuminate\Database\Eloquent\Model;
+use Exception;
 
 class ManifestarCteAction
 {
@@ -49,7 +49,6 @@ class ManifestarCteAction
                     ->required(),
             ])
             ->action(function (array $data, Model $record) {
-
                 if (empty($record->xml)) {
                     return;
                 }
@@ -64,14 +63,14 @@ class ManifestarCteAction
                 $uf = Estado::whereId($codUf)->first()?->sigla;
 
                 $issuer = currentIssuer();
-                $service = new SefazCteDownloadService($issuer);
 
                 try {
+                    $service = new SefazCteDownloadService($issuer);
                     $manifestado = $service->sefazManifesta($record->chave, $statusManifestacao, $justificativa, 1, $uf);
                 } catch (Exception $e) {
                     Notification::make()
                         ->title('Erro ao manifestar CTe')
-                        ->body('Falha ao manifestar CTe. Por favor, entre em contato com o administrador. '.$e->getMessage())
+                        ->body('Falha ao manifestar CTe. Por favor, entre em contato com o administrador. ' . $e->getMessage())
                         ->danger()
                         ->send();
 

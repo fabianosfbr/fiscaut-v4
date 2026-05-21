@@ -58,12 +58,14 @@ class ManifestarNfeAction
                 if (empty($record->xml)) {
                     return;
                 }
-                $justificativa = array_key_exists('justificativa', $data) ? $data['justificativa'] : '';
+                $statusManifestacao = $data['status_manifestacao'] ?? null;
+                $justificativa = $data['justificativa'] ?? '';
 
                 $issuer = currentIssuer();
-                $service = new SefazNfeDownloadService($issuer);
+                
 
                 try {
+                    $service = new SefazNfeDownloadService($issuer);
                     $manifestado = $service->sefazManifesta($record->chave, $data['status_manifestacao'], $justificativa);
                 } catch (Exception $e) {
 
