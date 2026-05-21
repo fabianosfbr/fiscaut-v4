@@ -14,6 +14,7 @@ class ImportLancamentoSuperLogicaOverview extends StatsOverviewWidget
         $user = Auth::user();
         $resultados = ImportarLancamentoContabil::where('issuer_id', $user->currentIssuer->id)
             ->where('user_id', $user->id)
+            ->whereNotNull('data')
             ->whereJsonContains('metadata->type', 'super_logica')
             ->selectRaw('COUNT(*) as total_registros')
             ->selectRaw('SUM(CASE WHEN is_exist = 1 THEN 1 ELSE 0 END) as total_vinculados')

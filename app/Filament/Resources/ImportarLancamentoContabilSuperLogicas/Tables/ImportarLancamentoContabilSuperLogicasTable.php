@@ -12,15 +12,17 @@ class ImportarLancamentoContabilSuperLogicasTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->recordUrl(null)
             ->modifyQueryUsing(function (Builder $query) {
-                $query->where('issuer_id', currentIssuer()->id)
+                $query
+                    ->where('issuer_id', currentIssuer()->id)
+                    ->whereNotNull('data')
                     ->whereJsonContains('metadata->type', 'super_logica');
             })
             ->columns([
                 TextColumn::make('data')
                     ->label('Data')
                     ->date('d/m/Y'),
-
                 TextColumn::make('debito')
                     ->label('Débito')
                     ->searchable()
@@ -30,7 +32,6 @@ class ImportarLancamentoContabilSuperLogicasTable
                     ->badge()
                     ->color('success')
                     ->copyable(),
-
                 TextColumn::make('credito')
                     ->label('Crédito')
                     ->searchable()
@@ -40,7 +41,6 @@ class ImportarLancamentoContabilSuperLogicasTable
                     ->badge()
                     ->color('danger')
                     ->copyable(),
-
                 TextColumn::make('valor')
                     ->label('Valor')
                     ->formatStateUsing(function ($state) {
@@ -50,7 +50,6 @@ class ImportarLancamentoContabilSuperLogicasTable
 
                         return 'R$ '.number_format($state, 2, ',', '.');
                     }),
-
                 TextColumn::make('historico')
                     ->label('Histórico Contábil')
                     ->searchable()

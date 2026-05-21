@@ -62,7 +62,6 @@ class ManifestarNfeAction
                 $justificativa = $data['justificativa'] ?? '';
 
                 $issuer = currentIssuer();
-                
 
                 try {
                     $service = new SefazNfeDownloadService($issuer);

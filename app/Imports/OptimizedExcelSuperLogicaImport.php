@@ -5,101 +5,333 @@ namespace App\Imports;
 use App\Models\HistoricoContabil;
 use App\Models\ParametroSuperLogica;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use PhpOffice\PhpSpreadsheet\Shared\Date;
-use Rap2hpoutre\FastExcel\FastExcel;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx as XlsxReader;
 
 class OptimizedExcelSuperLogicaImport
 {
-    private string $file;
+    private string $filePath;
 
-    private array $headers = [];
+    private string $currentSection = '';
 
-    private array $columnMap = [];
+    private string $currentCategory = '';
 
-    private const SECTION_RECEITAS = 'receitas';
+    private array $records = [];
 
-    private const SECTION_DESPESAS = 'despesas';
+    private const SECAO_RECEITAS = 'Receitas';
 
-    public function __construct(string $file)
+    private const SECAO_DESPESAS = 'Despesas';
+
+    private const LABEL_TOTAL = 'Total de ';
+
+    private const MAX_COLUMN = 14; // coluna N
+
+    public function __construct(string $filePath)
     {
-        $this->file = $file;
+        $this->filePath = $filePath;
     }
 
-    public function getData(): array
+    public function read(): Collection
     {
-        $rows = [];
+        $this->records = [];
+        $this->currentSection = '';
+        $this->currentCategory = '';
 
-        $collection = (new FastExcel)
-            ->withoutHeaders()
-            ->import($this->file, function ($row) {
-                return $row;
-            });
+        $reader = new XlsxReader;
+        $reader->setReadDataOnly(true);
+        $reader->setReadFilter(new class(self::MAX_COLUMN) implements IReadFilter
+        {
+            public function __construct(private int $maxColumn) {}
 
-        $currentSection = null;
-        $currentHeaderMap = null;
-        $currentCategory = null;
-
-        foreach ($collection as $index => $row) {
-            $excelRow = $index + 1;
-            $values = $this->normalizeRowValues($row);
-
-            if ($this->isEmptyRow($values)) {
-                continue;
+            public function readCell(string $column, int $row, string $worksheetName = ''): bool
+            {
+                return Coordinate::columnIndexFromString($column) <= $this->maxColumn;
             }
+        });
 
-            $headerInfo = $this->detectHeader($values);
-            if ($headerInfo) {
-                $currentSection = $headerInfo['section'];
-                $currentHeaderMap = $headerInfo['map'];
-                $currentCategory = null;
+        $spreadsheet = $reader->load($this->filePath);
+        $sheet = $spreadsheet->getActiveSheet();
+        $highestRow = $sheet->getHighestRow();
 
-                continue;
-            }
+        for ($row = 1; $row <= $highestRow; $row++) {
+            $cells = $this->readRowCells($sheet, $row);
 
-            if (! $currentSection || ! $currentHeaderMap) {
-                if ($this->containsSectionTitle($values, self::SECTION_RECEITAS)) {
-                    $currentSection = self::SECTION_RECEITAS;
-                } elseif ($this->containsSectionTitle($values, self::SECTION_DESPESAS)) {
-                    $currentSection = self::SECTION_DESPESAS;
-                }
+            if ($this->isSectionHeader($cells)) {
+                $this->currentSection = trim((string) $cells['A']);
+                $this->currentCategory = '';
 
                 continue;
             }
 
-            $descricao = $this->valueAt($values, $currentHeaderMap['descricao']);
-            $competencia = $this->valueAt($values, $currentHeaderMap['competencia']);
-            $liquidacao = $this->valueAt($values, $currentHeaderMap['liquidacao']);
-            $valor = $this->valueAt($values, $currentHeaderMap['valor']);
-            $extra1 = $this->valueAt($values, $currentHeaderMap['extra1'] ?? null);
-            $extra2 = $this->valueAt($values, $currentHeaderMap['extra2'] ?? null);
+            if ($this->currentSection === '') {
+                continue;
+            }
 
-            if ($this->isCategoryRow($descricao, $competencia, $liquidacao, $valor, $extra1, $extra2)) {
-                $currentCategory = $this->cleanText($descricao);
+            if ($this->isIgnorableRow($cells)) {
+                continue;
+            }
+
+            if ($this->isTotalRow($cells)) {
+                continue;
+            }
+
+            $valor = $this->getValor($cells);
+
+            if ($valor !== null && abs($valor) > 0.001) {
+                $this->records[] = $this->extractRecord($cells, $valor);
 
                 continue;
             }
 
-            if ($descricao === null && $valor === null) {
+            if ($this->isCategoryRow($cells)) {
+                $this->currentCategory = trim((string) $cells['A']);
+
                 continue;
             }
-
-            $rows[] = [
-                'excel_row' => $excelRow,
-                'section' => $currentSection,
-                'categoria' => $currentCategory,
-                'descricao' => $this->cleanText($descricao),
-                'competencia' => $this->parseDate($competencia),
-                'liquidacao' => $this->parseDate($liquidacao),
-                'credito' => $currentSection === self::SECTION_RECEITAS ? $this->cleanText($extra1) : null,
-                'documento' => $currentSection === self::SECTION_DESPESAS ? $this->cleanText($extra1) : null,
-                'conta_bancaria' => $currentSection === self::SECTION_DESPESAS ? $this->cleanText($extra2) : null,
-                'valor' => $this->parseDecimal($valor),
-                'is_total' => $this->isTotalRow($descricao),
-            ];
         }
 
-        return $rows;
+        return collect($this->records);
+    }
+
+    public function getRecords(): Collection
+    {
+        if (empty($this->records)) {
+            return $this->read();
+        }
+
+        return collect($this->records);
+    }
+
+    public function getSections(): array
+    {
+        if (empty($this->records)) {
+            $this->read();
+        }
+
+        return [
+            'receitas' => collect(array_filter($this->records, fn ($r) => $r['secao'] === self::SECAO_RECEITAS)),
+            'despesas' => collect(array_filter($this->records, fn ($r) => $r['secao'] === self::SECAO_DESPESAS)),
+        ];
+    }
+
+    private function readRowCells($sheet, int $row): array
+    {
+        $cells = [];
+        for ($col = 1; $col <= self::MAX_COLUMN; $col++) {
+            $colLetter = Coordinate::stringFromColumnIndex($col);
+            $cell = $sheet->getCell($colLetter.$row);
+            $cells[$colLetter] = $cell->isFormula() ? $cell->getOldCalculatedValue() : $cell->getValue();
+        }
+
+        return $cells;
+    }
+
+    private function isSectionHeader(array $cells): bool
+    {
+        $a = trim((string) ($cells['A'] ?? ''));
+
+        return in_array($a, [self::SECAO_RECEITAS, self::SECAO_DESPESAS], true)
+            && ! empty($cells['B']);
+    }
+
+    private function isIgnorableRow(array $cells): bool
+    {
+        $a = trim((string) ($cells['A'] ?? ''));
+
+        if ($a === '' && $cells['B'] === null && $cells['C'] === null) {
+            return true;
+        }
+
+        if (
+            str_contains($a, 'Demonstrativo de Receitas e Despesas')
+            || str_contains($a, 'Entre ')
+            || str_contains($a, 'Saldo em ')
+            || str_contains($a, 'Mov. Líquido')
+            || str_contains($a, 'Resumo Financeiro')
+            || str_contains($a, 'Saldo final')
+            || str_contains($a, 'Inclui transferência')
+            || $a === 'Conta'
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function isTotalRow(array $cells): bool
+    {
+        $a = trim((string) ($cells['A'] ?? ''));
+
+        return str_starts_with($a, self::LABEL_TOTAL);
+    }
+
+    private function isCategoryRow(array $cells): bool
+    {
+        $a = trim((string) ($cells['A'] ?? ''));
+
+        if ($a === '') {
+            return false;
+        }
+
+        if ($this->looksLikeSubHeader($cells)) {
+            return false;
+        }
+
+        if (preg_match('/^\d/', $a)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function looksLikeSubHeader(array $cells): bool
+    {
+        $knownLabels = ['competência', 'liquidação', 'crédito', 'documento', 'forma de pgto.', 'conta bancária', 'valor', 'data', 'debito', 'credito', 'cod.', 'historico'];
+
+        foreach (['B', 'C', 'D', 'E', 'F', 'G', 'H'] as $col) {
+            $val = mb_strtolower(trim((string) ($cells[$col] ?? '')));
+            if (in_array($val, $knownLabels, true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function extractRecord(array $cells, ?float $valor = null): array
+    {
+        $isReceita = $this->currentSection === self::SECAO_RECEITAS;
+
+        return [
+            'secao' => $this->currentSection,
+            'categoria' => $this->currentCategory,
+            'descricao' => trim((string) ($cells['A'] ?? '')),
+            'competencia' => $this->extractCompetencia($cells),
+            'liquidacao' => $this->extractLiquidacao($cells, $isReceita),
+            'credito' => $isReceita ? $this->extractCreditoReceita($cells) : null,
+            'documento' => $isReceita ? null : $this->extractDocumento($cells),
+            'forma_pagamento' => $isReceita ? null : $this->extractFormaPagamento($cells),
+            'conta_bancaria' => $isReceita ? null : $this->extractContaBancaria($cells),
+            'valor' => $valor ?? $this->getValor($cells),
+        ];
+    }
+
+    private function extractCompetencia(array $cells): ?string
+    {
+        $b = $cells['B'] ?? null;
+
+        if ($b !== null && preg_match('/^\d{2}\/\d{4}$/', trim((string) $b))) {
+            return trim((string) $b);
+        }
+
+        return null;
+    }
+
+    private function extractLiquidacao(array $cells, bool $isReceita): ?string
+    {
+        $c = $cells['C'] ?? null;
+
+        if ($c !== null) {
+            $val = trim((string) $c);
+            if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $val)) {
+                return $val;
+            }
+        }
+
+        return null;
+    }
+
+    private function extractCreditoReceita(array $cells): ?string
+    {
+        $d = $cells['D'] ?? null;
+
+        if ($d !== null) {
+            $val = trim((string) $d);
+            if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $val)) {
+                return $val;
+            }
+        }
+
+        return null;
+    }
+
+    private function extractDocumento(array $cells): ?string
+    {
+        $d = $cells['D'] ?? null;
+
+        if ($d !== null) {
+            $val = trim((string) $d);
+            if (! preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $val) && $val !== '') {
+                return $val;
+            }
+        }
+
+        return null;
+    }
+
+    private function extractFormaPagamento(array $cells): ?string
+    {
+        $e = $cells['E'] ?? null;
+
+        if ($e !== null) {
+            $val = trim((string) $e);
+            if ($val !== '' && ! str_contains($val, '%')) {
+                return $val;
+            }
+        }
+
+        return null;
+    }
+
+    private function extractContaBancaria(array $cells): ?string
+    {
+        $f = $cells['F'] ?? null;
+
+        if ($f !== null && is_string($f)) {
+            $val = trim($f);
+            if ($val !== '') {
+                return $val;
+            }
+        }
+
+        return null;
+    }
+
+    private function getValor(array $cells): ?float
+    {
+        $isReceita = $this->currentSection === self::SECAO_RECEITAS;
+
+        $coluna = $isReceita ? 'F' : 'H';
+
+        $raw = $cells[$coluna] ?? $cells['F'] ?? $cells['H'] ?? null;
+
+        if ($raw === null || $raw === '') {
+            return null;
+        }
+
+        if (is_numeric($raw)) {
+            return (float) $raw;
+        }
+
+        return $this->parseBrazilianNumber((string) $raw);
+    }
+
+    private function parseBrazilianNumber(string $value): ?float
+    {
+        $value = trim($value);
+        $value = str_replace(' ', '', $value);
+        $value = str_replace('%', '', $value);
+        $value = str_replace('.', '', $value);
+        $value = str_replace(',', '.', $value);
+
+        if (is_numeric($value)) {
+            return (float) $value;
+        }
+
+        return null;
     }
 
     public function prepareData(array $rows, int $issuerId): array
@@ -112,14 +344,6 @@ class OptimizedExcelSuperLogicaImport
         $prepared = [];
 
         foreach ($rows as $row) {
-            if (($row['is_total'] ?? false) === true) {
-                continue;
-            }
-
-            if (! isset($row['valor']) || $row['valor'] === null) {
-                continue;
-            }
-
             $match = $this->findParametroMatch($parametros, $row);
 
             $contaCredito = $match?->contaCredito?->codigo;
@@ -142,366 +366,25 @@ class OptimizedExcelSuperLogicaImport
             $historico = $historicoTemplate ? $this->resolveHistorico($historicoTemplate, $row) : null;
 
             $prepared[] = [
-                'section' => $row['section'] ? $this->normalizeText($row['section']) : null,
+                'secao' => $row['secao'] ? $this->normalizeText($row['secao']) : null,
                 'categoria' => $row['categoria'] ? $this->normalizeText($row['categoria']) : null,
                 'descricao' => $row['descricao'] ?? null,
-                'competencia' => $row['competencia'] ?? null,
-                'liquidacao' => $row['liquidacao'] ?? null,
-                'credito' => $row['credito'] ?? null,
+                'competencia' => $this->formatDate($row['competencia']) ?? null,
+                'liquidacao' => $this->formatDate($row['liquidacao']) ?? null,
+                'credito' => $this->formatDate($row['credito']) ?? null,
                 'documento' => $row['documento'] ?? null,
                 'conta_bancaria' => $row['conta_bancaria'] ?? null,
-                'valor' => $row['valor'],
+                'valor' => is_numeric($row['valor']) ? (float) $row['valor'] : $row['valor'],
                 'conta_credito' => $contaCredito,
                 'conta_debito' => $contaDebito,
                 'conta_credito_nome' => $contaCreditoNome,
                 'conta_debito_nome' => $contaDebitoNome,
                 'codigo_historico' => $codigoHistorico,
                 'historico' => $historico,
-                'is_total' => $row['is_total'] ?? false,
             ];
         }
 
         return $prepared;
-    }
-
-    private function detectHeader(array $values): ?array
-    {
-        $normalized = array_map([$this, 'normalizeText'], $values);
-
-        $competencia = $this->findHeaderIndex($normalized, ['competencia', 'competência']);
-        $liquidacao = $this->findHeaderIndex($normalized, ['liquidacao', 'liquidação']);
-        $valor = $this->findHeaderIndex($normalized, ['valor', 'vlr', 'valor (r$)']);
-
-        $receitas = $this->findHeaderIndex($normalized, ['receitas', 'receita']);
-        $despesas = $this->findHeaderIndex($normalized, ['despesas', 'despesa']);
-
-        if ($receitas !== null && $competencia !== null && $liquidacao !== null && $valor !== null) {
-            $credito = $this->findHeaderIndex($normalized, ['credito', 'crédito']);
-
-            return [
-                'section' => self::SECTION_RECEITAS,
-                'map' => [
-                    'descricao' => $receitas,
-                    'competencia' => $competencia,
-                    'liquidacao' => $liquidacao,
-                    'valor' => $valor,
-                    'extra1' => $credito,
-                ],
-            ];
-        }
-
-        if ($despesas !== null && $competencia !== null && $liquidacao !== null && $valor !== null) {
-            $documento = $this->findHeaderIndex($normalized, ['documento', 'doc']);
-            $conta = $this->findHeaderIndex($normalized, ['conta bancaria', 'conta bancária', 'banco', 'conta']);
-
-            return [
-                'section' => self::SECTION_DESPESAS,
-                'map' => [
-                    'descricao' => $despesas,
-                    'competencia' => $competencia,
-                    'liquidacao' => $liquidacao,
-                    'valor' => $valor,
-                    'extra1' => $documento,
-                    'extra2' => $conta,
-                ],
-            ];
-        }
-
-        return null;
-    }
-
-    private function findHeaderIndex(array $values, array $names): ?int
-    {
-        foreach ($values as $index => $value) {
-            if ($value === null || $value === '') {
-                continue;
-            }
-            foreach ($names as $name) {
-                if ($value === $this->normalizeText($name)) {
-                    return $index;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private function containsSectionTitle(array $values, string $section): bool
-    {
-        $needle = $section === self::SECTION_RECEITAS ? 'receitas' : 'despesas';
-        foreach ($values as $value) {
-            if ($this->normalizeText($value) === $needle) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function isCategoryRow(?string $descricao, $competencia, $liquidacao, $valor, $extra1, $extra2): bool
-    {
-        if ($descricao === null || $descricao === '') {
-            return false;
-        }
-        $others = [$competencia, $liquidacao, $valor, $extra1, $extra2];
-        $allEmpty = true;
-        foreach ($others as $value) {
-            if ($value !== null && $value !== '') {
-                $allEmpty = false;
-                break;
-            }
-        }
-
-        if ($allEmpty) {
-            return true;
-        }
-
-        if ($liquidacao === null && $valor === null && $extra1 === null && $extra2 === null && $this->isCategoryCode($competencia)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private function isCategoryCode($value): bool
-    {
-        if ($value === null || $value === '') {
-            return false;
-        }
-        if ($value instanceof \DateTimeInterface) {
-            return false;
-        }
-        if (is_string($value)) {
-            $trimmed = trim($value);
-            if ($trimmed === '' || str_contains($trimmed, '/') || str_contains($trimmed, '-')) {
-                return false;
-            }
-            if (preg_match('/^\d{1,5}$/', $trimmed) !== 1) {
-                return false;
-            }
-            $value = (int) $trimmed;
-        }
-        if (! is_numeric($value)) {
-            return false;
-        }
-        $numeric = (int) $value;
-
-        return $numeric > 0 && $numeric <= 9999;
-    }
-
-    private function isTotalRow(?string $descricao): bool
-    {
-        if ($descricao === null) {
-            return false;
-        }
-
-        return Str::contains($this->normalizeText($descricao), 'total');
-    }
-
-    private function normalizeRowValues(array $row): array
-    {
-        return array_map(function ($value) {
-            if ($value instanceof \DateTimeInterface) {
-                return $value;
-            }
-            if (is_string($value)) {
-                $trimmed = trim($value);
-
-                return $trimmed === '' ? null : $trimmed;
-            }
-
-            return $value;
-        }, $row);
-    }
-
-    private function isEmptyRow(array $values): bool
-    {
-        foreach ($values as $value) {
-            if ($value !== null && $value !== '') {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private function valueAt(array $values, ?int $index)
-    {
-        if ($index === null) {
-            return null;
-        }
-
-        return $values[$index] ?? null;
-    }
-
-    private function normalizeText($value): ?string
-    {
-        if ($value === null) {
-            return null;
-        }
-        if ($value instanceof \DateTimeInterface) {
-            $value = $value->format('Y-m-d');
-        }
-        $text = (string) $value;
-        $text = trim($text);
-        if ($text === '') {
-            return null;
-        }
-        $text = Str::ascii($text);
-        $text = mb_strtoupper($text);
-        $text = preg_replace('/\s+/', ' ', $text);
-
-        return $text;
-    }
-
-    private function normalizeMatchText($value): ?string
-    {
-        $text = $this->normalizeText($value);
-
-        if ($text === null) {
-            return null;
-        }
-
-        $text = preg_replace('/[^A-Z0-9]+/', ' ', $text);
-        $text = preg_replace('/\s+/', ' ', $text);
-        $text = trim($text);
-
-        return $text === '' ? null : $text;
-    }
-
-    private function cleanText($value): ?string
-    {
-        if ($value === null) {
-            return null;
-        }
-        if ($value instanceof \DateTimeInterface) {
-            $value = $value->format('Y-m-d');
-        }
-        $text = trim((string) $value);
-
-        return $text === '' ? null : $text;
-    }
-
-    private function parseDate($value): ?Carbon
-    {
-        if ($value instanceof \DateTimeInterface) {
-            return Carbon::instance($value);
-        }
-
-        if (is_numeric($value)) {
-            try {
-                return Carbon::instance(Date::excelToDateTimeObject((float) $value));
-            } catch (\Throwable $e) {
-                return null;
-            }
-        }
-
-        if (! is_string($value)) {
-            return null;
-        }
-
-        $value = trim($value);
-        if ($value === '') {
-            return null;
-        }
-
-        try {
-            if (preg_match('/^\d{2}\/\d{2}\/\d{4}/', $value)) {
-                return Carbon::createFromFormat('d/m/Y', substr($value, 0, 10));
-            }
-            if (preg_match('/^\d{2}\/\d{4}$/', $value)) {
-                return Carbon::createFromFormat('m/Y', $value)->startOfMonth();
-            }
-            if (preg_match('/^\d{4}-\d{2}-\d{2}/', $value)) {
-                return Carbon::createFromFormat('Y-m-d', substr($value, 0, 10));
-            }
-
-            return Carbon::parse($value);
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
-
-    private function parseDecimal($value): ?float
-    {
-        if ($value === null || $value === '') {
-            return null;
-        }
-        if (is_numeric($value)) {
-            return (float) $value;
-        }
-        if (! is_string($value)) {
-            return null;
-        }
-        $value = trim($value);
-        if ($value === '') {
-            return null;
-        }
-        $value = str_replace(['R$', ' '], '', $value);
-        $hasComma = str_contains($value, ',');
-        $hasDot = str_contains($value, '.');
-
-        if ($hasComma && $hasDot) {
-            $lastComma = strrpos($value, ',');
-            $lastDot = strrpos($value, '.');
-            if ($lastComma > $lastDot) {
-                $value = str_replace('.', '', $value);
-                $value = str_replace(',', '.', $value);
-            } else {
-                $value = str_replace(',', '', $value);
-            }
-        } elseif ($hasComma && ! $hasDot) {
-            $value = str_replace(',', '.', $value);
-        }
-
-        $value = preg_replace('/[^0-9\.\-]/', '', $value);
-
-        return is_numeric($value) ? (float) $value : null;
-    }
-
-    private function resolveHistorico(string $template, array $row): string
-    {
-        $replacements = [
-            '#CATEGORIA' => $row['categoria'] ?? null,
-            '#DESCRICAO' => $row['descricao'] ?? null,
-            '#COMPETENCIA' => $this->formatDate($row['competencia'] ?? null),
-            '#LIQUIDACAO' => $this->formatDate($row['liquidacao'] ?? null),
-            '#CREDITO' => $row['credito'] ?? null,
-            '#DOCUMENTO' => $row['documento'] ?? null,
-            '#CONTA_BANCARIA' => $row['conta_bancaria'] ?? null,
-            '#VALOR' => $this->formatValor($row['valor'] ?? null),
-        ];
-
-        $resolved = str_replace(array_keys($replacements), array_values($replacements), $template);
-
-        return trim(preg_replace('/\s+/', ' ', $resolved));
-    }
-
-    private function formatDate($value): ?string
-    {
-        if ($value instanceof Carbon) {
-            return $value->format('d/m/Y');
-        }
-        if ($value instanceof \DateTimeInterface) {
-            return Carbon::instance($value)->format('d/m/Y');
-        }
-        if (is_string($value) && $value !== '') {
-            return $value;
-        }
-
-        return null;
-    }
-
-    private function formatValor($value): ?string
-    {
-        if ($value === null || $value === '') {
-            return null;
-        }
-        if (is_numeric($value)) {
-            return number_format((float) $value, 2, ',', '.');
-        }
-
-        return (string) $value;
     }
 
     private function findParametroMatch($parametros, array $row): ?ParametroSuperLogica
@@ -518,7 +401,6 @@ class OptimizedExcelSuperLogicaImport
         $bestTermsCount = 0;
 
         foreach ($parametros as $parametro) {
-
             $terms = collect($parametro->params ?? [])
                 ->map(fn ($term) => $this->normalizeMatchText($term))
                 ->filter()
@@ -544,5 +426,85 @@ class OptimizedExcelSuperLogicaImport
         }
 
         return $bestMatch;
+    }
+
+    private function normalizeMatchText($value): ?string
+    {
+        $text = $this->normalizeText($value);
+
+        if ($text === null) {
+            return null;
+        }
+
+        $text = preg_replace('/[^A-Z0-9]+/', ' ', $text);
+        $text = preg_replace('/\s+/', ' ', $text);
+        $text = trim($text);
+
+        return $text === '' ? null : $text;
+    }
+
+    private function normalizeText($value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+        if ($value instanceof \DateTimeInterface) {
+            $value = $value->format('Y-m-d');
+        }
+        $text = (string) $value;
+        $text = trim($text);
+        if ($text === '') {
+            return null;
+        }
+        $text = Str::ascii($text);
+        $text = mb_strtoupper($text);
+        $text = preg_replace('/\s+/', ' ', $text);
+
+        return $text;
+    }
+
+    private function resolveHistorico(string $template, array $row): string
+    {
+        $replacements = [
+            '#CATEGORIA' => $row['categoria'] ?? null,
+            '#DESCRICAO' => $row['descricao'] ?? null,
+            '#COMPETENCIA' => $this->formatDate($row['competencia'] ?? null),
+            '#LIQUIDACAO' => $this->formatDate($row['liquidacao'] ?? null),
+            '#CREDITO' => $row['credito'] ?? null,
+            '#DOCUMENTO' => $row['documento'] ?? null,
+            '#CONTA_BANCARIA' => $row['conta_bancaria'] ?? null,
+            '#VALOR' => $this->formatValor($row['valor'] ?? null),
+        ];
+
+        $resolved = str_replace(array_keys($replacements), array_values($replacements), $template);
+
+        return trim(preg_replace('/\s+/', ' ', $resolved));
+    }
+
+    private function formatValor($value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+        if (is_numeric($value)) {
+            return number_format((float) $value, 2, ',', '.');
+        }
+
+        return (string) $value;
+    }
+
+    private function formatDate($value): ?string
+    {
+        if ($value instanceof Carbon) {
+            return $value->format('d/m/Y');
+        }
+        if ($value instanceof \DateTimeInterface) {
+            return Carbon::instance($value)->format('d/m/Y');
+        }
+        if (is_string($value) && $value !== '') {
+            return $value;
+        }
+
+        return null;
     }
 }

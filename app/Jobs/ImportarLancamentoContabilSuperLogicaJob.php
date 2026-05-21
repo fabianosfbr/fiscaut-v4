@@ -14,6 +14,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -71,7 +72,7 @@ class ImportarLancamentoContabilSuperLogicaJob implements ShouldQueue
             ]);
 
             $fileReader = new OptimizedExcelSuperLogicaImport($filePath);
-            $rows = $fileReader->getData();
+            $rows = $fileReader->read()->toArray();
 
             if (empty($rows)) {
                 $jobProgress?->update([
@@ -110,19 +111,24 @@ class ImportarLancamentoContabilSuperLogicaJob implements ShouldQueue
 
                 // Atualiza o progresso a cada 10 linhas ou no final
                 if ($jobProgress && ($rowNumber % 10 === 0 || $rowNumber === $totalRows)) {
-                    $percentage = 20 + (int) (($rowNumber / $totalRows) * 70); // 20% a 90%
+                    $percentage = 20 + (int) (($rowNumber / $totalRows) * 70);  // 20% a 90%
                     $jobProgress->update([
                         'progress' => $percentage,
                         'message' => "Processando linha {$rowNumber} de {$totalRows}...",
                     ]);
                 }
 
+                $dataOperacao = $row['secao'] === 'RECEITAS' ? Carbon::createFromFormat('m/d/Y', $row['credito']) : Carbon::createFromFormat('m/d/Y', $row['liquidacao']);
+
+                if (! $dataOperacao) {
+                    continue;
+                }
                 try {
                     $import = new ImportarLancamentoContabil;
                     $import->issuer_id = $this->issuerId;
                     $import->user_id = $this->userId;
-                    $import->data = $row['credito'] ?? $row['liquidacao'];
-                    $import->valor = abs($row['valor']);
+                    $import->data = $dataOperacao;
+                    $import->valor = abs((float) $row['valor']);
                     $import->debito = $row['conta_debito'];
                     $import->credito = $row['conta_credito'];
                     $import->is_exist = isset($row['historico']) && ! empty($row['historico']) ? true : false;
