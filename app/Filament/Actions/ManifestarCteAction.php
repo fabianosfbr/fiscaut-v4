@@ -49,35 +49,37 @@ class ManifestarCteAction
                     ->required(),
             ])
             ->action(function (array $data, Model $record) {
-                
+
                 if (empty($record->xml)) {
                     return;
                 }
-                $justificativa = array_key_exists('justificativa', $data) ? $data['justificativa'] : '';
 
-                $data = (new XmlReaderService)->read(gzuncompress($record->xml));
-                
-                $codUf = $data['cteProc']['CTe']['infCte']['ide']['cUF'];
+                $statusManifestacao = $data['status_manifestacao'] ?? null;
+                $justificativa = $data['justificativa'] ?? '';
+
+                $xmlData = (new XmlReaderService)->read(gzuncompress($record->xml));
+
+                $codUf = $xmlData['cteProc']['CTe']['infCte']['ide']['cUF'];
 
                 $uf = Estado::whereId($codUf)->first()?->sigla;
-              
+
                 $issuer = currentIssuer();
                 $service = new SefazCteDownloadService($issuer);
 
                 try {
-                    $manifestado = $service->sefazManifesta($record->chave, $data['status_manifestacao'], $justificativa, 1, $uf);
+                    $manifestado = $service->sefazManifesta($record->chave, $statusManifestacao, $justificativa, 1, $uf);
                 } catch (Exception $e) {
                     Notification::make()
                         ->title('Erro ao manifestar CTe')
-                        ->body('Falha ao manifestar CTe. Por favor, entre em contato com o administrador. ' . $e->getMessage())
+                        ->body('Falha ao manifestar CTe. Por favor, entre em contato com o administrador. '.$e->getMessage())
                         ->danger()
                         ->send();
 
                     throw new Halt;
                 }
-                if ($manifestado->infEvento->cStat == '135') {
+                if ($manifestado->infEvento->cStat == '135' || $manifestado->infEvento->cStat === '631') {
                     $record->update([
-                        'status_manifestacao' => $data['status_manifestacao'],
+                        'status_manifestacao' => $statusManifestacao,
                         'data_manifesto' => date('Y-m-d H:i:s'),
                     ]);
 
