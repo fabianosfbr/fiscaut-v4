@@ -5,6 +5,7 @@ namespace App\Jobs\BulkAction;
 use App\Models\SecureDownload;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Bus\Queueable;
@@ -148,7 +149,7 @@ class DownloadXmlPdfNfeEmLoteActionJob implements ShouldQueue
             }
 
             if ($organizarPorEtiquetas && ! empty($csvRows)) {
-                $csvContent = $this->buildCsvContent($csvRows);                
+                $csvContent = $this->buildCsvContent($csvRows);
                 $zip->addFromString('_resumo_etiquetas.csv', $csvContent);
             }
 
@@ -221,7 +222,7 @@ class DownloadXmlPdfNfeEmLoteActionJob implements ShouldQueue
         }
 
         if (is_string($value) && $value !== '') {
-            return \Carbon\Carbon::parse($value)->format('d/m/Y');
+            return Carbon::parse($value)->format('d/m/Y');
         }
 
         return '';

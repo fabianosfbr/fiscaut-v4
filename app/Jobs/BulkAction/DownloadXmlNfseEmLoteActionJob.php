@@ -4,6 +4,7 @@ namespace App\Jobs\BulkAction;
 
 use App\Models\SecureDownload;
 use App\Models\User;
+use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Bus\Queueable;
@@ -221,7 +222,7 @@ class DownloadXmlNfseEmLoteActionJob implements ShouldQueue
         }
 
         if (is_string($value) && $value !== '') {
-            return \Carbon\Carbon::parse($value)->format('d/m/Y');
+            return Carbon::parse($value)->format('d/m/Y');
         }
 
         return '';

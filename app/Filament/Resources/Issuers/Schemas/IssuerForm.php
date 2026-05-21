@@ -97,7 +97,7 @@ class IssuerForm
 
                                                     $municipios = Municipio::get()
                                                         ->map(function ($municipio) {
-                                                            $municipio->nome = $municipio->nome . ' | ' . $municipio->sigla;
+                                                            $municipio->nome = $municipio->nome.' | '.$municipio->sigla;
 
                                                             return $municipio;
                                                         })
@@ -150,16 +150,16 @@ class IssuerForm
 
                                         Select::make('atividade')
                                             ->label('Atividade')
-                                            ->required(fn(Get $get): bool => ($get('issuer_type')?->value ?? $get('issuer_type')) === IssuerTypeEnum::PADRAO->value)
-                                            ->visible(fn(Get $get): bool => ($get('issuer_type')?->value ?? $get('issuer_type')) === IssuerTypeEnum::PADRAO->value)
+                                            ->required(fn (Get $get): bool => ($get('issuer_type')?->value ?? $get('issuer_type')) === IssuerTypeEnum::PADRAO->value)
+                                            ->visible(fn (Get $get): bool => ($get('issuer_type')?->value ?? $get('issuer_type')) === IssuerTypeEnum::PADRAO->value)
                                             ->multiple()
                                             ->options(AtividadesEmpresariaisEnum::class)
                                             ->columnSpan(3),
 
                                         Radio::make('contribuinte_icms')
                                             ->label('Contribuinte ICMS?')
-                                            ->required(fn(Get $get): bool => ($get('issuer_type')?->value ?? $get('issuer_type')) === IssuerTypeEnum::PADRAO->value)
-                                            ->visible(fn(Get $get): bool => ($get('issuer_type')?->value ?? $get('issuer_type')) === IssuerTypeEnum::PADRAO->value)
+                                            ->required(fn (Get $get): bool => ($get('issuer_type')?->value ?? $get('issuer_type')) === IssuerTypeEnum::PADRAO->value)
+                                            ->visible(fn (Get $get): bool => ($get('issuer_type')?->value ?? $get('issuer_type')) === IssuerTypeEnum::PADRAO->value)
                                             ->boolean(trueLabel: 'Sim', falseLabel: 'Não')
                                             ->default(false)
                                             ->columnSpan(3),
@@ -172,9 +172,9 @@ class IssuerForm
                                         TextInput::make('superlogica_condominio_id')
                                             ->label('ID do Condomínio Superlógica')
                                             ->numeric()
-                                            ->disabled(fn(Get $get): bool => ! $get('ignorar_sync_superlogica'))
-                                            ->required(fn(Get $get): bool => ! $get('ignorar_sync_superlogica'))                                          
-                                            ->columnSpan(6),                                            
+                                            ->disabled(fn (Get $get): bool => ! $get('ignorar_sync_superlogica'))
+                                            ->required(fn (Get $get): bool => ! $get('ignorar_sync_superlogica'))
+                                            ->columnSpan(6),
 
                                         TextEntry::make('placeholder_is_enabled')
                                             ->label('Status no sistema')
@@ -196,7 +196,7 @@ class IssuerForm
                                     ->columns(6),
                             ]),
                         Tab::make('Condomínio/Associação')
-                            ->visible(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                            ->visible(fn (Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
                                 IssuerTypeEnum::CONDOMINIO->value,
                                 IssuerTypeEnum::ASSOCIACAO->value,
                             ]))
@@ -206,26 +206,26 @@ class IssuerForm
                                     ->schema([
                                         TextInput::make('contract_number')
                                             ->label('Número do Contrato')
-                                            ->required(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                            ->required(fn (Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
                                                 IssuerTypeEnum::CONDOMINIO->value,
                                                 IssuerTypeEnum::ASSOCIACAO->value,
                                             ]))
                                             ->maxLength(255)
                                             ->placeholder('Digite o número do contrato')
                                             ->columnSpan(3)
-                                            ->dehydrated(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                            ->dehydrated(fn (Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
                                                 IssuerTypeEnum::CONDOMINIO->value,
                                                 IssuerTypeEnum::ASSOCIACAO->value,
                                             ])),
 
                                         TextInput::make('contract_start_date')
                                             ->label('Data de Início do Contrato')
-                                            ->required(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                            ->required(fn (Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
                                                 IssuerTypeEnum::CONDOMINIO->value,
                                                 IssuerTypeEnum::ASSOCIACAO->value,
                                             ]))
                                             ->mask('99/99/9999')
-                                            ->formatStateUsing(fn($state) => static::formatDateForDisplay($state))
+                                            ->formatStateUsing(fn ($state) => static::formatDateForDisplay($state))
                                             ->rules([
                                                 'date_format:d/m/Y',
                                                 'before_or_equal:today',
@@ -235,7 +235,7 @@ class IssuerForm
                                             ])
                                             ->placeholder('DD/MM/AAAA')
                                             ->columnSpan(3)
-                                            ->dehydrated(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                            ->dehydrated(fn (Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
                                                 IssuerTypeEnum::CONDOMINIO->value,
                                                 IssuerTypeEnum::ASSOCIACAO->value,
                                             ])),
@@ -243,15 +243,15 @@ class IssuerForm
                                         Select::make('condominium_type')
                                             ->label('Tipo do Condomínio')
                                             ->options(CondominiumTypeEnum::class)
-                                            ->required(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                            ->required(fn (Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
                                                 IssuerTypeEnum::CONDOMINIO->value,
                                                 IssuerTypeEnum::ASSOCIACAO->value,
                                             ]))
-                                            ->visible(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                            ->visible(fn (Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
                                                 IssuerTypeEnum::CONDOMINIO->value,
                                                 IssuerTypeEnum::ASSOCIACAO->value,
                                             ]))
-                                            ->dehydrated(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                            ->dehydrated(fn (Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
                                                 IssuerTypeEnum::CONDOMINIO->value,
                                                 IssuerTypeEnum::ASSOCIACAO->value,
                                             ]))
@@ -268,15 +268,15 @@ class IssuerForm
                                                 'integer' => 'A quantidade de unidades deve ser um número inteiro.',
                                                 'min' => 'A quantidade de unidades deve ser maior que zero.',
                                             ])
-                                            ->required(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                            ->required(fn (Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
                                                 IssuerTypeEnum::CONDOMINIO->value,
                                                 IssuerTypeEnum::ASSOCIACAO->value,
                                             ]))
-                                            ->visible(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                            ->visible(fn (Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
                                                 IssuerTypeEnum::CONDOMINIO->value,
                                                 IssuerTypeEnum::ASSOCIACAO->value,
                                             ]))
-                                            ->dehydrated(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                            ->dehydrated(fn (Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
                                                 IssuerTypeEnum::CONDOMINIO->value,
                                                 IssuerTypeEnum::ASSOCIACAO->value,
                                             ]))
@@ -288,8 +288,8 @@ class IssuerForm
                                             ->numeric()
                                             ->inputMode('numeric')
                                             ->rules(['nullable', 'integer', 'min:0'])
-                                            ->visible(fn(Get $get): bool => ($get('condominium_type')?->value ?? $get('condominium_type')) === CondominiumTypeEnum::MISTO->value)
-                                            ->dehydrated(fn(Get $get): bool => ($get('condominium_type')?->value ?? $get('condominium_type')) === CondominiumTypeEnum::MISTO->value)
+                                            ->visible(fn (Get $get): bool => ($get('condominium_type')?->value ?? $get('condominium_type')) === CondominiumTypeEnum::MISTO->value)
+                                            ->dehydrated(fn (Get $get): bool => ($get('condominium_type')?->value ?? $get('condominium_type')) === CondominiumTypeEnum::MISTO->value)
                                             ->placeholder('Ex: 80')
                                             ->columnSpan(3),
 
@@ -298,12 +298,11 @@ class IssuerForm
                                             ->numeric()
                                             ->inputMode('numeric')
                                             ->rules(['nullable', 'integer', 'min:0'])
-                                            ->visible(fn(Get $get): bool => ($get('condominium_type')?->value ?? $get('condominium_type')) === CondominiumTypeEnum::MISTO->value)
-                                            ->dehydrated(fn(Get $get): bool => ($get('condominium_type')?->value ?? $get('condominium_type')) === CondominiumTypeEnum::MISTO->value)
+                                            ->visible(fn (Get $get): bool => ($get('condominium_type')?->value ?? $get('condominium_type')) === CondominiumTypeEnum::MISTO->value)
+                                            ->dehydrated(fn (Get $get): bool => ($get('condominium_type')?->value ?? $get('condominium_type')) === CondominiumTypeEnum::MISTO->value)
                                             ->placeholder('Ex: 40')
                                             ->columnSpan(3),
 
-                                        
                                     ])
                                     ->columns(6),
 
@@ -312,7 +311,7 @@ class IssuerForm
                                     ->schema([
                                         Repeater::make('units_data')
                                             ->hiddenLabel()
-                                            ->dehydrated(fn(Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
+                                            ->dehydrated(fn (Get $get): bool => in_array($get('issuer_type')?->value ?? $get('issuer_type'), [
                                                 IssuerTypeEnum::CONDOMINIO->value,
                                             ]))
                                             ->table([
@@ -358,7 +357,7 @@ class IssuerForm
                                         TextInput::make('data_abertura')
                                             ->label('Data de Abertura')
                                             ->mask('99/99/9999')
-                                            ->formatStateUsing(fn($state) => static::formatDateForDisplay($state))
+                                            ->formatStateUsing(fn ($state) => static::formatDateForDisplay($state))
                                             ->readOnly()
                                             ->placeholder('DD/MM/AAAA')
                                             ->columnSpan(3),
@@ -431,7 +430,7 @@ class IssuerForm
                                         TextInput::make('data_situacao_cadastral')
                                             ->label('Data da Situação Cadastral')
                                             ->mask('99/99/9999')
-                                            ->formatStateUsing(fn($state) => static::formatDateForDisplay($state))
+                                            ->formatStateUsing(fn ($state) => static::formatDateForDisplay($state))
                                             ->readOnly()
                                             ->placeholder('DD/MM/AAAA')
                                             ->columnSpan(2),
@@ -497,7 +496,7 @@ class IssuerForm
                                                             ->columns(6)
                                                             ->collapsible()
                                                             ->itemLabel(
-                                                                fn(array $state): ?string => isset($state['id'], $state['text'])
+                                                                fn (array $state): ?string => isset($state['id'], $state['text'])
                                                                     ? "#{$state['id']} - {$state['text']}"
                                                                     : null
                                                             ),
@@ -543,19 +542,19 @@ class IssuerForm
                                                         $diasVencidos = abs($diasRestantes);
                                                         $corSituacao = '#dc2626';
                                                         $iconeSituacao = '❌';
-                                                        $textoSituacao = "Vencido há {$diasVencidos} " . ($diasVencidos === 1 ? 'dia' : 'dias');
+                                                        $textoSituacao = "Vencido há {$diasVencidos} ".($diasVencidos === 1 ? 'dia' : 'dias');
                                                         $corBorda = '#dc2626';
                                                         $corFundo = '#fef2f2';
                                                     } elseif ($diasRestantes <= 30) {
                                                         $corSituacao = '#f59e0b';
                                                         $iconeSituacao = '⚠️';
-                                                        $textoSituacao = "Vence em {$diasRestantes} " . ($diasRestantes === 1 ? 'dia' : 'dias');
+                                                        $textoSituacao = "Vence em {$diasRestantes} ".($diasRestantes === 1 ? 'dia' : 'dias');
                                                         $corBorda = '#f59e0b';
                                                         $corFundo = '#fffbeb';
                                                     } else {
                                                         $corSituacao = '#059669';
                                                         $iconeSituacao = '✅';
-                                                        $textoSituacao = "Válido por mais {$diasRestantes} " . ($diasRestantes === 1 ? 'dia' : 'dias');
+                                                        $textoSituacao = "Válido por mais {$diasRestantes} ".($diasRestantes === 1 ? 'dia' : 'dias');
                                                         $corBorda = '#059669';
                                                         $corFundo = '#f0fdf4';
                                                     }
@@ -588,7 +587,7 @@ class IssuerForm
                                             
                                             <div style='background-color: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;'>
                                                 <label style='display: block; font-size: 12px; color: #64748b; font-weight: 500; margin-bottom: 4px;'>EMPRESA VINCULADA</label>
-                                                <div style='font-size: 14px; color: #1e293b; font-weight: 500;'>" . htmlspecialchars($razaoSocial ?? 'Não informado') . "</div>
+                                                <div style='font-size: 14px; color: #1e293b; font-weight: 500;'>".htmlspecialchars($razaoSocial ?? 'Não informado')."</div>
                                             </div>
                                             
                                             <div style='margin-top: 16px; padding: 12px; background-color: rgba(255,255,255,0.7); border-radius: 8px; border: 1px dashed {$corBorda};'>
@@ -601,7 +600,7 @@ class IssuerForm
                                                 } catch (Exception $e) {
                                                     return new HtmlString('
                                         <div style="padding: 16px; border: 1px solid #f87171; background-color: #fef2f2; color: #dc2626; border-radius: 8px; margin-bottom: 16px;">
-                                            <strong>❌ Erro ao processar certificado atual:</strong> ' . htmlspecialchars($e->getMessage()) . '
+                                            <strong>❌ Erro ao processar certificado atual:</strong> '.htmlspecialchars($e->getMessage()).'
                                         </div>
                                     ');
                                                 }
@@ -672,8 +671,8 @@ class IssuerForm
                                             ->label('Senha do Certificado')
                                             ->password()
                                             ->revealable()
-                                            ->required(fn(Get $get): bool => filled($get('path_certificado')))
-                                            ->visible(fn(Get $get): bool => filled($get('path_certificado')))
+                                            ->required(fn (Get $get): bool => filled($get('path_certificado')))
+                                            ->visible(fn (Get $get): bool => filled($get('path_certificado')))
                                             ->helperText('Digite a senha e clique no ícone de validação para confirmar.')
                                             ->prefixAction(
                                                 Action::make('validar_certificado')
@@ -817,15 +816,15 @@ class IssuerForm
                                                         $diasVencidos = abs($diasRestantes);
                                                         $corSituacao = '#dc2626';
                                                         $iconeSituacao = '❌';
-                                                        $textoSituacao = "Vencido há {$diasVencidos} " . ($diasVencidos === 1 ? 'dia' : 'dias');
+                                                        $textoSituacao = "Vencido há {$diasVencidos} ".($diasVencidos === 1 ? 'dia' : 'dias');
                                                     } elseif ($diasRestantes <= 30) {
                                                         $corSituacao = '#f59e0b';
                                                         $iconeSituacao = '⚠️';
-                                                        $textoSituacao = "Vence em {$diasRestantes} " . ($diasRestantes === 1 ? 'dia' : 'dias');
+                                                        $textoSituacao = "Vence em {$diasRestantes} ".($diasRestantes === 1 ? 'dia' : 'dias');
                                                     } else {
                                                         $corSituacao = '#059669';
                                                         $iconeSituacao = '✅';
-                                                        $textoSituacao = "Válido por mais {$diasRestantes} " . ($diasRestantes === 1 ? 'dia' : 'dias');
+                                                        $textoSituacao = "Válido por mais {$diasRestantes} ".($diasRestantes === 1 ? 'dia' : 'dias');
                                                     }
 
                                                     return new HtmlString("
@@ -860,7 +859,7 @@ class IssuerForm
                                             
                                             <div style='background-color: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;'>
                                                 <label style='display: block; font-size: 12px; color: #64748b; font-weight: 500; margin-bottom: 4px;'>RAZÃO SOCIAL</label>
-                                                <div style='font-size: 14px; color: #1e293b; font-weight: 500;'>" . htmlspecialchars($razaoSocialCertificado) . '</div>
+                                                <div style='font-size: 14px; color: #1e293b; font-weight: 500;'>".htmlspecialchars($razaoSocialCertificado).'</div>
                                             </div>
                                         </div>
                                     ');
@@ -873,12 +872,12 @@ class IssuerForm
                                                 } catch (Exception $e) {
                                                     return new HtmlString('
                                         <div style="padding: 16px; border: 1px solid #f87171; background-color: #fef2f2; color: #dc2626; border-radius: 8px;">
-                                            <strong>❌ Erro inesperado:</strong> ' . htmlspecialchars($e->getMessage()) . '
+                                            <strong>❌ Erro inesperado:</strong> '.htmlspecialchars($e->getMessage()).'
                                         </div>
                                     ');
                                                 }
                                             })
-                                            ->visible(fn(Get $get): bool => filled($get('path_certificado')))
+                                            ->visible(fn (Get $get): bool => filled($get('path_certificado')))
                                             ->columnSpanFull(),
 
                                         // Campos ocultos para armazenar dados do certificado
@@ -891,17 +890,17 @@ class IssuerForm
                             ]),
                         Tab::make('Usuários')
                             ->schema([
-                                Livewire::make('user-issuer-form', fn($record) => ['issuerId' => $record?->id]),
+                                Livewire::make('user-issuer-form', fn ($record) => ['issuerId' => $record?->id]),
                             ])
                             ->visibleOn(Operation::Edit),
                         Tab::make('Contatos')
                             ->schema([
-                                Livewire::make('contact-issuer-form', fn($record) => ['issuerId' => $record?->id]),
+                                Livewire::make('contact-issuer-form', fn ($record) => ['issuerId' => $record?->id]),
                             ])
                             ->visibleOn(Operation::Edit),
                         Tab::make('Responsáveis')
                             ->schema([
-                                Livewire::make('responsible-issuer-form', fn($record) => ['issuerId' => $record?->id]),
+                                Livewire::make('responsible-issuer-form', fn ($record) => ['issuerId' => $record?->id]),
                             ])
                             ->visibleOn(Operation::Edit),
                     ])->columnSpanFull(),
@@ -955,7 +954,7 @@ class IssuerForm
         $set('inscricao_municipal', data_get($cnpjDetails, 'municipalRegistration'));
         $set('data_abertura', static::formatDateForDisplay(data_get($cnpjDetails, 'founded')));
         $set('email', data_get($cnpjDetails, 'emails.0.address'));
-        $set('telefone', $phoneArea . $phoneNumber);
+        $set('telefone', $phoneArea.$phoneNumber);
         $set('logradouro', data_get($cnpjDetails, 'address.street'));
         $set('numero', data_get($cnpjDetails, 'address.number'));
         $set('complemento', data_get($cnpjDetails, 'address.details'));

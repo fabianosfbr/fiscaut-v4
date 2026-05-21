@@ -19,7 +19,7 @@ class ViewCteTomada extends ViewRecord
             Action::make('cte-list')
                 ->label('Voltar para lista')
                 ->color('gray')
-                ->url(fn(): string => CteTomadaResource::getUrl('index')),
+                ->url(fn (): string => CteTomadaResource::getUrl('index')),
             Action::make('manifestar-cte')
                 ->label('Manifestar CTE')
                 ->icon('heroicon-o-book-open')

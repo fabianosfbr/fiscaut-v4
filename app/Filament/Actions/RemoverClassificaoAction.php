@@ -66,7 +66,7 @@ class RemoverClassificaoAction
 
             $ctes = ConhecimentoTransporteEletronico::query()
                 ->whereNfeChave($nfeChave)
-                ->get();            
+                ->get();
 
             if ($ctes->isNotEmpty()) {
                 foreach ($ctes as $cte) {

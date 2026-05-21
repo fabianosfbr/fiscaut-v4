@@ -192,7 +192,7 @@ class FornecedorSync extends Command
                 'pagina' => $pagina,
             ]);
 
-             if (empty($fornecedores)) {
+            if (empty($fornecedores)) {
                 $havePagination = false;
             }
 

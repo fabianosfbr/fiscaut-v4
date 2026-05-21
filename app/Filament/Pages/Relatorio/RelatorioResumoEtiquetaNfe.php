@@ -173,7 +173,7 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                                 $data['etiqueta'],
                                 function ($q) use ($data) {
                                     return $q->where('code', $data['etiqueta'])
-                                        ->orWhere('tag', 'like', '%' . $data['etiqueta'] . '%');
+                                        ->orWhere('tag', 'like', '%'.$data['etiqueta'].'%');
                                 },
                             );
                     })
@@ -182,7 +182,7 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                             return null;
                         }
 
-                        return 'Etiqueta: ' . $data['etiqueta'];
+                        return 'Etiqueta: '.$data['etiqueta'];
                     })->columnSpan(1),
                 Filter::make('nNF')
                     ->schema([
@@ -203,7 +203,7 @@ class RelatorioResumoEtiquetaNfe extends Page implements HasActions, HasSchemas,
                             return null;
                         }
 
-                        return 'Nº NFe: ' . $data['nNF'];
+                        return 'Nº NFe: '.$data['nNF'];
                     })->columnSpan(1),
             ])
             ->filtersFormColumns(4)

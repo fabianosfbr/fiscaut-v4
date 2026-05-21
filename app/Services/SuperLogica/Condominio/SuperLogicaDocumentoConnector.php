@@ -3,7 +3,6 @@
 namespace App\Services\SuperLogica\Condominio;
 
 use App\Services\SuperLogica\Connector\SuperLogicaConfig;
-use Illuminate\Http\Client\RequestException;
 
 class SuperLogicaDocumentoConnector
 {

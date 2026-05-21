@@ -79,7 +79,7 @@ class SuperlogicaConnectionService
             throw new SuperlogicaConnectionException('access_token da Superlógica não configurado.');
         }
 
-        $endpoint = rtrim($baseUrl, '/') . '/health/check';
+        $endpoint = rtrim($baseUrl, '/').'/health/check';
 
         try {
             $response = Http::timeout(15)
@@ -91,18 +91,18 @@ class SuperlogicaConnectionService
                 ])
                 ->get($endpoint);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 Log::error('Falha na validação Superlógica', [
                     'tenant_id' => $tenant?->id,
                     'status' => $response->status(),
                 ]);
 
-                throw new SuperlogicaConnectionException('Falha de conexão com a Superlógica (HTTP ' . $response->status() . ').');
+                throw new SuperlogicaConnectionException('Falha de conexão com a Superlógica (HTTP '.$response->status().').');
             }
 
             $payload = $response->json();
 
-            if (!is_array($payload) || $payload === []) {
+            if (! is_array($payload) || $payload === []) {
                 throw new SuperlogicaConnectionException('Resposta inválida da Superlógica no health check.');
             }
 

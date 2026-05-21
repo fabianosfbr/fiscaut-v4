@@ -156,16 +156,16 @@ class RelatorioResumoEtiquetaNfse extends Page implements HasActions, HasSchemas
                             ->when(
                                 $data['etiqueta'],
                                 function ($q) use ($data) {
-                                    return $q->where('code', $data['etiqueta'])->orWhere('tag', 'like', '%' . $data['etiqueta'] . '%');
+                                    return $q->where('code', $data['etiqueta'])->orWhere('tag', 'like', '%'.$data['etiqueta'].'%');
                                 },
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
-                        if (!$data['etiqueta']) {
+                        if (! $data['etiqueta']) {
                             return null;
                         }
 
-                        return 'Etiqueta: ' . $data['etiqueta'];
+                        return 'Etiqueta: '.$data['etiqueta'];
                     })->columnSpan(1),
                 Filter::make('numero')
                     ->schema([
@@ -182,11 +182,11 @@ class RelatorioResumoEtiquetaNfse extends Page implements HasActions, HasSchemas
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
-                        if (!$data['numero']) {
+                        if (! $data['numero']) {
                             return null;
                         }
 
-                        return 'Nº NFSe: ' . $data['numero'];
+                        return 'Nº NFSe: '.$data['numero'];
                     })->columnSpan(1),
             ])
             ->filtersFormColumns(4)

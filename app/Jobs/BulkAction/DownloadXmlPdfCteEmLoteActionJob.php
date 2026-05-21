@@ -5,6 +5,7 @@ namespace App\Jobs\BulkAction;
 use App\Models\SecureDownload;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Bus\Queueable;
@@ -217,7 +218,7 @@ class DownloadXmlPdfCteEmLoteActionJob implements ShouldQueue
         }
 
         if (is_string($value) && $value !== '') {
-            return \Carbon\Carbon::parse($value)->format('d/m/Y');
+            return Carbon::parse($value)->format('d/m/Y');
         }
 
         return '';

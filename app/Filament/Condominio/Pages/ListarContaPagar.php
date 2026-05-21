@@ -26,9 +26,9 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -55,7 +55,7 @@ class ListarContaPagar extends Page implements HasTable
                 ->label('Nova Despesa')
                 ->icon(Heroicon::PlusCircle)
                 ->form($this->getDespesaFormSchema())
-                ->action(fn(array $data) => $this->handleCadastrarDespesa($data))
+                ->action(fn (array $data) => $this->handleCadastrarDespesa($data))
                 ->modalWidth(Width::FiveExtraLarge)
                 ->modalHeading('Cadastrar Nova Despesa'),
         ];
@@ -71,17 +71,17 @@ class ListarContaPagar extends Page implements HasTable
                         ->label('Fornecedor')
                         ->options(function () {
                             return SuperLogicaFornecedor::all()->mapWithKeys(function ($fornecedor) {
-                                return [$fornecedor->id_contato_con => $fornecedor->st_nome_con . ' ' . $fornecedor->st_cpf_con];
+                                return [$fornecedor->id_contato_con => $fornecedor->st_nome_con.' '.$fornecedor->st_cpf_con];
                             });
                         })
                         ->searchable()
                         ->reactive()
-                        ->afterStateUpdated(fn($state, callable $set) => $set('favorecido_id', $state))
+                        ->afterStateUpdated(fn ($state, callable $set) => $set('favorecido_id', $state))
                         ->columnSpan(4)
                         ->required(),
                     Select::make('id_contabanco_cb')
                         ->label('Conta Bancária')
-                        ->options(fn() => $this->getContasBancariasOptions())
+                        ->options(fn () => $this->getContasBancariasOptions())
                         ->searchable()
                         ->columnSpan(2)
                         ->required(),
@@ -90,7 +90,7 @@ class ListarContaPagar extends Page implements HasTable
                         ->live()
                         ->options(function () {
                             return SuperLogicaFornecedor::all()->mapWithKeys(function ($fornecedor) {
-                                return [$fornecedor->id_contato_con => $fornecedor->st_nome_con . ' ' . $fornecedor->st_cpf_con];
+                                return [$fornecedor->id_contato_con => $fornecedor->st_nome_con.' '.$fornecedor->st_cpf_con];
                             });
                         })
                         ->searchable()
@@ -109,7 +109,7 @@ class ListarContaPagar extends Page implements HasTable
                         ->label('Dados de Pagamento')
                         ->options(function (callable $get, callable $set) {
                             $fornecedorId = $get('fornecedor_id');
-                            if (!$fornecedorId) {
+                            if (! $fornecedorId) {
                                 return [];
                             }
                             $dadosPagamentos = $this->getDadosPagamentosOptions($fornecedorId);
@@ -158,7 +158,7 @@ class ListarContaPagar extends Page implements HasTable
                                             return SuperLogicaPlanoDeConta::where('id_condominio', currentIssuer()->superlogica_condominio_id)
                                                 ->get()
                                                 ->mapWithKeys(function ($conta) {
-                                                    return [$conta->st_conta_cont => $conta->st_conta_cont . ' - ' . $conta->st_descricao_cont];
+                                                    return [$conta->st_conta_cont => $conta->st_conta_cont.' - '.$conta->st_descricao_cont];
                                                 });
                                         })
                                         ->columnSpan(4)
@@ -254,7 +254,7 @@ class ListarContaPagar extends Page implements HasTable
             }
         }
 
-        return collect($allFornecedores)->mapWithKeys(fn($item) => [
+        return collect($allFornecedores)->mapWithKeys(fn ($item) => [
             $item['id_contato_con'] ?? '' => $item['st_nome_con'] ?? '',
         ])->filter()->all();
     }
@@ -269,11 +269,11 @@ class ListarContaPagar extends Page implements HasTable
             'exibirContasAtivas' => 1,
         ]);
 
-        if (!is_array($contasBancarias) || empty($contasBancarias)) {
+        if (! is_array($contasBancarias) || empty($contasBancarias)) {
             return [];
         }
 
-        return collect($contasBancarias)->mapWithKeys(fn($item) => [
+        return collect($contasBancarias)->mapWithKeys(fn ($item) => [
             $item['id_contabanco_cb'] ?? '' => $item['st_descricao_cb'] ?? '',
         ])->filter()->all();
     }
@@ -285,11 +285,11 @@ class ListarContaPagar extends Page implements HasTable
 
         $impostos = $service->despesa()->listarImposto();
 
-        if (!is_array($impostos) || empty($impostos)) {
+        if (! is_array($impostos) || empty($impostos)) {
             return [];
         }
 
-        return collect($impostos)->mapWithKeys(fn($item) => [
+        return collect($impostos)->mapWithKeys(fn ($item) => [
             $item['id_rv2_cod_imp'] ?? '' => $item['st_rv2_nome_imp'] ?? '',
         ])->filter()->all();
     }
@@ -303,11 +303,11 @@ class ListarContaPagar extends Page implements HasTable
             'idFornecedor' => $idFavorecido,
         ]);
 
-        if (!is_array($dadosPagamentos) || empty($dadosPagamentos)) {
+        if (! is_array($dadosPagamentos) || empty($dadosPagamentos)) {
             return [];
         }
 
-        return collect($dadosPagamentos)->mapWithKeys(fn($item) => [
+        return collect($dadosPagamentos)->mapWithKeys(fn ($item) => [
             $item['id_favorecido_fav'] ?? '' => $item['st_nomerecebedor'] ?? '',
         ])->filter()->all();
     }
@@ -320,11 +320,11 @@ class ListarContaPagar extends Page implements HasTable
         $arquivosProcessados = $this->processarArquivos($data['arquivos'] ?? [], $service, $issuer);
 
         $payload = $this->mutateDespesaData($data, $issuer);
-        
+
         foreach ($arquivosProcessados as $indice => $idArquivoArq) {
             $payload["ARQUIVOS[{$indice}][ID_ARQUIVO_ARQ]"] = $idArquivoArq;
         }
-        
+
         $response = $service->despesa()->cadastrar($payload);
 
         if (isset($response[0]['status']) && $response[0]['status'] == '200') {
@@ -358,13 +358,12 @@ class ListarContaPagar extends Page implements HasTable
             ];
             $payload = [
                 'ID_RESPONSAVEL_ARQ' => 983,
-                'FL_TIPO_ARQ' => '9'
+                'FL_TIPO_ARQ' => '9',
             ];
 
             $response = $service->arquivo()->cadastrar($file, $payload);
 
-            $idArquivoArq = $this->extrairIdArquivo($response);   
-                        
+            $idArquivoArq = $this->extrairIdArquivo($response);
 
             if ($idArquivoArq === null) {
                 throw new Halt("Falha ao cadastrar o arquivo '{$originalName}': resposta inválida da API.");
@@ -409,7 +408,7 @@ class ListarContaPagar extends Page implements HasTable
 
     protected function extrairIdArquivo(array $response): ?string
     {
-        
+
         if (is_array($response) && $response[0]['status'] == '200' && isset($response[0]['data'])) {
             return $response[0]['data']['id_arquivo_arq'];
         }
@@ -479,17 +478,17 @@ class ListarContaPagar extends Page implements HasTable
                     ->sortable(),
                 TextColumn::make('dt_vencimento_pdes')
                     ->label('Vencimento')
-                    ->state(fn(array $record): string => $this->formatDate(data_get($record, 'dt_vencimento_pdes')))
+                    ->state(fn (array $record): string => $this->formatDate(data_get($record, 'dt_vencimento_pdes')))
                     ->sortable(),
                 TextColumn::make('st_descricao_cont')
                     ->label('Descrição')
                     ->state(function (array $record): string {
-                        return data_get($record, 'apropriacao.0.st_descricao_cont', '') . ' ' . data_get($record, 'apropriacao.0.st_complemento_apro', '');
+                        return data_get($record, 'apropriacao.0.st_descricao_cont', '').' '.data_get($record, 'apropriacao.0.st_complemento_apro', '');
                     })
                     ->formatStateUsing(function ($record, $state) {
                         $recorrencia = $this->mapFormaRecorrencia(data_get($record, 'fl_recorrente_des'));
 
-                        return new HtmlString($state . ' <span style="color: #3d3de6ff;"> (' . $recorrencia . ')</span>');
+                        return new HtmlString($state.' <span style="color: #3d3de6ff;"> ('.$recorrencia.')</span>');
                     })
                     ->description(function (array $record) {
                         $favorecido = data_get($record, 'apropriacao.0.st_complemento_apro', '');
@@ -497,12 +496,12 @@ class ListarContaPagar extends Page implements HasTable
                             $favorecido = $record['st_nomerecebedor_fav'] ?? $record['st_fantasia_con'];
                         }
 
-                        return new HtmlString('<span style="color: #b3b3b6ff;">Despesa </span>' . $record['id_parcela_pdes'] . '<span style="color: #b3b3b6ff;"> para o favorecido </span>' . $favorecido);
+                        return new HtmlString('<span style="color: #b3b3b6ff;">Despesa </span>'.$record['id_parcela_pdes'].'<span style="color: #b3b3b6ff;"> para o favorecido </span>'.$favorecido);
                     })
                     ->sortable(),
                 TextColumn::make('forma_pagamento_text')
                     ->label('Forma de Pagamento')
-                    ->state(fn(array $record): string => $this->mapFormaPagamento(data_get($record, 'id_forma_pag')))
+                    ->state(fn (array $record): string => $this->mapFormaPagamento(data_get($record, 'id_forma_pag')))
                     ->badge()
                     ->sortable(),
                 TextColumn::make('st_descricao_cb')
@@ -519,7 +518,7 @@ class ListarContaPagar extends Page implements HasTable
                 Action::make('verArquivos')
                     ->label('Arquivos')
                     ->icon(Heroicon::PaperClip)
-                    ->visible(fn(array $record): bool => !empty(data_get($record, 'arquivos')))
+                    ->visible(fn (array $record): bool => ! empty(data_get($record, 'arquivos')))
                     ->modalHeading('Arquivos da Cobrança')
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Fechar')
@@ -573,11 +572,11 @@ class ListarContaPagar extends Page implements HasTable
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
                         if ($data['despesa_de'] ?? null) {
-                            $indicators[] = Indicator::make('Data a partir de ' . Carbon::parse($data['despesa_de'])->format('d/m/Y'))
+                            $indicators[] = Indicator::make('Data a partir de '.Carbon::parse($data['despesa_de'])->format('d/m/Y'))
                                 ->removeField('despesa_de');
                         }
                         if ($data['despesa_ate'] ?? null) {
-                            $indicators[] = Indicator::make('Data até ' . Carbon::parse($data['despesa_ate'])->format('d/m/Y'))
+                            $indicators[] = Indicator::make('Data até '.Carbon::parse($data['despesa_ate'])->format('d/m/Y'))
                                 ->removeField('despesa_ate');
                         }
 
@@ -589,7 +588,7 @@ class ListarContaPagar extends Page implements HasTable
                     ->indicateUsing(function (array $data) {
                         $indicators = [];
                         if ($data['id_forma_pag'] ?? null) {
-                            $indicators[] = Indicator::make('Forma de Pagamento: ' . $this->mapFormaPagamento($data['id_forma_pag']))
+                            $indicators[] = Indicator::make('Forma de Pagamento: '.$this->mapFormaPagamento($data['id_forma_pag']))
                                 ->removeField('id_forma_pag');
                         }
 
@@ -603,7 +602,7 @@ class ListarContaPagar extends Page implements HasTable
                     ])
                     ->query(function ($query, array $data) {
                         if ($data['favorecido'] ?? null) {
-                            $query->where('st_nomerecebedor_fav', 'like', '%' . $data['favorecido'] . '%');
+                            $query->where('st_nomerecebedor_fav', 'like', '%'.$data['favorecido'].'%');
                         }
 
                         return $query;
@@ -611,7 +610,7 @@ class ListarContaPagar extends Page implements HasTable
                     ->indicateUsing(function (array $data) {
                         $indicators = [];
                         if ($data['favorecido'] ?? null) {
-                            $indicators[] = Indicator::make('Favorecido: ' . $data['favorecido'])
+                            $indicators[] = Indicator::make('Favorecido: '.$data['favorecido'])
                                 ->removeField('favorecido');
                         }
 
@@ -625,7 +624,7 @@ class ListarContaPagar extends Page implements HasTable
                     ])
                     ->query(function ($query, array $data) {
                         if ($data['descricao'] ?? null) {
-                            $query->where('st_descricao_cont', 'like', '%' . $data['descricao'] . '%');
+                            $query->where('st_descricao_cont', 'like', '%'.$data['descricao'].'%');
                         }
 
                         return $query;
@@ -633,7 +632,7 @@ class ListarContaPagar extends Page implements HasTable
                     ->indicateUsing(function (array $data) {
                         $indicators = [];
                         if ($data['descricao'] ?? null) {
-                            $indicators[] = Indicator::make('Descrição: ' . $data['descricao'])
+                            $indicators[] = Indicator::make('Descrição: '.$data['descricao'])
                                 ->removeField('descricao');
                         }
 
@@ -706,7 +705,7 @@ class ListarContaPagar extends Page implements HasTable
         $favorecido = data_get($filters, 'st_nomerecebedor_fav.favorecido');
         $descricao = data_get($filters, 'st_descricao_cont.descricao');
 
-        if (!empty($formaPagamento)) {
+        if (! empty($formaPagamento)) {
             $records = $records->filter(function ($record) use ($formaPagamento) {
                 $idFormaPag = data_get($record, 'id_forma_pag');
                 $idFormaPagStr = is_array($idFormaPag) ? (string) array_first($idFormaPag) : (string) $idFormaPag;
@@ -731,7 +730,7 @@ class ListarContaPagar extends Page implements HasTable
             });
         }
 
-        if (!$despesaDe && !$despesaAte) {
+        if (! $despesaDe && ! $despesaAte) {
             return $records;
         }
 
@@ -755,7 +754,7 @@ class ListarContaPagar extends Page implements HasTable
 
     protected function applySearch(Collection $records, ?string $search): Collection
     {
-        if (!filled($search)) {
+        if (! filled($search)) {
             return $records;
         }
 
@@ -775,13 +774,13 @@ class ListarContaPagar extends Page implements HasTable
     {
         $apropriacao = data_get($record, 'apropriacao');
 
-        if (!is_array($apropriacao) || empty($apropriacao)) {
+        if (! is_array($apropriacao) || empty($apropriacao)) {
             return '-';
         }
 
         $primeira = array_values($apropriacao)[0] ?? null;
 
-        if (!$primeira) {
+        if (! $primeira) {
             return '-';
         }
 
