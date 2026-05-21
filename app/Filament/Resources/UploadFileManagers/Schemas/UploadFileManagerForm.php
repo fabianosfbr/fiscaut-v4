@@ -52,8 +52,7 @@ class UploadFileManagerForm
                             ->hiddenOn('edit')
                             ->columnSpan(1)
                             ->placeholder(function ($get, $set) {
-                                $fields = $get('tags');
-                                ds($fields);
+                                $fields = $get('tags');                                
                                 $sum = 0.0;
                                 if (is_array($fields)) {
                                     foreach ($fields as $field) {

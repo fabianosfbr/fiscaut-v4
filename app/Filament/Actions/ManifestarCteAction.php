@@ -49,7 +49,7 @@ class ManifestarCteAction
                     ->required(),
             ])
             ->action(function (array $data, Model $record) {
-                dd('fiscaut');
+                
                 if (empty($record->xml)) {
                     return;
                 }

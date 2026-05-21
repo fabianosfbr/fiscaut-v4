@@ -131,8 +131,7 @@ new class extends Component
         $this->importProgress = $jobProgress->progress;
         $this->importMessage = $jobProgress->message;
         $this->importStatus = $jobProgress->status;
-
-        ds($this->importProgress);
+        
     }
 
     public function getFilePath(mixed $file): ?string

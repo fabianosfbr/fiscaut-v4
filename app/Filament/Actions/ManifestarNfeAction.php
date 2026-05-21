@@ -54,6 +54,8 @@ class ManifestarNfeAction
                     }),
             ])
             ->action(function (array $data, Model $record) {
+
+                
                 if (empty($record->xml)) {
                     return;
                 }
