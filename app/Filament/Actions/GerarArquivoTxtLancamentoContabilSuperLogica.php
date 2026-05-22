@@ -18,7 +18,7 @@ class GerarArquivoTxtLancamentoContabilSuperLogica
             ->icon('heroicon-o-document-text')
             ->modalWidth('lg')
             ->modalHeading('Gerar Arquivo TXT')
-            ->modalDescription('Insira os dados para gerar o arquivo TXT.')
+            ->modalDescription('Você tem certeza de que deseja gerar o arquivo TXT? O arquivo será gerado com todos os registros de lançamento.')
             ->closeModalByClickingAway(false)
             ->closeModalByEscaping(false)
             ->modalSubmitActionLabel('Sim, gerar arquivo')
@@ -27,10 +27,11 @@ class GerarArquivoTxtLancamentoContabilSuperLogica
                 $issuerId = currentIssuer($user)->id;
                 $lancamentos = ImportarLancamentoContabil::where('issuer_id', $issuerId)
                     ->where('user_id', $user->id)
-                    ->where('metadata->type', 'super-logica')
+                    ->where('metadata->type', 'super_logica')
                     ->whereNotNull('data')
                     ->orderBy('id', 'asc')
                     ->get();
+                
 
                 if ($lancamentos->count() == 0) {
 
