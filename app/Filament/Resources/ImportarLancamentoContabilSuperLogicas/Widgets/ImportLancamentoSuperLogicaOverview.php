@@ -12,9 +12,10 @@ class ImportLancamentoSuperLogicaOverview extends StatsOverviewWidget
     protected function getStats(): array
     {
         $user = Auth::user();
-        $resultados = ImportarLancamentoContabil::where('issuer_id', currentIssuer()->id)
-                    ->whereNotNull('data')
-                    ->whereJsonContains('metadata->type', 'super_logica')
+        $resultados = ImportarLancamentoContabil::where('issuer_id', $user->currentIssuer->id)
+            ->where('user_id', $user->id)
+            ->whereNotNull('data')
+            ->whereJsonContains('metadata->type', 'super_logica')
             ->selectRaw('COUNT(*) as total_registros')
             ->selectRaw('SUM(CASE WHEN is_exist = 1 THEN 1 ELSE 0 END) as total_vinculados')
             ->selectRaw('SUM(CASE WHEN is_exist = 0 THEN 1 ELSE 0 END) as total_desvinculados')

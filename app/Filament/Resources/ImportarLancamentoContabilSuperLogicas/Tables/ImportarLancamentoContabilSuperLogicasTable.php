@@ -6,6 +6,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class ImportarLancamentoContabilSuperLogicasTable
 {
@@ -14,8 +15,10 @@ class ImportarLancamentoContabilSuperLogicasTable
         return $table
             ->recordUrl(null)
             ->modifyQueryUsing(function (Builder $query) {
+                $user = Auth::user();
                 $query
-                    ->where('issuer_id', currentIssuer()->id)
+                    ->where('issuer_id', $user->currentIssuer->id)
+                    ->where('user_id', $user->id)
                     ->whereNotNull('data')
                     ->whereJsonContains('metadata->type', 'super_logica');
             })

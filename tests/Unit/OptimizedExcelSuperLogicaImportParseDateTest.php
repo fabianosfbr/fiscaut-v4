@@ -44,11 +44,26 @@ class OptimizedExcelSuperLogicaImportParseDateTest extends TestCase
         $this->assertSame('UTC', $parsed->timezoneName);
     }
 
-    public function test_parses_yyyymmdd_integer_date_as_carbon(): void
+    public function test_parses_brazilian_date_string_as_carbon(): void
     {
-        $parsed = $this->parseDateViaReflection(20260227);
+        $parsed = $this->parseDateViaReflection('27/02/2026');
 
         $this->assertInstanceOf(Carbon::class, $parsed);
-        $this->assertSame('2026-02-27 00:00:00', $parsed->setTimezone('UTC')->format('Y-m-d H:i:s'));
+        $this->assertSame('2026-02-27', $parsed->setTimezone('UTC')->format('Y-m-d'));
+    }
+
+    public function test_parses_competencia_format_as_carbon(): void
+    {
+        $parsed = $this->parseDateViaReflection('02/2026');
+
+        $this->assertInstanceOf(Carbon::class, $parsed);
+        $this->assertSame('2026-02-01', $parsed->setTimezone('UTC')->format('Y-m-d'));
+    }
+
+    public function test_returns_null_for_invalid_date(): void
+    {
+        $this->assertNull($this->parseDateViaReflection(null));
+        $this->assertNull($this->parseDateViaReflection(''));
+        $this->assertNull($this->parseDateViaReflection('invalid'));
     }
 }
