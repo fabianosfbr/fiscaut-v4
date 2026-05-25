@@ -118,8 +118,13 @@ class ListarContaPagar extends Page implements HasTable
                         })
                         ->live()
                         ->searchable()
-                        ->columnSpan(6)
+                        ->columnSpan(2)
                         ->required(),
+                    TextInput::make('st_codigobarras_pdes')
+                        ->label('Linha digitável')
+                         ->columnSpan(4)
+                         ->required()
+                        ->maxLength(200),
                     Fieldset::make('Documento')
                         ->columnSpanFull()
                         ->schema([
@@ -320,12 +325,14 @@ class ListarContaPagar extends Page implements HasTable
         $arquivosProcessados = $this->processarArquivos($data['arquivos'] ?? [], $service, $issuer);
 
         $payload = $this->mutateDespesaData($data, $issuer);
+        
 
         foreach ($arquivosProcessados as $indice => $idArquivoArq) {
             $payload["ARQUIVOS[{$indice}][ID_ARQUIVO_ARQ]"] = $idArquivoArq;
         }
 
         $response = $service->despesa()->cadastrar($payload);
+        
 
         if (isset($response[0]['status']) && $response[0]['status'] == '200') {
             Notification::make()
@@ -334,6 +341,8 @@ class ListarContaPagar extends Page implements HasTable
                 ->success()
                 ->send();
         } else {
+
+            
             Notification::make()
                 ->title('Erro!')
                 ->body($response[0]['msg'] ?? 'Ocorreu um erro ao cadastrar a despesa.')
@@ -434,18 +443,25 @@ class ListarContaPagar extends Page implements HasTable
             'ID_CONTATO_CON' => $data['fornecedor_id'],
             'DT_VENCIMENTOPRIMEIRAPARCELA' => Carbon::parse($data['data_vencimento'])->format('m/d/Y'),
             'ID_FORMA_PAG' => $data['forma_pagamento'],
+            'NM_PARCELAS' => 1,
+            //'NM_PRIMEIRAPARCELA' => 1,            
             'APROPRIACAO[0][ST_CONTA_CONT]' => $data['st_conta_cont'],
             'APROPRIACAO[0][ST_DESCRICAO_CONT]' => $stDescricaoCont,
             'APROPRIACAO[0][ST_COMPLEMENTO_APRO]' => $data['st_complemento_apro'] ?? null,
             'APROPRIACAO[0][VL_VALOR_PDES]' => $valor,
+            'DESPESA_PARCELA[0][DT_VENCIMENTO_PDES]' => Carbon::parse($data['data_vencimento'])->format('m/d/Y'),
+            'DESPESA_PARCELA[0][VL_VALOR_PDES]' => $valor,
+            'DESPESA_PARCELA[0][ST_CODIGOBARRAS_PDES]' => str_replace(['-', ''], '', $data['st_codigobarras_pdes'] ?? null),
+            'DESPESA_PARCELA[0][ST_NOMERECEBEDOR_FAV]' => $stNomeCon,
+            'DESPESA_PARCELA[0][ID_FAVORECIDO_CON]' => $data['fornecedor_id'],
+            'DESPESA_PARCELA[0][DADOS_PAGAMENTOS]' => $data['dados_pagamentos'] ?? null,
+            'ID_CONTABANCO_CB' => $data['id_contabanco_cb'] ?? null,
             'FL_ACAO_IMPRESSAO' => 1,
             'FL_RECORRENTEMANUAL_DES' => 1,
             'FL_RECORRENTE_DES' => $data['recorrente'] ?? '-1',
             'DT_DESPESA_DES' => isset($data['data_documento']) ? Carbon::parse($data['data_documento'])->format('m/d/Y') : null,
             'ID_TIPO_DOC' => $data['tipo_documento'] ?? null,
-            'ST_DOCUMENTO_DES' => $data['numero_documento'] ?? null,
-            'ST_SERIENOTA_DES' => $data['serie_nota'] ?? null,
-        ];
+        ];        
 
         return $params;
     }
