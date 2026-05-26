@@ -3,6 +3,7 @@
         "claude_code",
         "opencode"
     ],
+    "cloud": false,
     "guidelines": true,
     "mcp": true,
     "nightwatch_mcp": false,
@@ -13,6 +14,15 @@
     "sail": true,
     "skills": [
         "laravel-best-practices",
-        "tailwindcss-development"
+        "configuring-horizon",
+        "tailwindcss-development",
+        "neuron-agent-builder",
+        "neuron-debugger",
+        "neuron-evaluation-engineer",
+        "neuron-rag-specialist",
+        "neuron-structured-output",
+        "neuron-test-engineer",
+        "neuron-tool-creator",
+        "neuron-workflow-architect"
     ]
 }
