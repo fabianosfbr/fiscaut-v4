@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
+use App\Observers\TagObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
+#[ObservedBy([TagObserver::class])]
 class Tag extends Model
 {
     protected $table = 'tagging_tags';

@@ -47,16 +47,39 @@ class CategoryTag extends Model
         parent::boot();
 
         static::saved(function ($category) {
-            Cache::forget("category_tag_.{$category->issuer_id}._all");
+            self::flushAllCaches($category);
         });
 
         static::deleted(function ($category) {
-            Cache::forget("category_tag_.{$category->issuer_id}._all");
+            self::flushAllCaches($category);
         });
 
         static::updated(function ($category) {
-            Cache::forget("category_tag_.{$category->issuer_id}._all");
+            self::flushAllCaches($category);
         });
+    }
+
+    private static function flushAllCaches($category): void
+    {
+        $issuerId = $category->issuer_id;
+
+        if (! $issuerId) {
+            return;
+        }
+
+        $cacheKeys = [
+            "category_tag_{$issuerId}_all",
+            "tags_used_in_upload_file_{$issuerId}",
+            "tags_used_in_nfe_grouped_{$issuerId}",
+            "tags_used_in_cte_grouped_{$issuerId}",
+            "tags_used_in_nfse_grouped_{$issuerId}",
+            "tags_used_in_nfe_{$issuerId}",
+            "tags_used_in_cte_{$issuerId}",
+        ];
+
+        foreach ($cacheKeys as $key) {
+            Cache::forget($key);
+        }
     }
 
     public static function getAllEnabled(string $issuerId)
