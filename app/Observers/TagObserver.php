@@ -35,7 +35,7 @@ class TagObserver
     {
         $issuerId = $tag->category?->issuer_id;
 
-        if (!$issuerId) {
+        if (! $issuerId) {
             return;
         }
 

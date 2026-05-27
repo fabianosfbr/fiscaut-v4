@@ -3,10 +3,8 @@
 namespace App\Console\Commands\Sefaz;
 
 use App\Jobs\Sefaz\AutenticidadeNfceJob;
-use App\Jobs\Sefaz\AutenticidadeNfeJob;
 use App\Models\Issuer;
 use App\Models\NotaFiscalConsumidor;
-use App\Models\NotaFiscalEletronica;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -61,7 +59,7 @@ class CheckAutenticidadeNfce extends Command
                     $nfe->update(['status_nota' => 101, 'xml' => gzcompress($xml)]);
 
                     Log::warning('Nfce cancelada:'.$nfe->chave);
-                
+
                 }
             }
         } else {

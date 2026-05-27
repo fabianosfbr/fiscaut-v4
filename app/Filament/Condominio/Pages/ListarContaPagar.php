@@ -122,8 +122,8 @@ class ListarContaPagar extends Page implements HasTable
                         ->required(),
                     TextInput::make('st_codigobarras_pdes')
                         ->label('Linha digitável')
-                         ->columnSpan(4)
-                         ->required()
+                        ->columnSpan(4)
+                        ->required()
                         ->maxLength(200),
                     Fieldset::make('Documento')
                         ->columnSpanFull()
@@ -325,14 +325,12 @@ class ListarContaPagar extends Page implements HasTable
         $arquivosProcessados = $this->processarArquivos($data['arquivos'] ?? [], $service, $issuer);
 
         $payload = $this->mutateDespesaData($data, $issuer);
-        
 
         foreach ($arquivosProcessados as $indice => $idArquivoArq) {
             $payload["ARQUIVOS[{$indice}][ID_ARQUIVO_ARQ]"] = $idArquivoArq;
         }
 
         $response = $service->despesa()->cadastrar($payload);
-        
 
         if (isset($response[0]['status']) && $response[0]['status'] == '200') {
             Notification::make()
@@ -342,7 +340,6 @@ class ListarContaPagar extends Page implements HasTable
                 ->send();
         } else {
 
-            
             Notification::make()
                 ->title('Erro!')
                 ->body($response[0]['msg'] ?? 'Ocorreu um erro ao cadastrar a despesa.')
@@ -444,7 +441,7 @@ class ListarContaPagar extends Page implements HasTable
             'DT_VENCIMENTOPRIMEIRAPARCELA' => Carbon::parse($data['data_vencimento'])->format('m/d/Y'),
             'ID_FORMA_PAG' => $data['forma_pagamento'],
             'NM_PARCELAS' => 1,
-            //'NM_PRIMEIRAPARCELA' => 1,            
+            // 'NM_PRIMEIRAPARCELA' => 1,
             'APROPRIACAO[0][ST_CONTA_CONT]' => $data['st_conta_cont'],
             'APROPRIACAO[0][ST_DESCRICAO_CONT]' => $stDescricaoCont,
             'APROPRIACAO[0][ST_COMPLEMENTO_APRO]' => $data['st_complemento_apro'] ?? null,
@@ -461,7 +458,7 @@ class ListarContaPagar extends Page implements HasTable
             'FL_RECORRENTE_DES' => $data['recorrente'] ?? '-1',
             'DT_DESPESA_DES' => isset($data['data_documento']) ? Carbon::parse($data['data_documento'])->format('m/d/Y') : null,
             'ID_TIPO_DOC' => $data['tipo_documento'] ?? null,
-        ];        
+        ];
 
         return $params;
     }

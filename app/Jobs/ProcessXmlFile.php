@@ -10,6 +10,7 @@ use App\Services\Xml\XmlExtractorService;
 use App\Services\Xml\XmlIdentifierService;
 use App\Services\Xml\XmlNfceReaderService;
 use App\Services\Xml\XmlNfeReaderService;
+use Exception;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -18,7 +19,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Exception;
 use Throwable;
 
 class ProcessXmlFile implements ShouldQueue
@@ -57,10 +57,10 @@ class ProcessXmlFile implements ShouldQueue
     {
         try {
             // Verifica se o arquivo existe antes de tentar processá-lo
-            if (!Storage::disk('local')->exists($this->fileKey)) {
-                $mensagemErro = 'Erro ao processar arquivo: O arquivo não existe no caminho ' . $this->fileKey;
+            if (! Storage::disk('local')->exists($this->fileKey)) {
+                $mensagemErro = 'Erro ao processar arquivo: O arquivo não existe no caminho '.$this->fileKey;
                 $this->importJob->addError($mensagemErro);
-                Log::error('Erro na importação de XML: ' . $mensagemErro);
+                Log::error('Erro na importação de XML: '.$mensagemErro);
 
                 return;
             }
@@ -108,7 +108,7 @@ class ProcessXmlFile implements ShouldQueue
                         $this->importJob->incrementNumEvents();
                         break;
 
-                    // Processar evento de cancelamento de NF-e
+                        // Processar evento de cancelamento de NF-e
                     case XmlIdentifierService::TIPO_EVENTO_NFE:
                         $serviceNfe->parse()->save();
 
@@ -121,7 +121,7 @@ class ProcessXmlFile implements ShouldQueue
                         $this->importJob->incrementNumDocuments();
                         break;
 
-                    // Processar evento de CT-e
+                        // Processar evento de CT-e
                     case XmlIdentifierService::TIPO_EVENTO_CTE:
                         $serviceCte->parse()->save();
 
@@ -132,7 +132,7 @@ class ProcessXmlFile implements ShouldQueue
                         break;
 
                     default:
-                        throw new Exception('Tipo de XML não suportado: ' . $tipoXml);
+                        throw new Exception('Tipo de XML não suportado: '.$tipoXml);
                 }
             }
 
@@ -147,8 +147,8 @@ class ProcessXmlFile implements ShouldQueue
      */
     public function failed(Throwable $exception): void
     {
-        $mensagemErro = 'Falha no processamento do arquivo: ' . $exception->getMessage();
+        $mensagemErro = 'Falha no processamento do arquivo: '.$exception->getMessage();
         $this->importJob->addError($mensagemErro);
-        Log::error('Falha na importação de XML: ' . $mensagemErro);
+        Log::error('Falha na importação de XML: '.$mensagemErro);
     }
 }

@@ -31,7 +31,6 @@ class GerarArquivoTxtLancamentoContabilSuperLogica
                     ->whereNotNull('data')
                     ->orderBy('id', 'asc')
                     ->get();
-                
 
                 if ($lancamentos->count() == 0) {
 

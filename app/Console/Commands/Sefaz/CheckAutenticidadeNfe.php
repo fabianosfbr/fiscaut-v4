@@ -58,7 +58,7 @@ class CheckAutenticidadeNfe extends Command
 
                     $nfe->update(['status_nota' => 101, 'xml' => gzcompress($xml)]);
 
-                    Log::warning('Nfe cancelada:'.$nfe->chave);                    
+                    Log::warning('Nfe cancelada:'.$nfe->chave);
                 }
             }
         } else {

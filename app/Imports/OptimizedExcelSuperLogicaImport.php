@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx as XlsxReader;
-use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class OptimizedExcelSuperLogicaImport
 {
@@ -43,7 +43,8 @@ class OptimizedExcelSuperLogicaImport
 
         $reader = new XlsxReader;
         $reader->setReadDataOnly(true);
-        $reader->setReadFilter(new class(self::MAX_COLUMN) implements IReadFilter {
+        $reader->setReadFilter(new class(self::MAX_COLUMN) implements IReadFilter
+        {
             public function __construct(
                 private int $maxColumn
             ) {}
@@ -114,8 +115,8 @@ class OptimizedExcelSuperLogicaImport
         }
 
         return [
-            'receitas' => collect(array_filter($this->records, fn($r) => $r['secao'] === self::SECAO_RECEITAS)),
-            'despesas' => collect(array_filter($this->records, fn($r) => $r['secao'] === self::SECAO_DESPESAS)),
+            'receitas' => collect(array_filter($this->records, fn ($r) => $r['secao'] === self::SECAO_RECEITAS)),
+            'despesas' => collect(array_filter($this->records, fn ($r) => $r['secao'] === self::SECAO_DESPESAS)),
         ];
     }
 
@@ -124,7 +125,7 @@ class OptimizedExcelSuperLogicaImport
         $cells = [];
         for ($col = 1; $col <= self::MAX_COLUMN; $col++) {
             $colLetter = Coordinate::stringFromColumnIndex($col);
-            $cell = $sheet->getCell($colLetter . $row);
+            $cell = $sheet->getCell($colLetter.$row);
             $cells[$colLetter] = $cell->isFormula() ? $cell->getOldCalculatedValue() : $cell->getValue();
         }
 
@@ -136,7 +137,7 @@ class OptimizedExcelSuperLogicaImport
         $a = trim((string) ($cells['A'] ?? ''));
 
         return in_array($a, [self::SECAO_RECEITAS, self::SECAO_DESPESAS], true) &&
-            !empty($cells['B']);
+            ! empty($cells['B']);
     }
 
     private function isIgnorableRow(array $cells): bool
@@ -266,7 +267,7 @@ class OptimizedExcelSuperLogicaImport
 
         if ($d !== null) {
             $val = trim((string) $d);
-            if (!preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $val) && $val !== '') {
+            if (! preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $val) && $val !== '') {
                 return $val;
             }
         }
@@ -280,7 +281,7 @@ class OptimizedExcelSuperLogicaImport
 
         if ($e !== null) {
             $val = trim((string) $e);
-            if ($val !== '' && !str_contains($val, '%')) {
+            if ($val !== '' && ! str_contains($val, '%')) {
                 return $val;
             }
         }
@@ -384,8 +385,7 @@ class OptimizedExcelSuperLogicaImport
                 'codigo_historico' => $codigoHistorico,
                 'historico' => $historico,
             ];
-            
-            
+
         }
 
         return $prepared;
@@ -396,7 +396,7 @@ class OptimizedExcelSuperLogicaImport
         $categoria = $this->normalizeMatchText($row['categoria'] ?? null);
         $descricao = $this->normalizeMatchText($row['descricao'] ?? null);
 
-        if (!$categoria && !$descricao) {
+        if (! $categoria && ! $descricao) {
             return null;
         }
 
@@ -406,7 +406,7 @@ class OptimizedExcelSuperLogicaImport
 
         foreach ($parametros as $parametro) {
             $terms = collect($parametro->params ?? [])
-                ->map(fn($term) => $this->normalizeMatchText($term))
+                ->map(fn ($term) => $this->normalizeMatchText($term))
                 ->filter()
                 ->values()
                 ->all();
@@ -416,7 +416,7 @@ class OptimizedExcelSuperLogicaImport
             }
 
             $matchedAllTerms = collect($terms)->every(
-                fn(string $term) => in_array($term, $matchTargets, true)
+                fn (string $term) => in_array($term, $matchTargets, true)
             );
 
             if ($matchedAllTerms) {
@@ -497,13 +497,13 @@ class OptimizedExcelSuperLogicaImport
 
         if (is_numeric($value)) {
             try {
-                return Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value));
+                return Carbon::instance(Date::excelToDateTimeObject($value));
             } catch (\Throwable) {
                 return null;
             }
         }
 
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             return null;
         }
 
@@ -513,8 +513,6 @@ class OptimizedExcelSuperLogicaImport
             return null;
         }
 
-    
-        
         try {
             if (preg_match('/^\d{2}\/\d{2}\/\d{4}/', $value)) {
                 return Carbon::createFromFormat('d/m/Y', substr($value, 0, 10));

@@ -3,7 +3,6 @@
 namespace App\Services\Xml;
 
 use App\Enums\StatusNfeEnum;
-use App\Events\NfceCancelada;
 use App\Models\Issuer;
 use App\Models\LogSefazNfeEvent;
 use App\Models\NotaFiscalConsumidor;
@@ -33,7 +32,7 @@ class XmlNfceReaderService
 
             return $this;
         } catch (Exception $e) {
-            Log::error('Erro ao carregar XML: ' . $e->getMessage());
+            Log::error('Erro ao carregar XML: '.$e->getMessage());
             throw new Exception('XML inválido ou mal formatado');
         }
     }
@@ -43,7 +42,7 @@ class XmlNfceReaderService
      */
     public function parse(): self
     {
-        if (!$this->xml) {
+        if (! $this->xml) {
             throw new Exception('XML não foi carregado');
         }
 
@@ -59,7 +58,7 @@ class XmlNfceReaderService
 
     public function setOrigem(string $origem = 'SEFAZ'): self
     {
-        if (!in_array($origem, ['IMPORTADO', 'SEFAZ', 'SIEG'])) {
+        if (! in_array($origem, ['IMPORTADO', 'SEFAZ', 'SIEG'])) {
             throw new Exception('Origem inválida. Use: IMPORTADO, SEFAZ ou SIEG');
         }
 
@@ -93,7 +92,7 @@ class XmlNfceReaderService
                 break;
 
             default:
-                throw new Exception('Tipo de XML não suportado: ' . $tipoXml);
+                throw new Exception('Tipo de XML não suportado: '.$tipoXml);
         }
     }
 
@@ -101,7 +100,7 @@ class XmlNfceReaderService
     {
         $params = $this->preparaDadosNfce();
 
-        Log::info('Registrando/Atualizando NFCe no Fiscaut - Chave:  ' . $params['chave']);
+        Log::info('Registrando/Atualizando NFCe no Fiscaut - Chave:  '.$params['chave']);
 
         $params['origem'] = $this->origem;
 
@@ -149,12 +148,12 @@ class XmlNfceReaderService
 
         $nfce = NotaFiscalConsumidor::where('chave', $chave)->first();
 
-        if ($log->tp_evento == 110111 && $nfce->status_nota != StatusNfeEnum::CANCELADA) {            
+        if ($log->tp_evento == 110111 && $nfce->status_nota != StatusNfeEnum::CANCELADA) {
             $xml = Complements::cancelRegister(gzuncompress($nfce->xml), $this->xml);
             $nfce->updateQuietly([
                 'xml' => gzcompress($xml),
                 'status_nota' => StatusNfeEnum::CANCELADA,
-            ]);            
+            ]);
         }
     }
 
@@ -173,7 +172,7 @@ class XmlNfceReaderService
         $dhEvento = $this->formatIsoDateTime($dhEventoRaw) ?? now()->toDateTimeString();
         $xEvento = $infEvento['detEvento']['descEvento'] ?? $resEvento['xEvento'] ?? null;
 
-        if (!$chave || !$tpEvento) {
+        if (! $chave || ! $tpEvento) {
             throw new Exception('Estrutura de evento NFe não reconhecida ou incompleta.');
         }
 
@@ -224,7 +223,7 @@ class XmlNfceReaderService
         $date = $parts[0];
         $time = explode('-', $parts[1], 2)[0];
 
-        return $date . ' ' . $time;
+        return $date.' '.$time;
     }
 
     public function verificaTipoDePessoaDestinatario()
