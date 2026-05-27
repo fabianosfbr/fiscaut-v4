@@ -4,15 +4,15 @@ namespace App\Jobs\Sefaz;
 
 use App\Jobs\Sefaz\AutenticidadeNfceJob;
 use App\Models\Issuer;
-use App\Models\NotaFiscalEletronica;
+use App\Models\NotaFiscalConsumidor;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Carbon;
 use NFePHP\NFe\Common\Standardize;
 use NFePHP\NFe\Complements;
 
@@ -38,13 +38,15 @@ class AutenticidadeNfceJob implements ShouldQueue
 
         $eventos = DB::table('log_sefaz_nfe_events')
             ->where('tp_evento', 110111)
+            ->orWhere('tp_evento', 110112)
             ->where('dh_evento', '>=', $endDate)
             ->where('is_verificado_sefaz', false)
             ->where('issuer_id', $this->issuer->id)
-            ->distinct()->get();
+            ->distinct()
+            ->get();
 
         foreach ($eventos as $evento) {
-            $nfe = AutenticidadeNfceJob::where('chave', $evento->chave)->where('status_nota', 100)->first();
+            $nfe = NotaFiscalConsumidor::where('chave', $evento->chave)->where('status_nota', 100)->first();
 
             if (isset($nfe) and isset($nfe->xml)) {
                 $stdCl = new Standardize(gzuncompress($nfe->xml));
@@ -53,20 +55,14 @@ class AutenticidadeNfceJob implements ShouldQueue
 
                 $result = searchValueInArray($arr, 'tpEvento');
 
-                if ($result != '110111') {
-
+                if ($result == '110111' || $result == '110112') {
                     $xml = Complements::cancelRegister(gzuncompress($nfe->xml), $evento->xml);
 
                     $nfe->update(['status_nota' => 101, 'xml' => gzcompress($xml)]);
 
                     DB::table('log_sefaz_nfe_events')->where('id', $evento->id)->update(['is_verificado_sefaz' => true]);
 
-                    Log::warning('Nfce cancelada:'.$nfe->chave);
-                }
-
-                if ($result == '110111') {
-
-                    DB::table('log_sefaz_nfe_events')->where('id', $evento->id)->update(['is_verificado_sefaz' => true]);
+                    Log::warning('Nfce cancelada:' . $nfe->chave);
                 }
             }
         }
