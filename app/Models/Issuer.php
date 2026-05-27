@@ -13,7 +13,7 @@ class Issuer extends Model
 {
     protected $with = ['municipio'];
 
-    protected $guarded = ['id', 'superlogica_condominio_id'];
+    protected $guarded = ['id'];
 
     protected $casts = [
         'side_activities' => 'array',
