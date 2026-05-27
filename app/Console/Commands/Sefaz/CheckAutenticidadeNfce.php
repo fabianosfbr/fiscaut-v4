@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands\Sefaz;
 
+use App\Jobs\Sefaz\AutenticidadeNfceJob;
 use App\Jobs\Sefaz\AutenticidadeNfeJob;
 use App\Models\Issuer;
+use App\Models\NotaFiscalConsumidor;
 use App\Models\NotaFiscalEletronica;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -11,21 +13,21 @@ use Illuminate\Support\Facades\Log;
 use NFePHP\NFe\Common\Standardize;
 use NFePHP\NFe\Complements;
 
-class CheckAutenticidadeNfe extends Command
+class CheckAutenticidadeNfce extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'app:check-autenticidade-nfe {--chave=}';
+    protected $signature = 'app:check-autenticidade-nfce {--chave=}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Verifica se alguma nfe foi cancelada';
+    protected $description = 'Verifica se alguma nfce foi cancelada';
 
     /**
      * Execute the console command.
@@ -39,7 +41,7 @@ class CheckAutenticidadeNfe extends Command
 
         if (isset($chave)) {
 
-            $nfe = NotaFiscalEletronica::where('chave', $chave)->where('status_nota', 100)->first();
+            $nfe = NotaFiscalConsumidor::where('chave', $chave)->where('status_nota', 100)->first();
 
             $evento = DB::table('log_sefaz_nfe_events')
                 ->where('tp_evento', 110111)
@@ -58,7 +60,8 @@ class CheckAutenticidadeNfe extends Command
 
                     $nfe->update(['status_nota' => 101, 'xml' => gzcompress($xml)]);
 
-                    Log::warning('Nfe cancelada:'.$nfe->chave);                    
+                    Log::warning('Nfce cancelada:'.$nfe->chave);
+                
                 }
             }
         } else {
@@ -68,7 +71,7 @@ class CheckAutenticidadeNfe extends Command
 
             foreach ($issuers as $issuer) {
 
-                AutenticidadeNfeJob::dispatch($issuer);
+                AutenticidadeNfceJob::dispatch($issuer);
             }
         }
 
