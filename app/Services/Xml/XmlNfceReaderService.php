@@ -99,7 +99,6 @@ class XmlNfceReaderService
     private function processNfceCompleta(): void
     {
         $params = $this->preparaDadosNfce();
-        
 
         $params['origem'] = $this->origem;
 

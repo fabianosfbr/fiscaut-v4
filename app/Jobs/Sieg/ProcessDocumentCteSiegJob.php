@@ -52,7 +52,7 @@ class ProcessDocumentCteSiegJob implements ShouldQueue
 
     public function failed(Throwable $exception): void
     {
-        Log::channel('sieg_log')->error('Erro ao processar CTe SIEG: '.$exception->getMessage() . 'XML: ' . $this->xml);
+        Log::channel('sieg_log')->error('Erro ao processar CTe SIEG: '.$exception->getMessage().'XML: '.$this->xml);
 
         $this->importJob->addError($exception->getMessage());
         $this->importJob->incrementProcessedFiles();

@@ -101,7 +101,7 @@ class XmlCteReaderService
     private function processCteCompleta(): void
     {
 
-        $params = $this->preparaDadosCte();        
+        $params = $this->preparaDadosCte();
 
         $params['origem'] = $this->origem;
 

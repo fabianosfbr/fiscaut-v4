@@ -41,7 +41,7 @@ class ProcessDocumentNfceSiegJob implements ShouldQueue
                 ->setOrigem('SIEG')
                 ->setIssuer($this->issuer)
                 ->parse()
-                ->save();            
+                ->save();
 
             $this->importJob->incrementProcessedFiles();
             $this->checkJobCompletion();
@@ -52,7 +52,7 @@ class ProcessDocumentNfceSiegJob implements ShouldQueue
 
     public function failed(Throwable $exception): void
     {
-        Log::channel('sieg_log')->error('Erro ao processar NFCe SIEG: '.$exception->getMessage() . 'XML: ' . $this->xml);
+        Log::channel('sieg_log')->error('Erro ao processar NFCe SIEG: '.$exception->getMessage().'XML: '.$this->xml);
 
         $this->importJob->addError($exception->getMessage());
         $this->importJob->incrementProcessedFiles();

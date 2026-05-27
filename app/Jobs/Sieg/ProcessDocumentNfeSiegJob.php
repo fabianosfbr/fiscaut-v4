@@ -35,7 +35,7 @@ class ProcessDocumentNfeSiegJob implements ShouldQueue
 
     public function handle(): void
     {
-        Log::channel('sieg_log')->info('NFe XML: ' . $this->xml);
+        Log::channel('sieg_log')->info('NFe XML: '.$this->xml);
         try {
             (new XmlNfeReaderService)
                 ->loadXml($this->xml)
@@ -53,7 +53,7 @@ class ProcessDocumentNfeSiegJob implements ShouldQueue
 
     public function failed(Throwable $exception): void
     {
-        Log::channel('sieg_log')->error('Erro ao processar NFe SIEG: '.$exception->getMessage() . 'XML: ' . $this->xml);
+        Log::channel('sieg_log')->error('Erro ao processar NFe SIEG: '.$exception->getMessage().'XML: '.$this->xml);
 
         $this->importJob->addError($exception->getMessage());
         $this->importJob->incrementProcessedFiles();

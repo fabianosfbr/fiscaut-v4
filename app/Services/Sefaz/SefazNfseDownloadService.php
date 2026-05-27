@@ -3,10 +3,10 @@
 namespace App\Services\Sefaz;
 
 use App\Models\Issuer;
+use Exception;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 use NFePHP\Common\Certificate;
-use Exception;
 
 class SefazNfseDownloadService
 {
@@ -36,13 +36,13 @@ class SefazNfseDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha na inicialização do serviço: ' . $e->getMessage());
+            throw new Exception('Falha na inicialização do serviço: '.$e->getMessage());
         }
     }
 
     private function loadCertificate(): void
     {
-        if (!$this->issuer->certificado_content) {
+        if (! $this->issuer->certificado_content) {
             throw new Exception('Certificado digital não encontrado para a empresa');
         }
 
@@ -57,7 +57,7 @@ class SefazNfseDownloadService
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha ao carregar certificado digital: ' . $e->getMessage());
+            throw new Exception('Falha ao carregar certificado digital: '.$e->getMessage());
         }
     }
 
@@ -94,7 +94,7 @@ class SefazNfseDownloadService
                     break;
                 }
 
-                if (!empty($result['documentos'])) {
+                if (! empty($result['documentos'])) {
                     $allDocuments = array_merge($allDocuments, $result['documentos']);
                 }
 
@@ -143,7 +143,7 @@ class SefazNfseDownloadService
                 'iterations' => $iterations,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('Falha no download: ' . $e->getMessage());
+            throw new Exception('Falha no download: '.$e->getMessage());
         }
     }
 
@@ -161,7 +161,7 @@ class SefazNfseDownloadService
             if ($nsu) {
                 // Consulta específica por NSU
                 $currentNsu = $nsu;
-              
+
                 $response = $this->shouldMockDistDFe()
                     ? $this->getMockDistDFeResponse()
                     : $this->getDistDfe(ultNsu: $currentNsu);
@@ -173,8 +173,8 @@ class SefazNfseDownloadService
 
             Log::channel('sefaz_log')->info(
                 $nsu
-                    ? 'Log de consulta NFSE - SEFAZ - registro específico - ' . explode(':', $this->issuer->razao_social)[0] . " : \n" . substr($response, 0, 2000)
-                    : 'Log de consulta NFSE - SEFAZ - registro em lote - ' . explode(':', $this->issuer->razao_social)[0] . " : \n" . substr($response, 0, 2000)
+                    ? 'Log de consulta NFSE - SEFAZ - registro específico - '.explode(':', $this->issuer->razao_social)[0]." : \n".substr($response, 0, 2000)
+                    : 'Log de consulta NFSE - SEFAZ - registro em lote - '.explode(':', $this->issuer->razao_social)[0]." : \n".substr($response, 0, 2000)
             );
 
             // Processa a resposta
@@ -193,7 +193,7 @@ class SefazNfseDownloadService
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            throw new Exception('Falha no download de NFSE: ' . $e->getMessage());
+            throw new Exception('Falha no download de NFSE: '.$e->getMessage());
         }
     }
 
@@ -205,7 +205,7 @@ class SefazNfseDownloadService
     private function getMockDistDFeResponse(): string
     {
         $path = (string) config('sefaz.distdfe.mock.nfse_path', '');
-        if ($path === '' || !is_file($path)) {
+        if ($path === '' || ! is_file($path)) {
             throw new Exception('Mock SEFAZ NFSe distDFe habilitado, mas o arquivo não foi encontrado.');
         }
 
@@ -267,10 +267,10 @@ class SefazNfseDownloadService
             $data = json_decode($response);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new Exception('Resposta inválida da SEFAZ - formato JSON inválido: ' . json_last_error_msg());
+                throw new Exception('Resposta inválida da SEFAZ - formato JSON inválido: '.json_last_error_msg());
             }
 
-            if (!isset($data->StatusProcessamento)) {
+            if (! isset($data->StatusProcessamento)) {
                 throw new Exception('Resposta inválida da SEFAZ - campo StatusProcessamento não encontrado');
             }
 
@@ -292,7 +292,7 @@ class SefazNfseDownloadService
                 foreach ($data->LoteDFe as $DFe) {
                     $nsuAtual = isset($DFe->NSU) ? (int) $DFe->NSU : null;
                     if ($nsuAtual !== null) {
-                        if (!$result['ultNSU'] || $nsuAtual > $result['ultNSU']) {
+                        if (! $result['ultNSU'] || $nsuAtual > $result['ultNSU']) {
                             $result['ultNSU'] = $nsuAtual;
                         }
                     }
@@ -321,15 +321,15 @@ class SefazNfseDownloadService
             Log::error('Erro ao processar resposta SEFAZ NFSE', [
                 'issuer_id' => $this->issuer->id,
                 'error' => $e->getMessage(),
-                'response' => substr($response, 0, 200) . '...',
+                'response' => substr($response, 0, 200).'...',
             ]);
-            throw new Exception('Falha ao processar resposta SEFAZ: ' . $e->getMessage());
+            throw new Exception('Falha ao processar resposta SEFAZ: '.$e->getMessage());
         }
     }
 
     private function decodeArquivoXmlToXmlString(?string $arquivoXml, ?string $chaveAcesso, ?int $nsu): ?string
     {
-        if (!is_string($arquivoXml) || trim($arquivoXml) === '') {
+        if (! is_string($arquivoXml) || trim($arquivoXml) === '') {
             Log::error('ArquivoXml ausente no documento NFSE', [
                 'chave_acesso' => $chaveAcesso ?? 'N/A',
                 'nsu' => $nsu ?? 'N/A',
@@ -373,7 +373,7 @@ class SefazNfseDownloadService
             }
         }
 
-        if (!is_string($xml) || trim($xml) === '') {
+        if (! is_string($xml) || trim($xml) === '') {
             Log::error('Falha ao descompactar/obter XML do documento NFSE', [
                 'chave_acesso' => $chaveAcesso ?? 'N/A',
                 'nsu' => $nsu ?? 'N/A',
@@ -468,7 +468,7 @@ class SefazNfseDownloadService
             }
 
             if ($httpCode === 404) {
-                if (!is_string($serverResponse) || trim($serverResponse) === '') {
+                if (! is_string($serverResponse) || trim($serverResponse) === '') {
                     return json_encode([
                         'StatusProcessamento' => 'NENHUM_DOCUMENTO_LOCALIZADO',
                         'Descricao' => 'Nenhum documento localizado (HTTP 404)',

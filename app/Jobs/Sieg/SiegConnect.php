@@ -4,6 +4,7 @@ namespace App\Jobs\Sieg;
 
 use App\Models\Issuer;
 use App\Models\XmlImportJob;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -11,7 +12,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Exception;
 
 class SiegConnect implements ShouldQueue
 {
@@ -67,7 +67,7 @@ class SiegConnect implements ShouldQueue
             2 => ProcessDocumentCteSiegJob::class,
             3 => ProcessDocumentNfseSiegJob::class,
             4 => ProcessDocumentNfceSiegJob::class,
-            default => throw new Exception('Tipo de documento SIEG inválido: ' . $tipoDocumento),
+            default => throw new Exception('Tipo de documento SIEG inválido: '.$tipoDocumento),
         };
     }
 
@@ -80,8 +80,8 @@ class SiegConnect implements ShouldQueue
             $issuer = Issuer::with('tenant')->find($this->issuerId);
             $tenant = $issuer->tenant;
 
-            if (!isset($tenant->sieg_key)) {
-                throw new Exception('Chave de API SIEG não configurada para o tenant ' . $tenant->name);
+            if (! isset($tenant->sieg_key)) {
+                throw new Exception('Chave de API SIEG não configurada para o tenant '.$tenant->name);
             }
             $cnpj = $issuer->cnpj;
 
@@ -119,15 +119,14 @@ class SiegConnect implements ShouldQueue
                 ])
                     ->timeout(120)  // 2 minutos para timeout da requisição
                     ->connectTimeout(30)  // 30 segundos para timeout de conexão
-                    ->post($this->apiUrl . '?api_key=' . $tenant->sieg_key, $payload);
+                    ->post($this->apiUrl.'?api_key='.$tenant->sieg_key, $payload);
 
-          
                 // Verificar se a requisição foi bem-sucedida
                 if ($response->successful()) {
                     $responseData = $response->json();
                     $totalDocumentosPagina = count($responseData ?? []);
 
-                    Log::channel('sieg_log')->info('Consulta tipo: ' . $castXmlType[$this->tipoDocumento] . ' - Sieg - total de documentos na página ' . $totalDocumentosPagina);
+                    Log::channel('sieg_log')->info('Consulta tipo: '.$castXmlType[$this->tipoDocumento].' - Sieg - total de documentos na página '.$totalDocumentosPagina);
 
                     if (isset($responseData['xmls']) && is_array($responseData['xmls'])) {
                         $resultados = $responseData['xmls'];
@@ -154,7 +153,7 @@ class SiegConnect implements ShouldQueue
                             $jobClass::dispatch($xml, $issuer, $this->importJob);
                         }
 
-                        Log::channel('sieg_log')->info('Dispatched ' . count($resultados) . ' jobs do tipo ' . $castXmlType[$this->tipoDocumento] . ' para processamento');
+                        Log::channel('sieg_log')->info('Dispatched '.count($resultados).' jobs do tipo '.$castXmlType[$this->tipoDocumento].' para processamento');
                     } else {
                         $this->importJob->updateQuietly([
                             'total_files' => $totalDocumentos,
@@ -173,8 +172,8 @@ class SiegConnect implements ShouldQueue
                         $this->importJob->updateQuietly(['status' => XmlImportJob::STATUS_COMPLETED]);
                     } else {
                         $responseData = $response->json();
-                        Log::channel('sieg_log')->error('Erro na consulta do SIEG: ' . $errorMessage);
-                        if (is_array($responseData) && !empty($responseData[0])) {
+                        Log::channel('sieg_log')->error('Erro na consulta do SIEG: '.$errorMessage);
+                        if (is_array($responseData) && ! empty($responseData[0])) {
                             $errorMessage = $responseData[0];
                         }
                         $this->importJob->addError($errorMessage);
@@ -193,12 +192,12 @@ class SiegConnect implements ShouldQueue
             $this->importJob->updateQuietly([
                 'total_files' => $totalDocumentos,
             ]);
-            Log::channel('sieg_log')->info('Importação SIEG concluída. Total de documentos: ' . $totalDocumentos);
+            Log::channel('sieg_log')->info('Importação SIEG concluída. Total de documentos: '.$totalDocumentos);
         } catch (Exception $e) {
-            Log::channel('sieg_log')->error('Erro na importação SIEG: ' . $e->getMessage());
+            Log::channel('sieg_log')->error('Erro na importação SIEG: '.$e->getMessage());
 
             if (isset($this->importJob)) {
-                $this->importJob->addError('Erro na importação: ' . $e->getMessage());
+                $this->importJob->addError('Erro na importação: '.$e->getMessage());
                 $this->importJob->updateQuietly(['status' => XmlImportJob::STATUS_FAILED]);
             }
         }
