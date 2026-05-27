@@ -14,6 +14,7 @@ class XmlImportJob extends Model
     protected $casts = [
         'errors' => 'array',
         'import_type' => XmlImportJobType::class,
+        'finished_at' => 'datetime',
     ];
 
     // Status constants

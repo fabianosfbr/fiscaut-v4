@@ -2,7 +2,7 @@
 
 namespace App\Filament\Pages\Importar;
 
-use App\Jobs\ProcessXmlFileBatch;
+use App\Jobs\ProcessXmlFile;
 use App\Models\XmlImportJob;
 use Exception;
 use Filament\Forms\Components\FileUpload;
@@ -102,11 +102,17 @@ class XmlImport extends Page
 
         try {
 
-            ProcessXmlFileBatch::dispatch($data['xmlFiles'], $importJob);
-
             $importJob->updateQuietly([
                 'total_files' => count($data['xmlFiles']),
+                'status' => XmlImportJob::STATUS_PROCESSING,
             ]);
+
+            $issuer = $user->currentIssuer;
+
+            // Dispatch one job per file (each handles XML or ZIP internally)
+            foreach ($data['xmlFiles'] as $fileKey) {
+                ProcessXmlFile::dispatch($fileKey, $importJob, $issuer)->onQueue('low');
+            }
 
             $this->isProcessing = false;
 
