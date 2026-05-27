@@ -101,9 +101,7 @@ class XmlCteReaderService
     private function processCteCompleta(): void
     {
 
-        $params = $this->preparaDadosCte();
-
-        Log::info('Registrando/Atualizando CTe no Fiscaut - Chave:  '.$params['chave']);
+        $params = $this->preparaDadosCte();        
 
         $params['origem'] = $this->origem;
 

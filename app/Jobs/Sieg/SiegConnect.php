@@ -3,16 +3,7 @@
 namespace App\Jobs\Sieg;
 
 use App\Models\Issuer;
-use App\Models\User;
 use App\Models\XmlImportJob;
-use App\Services\Xml\XmlCteReaderService;
-use App\Services\Xml\XmlNfceReaderService;
-use App\Services\Xml\XmlNfeReaderService;
-use App\Services\Xml\XmlNfseReaderService;
-use Carbon\Carbon;
-use Exception;
-use Filament\Actions\Action;
-use Filament\Notifications\Notification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -20,6 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Exception;
 
 class SiegConnect implements ShouldQueue
 {
@@ -66,20 +58,30 @@ class SiegConnect implements ShouldQueue
     }
 
     /**
+     * Mapeia tipo de documento SIEG para a classe de job correspondente.
+     */
+    protected function getJobClass(int $tipoDocumento): string
+    {
+        return match ($tipoDocumento) {
+            1 => ProcessDocumentNfeSiegJob::class,
+            2 => ProcessDocumentCteSiegJob::class,
+            3 => ProcessDocumentNfseSiegJob::class,
+            4 => ProcessDocumentNfceSiegJob::class,
+            default => throw new Exception('Tipo de documento SIEG inválido: ' . $tipoDocumento),
+        };
+    }
+
+    /**
      * Execute the job.
      */
     public function handle(): void
     {
         try {
-            // Formatar as datas para o padrão da API
-            // $dataInicial = Carbon::createFromFormat('Y-m-d', $this->dataInicial)->startOfDay()->format('Y-m-d\TH:i:s.\0\0\0\Z');
-            // $dataFinal = Carbon::createFromFormat('Y-m-d', $this->dataFinal)->endOfDay()->format('Y-m-d\TH:i:s.\9\9\9\Z');
-
             $issuer = Issuer::with('tenant')->find($this->issuerId);
             $tenant = $issuer->tenant;
 
-            if (! isset($tenant->sieg_key)) {
-                throw new Exception('Chave de API SIEG não configurada para o tenant '.$tenant->name);
+            if (!isset($tenant->sieg_key)) {
+                throw new Exception('Chave de API SIEG não configurada para o tenant ' . $tenant->name);
             }
             $cnpj = $issuer->cnpj;
 
@@ -95,6 +97,8 @@ class SiegConnect implements ShouldQueue
             $totalDocumentos = 0;
             $temMaisResultados = true;
             $this->skip = 0;
+
+            $jobClass = $this->getJobClass($this->tipoDocumento);
 
             do {
                 // Preparar o payload da requisição
@@ -113,16 +117,17 @@ class SiegConnect implements ShouldQueue
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
                 ])
-                    ->timeout(120) // 2 minutos paratimeout da requisição
-                    ->connectTimeout(30) // 30 segundos para timeout de conexão
-                    ->post($this->apiUrl.'?api_key='.$tenant->sieg_key, $payload);
+                    ->timeout(120)  // 2 minutos para timeout da requisição
+                    ->connectTimeout(30)  // 30 segundos para timeout de conexão
+                    ->post($this->apiUrl . '?api_key=' . $tenant->sieg_key, $payload);
 
+          
                 // Verificar se a requisição foi bem-sucedida
                 if ($response->successful()) {
                     $responseData = $response->json();
                     $totalDocumentosPagina = count($responseData ?? []);
 
-                    Log::channel('sieg_log')->info('Consulta tipo: '.$castXmlType[$this->tipoDocumento].' - Sieg - total de documentos na página '.$totalDocumentosPagina);
+                    Log::channel('sieg_log')->info('Consulta tipo: ' . $castXmlType[$this->tipoDocumento] . ' - Sieg - total de documentos na página ' . $totalDocumentosPagina);
 
                     if (isset($responseData['xmls']) && is_array($responseData['xmls'])) {
                         $resultados = $responseData['xmls'];
@@ -137,62 +142,24 @@ class SiegConnect implements ShouldQueue
                             $temMaisResultados = false;
                         }
 
+                        // Atualiza o total de arquivos no import job e dispatches um job por documento
+                        $this->importJob->updateQuietly([
+                            'total_files' => $totalDocumentos,
+                            'status' => XmlImportJob::STATUS_PROCESSING,
+                        ]);
+
                         foreach ($resultados as $value) {
                             $xml = base64_decode($value);
 
-                            if ($this->tipoDocumento == 1) {
-                                (new XmlNfeReaderService)
-                                    ->loadXml($xml)
-                                    ->setOrigem('SIEG')
-                                    ->setIssuer($issuer)
-                                    ->parse()
-                                    ->save();
-
-                                Log::channel('sieg_log')->info('NFe importada com sucesso');
-                            }
-
-                            if ($this->tipoDocumento == 2) {
-                                (new XmlCteReaderService)
-                                    ->loadXml($xml)
-                                    ->setOrigem('SIEG')
-                                    ->setIssuer($issuer)
-                                    ->parse()
-                                    ->save();
-
-                                Log::channel('sieg_log')->info('CTe importada com sucesso');
-                            }
-
-                            if ($this->tipoDocumento == 3) {
-                                (new XmlNfseReaderService)
-                                    ->loadXml($xml)
-                                    ->setOrigem('SIEG')
-                                    ->setIssuer($issuer)
-                                    ->parse()
-                                    ->save();
-
-                                Log::channel('sieg_log')->info('NFS-e importada com sucesso');
-                            }
-
-                            if ($this->tipoDocumento == 4) {
-                                (new XmlNfceReaderService)
-                                    ->loadXml($xml)
-                                    ->setOrigem('SIEG')
-                                    ->setIssuer($issuer)
-                                    ->parse()
-                                    ->save();
-
-                                Log::channel('sieg_log')->info('NFCe importada com sucesso');
-                            }
-
-                            $this->importJob->updateQuietly(['total_files' => $totalDocumentos]);
-                            $this->importJob->updateQuietly(['status' => XmlImportJob::STATUS_PROCESSING]);
+                            $jobClass::dispatch($xml, $issuer, $this->importJob);
                         }
+
+                        Log::channel('sieg_log')->info('Dispatched ' . count($resultados) . ' jobs do tipo ' . $castXmlType[$this->tipoDocumento] . ' para processamento');
                     } else {
-                        $this->enviarNotificacao(
-                            'Atenção',
-                            'Nenhum documento encontrado para os critérios informados.',
-                            'warning'
-                        );
+                        $this->importJob->updateQuietly([
+                            'total_files' => $totalDocumentos,
+                            'status' => XmlImportJob::STATUS_COMPLETED,
+                        ]);
                         $temMaisResultados = false;
                     }
                 } else {
@@ -204,16 +171,14 @@ class SiegConnect implements ShouldQueue
                         Log::channel('sieg_log')->info($errorMessage);
 
                         $this->importJob->updateQuietly(['status' => XmlImportJob::STATUS_COMPLETED]);
-
                     } else {
                         $responseData = $response->json();
-                        Log::channel('sieg_log')->error('Erro na consulta do SIEG: '.$errorMessage);
-                        if (is_array($responseData) && ! empty($responseData[0])) {
+                        Log::channel('sieg_log')->error('Erro na consulta do SIEG: ' . $errorMessage);
+                        if (is_array($responseData) && !empty($responseData[0])) {
                             $errorMessage = $responseData[0];
                         }
                         $this->importJob->addError($errorMessage);
                         $this->importJob->updateQuietly(['status' => XmlImportJob::STATUS_FAILED]);
-
                     }
 
                     // Interrompe o loop em caso de erro
@@ -227,88 +192,15 @@ class SiegConnect implements ShouldQueue
 
             $this->importJob->updateQuietly([
                 'total_files' => $totalDocumentos,
-                'status' => XmlImportJob::STATUS_COMPLETED,
             ]);
-            Log::channel('sieg_log')->info('Importação SIEG concluída. Total de documentos: '.$totalDocumentos);
+            Log::channel('sieg_log')->info('Importação SIEG concluída. Total de documentos: ' . $totalDocumentos);
         } catch (Exception $e) {
-            Log::channel('sieg_log')->error('Erro na importação SIEG: '.$e->getMessage());
+            Log::channel('sieg_log')->error('Erro na importação SIEG: ' . $e->getMessage());
 
             if (isset($this->importJob)) {
-                $this->importJob->addError('Erro na importação: '.$e->getMessage());
+                $this->importJob->addError('Erro na importação: ' . $e->getMessage());
                 $this->importJob->updateQuietly(['status' => XmlImportJob::STATUS_FAILED]);
             }
-
-        }
-    }
-
-    /**
-     * Envia uma notificação para o usuário
-     *
-     * @param  string  $tipo  success|warning|danger|info
-     */
-    protected function enviarNotificacao(string $titulo, string $mensagem, string $tipo = 'info'): void
-    {
-        // Se temos um job de importação, usamos um dispatch separado para evitar problemas de serialização
-        if (isset($this->importJob)) {
-            $jobId = $this->importJob->id;
-            $userId = $this->importJob->user_id;
-
-            // Dispatch um job separado para enviar a notificação
-            dispatch(function () use ($titulo, $mensagem, $tipo, $jobId, $userId) {
-                $user = User::find($userId);
-                if (! $user) {
-                    return;
-                }
-
-                $notification = Notification::make()
-                    ->title($titulo)
-                    ->body($mensagem);
-
-                switch ($tipo) {
-                    case 'success':
-                        $notification->success();
-                        break;
-                    case 'warning':
-                        $notification->warning();
-                        break;
-                    case 'danger':
-                        $notification->danger();
-                        break;
-                    default:
-                        $notification->info();
-                }
-
-                // Criar a ação separadamente para evitar problemas de serialização
-                $action = Action::make('view')
-                    ->label('Ver detalhes')
-                    ->url(route('filament.app.resources.xml-import-history.index', ['record' => $jobId]));
-
-                $notification->actions([$action]);
-
-                $notification->sendToDatabase($user, isEventDispatched: true);
-                $notification->send();
-            });
-        } else {
-            // Caso não tenhamos um job de importação, enviamos a notificação diretamente
-            $notification = Notification::make()
-                ->title($titulo)
-                ->body($mensagem);
-
-            switch ($tipo) {
-                case 'success':
-                    $notification->success();
-                    break;
-                case 'warning':
-                    $notification->warning();
-                    break;
-                case 'danger':
-                    $notification->danger();
-                    break;
-                default:
-                    $notification->info();
-            }
-
-            $notification->send();
         }
     }
 }

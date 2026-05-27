@@ -99,8 +99,7 @@ class XmlNfceReaderService
     private function processNfceCompleta(): void
     {
         $params = $this->preparaDadosNfce();
-
-        Log::info('Registrando/Atualizando NFCe no Fiscaut - Chave:  '.$params['chave']);
+        
 
         $params['origem'] = $this->origem;
 
