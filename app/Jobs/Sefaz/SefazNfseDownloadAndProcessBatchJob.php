@@ -32,23 +32,28 @@ class SefazNfseDownloadAndProcessBatchJob implements ShouldQueue
             $service = new SefazNfseDownloadService($this->issuer);
             $result = $service->downloadNfseInBatch();
 
-            $importJob = $this->createXmlImportJob($result['total_documentos']);
+            $totalFiles = $result['total_documentos'];
 
-            if (! empty($result['documentos'])) {
-                SefazNfseDownloadBatchJob::dispatch(
-                    $importJob,
-                    $result['documentos'],
-                    $this->issuer,
-                    $result['ultimo_nsu']
-                )->onQueue('default');
+            // If no documents found, just log and return
+            if (empty($result['documentos'])) {
+                Log::info('Nenhum documento NFSe encontrado para processamento', [
+                    'issuer_id' => $this->issuer->id,
+                ]);
 
                 return;
             }
 
+            $importJob = $this->createXmlImportJob($totalFiles);
             $importJob->updateQuietly([
-                'status' => XmlImportJob::STATUS_COMPLETED,
-                'total_files' => 0,
+                'status' => XmlImportJob::STATUS_PROCESSING,
+                'total_files' => $totalFiles,
             ]);
+
+            // Dispatch one job per document directly
+            foreach ($result['documentos'] as $documento) {
+                SefazNfseProcessDocumentJob::dispatch($documento, $this->issuer, $importJob)
+                    ->onQueue('sefaz');
+            }
         } catch (\Throwable $e) {
             Log::error('Erro no download e processamento de NFSe da SEFAZ', [
                 'issuer_id' => $this->issuer->id,

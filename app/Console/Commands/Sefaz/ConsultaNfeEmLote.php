@@ -26,8 +26,8 @@ class ConsultaNfeEmLote extends Command
             ->get();
 
         foreach ($issuers as $issuer) {
-            // Dispatch the batch job
 
+            // Dispatch job
             SefazNfeDownloadAndProcessBatchJob::dispatch($issuer)->onQueue('default');
         }
 

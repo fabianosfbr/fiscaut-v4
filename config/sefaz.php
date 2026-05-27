@@ -6,6 +6,7 @@ return [
         'mock' => [
             'enabled' => env('SEFAZ_DISTDFE_MOCK', true),
             'nfe_path' => env('SEFAZ_DISTDFE_MOCK_NFE_PATH', base_path('resources/mocks/sefaz/nfe_distdfe.xml')),
+            'nfse_path' => env('SEFAZ_DISTDFE_MOCK_NFSE_PATH', base_path('resources/mocks/sefaz/nfse_distdfe.xml')),
             'cte_path' => env('SEFAZ_DISTDFE_MOCK_CTE_PATH', base_path('resources/mocks/sefaz/cte_distdfe.xml')),
         ],
     ],

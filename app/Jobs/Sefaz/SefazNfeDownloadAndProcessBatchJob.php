@@ -6,7 +6,6 @@ use App\Enums\XmlImportJobType;
 use App\Models\Issuer;
 use App\Models\XmlImportJob;
 use App\Services\Sefaz\SefazNfeDownloadService;
-use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -16,7 +15,7 @@ use Illuminate\Support\Facades\Log;
 
 class SefazNfeDownloadAndProcessBatchJob implements ShouldQueue
 {
-    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * The number of times the job may be attempted.
@@ -57,20 +56,27 @@ class SefazNfeDownloadAndProcessBatchJob implements ShouldQueue
             // Download documents in batch by NSU range or specific NSU
             $result = $service->downloadNfeInBatch(ultNsu: $this->ultNsu, nsu: $this->nsu);
 
-            $importJob = $this->createXmlImportJob($result['total_documentos']);
+            $totalFiles = $result['total_documentos'];
 
-            // If documents were found, process them in a batch
-            if (! empty($result['documentos'])) {
-                SefazNfeDownloadBatchJob::dispatch(
-                    $importJob,
-                    $result['documentos'],
-                    $this->issuer,
-                    $result['ultimo_nsu']
-                )->onQueue('default');
-            } else {
+            // If no documents found, just log and return
+            if (empty($result['documentos'])) {
                 Log::info('Nenhum documento encontrado para processamento', [
                     'issuer_id' => $this->issuer->id,
                 ]);
+
+                return;
+            }
+
+            $importJob = $this->createXmlImportJob($totalFiles);
+            $importJob->updateQuietly([
+                'status' => XmlImportJob::STATUS_PROCESSING,
+                'total_files' => $totalFiles,
+            ]);
+
+            // Dispatch one job per document directly
+            foreach ($result['documentos'] as $documento) {
+                SefazNfeProcessDocumentJob::dispatch($documento, $this->issuer, $importJob)
+                    ->onQueue('sefaz');
             }
         } catch (\Exception $e) {
             Log::error('Erro no download e processamento de documentos da SEFAZ', [

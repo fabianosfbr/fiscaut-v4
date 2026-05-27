@@ -4,20 +4,24 @@ namespace App\Jobs\Sefaz;
 
 use App\Models\Issuer;
 use App\Models\LogSefazNfeContent;
+use App\Models\User;
 use App\Models\XmlImportJob;
 use App\Services\Xml\XmlIdentifierService;
 use App\Services\Xml\XmlNfeReaderService;
-use Illuminate\Bus\Batchable;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class SefazNfeProcessDocumentJob implements ShouldQueue
 {
-    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * The number of times the job may be attempted.
@@ -47,7 +51,6 @@ class SefazNfeProcessDocumentJob implements ShouldQueue
      */
     public function handle(): void
     {
-
         try {
             // Process the document based on its type
             switch ($this->documento['tipo_documento']) {
@@ -69,21 +72,37 @@ class SefazNfeProcessDocumentJob implements ShouldQueue
                         'tipo' => $this->documento['tipo_documento'],
                         'nsu' => $this->documento['nsu'],
                     ]);
-
-                    return;
             }
+
+            // Increment processed files counter on success
+            $this->importJob->incrementProcessedFiles();
+
+            // Check if all files have been processed
+            $this->checkJobCompletion();
         } catch (\Exception $e) {
-            Log::error('Erro ao processar documento da SEFAZ', [
-                'issuer_id' => $this->issuer->id,
-                'nsu' => $this->documento['nsu'] ?? 'N/A',
-                'tipo' => $this->documento['tipo_documento'] ?? 'N/A',
-                'error' => $e->getMessage(),
-            ]);
-
-            $this->importJob->addError($e->getMessage());
-
-            throw $e;
+            $this->failed($e);
         }
+    }
+
+    /**
+     * Handle a job failure.
+     */
+    public function failed(Throwable $exception): void
+    {
+        Log::error('Erro ao processar documento da SEFAZ', [
+            'issuer_id' => $this->issuer->id,
+            'nsu' => $this->documento['nsu'] ?? 'N/A',
+            'tipo' => $this->documento['tipo_documento'] ?? 'N/A',
+            'error' => $exception->getMessage(),
+        ]);
+
+        $this->importJob->addError($exception->getMessage());
+
+        // Increment processed files counter
+        $this->importJob->incrementProcessedFiles();
+
+        // Check if all files have been processed
+        $this->checkJobCompletion();
     }
 
     /**
@@ -137,7 +156,7 @@ class SefazNfeProcessDocumentJob implements ShouldQueue
     /**
      * Processa todas consultas de NFe
      */
-    public function registerLogContent($issuer, $numnsu, $maxNSU, $xml)
+    public function registerLogContent($issuer, $numnsu, $maxNSU, $xml): LogSefazNfeContent
     {
         $logContent = LogSefazNfeContent::updateOrCreate(
             [
@@ -155,5 +174,68 @@ class SefazNfeProcessDocumentJob implements ShouldQueue
         Log::info("Log de conteúdo registrado no banco de dados para NSU {$numnsu} do emissor {$issuer->razao_social}");
 
         return $logContent;
+    }
+
+    /**
+     * Check if all documents in the import job have been processed.
+     * Uses atomic DB update to prevent race conditions and double-notification.
+     */
+    protected function checkJobCompletion(): void
+    {
+        $jobId = $this->importJob->id;
+
+        // Atomic check: only mark as completed if processed >= total and not already finished
+        $updated = DB::table('xml_import_jobs')
+            ->where('id', $jobId)
+            ->where('processed_files', '>=', DB::raw('total_files'))
+            ->whereNull('finished_at')
+            ->update([
+                'status' => XmlImportJob::STATUS_COMPLETED,
+                'finished_at' => now(),
+            ]);
+
+        if ($updated > 0) {
+            $this->sendCompletionNotification();
+        }
+    }
+
+    /**
+     * Send the completion notification to the issuer's owner user.
+     */
+    protected function sendCompletionNotification(): void
+    {
+        // Try to notify the issuer owner (if a user)
+        $owner = $this->importJob->owner;
+        if ($owner instanceof User) {
+            $hasErrors = $this->importJob->error_files > 0;
+
+            if ($hasErrors) {
+                Notification::make()
+                    ->warning()
+                    ->title('Importação SEFAZ NFe concluída com erros')
+                    ->body("{$this->importJob->imported_files} documentos importados, {$this->importJob->error_files} com erros.")
+                    ->actions([
+                        Action::make('view')
+                            ->label('Ver detalhes')
+                            ->button()
+                            ->openUrlInNewTab()
+                            ->url(route('filament.app.resources.xml-import-history.index', ['record' => $this->importJob->id])),
+                    ])
+                    ->sendToDatabase($owner, isEventDispatched: true);
+            } else {
+                Notification::make()
+                    ->success()
+                    ->title('Importação SEFAZ NFe concluída')
+                    ->body('Todos os documentos SEFAZ foram processados com sucesso.')
+                    ->actions([
+                        Action::make('view')
+                            ->label('Ver detalhes')
+                            ->button()
+                            ->openUrlInNewTab()
+                            ->url(route('filament.app.resources.xml-import-history.index', ['record' => $this->importJob->id])),
+                    ])
+                    ->sendToDatabase($owner, isEventDispatched: true);
+            }
+        }
     }
 }
