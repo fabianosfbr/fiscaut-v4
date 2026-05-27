@@ -2,15 +2,18 @@
 
 namespace App\Services\Xml;
 
+use App\Enums\StatusNfeEnum;
 use App\Events\NfeCancelada;
 use App\Jobs\Sefaz\CheckNfeData;
 use App\Models\ConhecimentoTransporteEletronico;
 use App\Models\Issuer;
 use App\Models\LogSefazNfeEvent;
 use App\Models\LogSefazResumoNfe;
+use App\Models\NotaFiscalConsumidor;
 use App\Models\NotaFiscalEletronica;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use NFePHP\NFe\Complements;
 
 class XmlNfeReaderService
 {
@@ -34,7 +37,7 @@ class XmlNfeReaderService
 
             return $this;
         } catch (Exception $e) {
-            Log::error('Erro ao carregar XML NFe: '.$e->getMessage());
+            Log::error('Erro ao carregar XML NFe: ' . $e->getMessage());
             throw new Exception('XML inválido ou mal formatado');
         }
     }
@@ -44,7 +47,7 @@ class XmlNfeReaderService
      */
     public function parse(): self
     {
-        if (! $this->xml) {
+        if (!$this->xml) {
             throw new Exception('XML não foi carregado');
         }
 
@@ -60,7 +63,7 @@ class XmlNfeReaderService
 
     public function setOrigem(string $origem = 'SEFAZ'): self
     {
-        if (! in_array($origem, ['IMPORTADO', 'SEFAZ', 'SIEG'])) {
+        if (!in_array($origem, ['IMPORTADO', 'SEFAZ', 'SIEG'])) {
             throw new Exception('Origem inválida. Use: IMPORTADO, SEFAZ ou SIEG');
         }
 
@@ -78,7 +81,6 @@ class XmlNfeReaderService
 
     public function save(): void
     {
-
         if (empty($this->data)) {
             throw new Exception('Dados não foram extraídos. Execute parse() primeiro.');
         }
@@ -104,15 +106,14 @@ class XmlNfeReaderService
                 return;
 
             default:
-                throw new Exception('Tipo de XML não suportado: '.$tipoXml);
+                throw new Exception('Tipo de XML não suportado: ' . $tipoXml);
         }
     }
 
     private function processNfeCompleta(): void
     {
-
         $params = $this->preparaDadosNfe();
-        Log::info('Registrando/Atualizando NFe no Fiscaut - Chave:  '.$params['chave']);
+        Log::info('Registrando/Atualizando NFe no Fiscaut - Chave:  ' . $params['chave']);
 
         $params['origem'] = $this->origem;
 
@@ -134,8 +135,7 @@ class XmlNfeReaderService
             ]);
         }
 
-        if (! is_null($params['refNFe'])) {
-
+        if (!is_null($params['refNFe'])) {
             $nfeRef = NotaFiscalEletronica::where('nNF', $params['refNFe'])
                 ->where('emitente_cnpj', '!=', $params['emitente_cnpj'])
                 ->first();
@@ -151,7 +151,7 @@ class XmlNfeReaderService
         if ($ctes->count() > 0) {
             $ctes->each(function (ConhecimentoTransporteEletronico $cte) {
                 // Disparar evento de verificar NFe associada
-                info('Disparando evento de verificar NFe associada - CTE: '.$cte->id);
+                info('Disparando evento de verificar NFe associada - CTE: ' . $cte->id);
                 CheckNfeData::dispatch($cte);
             });
         }
@@ -159,7 +159,6 @@ class XmlNfeReaderService
 
     private function processNfeResumo(): void
     {
-
         $resumoList = xml_list($this->data['resNFe'] ?? null);
         $resumo = $resumoList[0] ?? [];
 
@@ -177,7 +176,7 @@ class XmlNfeReaderService
                 'tipo_nfe' => $resumo['tpNF'],
                 'valor_nfe' => $resumo['vNF'],
                 'created_at' => date('Y-m-d h:i:s'),
-                'dh_emissao' => explode('T', $resumo['dhRecbto'])[0].' '.explode('-', explode('T', $resumo['dhRecbto'])[1])[0],
+                'dh_emissao' => explode('T', $resumo['dhRecbto'])[0] . ' ' . explode('-', explode('T', $resumo['dhRecbto'])[1])[0],
                 'issuer_id' => $this->issuer->id,
                 'tenant_id' => $this->issuer->tenant_id,
                 'xml' => $this->xml,
@@ -225,21 +224,29 @@ class XmlNfeReaderService
         $nfe = NotaFiscalEletronica::where('chave', $chave)->first();
 
         if ($log->tp_evento == 110110 && $nfe) {
-
-            if (isset($nfe->carta_correcao) && ! empty($nfe->carta_correcao)) {
-
+            if (isset($nfe->carta_correcao) && !empty($nfe->carta_correcao)) {
                 $carta_correcao = $nfe->carta_correcao;
             }
 
-            if (! in_array($log->id, $carta_correcao)) {
+            if (!in_array($log->id, $carta_correcao)) {
                 $carta_correcao[] = $log->id;
             }
 
             $nfe->update(['carta_correcao' => $carta_correcao]);
         }
 
-        if ($log->tp_evento == 110111) {
+        if ($log->tp_evento == 110111 && $nfe) {
             event(new NfeCancelada($log));
+        }
+
+        $nfce = NotaFiscalConsumidor::where('chave', $chave)->first();
+
+        if ($log->tp_evento == 110111 && $nfce?->status_nota != StatusNfeEnum::CANCELADA) {
+            $xml = Complements::cancelRegister(gzuncompress($nfce->xml), $this->xml);
+            $nfce->updateQuietly([
+                'xml' => gzcompress($xml),
+                'status_nota' => StatusNfeEnum::CANCELADA,
+            ]);
         }
     }
 
@@ -258,7 +265,7 @@ class XmlNfeReaderService
         $dhEvento = $this->formatIsoDateTime($dhEventoRaw) ?? now()->toDateTimeString();
         $xEvento = $infEvento['detEvento']['descEvento'] ?? $resEvento['xEvento'] ?? null;
 
-        if (! $chave || ! $tpEvento) {
+        if (!$chave || !$tpEvento) {
             throw new Exception('Estrutura de evento NFe não reconhecida ou incompleta.');
         }
 
@@ -395,7 +402,6 @@ class XmlNfeReaderService
     public function verificaTipoDePessoaDestinatario()
     {
         if (isset($this->data['nfeProc'])) {
-
             $dest = $this->data['nfeProc']['NFe']['infNFe']['dest'] ?? [];
 
             return $dest['CNPJ'] ?? $dest['CPF'] ?? null;
@@ -407,7 +413,6 @@ class XmlNfeReaderService
     public function verificaTipoDePessoaEmitente()
     {
         if (isset($this->data['nfeProc'])) {
-
             $emit = $this->data['nfeProc']['NFe']['infNFe']['emit'] ?? [];
 
             return $emit['CNPJ'] ?? $emit['CPF'] ?? null;
@@ -469,7 +474,7 @@ class XmlNfeReaderService
         $date = $parts[0];
         $time = explode('-', $parts[1], 2)[0];
 
-        return $date.' '.$time;
+        return $date . ' ' . $time;
     }
 
     private function preparaCfops()
@@ -479,7 +484,7 @@ class XmlNfeReaderService
             $cfops[] = $value['prod']['CFOP'] ?? null;
         });
 
-        $cfops = array_filter($cfops ?? [], fn ($cfop) => ! is_null($cfop) && $cfop !== '');
+        $cfops = array_filter($cfops ?? [], fn($cfop) => !is_null($cfop) && $cfop !== '');
         $values = array_unique($cfops);
         rsort($values);
 
