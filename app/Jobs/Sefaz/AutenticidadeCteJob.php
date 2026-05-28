@@ -15,6 +15,10 @@ class AutenticidadeCteJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $failOnTimeout = false;
+
+    public $timeout = 120000;
+
     /**
      * Create a new job instance.
      */
@@ -37,7 +41,10 @@ class AutenticidadeCteJob implements ShouldQueue
             ->where('is_verificado_sefaz', false)
             ->where('issuer_id', $this->issuer->id)
             ->distinct()
-            ->get()
-            ->each(fn (LogSefazCteEvent $evento) => AutenticidadeCteCheckJob::dispatch($evento)->onQueue('low'));
+            ->chunkById(100, function ($eventos) {
+                foreach ($eventos as $evento) {
+                    AutenticidadeCteCheckJob::dispatch($evento)->onQueue('low');
+                }
+            });
     }
 }

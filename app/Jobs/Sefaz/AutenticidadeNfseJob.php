@@ -15,6 +15,10 @@ class AutenticidadeNfseJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $failOnTimeout = false;
+
+    public $timeout = 120000;
+
     /**
      * Create a new job instance.
      */
@@ -29,14 +33,17 @@ class AutenticidadeNfseJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $endDate = Carbon::now()->subDays(40);
+        $endDate = Carbon::now()->subDays(30);
 
         LogSefazNfseEvent::query()
             ->where('x_desc', 'like', '%cancelamento%')
             ->where('issuer_id', $this->issuer->id)
             ->where('dh_evento', '>=', $endDate)
             ->distinct()
-            ->get()
-            ->each(fn (LogSefazNfseEvent $evento) => AutenticidadeNfseCheckJob::dispatch($evento)->onQueue('low'));
+            ->chunkById(100, function ($eventos) {
+                foreach ($eventos as $evento) {
+                    AutenticidadeNfseCheckJob::dispatch($evento)->onQueue('low');
+                }
+            });
     }
 }
