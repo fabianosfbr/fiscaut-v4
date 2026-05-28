@@ -34,8 +34,7 @@ class ProcessDocumentNfeSiegJob implements ShouldQueue
     }
 
     public function handle(): void
-    {
-        Log::channel('sieg_log')->info('NFe XML: '.$this->xml);
+    {        
         try {
             (new XmlNfeReaderService)
                 ->loadXml($this->xml)
