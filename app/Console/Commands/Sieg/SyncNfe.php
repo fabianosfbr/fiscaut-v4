@@ -82,7 +82,7 @@ class SyncNfe extends Command
             'issuer_id' => $issuer->id,
             'owner_type' => $issuer::class,
             'owner_id' => $issuer->id,
-            'import_type' => XmlImportJobType::SYSTEM,
+            'import_type' => XmlImportJobType::SIEG,
             'status' => XmlImportJob::STATUS_PENDING,
             'processed_files' => 0,
             'imported_files' => 0,

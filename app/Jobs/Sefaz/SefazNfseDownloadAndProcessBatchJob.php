@@ -71,7 +71,7 @@ class SefazNfseDownloadAndProcessBatchJob implements ShouldQueue
             'issuer_id' => $this->issuer->id,
             'owner_id' => $this->issuer->id,
             'owner_type' => $this->issuer::class,
-            'import_type' => XmlImportJobType::SYSTEM,
+            'import_type' => XmlImportJobType::SEFAZ_NFSE,
             'status' => XmlImportJob::STATUS_PENDING,
             'processed_files' => 0,
             'imported_files' => 0,
