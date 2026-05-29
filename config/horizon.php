@@ -23,6 +23,7 @@ return [
         'redis:sieg' => (int) env('HORIZON_WAIT_SIEG', 60),
         'redis:default' => (int) env('HORIZON_WAIT_DEFAULT', 60),
         'redis:low' => (int) env('HORIZON_WAIT_LOW', 300),
+        'redis:file' => (int) env('HORIZON_WAIT_FILE', 300),
     ],
 
     'trim' => [

@@ -33,7 +33,8 @@ class AutenticidadeNfseJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $endDate = Carbon::now()->subDays(30);
+        $retentionDays = config('admin.schedule_antenticidate_days', 7);
+        $endDate = Carbon::now()->subDays($retentionDays);
 
         LogSefazNfseEvent::query()
             ->where('x_desc', 'like', '%cancelamento%')

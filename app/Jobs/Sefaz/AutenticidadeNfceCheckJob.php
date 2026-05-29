@@ -55,7 +55,10 @@ class AutenticidadeNfceCheckJob implements ShouldQueue
                 ->where('id', $this->evento->id)
                 ->update(['is_verificado_sefaz' => true]);
 
-            Log::warning('Nfce cancelada:'.$nfe->chave);
+            Log::warning('Status da NFC-e atualizado para CANCELADA', [
+                'chave_acesso' => $nfe->chave,
+                'issuer_id' => $this->evento->issuer_id,
+            ]);
         }
     }
 }

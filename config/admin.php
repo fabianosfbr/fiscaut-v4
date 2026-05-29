@@ -74,4 +74,6 @@ return [
     ],
 
     'schedule_history_retention_days' => env('SCHEDULE_HISTORY_RETENTION_DAYS', 7),
+
+    'schedule_antenticidate_days' => env('SCHEDULE_AUTENTICIDATE_DAYS', 7),
 ];

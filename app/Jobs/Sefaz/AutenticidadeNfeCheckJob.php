@@ -54,8 +54,11 @@ class AutenticidadeNfeCheckJob implements ShouldQueue
             DB::table('log_sefaz_nfe_events')
                 ->where('id', $this->evento->id)
                 ->update(['is_verificado_sefaz' => true]);
-
-            Log::warning('Nfe cancelada:'.$nfe->chave);
+         
+            Log::warning('Status da NF-e atualizado para CANCELADA', [
+                'chave_acesso' => $this->evento->chave,
+                'issuer_id' => $this->evento->issuer_id,
+            ]);
         }
     }
 }

@@ -46,7 +46,7 @@ class AutenticidadeCteCheckJob implements ShouldQueue
 
         $result = searchValueInArray($arr, 'tpEvento');
 
-        if ($result != '110111') {
+         if ($result == '110111' || $result == '110112') {
             $xml = Complements::cancelRegister(gzuncompress($cte->xml), $this->evento->xml);
 
             $cte->update(['status_cte' => 101, 'xml' => gzcompress($xml)]);
@@ -55,13 +55,11 @@ class AutenticidadeCteCheckJob implements ShouldQueue
                 ->where('id', $this->evento->id)
                 ->update(['is_verificado_sefaz' => true]);
 
-            Log::warning('CTe cancelada:'.$cte->chave);
+            Log::warning('Status da CT-e atualizado para CANCELADA', [
+                'chave_acesso' => $this->evento->chave,
+                'issuer_id' => $this->evento->issuer_id,
+            ]);
         }
-
-        if ($result == '110111') {
-            DB::table('log_sefaz_cte_events')
-                ->where('id', $this->evento->id)
-                ->update(['is_verificado_sefaz' => true]);
-        }
+        
     }
 }
