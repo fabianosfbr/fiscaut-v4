@@ -33,7 +33,7 @@ class DownloadUploadFileBulkActionJob implements ShouldQueue
         public array $data,
         public int $userId
     ) {
-        $this->onQueue('low');
+        $this->onQueue('files');
     }
 
     /**

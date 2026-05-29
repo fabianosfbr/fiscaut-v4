@@ -36,7 +36,7 @@ class DownloadXmlPdfNfeEmLoteActionJob implements ShouldQueue
         public array $data,
         public int $userId
     ) {
-        $this->onQueue('low');
+        $this->onQueue('files');
     }
 
     public function handle(): void
