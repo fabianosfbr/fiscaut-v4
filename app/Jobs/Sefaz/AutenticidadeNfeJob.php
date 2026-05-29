@@ -10,6 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AutenticidadeNfeJob implements ShouldQueue
 {
@@ -45,8 +46,20 @@ class AutenticidadeNfeJob implements ShouldQueue
             ->distinct()
             ->chunkById(100, function ($eventos) {
                 foreach ($eventos as $evento) {
-                    AutenticidadeNfeCheckJob::dispatch($evento)->onQueue('low');
                 }
             });
+
+        $eventos = DB::table('log_sefaz_nfe_events')
+            ->where('tp_evento', 110111)
+            ->where('dh_evento', '>=', $endDate)
+            ->where('is_verificado_sefaz', false)
+            ->where('issuer_id', 11)
+            ->distinct()
+            ->get();
+
+        foreach ($eventos as $evento) {
+
+            AutenticidadeNfeCheckJob::dispatch((array)$evento)->onQueue('low');
+        }
     }
 }

@@ -67,12 +67,16 @@ class CheckAutenticidadeNfe extends Command
                 ->where('nfe_servico', true)
                 ->get();
 
-            $this->info('Total de ' . $issuers->count() . ' empresas serão processadas');
+
+
 
             foreach ($issuers as $issuer) {
 
+                $this->info('Empresa ' . $issuer->id . ' - ' . $issuer->razao_social . ' empresas serão processadas. Status do serviço: ' . $issuer->nfe_servico);
+
                 AutenticidadeNfeJob::dispatch($issuer);
             }
+            $this->info('Total de ' . $issuers->count() . ' empresas serão processadas');
         }
 
         return Command::SUCCESS;

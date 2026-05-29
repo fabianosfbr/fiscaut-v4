@@ -22,7 +22,7 @@ class AutenticidadeNfeCheckJob implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(
-        protected LogSefazNfeEvent $evento
+        protected array $evento
     ) {
         //
     }
@@ -32,7 +32,7 @@ class AutenticidadeNfeCheckJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $nfe = NotaFiscalEletronica::where('chave', $this->evento->chave)
+        $nfe = NotaFiscalEletronica::where('chave', $this->evento['chave'])
             ->where('status_nota', 100)
             ->first();
 
@@ -47,17 +47,17 @@ class AutenticidadeNfeCheckJob implements ShouldQueue
         $result = searchValueInArray($arr, 'tpEvento');
 
         if ($result == '110111' || $result == '110112') {
-            $xml = Complements::cancelRegister(gzuncompress($nfe->xml), $this->evento->xml);
+            $xml = Complements::cancelRegister(gzuncompress($nfe->xml), $this->evento['xml']);
 
             $nfe->update(['status_nota' => 101, 'xml' => gzcompress($xml)]);
 
             DB::table('log_sefaz_nfe_events')
-                ->where('id', $this->evento->id)
+                ->where('id', $this->evento['id'])
                 ->update(['is_verificado_sefaz' => true]);
          
             Log::warning('Status da NF-e atualizado para CANCELADA', [
-                'chave_acesso' => $this->evento->chave,
-                'issuer_id' => $this->evento->issuer_id,
+                'chave_acesso' => $$this->evento['chave'],
+                'issuer_id' => $this->evento['issuer_id'],
             ]);
         }
     }

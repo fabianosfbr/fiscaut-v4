@@ -13,6 +13,11 @@ class LogSefazNfeEvent extends Model
 
     public $timestamps = false;
 
+
+    protected $casts = [
+        'dh_evento' => 'datetime',
+    ];
+
     public function issuer(): BelongsTo
     {
         return $this->belongsTo(Issuer::class, 'issuer_id');
