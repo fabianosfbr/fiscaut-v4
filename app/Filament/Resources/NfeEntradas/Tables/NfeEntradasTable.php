@@ -204,7 +204,7 @@ class NfeEntradasTable
 
                         return response()->streamDownload(function () use ($pdf) {
                             echo $pdf->output();
-                        }, $filename . '.pdf');
+                        }, $filename);
                     })
                     ->iconPosition(IconPosition::After)
                     ->badge(),
