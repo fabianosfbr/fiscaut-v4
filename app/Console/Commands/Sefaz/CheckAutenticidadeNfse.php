@@ -57,7 +57,10 @@ class CheckAutenticidadeNfse extends Command
         } else {
             $issuers = Issuer::where('validade_certificado', '>', now())
                 ->where('is_enabled', true)
+                ->where('nfse_servico', true)
                 ->get();
+
+            $this->info('Total de ' . $issuers->count() . ' empresas serão processadas');
 
             foreach ($issuers as $issuer) {
 

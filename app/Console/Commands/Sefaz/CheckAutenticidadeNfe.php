@@ -58,13 +58,16 @@ class CheckAutenticidadeNfe extends Command
 
                     $nfe->update(['status_nota' => 101, 'xml' => gzcompress($xml)]);
 
-                    Log::warning('Nfe cancelada:'.$nfe->chave);
+                    Log::warning('Nfe cancelada:' . $nfe->chave);
                 }
             }
         } else {
             $issuers = Issuer::where('validade_certificado', '>', now())
                 ->where('is_enabled', true)
+                ->where('nfe_servico', true)
                 ->get();
+
+            $this->info('Total de ' . $issuers->count() . ' empresas serão processadas');
 
             foreach ($issuers as $issuer) {
 

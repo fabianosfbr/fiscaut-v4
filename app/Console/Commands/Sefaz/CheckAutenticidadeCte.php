@@ -56,14 +56,17 @@ class CheckAutenticidadeCte extends Command
 
                     $cte->update(['status_nota' => 101, 'xml' => gzcompress($xml)]);
 
-                    Log::warning('Nfe cancelada:'.$cte->chave);
-                    dump('Nfe cancelada:'.$cte->chave);
+                    Log::warning('Nfe cancelada:' . $cte->chave);
+                    dump('Nfe cancelada:' . $cte->chave);
                 }
             }
         } else {
             $issuers = Issuer::where('validade_certificado', '>', now())
                 ->where('is_enabled', true)
+                ->where('cte_servico', true)
                 ->get();
+
+            $this->info('Total de ' . $issuers->count() . ' empresas serão processadas');
 
             foreach ($issuers as $issuer) {
 
