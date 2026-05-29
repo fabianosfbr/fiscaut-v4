@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\NfeEntradas\Tables;
 
 use App\Enums\StatusManifestacaoNfeEnum;
+use App\Enums\StatusManifestoNfeEnum;
 use App\Enums\StatusNfeEnum;
 use App\Filament\Actions\ClassificarDocumentoAction;
 use App\Filament\Actions\ClassificarDocumentoEmLoteAction;
@@ -21,8 +22,10 @@ use App\Filament\Forms\Components\CheckboxListTag;
 use App\Filament\Tables\Columns\TagBadgesColumn;
 use App\Filament\Tables\Columns\ViewChaveColumn;
 use App\Models\GeneralSetting;
+use App\Models\LogSefazManifestoEvent;
 use App\Models\NotaFiscalEletronica;
 use App\Models\Tag;
+use Barryvdh\DomPDF\Facade\Pdf as DomPdf;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\ViewAction;
@@ -31,6 +34,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\QueryBuilder\Constraints\NumberConstraint;
 use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -40,6 +44,7 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
+use NFePHP\NFe\Common\Standardize;
 
 class NfeEntradasTable
 {
@@ -128,6 +133,80 @@ class NfeEntradasTable
 
                 TextColumn::make('status_manifestacao')
                     ->label('Manifestação')
+                    ->icon(function (NotaFiscalEletronica $record) {
+                        if ($record->status_manifestacao === StatusManifestoNfeEnum::DESCONHECIDA || $record->status_manifestacao === StatusManifestoNfeEnum::NAOREALIZADA) {
+                            return 'heroicon-o-printer';
+                        }
+
+                        return null;
+                    })
+                    ->action(function (NotaFiscalEletronica $record) {
+                        $event = LogSefazManifestoEvent::query()
+                            ->where('chave', $record->chave)
+                            ->where('type', 'nfe')
+                            ->latest('id')
+                            ->first();
+
+
+                        if (! $event || empty($event->xml)) {
+                            Notification::make()
+                                ->title('Nenhum evento de manifesto encontrado para esta NF-e')
+                                ->warning()
+                                ->send();
+
+                            return;
+                        }
+
+                        try {
+                            $xmlString = $event->xml;
+
+                            // Tenta usar o Standardize da NFePHP primeiro (funciona em SefazNfeDownloadService)
+                            $st = new Standardize;
+                            $std = $st->toStd($xmlString);
+                        } catch (\Exception $e) {
+                            try {
+                                // Fallback: limpa possíveis problemas de encoding e tenta SimpleXML
+                                libxml_use_internal_errors(true);
+
+                                // Tenta extrair a tag principal do XML
+                                $xmlString = preg_replace('/^[^<]*/', '', $xmlString);
+                                $xmlString = preg_replace('/[^>]*$/', '', $xmlString);
+
+                                $std = simplexml_load_string($xmlString, 'SimpleXMLElement', LIBXML_NOCDATA | LIBXML_NOERROR | LIBXML_NOWARNING);
+
+                                if ($std === false) {
+                                    $errors = libxml_get_errors();
+                                    libxml_clear_errors();
+                                    $errorMsg = ! empty($errors) ? $errors[0]->message : 'Erro desconhecido ao processar XML';
+                                    throw new \Exception($errorMsg);
+                                }
+                            } catch (\Exception $e2) {
+                                Notification::make()
+                                    ->title('Erro ao processar o XML do evento')
+                                    ->body($e2->getMessage())
+                                    ->danger()
+                                    ->send();
+
+                                return;
+                            }
+                        }
+
+                        $creditos = config('admin.footer_credits_danfe', '');
+
+                        $pdf = DomPdf::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
+                            ->loadView('pdf.evento-manifesto-nfe', [
+                                'event' => $event,
+                                'xml' => $std,
+                                'creditos' => $creditos,
+                            ]);
+
+                        $filename = "evento-manifesto-{$record->chave}.pdf";
+
+                        return response()->streamDownload(function () use ($pdf) {
+                            echo $pdf->output();
+                        }, $filename . '.pdf');
+                    })
+                    ->iconPosition(IconPosition::After)
                     ->badge(),
 
                 ViewChaveColumn::make('chave')
@@ -265,10 +344,10 @@ class NfeEntradasTable
 
                         $cfops = array_values(array_filter(
                             array_map(
-                                static fn (string $value): string => trim($value),
+                                static fn(string $value): string => trim($value),
                                 preg_split('/[,\s;]+/', $input, -1, PREG_SPLIT_NO_EMPTY) ?: []
                             ),
-                            static fn (string $value): bool => $value !== ''
+                            static fn(string $value): bool => $value !== ''
                         ));
 
                         if ($cfops === []) {
@@ -296,11 +375,11 @@ class NfeEntradasTable
                         }
 
                         return $data['value']
-                            ? $query->whereHas('apurada', fn (Builder $query): Builder => $query->where('status', true))
+                            ? $query->whereHas('apurada', fn(Builder $query): Builder => $query->where('status', true))
                             : $query->where(function (Builder $query): Builder {
                                 return $query
                                     ->whereDoesntHave('apurada')
-                                    ->orWhereHas('apurada', fn (Builder $query): Builder => $query->where('status', false));
+                                    ->orWhereHas('apurada', fn(Builder $query): Builder => $query->where('status', false));
                             });
                     }),
 
@@ -360,10 +439,10 @@ class NfeEntradasTable
                         $etiquetas = Tag::whereIn('id', $data['etiquetas'])
                             ->get()
                             ->keyBy('id')
-                            ->map(fn ($tag) => $tag->code.' - '.$tag->name)
+                            ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
                             ->toArray();
 
-                        return 'Etiquetas: '.implode(', ', $etiquetas);
+                        return 'Etiquetas: ' . implode(', ', $etiquetas);
                     }),
 
             ])
@@ -392,7 +471,7 @@ class NfeEntradasTable
                     DownloadXmlPdfNfeEmLoteAction::make(),
                     ClassificarDocumentoEmLoteAction::make()
                         ->after(function () {
-                            Cache::forget('tags_used_in_nfe_'.currentIssuer()->id);
+                            Cache::forget('tags_used_in_nfe_' . currentIssuer()->id);
 
                             Notification::make()
                                 ->title('Etiquetas aplicadas com sucesso')
