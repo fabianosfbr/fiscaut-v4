@@ -171,7 +171,7 @@ return [
             ],
              'horizon-workers-file-prod' => [
                 'connection' => 'redis',
-                'queue' => ['files'],
+                'queue' => ['file'],
                 'balance' => 'auto',
                 'minProcesses' => 1,
                 'maxProcesses' => 2,
@@ -247,7 +247,7 @@ return [
             ],
              'horizon-workers-file-prod' => [
                 'connection' => 'redis',
-                'queue' => ['files'],
+                'queue' => ['file'],
                 'balance' => 'auto',
                 'minProcesses' => 1,
                 'maxProcesses' => 2,
@@ -322,7 +322,7 @@ return [
             ],
              'horizon-workers-file-prod' => [
                 'connection' => 'redis',
-                'queue' => ['files'],
+                'queue' => ['file'],
                 'balance' => 'auto',
                 'minProcesses' => 1,
                 'maxProcesses' => 2,

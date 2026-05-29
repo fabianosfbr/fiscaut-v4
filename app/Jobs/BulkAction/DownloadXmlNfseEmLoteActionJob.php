@@ -33,7 +33,7 @@ class DownloadXmlNfseEmLoteActionJob implements ShouldQueue
         public array $data,
         public int $userId
     ) {
-        $this->onQueue('files');
+        $this->onQueue('high');
     }
 
     public function handle(): void
