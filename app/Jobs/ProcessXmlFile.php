@@ -11,6 +11,7 @@ use App\Services\Xml\XmlIdentifierService;
 use App\Services\Xml\XmlNfceReaderService;
 use App\Services\Xml\XmlNfeReaderService;
 use App\Services\Xml\XmlNfseEventReaderService;
+use App\Services\Xml\XmlNfseReaderService;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -132,6 +133,16 @@ class ProcessXmlFile implements ShouldQueue
                         // event(new CteCancelada($event));
 
                         $this->importJob->incrementNumEvents();
+                        break;
+
+                    case XmlIdentifierService::TIPO_NFSE:
+                        (new XmlNfseReaderService)
+                            ->loadXml($xmlContent)
+                            ->setIssuer($this->issuer)
+                            ->parse()
+                            ->save();
+
+                        $this->importJob->incrementNumDocuments();
                         break;
 
                     case XmlIdentifierService::TIPO_EVENTO_NFSE:

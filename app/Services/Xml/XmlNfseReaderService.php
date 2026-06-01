@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Log;
 
 class XmlNfseReaderService
 {
-    private $xml;
+    private string $xml;
 
-    private $simpleXml;
+    private ?\SimpleXMLElement $simpleXml = null;
 
     private array $data = [];
 
@@ -42,8 +42,9 @@ class XmlNfseReaderService
             }
 
             // Valida se é um XML de NFSe válido verificando a tag raiz
-            if ($this->simpleXml->getName() !== 'CompNFe') {
-                throw new Exception('XML inválido: Tag CompNFe não encontrada');
+            $rootName = $this->simpleXml->getName();
+            if (! in_array($rootName, ['CompNFe', 'NFSe'])) {
+                throw new Exception('XML inválido: Tag raiz "'.$rootName.'" não reconhecida para NFSe');
             }
 
             return $this;
@@ -61,10 +62,26 @@ class XmlNfseReaderService
      */
     public function parse(): self
     {
-        if (! $this->simpleXml) {
+        if ($this->simpleXml === null) {
             throw new Exception('XML não foi carregado. Execute loadXml() primeiro.');
         }
 
+        $rootName = $this->simpleXml->getName();
+
+        if ($rootName === 'CompNFe') {
+            $this->parseCompNFe();
+        } elseif ($rootName === 'NFSe') {
+            $this->parseNFSe();
+        }
+
+        return $this;
+    }
+
+    /**
+     * Parse do formato CompNFe (padrão antigo)
+     */
+    private function parseCompNFe(): void
+    {
         $nfe = $this->simpleXml->NFe;
 
         $this->data = [
@@ -109,18 +126,147 @@ class XmlNfseReaderService
             ],
             'xml' => base64_encode($this->xml),
         ];
+    }
 
-        return $this;
+    /**
+     * Parse do formato NFSe (novo padrão SIEG com DPS)
+     */
+    private function parseNFSe(): void
+    {
+        $namespaces = $this->simpleXml->getNamespaces(true);
+        $ns = $namespaces[''] ?? null;
+
+        $root = $ns
+            ? $this->simpleXml->children($ns)
+            : $this->simpleXml;
+
+        $infNFSe = $root->infNFSe;
+
+        if (empty($infNFSe)) {
+            throw new Exception('Tag infNFSe não encontrada no XML NFSe');
+        }
+
+        // Dados do emitente (nível do infNFSe)
+        $emit = $infNFSe->emit;
+        $emitCNPJ = (string) ($emit->CNPJ ?? '');
+        $emitNome = (string) ($emit->xNome ?? '');
+        $emitIM = (string) ($emit->IM ?? '');
+
+        // Dados do DPS (Documento de Prestação de Serviço)
+        $infDPS = null;
+        if ($ns && isset($infNFSe->DPS)) {
+            $infDPS = $infNFSe->DPS->children($ns)->infDPS;
+        } elseif (isset($infNFSe->DPS)) {
+            $infDPS = $infNFSe->DPS->infDPS;
+        }
+
+        // Dados do tomador (dentro do DPS)
+        $tomCNPJ = '';
+        $tomNome = '';
+        $tomMunId = '';
+        $tomMun = '';
+
+        if (! empty($infDPS)) {
+            $toma = $infDPS->toma;
+            $tomCNPJ = (string) ($toma->CNPJ ?? '');
+            $tomNome = (string) ($toma->xNome ?? '');
+
+            // Município do tomador (endereço)
+            if (isset($toma->end)) {
+                $endNac = $toma->end->endNac ?? $toma->end;
+                $tomMunId = (string) ($endNac->cMun ?? '');
+            }
+
+            // Dados do serviço
+            $serv = $infDPS->serv;
+            $locPrest = $serv->locPrest ?? null;
+
+            // Dados de valores
+            $valores = $infDPS->valores;
+            $vServ = (float) ($valores->vServPrest->vServ ?? 0);
+
+            // Dados de tributação
+            $tribMun = $valores->trib->tribMun ?? null;
+        }
+
+        // Local de incidência (nível do infNFSe)
+        $cLocIncid = (string) ($infNFSe->cLocIncid ?? '');
+        $xLocIncid = (string) ($infNFSe->xLocIncid ?? '');
+        $xLocEmi = (string) ($infNFSe->xLocEmi ?? '');
+
+        // Valores no nível infNFSe
+        $valoresNFSe = $infNFSe->valores;
+        $vBC = (float) ($valoresNFSe->vBC ?? 0);
+        $pAliqAplic = (float) ($valoresNFSe->pAliqAplic ?? 0);
+        $vTotalRet = (float) ($valoresNFSe->vTotalRet ?? 0);
+        $vLiq = (float) ($valoresNFSe->vLiq ?? 0);
+
+        // Dados do DPS se disponíveis
+        $dhEmi = $infDPS ? (string) $infDPS->dhEmi : (string) ($infNFSe->dhProc ?? '');
+        $dCompet = $infDPS ? (string) $infDPS->dCompet : '';
+        $serie = $infDPS ? (string) $infDPS->serie : '';
+        $nDPS = $infDPS ? (string) $infDPS->nDPS : '';
+        $nNFSe = (string) ($infNFSe->nNFSe ?? '');
+        $nDFSe = (string) ($infNFSe->nDFSe ?? '');
+
+        // Código de serviço e descrição
+        $cTribNac = '';
+        $cTribMun = '';
+        $xDescServ = '';
+
+        if (! empty($infDPS) && isset($infDPS->serv->cServ)) {
+            $cServ = $infDPS->serv->cServ;
+            $cTribNac = (string) ($cServ->cTribNac ?? '');
+            $cTribMun = (string) ($cServ->cTribMun ?? '');
+            $xDescServ = (string) ($cServ->xDescServ ?? '');
+        }
+
+        $this->data = [
+            'numero' => $nNFSe ?: $nDPS,
+            'codigo_verificacao' => $nDFSe,
+            'data_emissao' => str_replace('T', ' ', $dhEmi),
+            'data_competencia' => $dCompet,
+            'codigo_servico' => $cTribMun,
+            'descricao_servico' => $xDescServ,
+            'serie_rps' => $serie,
+            'numero_rps' => $nDPS,
+            'valor_servico' => $vLiq,
+            'base_calculo' => $vBC,
+            'aliquota_iss' => $pAliqAplic,
+            'valor_iss' => ($vBC * $pAliqAplic / 100),
+            'valor_liquido' => $vLiq,
+            'discriminacao' => $xDescServ,
+
+            'prestador' => [
+                'cnpj' => $emitCNPJ,
+                'inscricao_municipal' => $emitIM,
+                'razao_social' => $emitNome,
+                'email' => (string) ($emit->email ?? ''),
+                'endereco' => [
+                    'logradouro' => (string) ($emit->enderNac->xLgr ?? ''),
+                    'numero' => (string) ($emit->enderNac->nro ?? ''),
+                    'complemento' => (string) ($emit->enderNac->xCpl ?? ''),
+                    'bairro' => (string) ($emit->enderNac->xBairro ?? ''),
+                    'municipio_id' => $cLocIncid,
+                    'uf' => (string) ($emit->enderNac->UF ?? ''),
+                    'cep' => (string) ($emit->enderNac->CEP ?? ''),
+                ],
+            ],
+
+            'tomador' => [
+                'cnpj' => $tomCNPJ,
+                'razao_social' => $tomNome,
+                'municipio_id' => $tomMunId,
+            ],
+            'xml' => base64_encode($this->xml),
+        ];
     }
 
     /**
      * Salva ou atualiza os dados extraídos no banco de dados
-     *
-     * @param  array  $data  Dados opcionais para sobrescrever os dados do XML
      */
     public function save(): NotaFiscalServico
     {
-
         return NotaFiscalServico::updateOrCreate(
             [
                 'numero' => $this->data['numero'],

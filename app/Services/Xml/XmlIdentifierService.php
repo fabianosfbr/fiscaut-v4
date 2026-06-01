@@ -107,6 +107,9 @@ class XmlIdentifierService
                 case 'eventoCTe':
                     return self::TIPO_EVENTO_CTE;
 
+                case 'NFSe':
+                    return self::TIPO_NFSE;
+
                 default:
                     // Verificação adicional para NFSe (múltiplos padrões)
                     if (isset($xml->InfNfse) || isset($xml->Nfse) || isset($xml->CompNfse) ||
