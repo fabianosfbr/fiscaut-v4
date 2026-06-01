@@ -4,12 +4,15 @@ namespace App\Jobs\Sefaz;
 
 use App\Models\Issuer;
 use App\Models\LogSefazNfseEvent;
+use App\Models\NotaFiscalServico;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AutenticidadeNfseJob implements ShouldQueue
 {
@@ -36,15 +39,29 @@ class AutenticidadeNfseJob implements ShouldQueue
         $retentionDays = config('admin.schedule_antenticidate_days', 7);
         $endDate = Carbon::now()->subDays($retentionDays);
 
-        LogSefazNfseEvent::query()
+        $eventos = DB::table('log_sefaz_nfse_events')
             ->where('x_desc', 'like', '%cancelamento%')
             ->where('issuer_id', $this->issuer->id)
             ->where('dh_evento', '>=', $endDate)
             ->distinct()
-            ->chunkById(100, function ($eventos) {
-                foreach ($eventos as $evento) {
-                    AutenticidadeNfseCheckJob::dispatch($evento)->onQueue('low');
-                }
-            });
+            ->get();
+
+
+        foreach ($eventos as $evento) {
+            $nfse = NotaFiscalServico::where('chave_acesso', $evento->chave_acesso)
+                ->where('cancelada', false)
+                ->first();
+
+            if (isset($nfse)) {
+                $nfse->updateQuietly([
+                    'cancelada' => true,
+                ]);
+            }
+
+            Log::warning('Status da NFS-e atualizado para CANCELADA', [
+                'chave_acesso' => $evento->chave_acesso,
+                'issuer_id' => $evento->issuer_id,
+            ]);
+        }
     }
 }
