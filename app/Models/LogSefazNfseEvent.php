@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LogSefazNfseEvent extends Model
 {
@@ -13,4 +14,9 @@ class LogSefazNfseEvent extends Model
     protected $casts = [
         'dh_evento' => 'datetime',
     ];
+
+    public function issuer(): BelongsTo
+    {
+        return $this->belongsTo(Issuer::class, 'issuer_id');
+    }
 }

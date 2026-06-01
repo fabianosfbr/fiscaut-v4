@@ -5,6 +5,7 @@ namespace App\Jobs\Sieg;
 use App\Models\Issuer;
 use App\Models\User;
 use App\Models\XmlImportJob;
+use App\Services\Xml\XmlNfseEventReaderService;
 use App\Services\Xml\XmlNfseReaderService;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -36,17 +37,57 @@ class ProcessDocumentNfseSiegJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            (new XmlNfseReaderService)
-                ->loadXml($this->xml)
-                ->setIssuer($this->issuer)
-                ->parse()
-                ->save();
+            if ($this->isEventXml()) {
+                $this->processEvent();
+            } else {
+                $this->processDocument();
+            }
 
             $this->importJob->incrementProcessedFiles();
             $this->checkJobCompletion();
         } catch (Throwable $e) {
             $this->failed($e);
         }
+    }
+
+    /**
+     * Detecta se o XML é um evento (tag raiz <evento>) ou um documento NFSe (tag raiz <CompNFe>).
+     */
+    protected function isEventXml(): bool
+    {
+        $decoded = @gzdecode(base64_decode($this->xml));
+        $rawXml = $decoded !== false ? $decoded : $this->xml;
+
+        $simpleXml = simplexml_load_string($rawXml);
+        if ($simpleXml === false) {
+            return false;
+        }
+
+        return $simpleXml->getName() === 'evento';
+    }
+
+    /**
+     * Processa um XML de documento NFSe (tag raiz <CompNFe>).
+     */
+    protected function processDocument(): void
+    {
+        (new XmlNfseReaderService)
+            ->loadXml($this->xml)
+            ->setIssuer($this->issuer)
+            ->parse()
+            ->save();
+    }
+
+    /**
+     * Processa um XML de evento NFSe (tag raiz <evento>).
+     */
+    protected function processEvent(): void
+    {
+        (new XmlNfseEventReaderService)
+            ->loadXml($this->xml)
+            ->setIssuer($this->issuer)
+            ->parse()
+            ->save();
     }
 
     public function failed(Throwable $exception): void

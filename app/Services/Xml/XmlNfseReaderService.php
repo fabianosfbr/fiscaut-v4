@@ -56,7 +56,7 @@ class XmlNfseReaderService
     /**
      * Extrai e mapeia os dados do XML para um array estruturado
      *
-     * @return array
+     * @return self
      *
      * @throws Exception
      */
