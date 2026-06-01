@@ -82,8 +82,23 @@ class XmlIdentifierService
                             return self::TIPO_EVENTO_NFE;
                         } elseif (isset($xml->infEvento->chCTe)) {
                             return self::TIPO_EVENTO_CTE;
-                        } elseif (isset($xml->infEvento->chNFSe)) {
+                        }
+
+                        // Evento NFSe pode ter chNFSe diretamente ou via pedRegEvento (formato SIEG)
+                        if (isset($xml->infEvento->chNFSe) || isset($xml->infEvento->pedRegEvento)) {
                             return self::TIPO_EVENTO_NFSE;
+                        }
+
+                        // Verificar com namespace (XML de evento NFSe usa xmlns)
+                        $namespaces = $xml->getNamespaces(true);
+                        if (! empty($namespaces)) {
+                            $ns = $namespaces[''] ?? null;
+                            if ($ns) {
+                                $infEvento = $xml->children($ns)->infEvento;
+                                if (isset($infEvento->chNFSe) || isset($infEvento->pedRegEvento)) {
+                                    return self::TIPO_EVENTO_NFSE;
+                                }
+                            }
                         }
                     }
 
