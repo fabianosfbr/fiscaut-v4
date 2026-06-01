@@ -58,7 +58,7 @@ class MonitoraNsuCteFaltante extends Command
 
                         SefazCteDownloadAndProcessBatchJob::dispatch(issuer: $issuer, nsu: $nsu);
 
-                        Log::info("NSU {$nsu} CTe recuperado para o emissor {$issuer->razao_social}");
+                        Log::channel('sefaz')->info("NSU {$nsu} CTe recuperado para o emissor {$issuer->razao_social}");
                         break;
                     }
                 }
