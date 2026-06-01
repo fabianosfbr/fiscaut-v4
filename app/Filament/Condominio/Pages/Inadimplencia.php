@@ -85,9 +85,6 @@ class Inadimplencia extends Page implements HasTable
                     ->state(fn (array $record): string => (string) (data_get($record, 'processo_judicial') ? 'Jurídico' : ''))
                     ->color(fn (array $record): string => (string) (data_get($record, 'processo_judicial') ? 'danger' : 'success'))
                     ->badge(),
-                // \Filament\Tables\Columns\IconColumn::make('processo_judicial')
-                //     ->label('Proc. Judicial')
-                //     ->boolean(),
                 TextColumn::make('st_sacado_uni')
                     ->label('Sacado')
                     ->description(fn (array $record): string => (string) (data_get($record, 'recebimento.0.contatosunidade.0.proprietario.0.cpf') ?? data_get($record, 'recebimento.0.contatosunidade.0.proprietario.0.cnpj') ?? ''))
@@ -127,6 +124,11 @@ class Inadimplencia extends Page implements HasTable
                     ->state(fn (array $record): float => $this->sumRecebimentoValue($record, 'encargos.0.valorcorrigido'))
                     ->numeric(decimalPlaces: 2, decimalSeparator: ',', thousandsSeparator: '.')
                     ->prefix('R$ ')
+                    ->sortable(),
+                TextColumn::make('maior_atraso')
+                    ->label('Maior Atraso')
+                    ->state(fn (array $record): int => $this->maxDiasAtraso($record))
+                    ->suffix(' dias')
                     ->sortable(),
             ])
             ->filters([
@@ -222,6 +224,7 @@ class Inadimplencia extends Page implements HasTable
                     'atualiz' => $this->sumRecebimentoValue($record, 'encargos.0.detalhes.atualizacaomonetaria'),
                     'honorarios' => $this->sumRecebimentoValue($record, 'encargos.0.detalhes.honorarios'),
                     'total' => $this->sumRecebimentoValue($record, 'encargos.0.valorcorrigido'),
+                    'maior_atraso' => $this->maxDiasAtraso($record),
                     default => data_get($record, $sortColumn),
                 };
             }, SORT_REGULAR, $sortDirection === 'desc');
@@ -230,7 +233,6 @@ class Inadimplencia extends Page implements HasTable
         $total = $records->count();
         $records = $records->forPage($page, $recordsPerPage);
 
-        // dd($records);
         return new LengthAwarePaginator(
             $records,
             total: $total,
@@ -365,5 +367,12 @@ class Inadimplencia extends Page implements HasTable
     protected function sumRecebimentoValue(array $record, string $key): float
     {
         return collect($record['recebimento'] ?? [])->sum(fn ($recb) => (float) data_get($recb, $key, 0));
+    }
+
+    protected function maxDiasAtraso(array $record): int
+    {
+        return collect($record['recebimento'] ?? [])
+            ->map(fn ($recb) => (int) data_get($recb, 'encargos.0.diasatraso', 0))
+            ->max() ?? 0;
     }
 }
