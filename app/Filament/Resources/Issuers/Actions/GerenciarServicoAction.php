@@ -33,6 +33,13 @@ class GerenciarServicoAction
                 'color' => '#0ea5e9',
                 'description' => 'Emissão e gerenciamento de Conhecimentos de Transporte',
             ],
+            'nfce_servico' => [
+                'label' => 'NFCe - Nota Fiscal Consumidor Eletrônica',
+                'short_label' => 'NFCe',
+                'icon' => '🚛',
+                'color' => '#0ea5e9',
+                'description' => 'Emissão e gerenciamento de Nota Fiscal Consumidor Eletrônica',
+            ],
             'sync_sieg' => [
                 'label' => 'SIEG - Sincronização com serviços SIEG',
                 'short_label' => 'SIEG',
