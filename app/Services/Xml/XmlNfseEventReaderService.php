@@ -56,7 +56,6 @@ class XmlNfseEventReaderService
     /**
      * Extrai e mapeia os dados do XML de evento para um array estruturado
      *
-     * @return self
      *
      * @throws Exception
      */

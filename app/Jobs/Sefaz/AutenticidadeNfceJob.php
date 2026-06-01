@@ -3,7 +3,6 @@
 namespace App\Jobs\Sefaz;
 
 use App\Models\Issuer;
-use App\Models\LogSefazNfeEvent;
 use App\Models\NotaFiscalConsumidor;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -68,7 +67,7 @@ class AutenticidadeNfceJob implements ShouldQueue
 
                     DB::table('log_sefaz_nfe_events')->where('id', $evento->id)->update(['is_verificado_sefaz' => true]);
 
-                    Log::warning('Nfe cancelada:' . $nfe->chave);
+                    Log::warning('Nfe cancelada:'.$nfe->chave);
                 }
 
                 if ($result == '110111') {

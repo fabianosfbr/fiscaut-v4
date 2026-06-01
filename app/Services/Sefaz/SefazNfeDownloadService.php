@@ -236,7 +236,7 @@ class SefazNfeDownloadService
 
             Log::channel('sefaz_log')->info(
                 $nsu
-                    ? 'Log de consulta NFe - SEFAZ - registro específico - NSU - ' . $nsu . ' '.explode(':', $this->issuer->razao_social)[0]."  \n".$response
+                    ? 'Log de consulta NFe - SEFAZ - registro específico - NSU - '.$nsu.' '.explode(':', $this->issuer->razao_social)[0]."  \n".$response
                     : 'Log de consulta NFe - SEFAZ - registro em lote - '.explode(':', $this->issuer->razao_social)[0]."  \n".$response
             );
             // Processa a resposta

@@ -3,7 +3,6 @@
 namespace App\Jobs\Sefaz;
 
 use App\Models\Issuer;
-use App\Models\LogSefazNfeEvent;
 use App\Models\NotaFiscalEletronica;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -41,7 +40,7 @@ class AutenticidadeNfeJob implements ShouldQueue
         $retentionDays = config('admin.schedule_antenticidate_days', 7);
 
         $endDate = Carbon::now()->subDays($retentionDays);
-        
+
         $eventos = DB::table('log_sefaz_nfe_events')
             ->where('tp_evento', 110111)
             ->where('dh_evento', '>=', $endDate)
@@ -67,7 +66,7 @@ class AutenticidadeNfeJob implements ShouldQueue
 
                     DB::table('log_sefaz_nfe_events')->where('id', $evento->id)->update(['is_verificado_sefaz' => true]);
 
-                    Log::warning('Nfe cancelada:' . $nfe->chave);
+                    Log::warning('Nfe cancelada:'.$nfe->chave);
                 }
 
                 if ($result == '110111') {

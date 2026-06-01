@@ -13,7 +13,6 @@ class LogSefazNfeEvent extends Model
 
     public $timestamps = false;
 
-
     protected $casts = [
         'dh_evento' => 'datetime',
     ];

@@ -26,7 +26,7 @@ enum XmlImportJobType: string implements HasColor, HasLabel
             self::SEFAZ_NFSE->value,
             self::SEFAZ_CTE->value,
             self::SIEG->value,
-            
+
         ];
     }
 

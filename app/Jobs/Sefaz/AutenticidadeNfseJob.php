@@ -3,7 +3,6 @@
 namespace App\Jobs\Sefaz;
 
 use App\Models\Issuer;
-use App\Models\LogSefazNfseEvent;
 use App\Models\NotaFiscalServico;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -45,7 +44,6 @@ class AutenticidadeNfseJob implements ShouldQueue
             ->where('dh_evento', '>=', $endDate)
             ->distinct()
             ->get();
-
 
         foreach ($eventos as $evento) {
             $nfse = NotaFiscalServico::where('chave_acesso', $evento->chave_acesso)

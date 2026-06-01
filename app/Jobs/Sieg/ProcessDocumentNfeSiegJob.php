@@ -34,7 +34,7 @@ class ProcessDocumentNfeSiegJob implements ShouldQueue
     }
 
     public function handle(): void
-    {        
+    {
         try {
             (new XmlNfeReaderService)
                 ->loadXml($this->xml)

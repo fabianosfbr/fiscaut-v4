@@ -6,9 +6,9 @@ use App\Jobs\Sefaz\AutenticidadeNfceJob;
 use App\Models\Issuer;
 use App\Models\NotaFiscalConsumidor;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Carbon;
 use NFePHP\NFe\Common\Standardize;
 use NFePHP\NFe\Complements;
 
@@ -57,7 +57,7 @@ class CheckAutenticidadeNfce extends Command
 
                     $nfe->update(['status_nota' => 101, 'xml' => gzcompress($xml)]);
 
-                    Log::warning('Nfce cancelada:' . $nfe->chave);
+                    Log::warning('Nfce cancelada:'.$nfe->chave);
                 }
             }
         } else {
@@ -66,14 +66,14 @@ class CheckAutenticidadeNfce extends Command
                 ->where('nfce_servico', true)
                 ->get();
 
-            $this->info('Total de ' . $issuers->count() . ' empresas serão processadas');
+            $this->info('Total de '.$issuers->count().' empresas serão processadas');
 
             $retentionDays = config('admin.schedule_antenticidate_days', 30);
 
             $endDate = Carbon::now()->subDays($retentionDays);
 
             foreach ($issuers as $issuer) {
-                $this->info('Empresa ' . $issuer->id . ' - ' . $issuer->razao_social . ' empresas serão processadas. Status do serviço: ' . $issuer->cte_servico);
+                $this->info('Empresa '.$issuer->id.' - '.$issuer->razao_social.' empresas serão processadas. Status do serviço: '.$issuer->cte_servico);
 
                 // AutenticidadeNfceJob::dispatch($issuer);
 
@@ -95,7 +95,7 @@ class CheckAutenticidadeNfce extends Command
 
                         DB::table('log_sefaz_nfe_events')->where('id', $evento->id)->update(['is_verificado_sefaz' => true]);
 
-                        Log::warning('Nfce cancelada: ' . $nfe->chave);
+                        Log::warning('Nfce cancelada: '.$nfe->chave);
                     }
 
                     if ($nfe && $nfe->status_nota == 101) {

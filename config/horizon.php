@@ -170,7 +170,7 @@ return [
                 'autoScalingStrategy' => 'time',
                 'timeout' => (90 * 10),
             ],
-             'horizon-workers-file-prod' => [
+            'horizon-workers-file-prod' => [
                 'connection' => 'redis',
                 'queue' => ['file'],
                 'balance' => 'auto',
@@ -182,7 +182,7 @@ return [
                 'autoScalingStrategy' => 'time',
                 'timeout' => (90 * 10),
             ],
-            
+
         ],
 
         'development' => [
@@ -246,7 +246,7 @@ return [
                 'autoScalingStrategy' => 'time',
                 'timeout' => (90 * 10),
             ],
-             'horizon-workers-file-prod' => [
+            'horizon-workers-file-prod' => [
                 'connection' => 'redis',
                 'queue' => ['file'],
                 'balance' => 'auto',
@@ -321,7 +321,7 @@ return [
                 'autoScalingStrategy' => 'time',
                 'timeout' => (90 * 10),
             ],
-             'horizon-workers-file-prod' => [
+            'horizon-workers-file-prod' => [
                 'connection' => 'redis',
                 'queue' => ['file'],
                 'balance' => 'auto',

@@ -147,7 +147,6 @@ class NfeEntradasTable
                             ->latest('id')
                             ->first();
 
-
                         if (! $event || empty($event->xml)) {
                             Notification::make()
                                 ->title('Nenhum evento de manifesto encontrado para esta NF-e')
@@ -344,10 +343,10 @@ class NfeEntradasTable
 
                         $cfops = array_values(array_filter(
                             array_map(
-                                static fn(string $value): string => trim($value),
+                                static fn (string $value): string => trim($value),
                                 preg_split('/[,\s;]+/', $input, -1, PREG_SPLIT_NO_EMPTY) ?: []
                             ),
-                            static fn(string $value): bool => $value !== ''
+                            static fn (string $value): bool => $value !== ''
                         ));
 
                         if ($cfops === []) {
@@ -375,11 +374,11 @@ class NfeEntradasTable
                         }
 
                         return $data['value']
-                            ? $query->whereHas('apurada', fn(Builder $query): Builder => $query->where('status', true))
+                            ? $query->whereHas('apurada', fn (Builder $query): Builder => $query->where('status', true))
                             : $query->where(function (Builder $query): Builder {
                                 return $query
                                     ->whereDoesntHave('apurada')
-                                    ->orWhereHas('apurada', fn(Builder $query): Builder => $query->where('status', false));
+                                    ->orWhereHas('apurada', fn (Builder $query): Builder => $query->where('status', false));
                             });
                     }),
 
@@ -439,10 +438,10 @@ class NfeEntradasTable
                         $etiquetas = Tag::whereIn('id', $data['etiquetas'])
                             ->get()
                             ->keyBy('id')
-                            ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
+                            ->map(fn ($tag) => $tag->code.' - '.$tag->name)
                             ->toArray();
 
-                        return 'Etiquetas: ' . implode(', ', $etiquetas);
+                        return 'Etiquetas: '.implode(', ', $etiquetas);
                     }),
 
             ])
@@ -471,7 +470,7 @@ class NfeEntradasTable
                     DownloadXmlPdfNfeEmLoteAction::make(),
                     ClassificarDocumentoEmLoteAction::make()
                         ->after(function () {
-                            Cache::forget('tags_used_in_nfe_' . currentIssuer()->id);
+                            Cache::forget('tags_used_in_nfe_'.currentIssuer()->id);
 
                             Notification::make()
                                 ->title('Etiquetas aplicadas com sucesso')

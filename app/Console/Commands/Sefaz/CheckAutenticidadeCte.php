@@ -5,9 +5,9 @@ namespace App\Console\Commands\Sefaz;
 use App\Models\ConhecimentoTransporteEletronico;
 use App\Models\Issuer;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Carbon;
 use NFePHP\CTe\Complements;
 use NFePHP\NFe\Common\Standardize;
 
@@ -53,8 +53,8 @@ class CheckAutenticidadeCte extends Command
 
                     $cte->update(['status_nota' => 101, 'xml' => gzcompress($xml)]);
 
-                    Log::warning('Nfe cancelada:' . $cte->chave);
-                    dump('Nfe cancelada:' . $cte->chave);
+                    Log::warning('Nfe cancelada:'.$cte->chave);
+                    dump('Nfe cancelada:'.$cte->chave);
                 }
             }
         } else {
@@ -63,13 +63,13 @@ class CheckAutenticidadeCte extends Command
                 ->where('cte_servico', true)
                 ->get();
 
-            $this->info('Total de ' . $issuers->count() . ' empresas serão processadas');
+            $this->info('Total de '.$issuers->count().' empresas serão processadas');
 
             $retentionDays = config('admin.schedule_antenticidate_days', 30);
 
             $endDate = Carbon::now()->subDays($retentionDays);
             foreach ($issuers as $issuer) {
-                $this->info('Empresa ' . $issuer->id . ' - ' . $issuer->razao_social . ' empresas serão processadas. Status do serviço: ' . $issuer->cte_servico);
+                $this->info('Empresa '.$issuer->id.' - '.$issuer->razao_social.' empresas serão processadas. Status do serviço: '.$issuer->cte_servico);
 
                 // AutenticidadeCteJob::dispatch($issuer);
 
@@ -83,7 +83,7 @@ class CheckAutenticidadeCte extends Command
 
                 foreach ($eventos as $evento) {
                     $cte = ConhecimentoTransporteEletronico::where('chave', $evento->chave)->first();
-                    
+
                     if ($cte && $cte->status_cte->value == 100) {
                         $xml = Complements::cancelRegister(gzuncompress($cte->xml), $evento->xml);
 
@@ -91,7 +91,7 @@ class CheckAutenticidadeCte extends Command
 
                         DB::table('log_sefaz_cte_events')->where('id', $evento->id)->update(['is_verificado_sefaz' => true]);
 
-                        Log::warning('CTe cancelada: ' . $cte->chave);
+                        Log::warning('CTe cancelada: '.$cte->chave);
                     }
                     if ($cte && $cte->status_cte->value == 101) {
                         DB::table('log_sefaz_cte_events')->where('id', $evento->id)->update(['is_verificado_sefaz' => true]);

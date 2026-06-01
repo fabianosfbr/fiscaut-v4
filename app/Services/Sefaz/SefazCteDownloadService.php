@@ -256,7 +256,7 @@ class SefazCteDownloadService
 
             Log::channel('sefaz_log')->info(
                 $nsu ?
-                    'Log de consulta CTE - SEFAZ - registro específico - NSU - ' . $nsu . ' '  .explode(':', $this->issuer->razao_social)[0]."  \n".$response :
+                    'Log de consulta CTE - SEFAZ - registro específico - NSU - '.$nsu.' '.explode(':', $this->issuer->razao_social)[0]."  \n".$response :
                     'Log de consulta CTE - SEFAZ - registro em lote - '.explode(':', $this->issuer->razao_social)[0]."  \n".$response
             );
 

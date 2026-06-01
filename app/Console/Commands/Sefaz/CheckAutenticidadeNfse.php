@@ -7,9 +7,9 @@ use App\Models\Issuer;
 use App\Models\LogSefazNfseEvent;
 use App\Models\NotaFiscalServico;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Carbon;
 
 class CheckAutenticidadeNfse extends Command
 {
@@ -59,7 +59,7 @@ class CheckAutenticidadeNfse extends Command
                 ->where('nfse_servico', true)
                 ->get();
 
-            $this->info('Total de ' . $issuers->count() . ' empresas serão processadas');
+            $this->info('Total de '.$issuers->count().' empresas serão processadas');
 
             $retentionDays = config('admin.schedule_antenticidate_days', 30);
 
@@ -67,7 +67,7 @@ class CheckAutenticidadeNfse extends Command
 
             foreach ($issuers as $issuer) {
                 // AutenticidadeNfseJob::dispatch($issuer);
-                $this->info('Empresa ' . $issuer->id . ' - ' . $issuer->razao_social . ' empresas serão processadas. Status do serviço: ' . $issuer->nfse_servico);
+                $this->info('Empresa '.$issuer->id.' - '.$issuer->razao_social.' empresas serão processadas. Status do serviço: '.$issuer->nfse_servico);
 
                 $eventos = DB::table('log_sefaz_nfse_events')
                     ->where('x_desc', 'like', '%cancelamento%')
@@ -80,21 +80,19 @@ class CheckAutenticidadeNfse extends Command
                 foreach ($eventos as $evento) {
                     $nfse = NotaFiscalServico::where('chave_acesso', $evento->chave_acesso)->first();
 
-             
-
                     if (isset($nfse) && $nfse->cancelada == false) {
                         $nfse->updateQuietly([
                             'cancelada' => true,
                         ]);
 
                         DB::table('log_sefaz_nfse_events')->where('id', $evento->id)->update(['is_verificado_sefaz' => true]);
-                        Log::warning('Nfse cancelada: ' . $nfse->chave_acesso);
+                        Log::warning('Nfse cancelada: '.$nfse->chave_acesso);
                     }
 
                     if ((isset($nfse) && $nfse->cancelada == true)) {
                         DB::table('log_sefaz_nfse_events')->where('id', $evento->id)->update(['is_verificado_sefaz' => true]);
                     }
-                           
+
                 }
             }
         }

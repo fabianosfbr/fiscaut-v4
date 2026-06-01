@@ -4,7 +4,6 @@ namespace App\Jobs\Sefaz;
 
 use App\Models\ConhecimentoTransporteEletronico;
 use App\Models\Issuer;
-use App\Models\LogSefazCteEvent;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -66,7 +65,7 @@ class AutenticidadeCteJob implements ShouldQueue
 
                     DB::table('log_sefaz_cte_events')->where('id', $evento->id)->update(['is_verificado_sefaz' => true]);
 
-                    Log::warning('CTe cancelada:' . $cte->chave);
+                    Log::warning('CTe cancelada:'.$cte->chave);
                 }
 
                 if ($result == '110111') {
