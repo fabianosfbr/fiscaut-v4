@@ -239,7 +239,7 @@ class NfseEntradaInfolist
                                         Group::make()
                                             ->schema([
                                                 TextEntry::make('valor_servico')
-                                                    ->label('Valor Líquido (vLiq)')
+                                                    ->label('Valor do Serviço')
                                                     ->money('BRL')
                                                     ->weight('bold')
                                                     ->placeholder('Não informado'),
