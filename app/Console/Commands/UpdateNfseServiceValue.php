@@ -34,7 +34,9 @@ class UpdateNfseServiceValue extends Command
 
                     // Verifica se o XML foi carregado e se a estrutura vBC existe
                     if ($xmlObj) {
-                        $nfe->valor_servico = (float) (float) $xmlObj->infNFSe->valores->vBC ?? $xmlObj->infNFSe->valores->vLiq ?? null;
+                        $vBC = (float) ($xmlObj->infNFSe->valores->vBC ?? 0);
+                        $vLiq = (float) ($xmlObj->infNFSe->valores->vLiq ?? 0);
+                        $nfe->valor_servico = $vBC > 0 ? $vBC : $vLiq;
                         $nfe->save();
                         $this->comment("NFSe ID: {$nfe->id} atualizada com valor_servico: {$nfe->valor_servico}");
                     } else {
