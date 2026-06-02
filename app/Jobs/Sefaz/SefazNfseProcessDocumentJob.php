@@ -123,7 +123,7 @@ class SefazNfseProcessDocumentJob implements ShouldQueue
             'chave' => $chave,
             'chave_acesso' => $chave,
             'origem' => $this->documento['origem'] ?? 'SEFAZ',
-            'valor_servico' => (float) ($xmlObj->infNFSe->valores->vBC ?? null), // Changed from vLiq to vBC as per user request
+            'valor_servico' => (float) $xmlObj->infNFSe->valores->vBC ?? $xmlObj->infNFSe->valores->vLiq ?? null, // Changed from vLiq to vBC as per user request
             'data_emissao' => $dataEmissao,
             'prestador_servico' => (string) ($xmlObj->infNFSe->emit->xNome ?? null),
             'prestador_im' => (string) ($xmlObj->infNFSe->emit->IM ?? null),

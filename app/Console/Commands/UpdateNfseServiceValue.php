@@ -28,11 +28,13 @@ class UpdateNfseServiceValue extends Command
         $nfs = \App\Models\NotaFiscalServico::where('data_emissao', '>=', now()->subDays(60))
             ->chunkById(500, function ($nfes): void {
                 foreach ($nfes as $nfe) {
-                    $xmlObj = simplexml_load_string($nfe->xml);
+                    $xmlContent = $nfe->xml;
+
+                    $xmlObj = simplexml_load_string($xmlContent);
 
                     // Verifica se o XML foi carregado e se a estrutura vBC existe
-                    if ($xmlObj && isset($xmlObj->infNFSe->valores->vBC)) {
-                        $nfe->valor_servico = (float) ($xmlObj->infNFSe->valores->vBC ?? null);
+                    if ($xmlObj) {
+                        $nfe->valor_servico = (float) (float) $xmlObj->infNFSe->valores->vBC ?? $xmlObj->infNFSe->valores->vLiq ?? null;
                         $nfe->save();
                         $this->comment("NFSe ID: {$nfe->id} atualizada com valor_servico: {$nfe->valor_servico}");
                     } else {
@@ -40,8 +42,6 @@ class UpdateNfseServiceValue extends Command
                     }
                 }
             });
-
-        
 
         $this->info('Atualização concluída.');
 

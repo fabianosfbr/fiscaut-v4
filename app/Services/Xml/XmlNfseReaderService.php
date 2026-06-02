@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 class XmlNfseReaderService
 {
     private string $xml;
+    private string $xmlPlain;
 
     private ?\SimpleXMLElement $simpleXml = null;
 
@@ -26,6 +27,7 @@ class XmlNfseReaderService
      */
     public function loadXml(string $xml): self
     {
+        $this->xmlPlain = $xml;
         try {
             // Verifica se o conteúdo está compactado em gzip
             $decoded = @gzdecode(base64_decode($xml));
@@ -124,7 +126,7 @@ class XmlNfseReaderService
                 'municipio' => (string) $nfe->Tomador->Municipio,
                 'uf' => (string) $nfe->Tomador->UfSigla,
             ],
-            'xml' => base64_encode($this->xml),
+            'xml' => $this->xmlPlain,
         ];
     }
 
@@ -230,7 +232,7 @@ class XmlNfseReaderService
             'descricao_servico' => $xDescServ,
             'serie_rps' => $serie,
             'numero_rps' => $nDPS,
-            'valor_servico' => $vLiq,
+            'valor_servico' => $vBC > 0 ? $vBC : $vLiq,
             'base_calculo' => $vBC,
             'aliquota_iss' => $pAliqAplic,
             'valor_iss' => ($vBC * $pAliqAplic / 100),
@@ -258,7 +260,7 @@ class XmlNfseReaderService
                 'razao_social' => $tomNome,
                 'municipio_id' => $tomMunId,
             ],
-            'xml' => base64_encode($this->xml),
+            'xml' => $this->xmlPlain,
         ];
     }
 
