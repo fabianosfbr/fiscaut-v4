@@ -13,8 +13,20 @@ class SuperLogicaCobrancaNotification extends Model
 
     protected $table = 'super_logica_cobranca_notifications';
 
+    protected $with = ['issuer', 'unidade'];
+
     protected $casts = [
         'data' => 'array',
         'sent_at' => 'datetime',
     ];
+
+    public function issuer()
+    {
+        return $this->belongsTo(Issuer::class, 'issuer_id');
+    }
+
+    public function unidade()
+    {
+        return $this->belongsTo(SuperLogicaUnidade::class, 'id_unidade_uni', 'id_unidade_uni');
+    }
 }
