@@ -1,0 +1,10 @@
+# Arquivo de excecoes de unidade — Fiscaut x Dominio
+# Formato: codigo_produto;unidade_dominio
+# Preencher quando o Dominio rejeitar "nao aceita unidade diferente da inventariada"
+# Consulte o Dominio: Cadastros > Produtos > abre o produto > campo Unidade
+#
+# Exemplo:
+# 29367934_001;PC
+# 06194359_001;UN
+#
+# Adicionar abaixo conforme necessario:
