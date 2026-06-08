@@ -89,8 +89,8 @@ class ItemNfeDto
             uComNorm: strtoupper(trim($uCom)),
             qCom: (float) ($data['qCom'] ?? 0),
             vUnCom: (float) ($data['vUnCom'] ?? 0),
-            cfopSaida: $data['CFOP'] ?? '',
-            cfopEntrada: '', // será resolvido depois
+            cfopSaida: $data['CFOP'] ?? $data['cfop_saida'] ?? '',
+            cfopEntrada: $data['cfop_entrada'] ?? '',
             ean: ($data['cEAN'] ?? '') === 'SEM GTIN' ? '' : ($data['cEAN'] ?? ''),
             vProd: $vProd,
             vFrete: (float) ($data['vFrete'] ?? 0),
@@ -179,6 +179,7 @@ class ItemNfeDto
             'vDesc' => $scaleArray($this->vDesc),
             'vOutro' => $scaleArray($this->vOutro),
             'CSOSN' => $this->icmsCsosn,
+            'cfop_entrada' => $cfopEntrada,
             'is_simples' => $this->isSimples,
             'cred_icms' => $credIcms,
             'cred_piscof' => $credPiscof,

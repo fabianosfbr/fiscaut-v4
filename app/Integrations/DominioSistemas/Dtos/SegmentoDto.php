@@ -26,7 +26,8 @@ class SegmentoDto
 
     /**
      * Cria segmentos a partir de uma lista de itens
-     * @param ItemNfeDto[] $itens
+     *
+     * @param  ItemNfeDto[]  $itens
      * @return self[]
      */
     public static function segmentar(array $itens, int $acumulador): array
@@ -34,7 +35,7 @@ class SegmentoDto
         $grupos = [];
         foreach ($itens as $item) {
             $cfop = $item->cfopEntrada;
-            if (!isset($grupos[$cfop])) {
+            if (! isset($grupos[$cfop])) {
                 $grupos[$cfop] = [];
             }
             $grupos[$cfop][] = $item;
@@ -44,15 +45,15 @@ class SegmentoDto
         $nSeg = 0;
         foreach ($grupos as $cfop => $itensGrupo) {
             $nSeg++;
-            $vProd = array_sum(array_map(fn(ItemNfeDto $i) => $i->vProd, $itensGrupo));
-            $vFrete = array_sum(array_map(fn(ItemNfeDto $i) => $i->vFrete, $itensGrupo));
-            $vSeg = array_sum(array_map(fn(ItemNfeDto $i) => $i->vSeg, $itensGrupo));
-            $vDesc = array_sum(array_map(fn(ItemNfeDto $i) => $i->vDesc, $itensGrupo));
-            $vOutro = array_sum(array_map(fn(ItemNfeDto $i) => $i->vOutro, $itensGrupo));
-            $vIPI = array_sum(array_map(fn(ItemNfeDto $i) => $i->icmsVIPI, $itensGrupo));
-            $vICMS = array_sum(array_map(fn(ItemNfeDto $i) => $i->icmsVICMS, $itensGrupo));
-            $vST = array_sum(array_map(fn(ItemNfeDto $i) => $i->icmsVST, $itensGrupo));
-            $vCredSN = array_sum(array_map(fn(ItemNfeDto $i) => $i->icmsVCredSN, $itensGrupo));
+            $vProd = array_sum(array_map(fn (ItemNfeDto $i) => $i->vProd, $itensGrupo));
+            $vFrete = array_sum(array_map(fn (ItemNfeDto $i) => $i->vFrete, $itensGrupo));
+            $vSeg = array_sum(array_map(fn (ItemNfeDto $i) => $i->vSeg, $itensGrupo));
+            $vDesc = array_sum(array_map(fn (ItemNfeDto $i) => $i->vDesc, $itensGrupo));
+            $vOutro = array_sum(array_map(fn (ItemNfeDto $i) => $i->vOutro, $itensGrupo));
+            $vIPI = array_sum(array_map(fn (ItemNfeDto $i) => $i->icmsVIPI, $itensGrupo));
+            $vICMS = array_sum(array_map(fn (ItemNfeDto $i) => $i->icmsVICMS, $itensGrupo));
+            $vST = array_sum(array_map(fn (ItemNfeDto $i) => $i->icmsVST, $itensGrupo));
+            $vCredSN = array_sum(array_map(fn (ItemNfeDto $i) => $i->icmsVCredSN, $itensGrupo));
 
             $segmentos[] = new self(
                 cfop: $cfop,

@@ -59,9 +59,8 @@ class GerarTxtIntegracaoDominioSistema
                 // } catch (\Exception $e) {
                 // }
 
-
                 // Dispatch job assíncrono
-                 GerarArquivoDominio::dispatch($notaIds, $issuer->id);
+                GerarArquivoDominio::dispatch($notaIds, $issuer->id, auth()->user()->id);
 
                 Notification::make()
                     ->title('Processamento iniciado!')

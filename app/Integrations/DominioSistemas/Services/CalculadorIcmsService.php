@@ -15,22 +15,29 @@ class CalculadorIcmsService
 
     // CSTs que vão em isentas
     private const CST_ISENTAS = ['30', '40'];
+
     // CSTs que vão em outras
     private const CST_OUTRAS = ['50', '60', '61', '62', '90'];
+
     // CSTs tributados (tem BC + ICMS)
     private const CST_TRIBUTADOS = ['00', '10', '20', '51', '70'];
+
     // CSTs com ST
     private const CST_COM_ST = ['10', '70'];
 
     private ResolvedorCfopService $resolvedorCfop;
 
+    private NcmPiscofService $ncmPiscofService;
+
     public function __construct(ResolvedorCfopService $resolvedorCfop)
     {
         $this->resolvedorCfop = $resolvedorCfop;
+        $this->ncmPiscofService = new NcmPiscofService;
     }
 
     /**
      * Gera as linhas 1020 ICMS (codigo 1)
+     *
      * @return string[]
      */
     public function gerar1020Icms(SegmentoDto $seg, bool $isSimples, bool $credIcms, string $notaUf): array
@@ -62,12 +69,14 @@ class CalculadorIcmsService
                 // SN sem crédito: tudo em outras
                 $linhas[] = "|1020|1|0,00|0,00|0,00|0,00|0,00|{$vContFmt}|0,00|0,00|{$vContFmt}|||||";
             }
+
             return $linhas;
         }
 
         // Etiqueta de DESPESA (credIcms=false / status_icms=true = zera ICMS)
-        if (!$credIcms) {
+        if (! $credIcms) {
             $linhas[] = "|1020|1|0,00|0,00|0,00|0,00|0,00|{$vContFmt}|0,00|0,00|{$vContFmt}|||||";
+
             return $linhas;
         }
 
@@ -80,7 +89,7 @@ class CalculadorIcmsService
 
             // CST 60 com crédito CAT 14/2009: tratar como tributado
             $ehCat14 = $item->icmsVBC > 0 && $cst2 === '60';
-            if (!$ehCat14 && (in_array($cst2, self::CST_ISENTAS) || in_array($cst2, self::CST_OUTRAS))) {
+            if (! $ehCat14 && (in_array($cst2, self::CST_ISENTAS) || in_array($cst2, self::CST_OUTRAS))) {
                 $aliq = 0.0;
             }
             $key = (string) $aliq;
@@ -100,10 +109,10 @@ class CalculadorIcmsService
             $idx++;
             $ultimo = ($idx === $nGrupos);
 
-            $vBCg = array_sum(array_map(fn(ItemNfeDto $i) => $i->icmsVBC, $grupo));
-            $vICMSg = array_sum(array_map(fn(ItemNfeDto $i) => $i->icmsVICMS, $grupo));
-            $vSTg = array_sum(array_map(fn(ItemNfeDto $i) => $i->icmsVST, $grupo));
-            $vProdg = array_sum(array_map(fn(ItemNfeDto $i) => $i->vProd, $grupo));
+            $vBCg = array_sum(array_map(fn (ItemNfeDto $i) => $i->icmsVBC, $grupo));
+            $vICMSg = array_sum(array_map(fn (ItemNfeDto $i) => $i->icmsVICMS, $grupo));
+            $vSTg = array_sum(array_map(fn (ItemNfeDto $i) => $i->icmsVST, $grupo));
+            $vProdg = array_sum(array_map(fn (ItemNfeDto $i) => $i->vProd, $grupo));
 
             // IPI proporcional ao vProd do grupo
             $vIPIg = round($vIPISegTotal * $vProdg / $vProdSegTotal, 2);
@@ -148,6 +157,7 @@ class CalculadorIcmsService
 
     /**
      * Gera as linhas 1020 IPI (codigo 2)
+     *
      * @return string[]
      */
     public function gerar1020Ipi(SegmentoDto $seg, bool $isSimples, bool $credIpi): array
@@ -172,8 +182,8 @@ class CalculadorIcmsService
             $idx++;
             $ultimo = ($idx === $nGrupos);
 
-            $vBCIpiG = array_sum(array_map(fn(ItemNfeDto $i) => $i->ipiVBC, $grupo));
-            $vIPIG = array_sum(array_map(fn(ItemNfeDto $i) => $i->icmsVIPI, $grupo));
+            $vBCIpiG = array_sum(array_map(fn (ItemNfeDto $i) => $i->ipiVBC, $grupo));
+            $vIPIG = array_sum(array_map(fn (ItemNfeDto $i) => $i->icmsVIPI, $grupo));
 
             if ($ultimo) {
                 $vContg = round($vCont - $vContAcum, 2);
@@ -182,7 +192,7 @@ class CalculadorIcmsService
                 $vContAcum += $vContg;
             }
 
-            if ($credIpi && !$isSimples && $vIPIG > 0) {
+            if ($credIpi && ! $isSimples && $vIPIG > 0) {
                 // Com crédito: BC e vIPI normais
                 $linhas[] = "|1020|2|0,00|{$this->fmtDec($vBCIpiG)}|{$this->fmtDec($aliq)}|{$this->fmtDec($vIPIG)}|0,00|0,00|0,00|0,00|{$this->fmtDec($vContg)}||||";
             } else {
@@ -196,6 +206,7 @@ class CalculadorIcmsService
 
     /**
      * Gera as linhas 1020 DIFAL (codigo 8)
+     *
      * @return string[]
      */
     public function gerar1020Difal(SegmentoDto $seg, bool $isSimples, bool $debDifal): array
@@ -206,7 +217,7 @@ class CalculadorIcmsService
         // CFOPs que geram DIFAL
         $cfopsDifal = ['2556', '2551', '2406']; // 2407 removido (retorno conserto)
 
-        if (!in_array($cfop, $cfopsDifal) || !$debDifal) {
+        if (! in_array($cfop, $cfopsDifal) || ! $debDifal) {
             return $linhas;
         }
 
@@ -225,7 +236,7 @@ class CalculadorIcmsService
             }
 
             $key = (string) $pICMS;
-            if (!isset($grupos[$key])) {
+            if (! isset($grupos[$key])) {
                 $grupos[$key] = ['vBC' => 0.0, 'vICMS' => 0.0];
             }
             $grupos[$key]['vBC'] += $vBC;
@@ -243,9 +254,9 @@ class CalculadorIcmsService
             $difal = max(round($icmsDst - $vICMS, 2), 0.0);
 
             if ($difal > 0) {
-                $linhas[] = "|1020|8|0,00|{$this->fmtDec($baseDup)}|" .
-                    "{$this->fmtDec(self::ALIQ_INTERNA_SP * 100)}|{$this->fmtDec($difal)}|" .
-                    "0,00|0,00|0,00|0,00|{$this->fmtDec($vCont)}|||" .
+                $linhas[] = "|1020|8|0,00|{$this->fmtDec($baseDup)}|".
+                    "{$this->fmtDec(self::ALIQ_INTERNA_SP * 100)}|{$this->fmtDec($difal)}|".
+                    "0,00|0,00|0,00|0,00|{$this->fmtDec($vCont)}|||".
                     "|{$this->fmtDec($aliqInter)}|||";
             }
         }
@@ -255,10 +266,10 @@ class CalculadorIcmsService
 
     /**
      * Calcula PIS/COFINS para um item (campos 41-44, 67 do 1030)
+     * Com validação em 3 camadas: etiqueta → NCM → crédito normal
      */
     public function calcularPiscofItem(ItemNfeDto $item, bool $credPiscof, string $baseCreditoCampo67): array
     {
-        $regime = 'LR'; // Kopron = Lucro Real
         $vProd = $item->vProd;
 
         // Importação: usar valores do XML
@@ -277,29 +288,40 @@ class CalculadorIcmsService
             ];
         }
 
-        // Simples Nacional: sem crédito
+        // Simples Nacional: sem crédito PIS/COFINS
         if ($item->isSimples) {
             return $this->semCreditoPiscof();
         }
 
-        // Sem direito a crédito
-        if (!$credPiscof) {
-            return $this->semCreditoPiscof();
+        // --- 3 Camadas de validação PIS/COFINS ---
+        // Camada 1: etiqueta permite crédito? (cred_piscof)
+        // Camada 2: NCM tem restrição? (monofásico, alíquota zero, etc.)
+        // Camada 3: crédito normal
+        $verif = $this->ncmPiscofService->verificar($item->NCM, $credPiscof);
+
+        if (! $verif['aplica']) {
+            // CST 70 (sem crédito) ou CST 73 (restrição NCM)
+            return [
+                'aliq_pis' => '0,0000',
+                'vlr_pis' => '0,00',
+                'aliq_cofins' => '0,0000',
+                'vlr_cofins' => '0,00',
+                'cst_pis' => $verif['cst'],
+                'bc_pis' => '0,00',
+                'cst_cofins' => $verif['cst'],
+                'bc_cofins' => '0,00',
+                'base_credito' => '',
+            ];
         }
 
-        // Com crédito
-        if ($regime === 'LR') {
-            $aliqPis = 1.65;
-            $aliqCofins = 7.60;
-        } else {
-            $aliqPis = 0.65;
-            $aliqCofins = 3.00;
-        }
+        // CST 50 — Com crédito (Lucro Real)
+        $aliqPis = 1.65;
+        $aliqCofins = 7.60;
 
         $vlrPis = round($vProd * $aliqPis / 100, 2);
         $vlrCofins = round($vProd * $aliqCofins / 100, 2);
 
-        $baseCredito = !empty($baseCreditoCampo67) ? $baseCreditoCampo67 : '';
+        $baseCredito = ! empty($baseCreditoCampo67) ? $baseCreditoCampo67 : '';
 
         return [
             'aliq_pis' => $this->fmtDec($aliqPis, 4),
@@ -335,6 +357,7 @@ class CalculadorIcmsService
     private function doisUltimos(string $cst): string
     {
         $cst = str_pad(trim($cst), 3, '0', STR_PAD_LEFT);
+
         return substr($cst, -2);
     }
 

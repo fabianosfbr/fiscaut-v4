@@ -2,9 +2,10 @@
 
 namespace App\Integrations\DominioSistemas\Services;
 
-use App\Models\EntradaCfopEquivalente;
 use App\Models\EntradaAcumuladorEquivalente;
+use App\Models\EntradaCfopEquivalente;
 use App\Models\EntradasImpostosEquivalente;
+use App\Models\GrupoEntradaCfopEquivalente;
 use App\Models\Issuer;
 use Illuminate\Support\Facades\Cache;
 
@@ -17,13 +18,18 @@ use Illuminate\Support\Facades\Cache;
 class ResolvedorCfopService
 {
     private int $issuerId;
+
     private int $tenantId;
+
     private string $ufEmpresa;
+
     private string $cnpjEmpresa;
 
     /** @var array cache de equivalências carregadas */
     private array $cfopCache = [];
+
     private array $acumuladorCache = [];
+
     private array $impostosCache = [];
 
     public function __construct(Issuer $issuer)
@@ -36,7 +42,7 @@ class ResolvedorCfopService
 
     /**
      * Resolve o CFOP de entrada para uma combinação de tag + cfop_saida + UF
-     * 
+     *
      * 1. Tenta match direto em EntradaCfopEquivalente (grupo + cfop_saida)
      * 2. Fallback para regra de família (compra, imobilizado, uso_consumo, etc.)
      */
@@ -58,7 +64,7 @@ class ResolvedorCfopService
         // Procura nas equivalências por tipo
         foreach ($grupos as $grupo) {
             $tagsNoGrupo = is_array($grupo['tags']) ? $grupo['tags'] : json_decode($grupo['tags'] ?? '[]', true);
-            if (!in_array($tagId, $tagsNoGrupo)) {
+            if (! in_array($tagId, $tagsNoGrupo)) {
                 continue;
             }
 
@@ -107,20 +113,22 @@ class ResolvedorCfopService
             }
 
             // Verifica se tem restrição de CFOPs
-            $cfopsPermitidos = is_array($ac['cfops'] ?? null) ? $ac['cfops'] : 
+            $cfopsPermitidos = is_array($ac['cfops'] ?? null) ? $ac['cfops'] :
                 (json_decode($ac['cfops'] ?? '[]', true) ?: []);
 
-            if (!empty($cfopsPermitidos)) {
+            if (! empty($cfopsPermitidos)) {
                 // Se tem CFOPs definidos, só aplica se o CFOP estiver na lista
                 if (in_array($cfopEntrada, $cfopsPermitidos)) {
                     $valores = is_array($ac['valores'] ?? null) ? $ac['valores'] :
                         (json_decode($ac['valores'] ?? '[]', true) ?: []);
+
                     return isset($valores[0]) ? (int) $valores[0] : 8000;
                 }
             } else {
                 // Sem restrição de CFOP, aplica sempre
                 $valores = is_array($ac['valores'] ?? null) ? $ac['valores'] :
                     (json_decode($ac['valores'] ?? '[]', true) ?: []);
+
                 return isset($valores[0]) ? (int) $valores[0] : 8000;
             }
         }
@@ -139,6 +147,7 @@ class ResolvedorCfopService
                 return (bool) ($imp['status_icms'] ?? false);
             }
         }
+
         return false; // padrão: não zera
     }
 
@@ -153,6 +162,7 @@ class ResolvedorCfopService
                 return (bool) ($imp['status_ipi'] ?? false);
             }
         }
+
         return false; // padrão: não zera
     }
 
@@ -162,6 +172,7 @@ class ResolvedorCfopService
         if ($tpNf === 1) {
             return 1;
         }
+
         // tipo=0: entrada própria (empresa é emitente OU destinatário + emitente != empresa + tpNf=0)
         return 0;
     }
@@ -173,49 +184,53 @@ class ResolvedorCfopService
             '5401', '5402', '5403', '5405', '5407',
             '6401', '6402', '6403', '6405', '6407',
         ];
+
         return in_array($cfopSaida, $cfopsComSt);
     }
 
     private function carregarGruposCfop(): array
     {
         $key = "resolvedor_cfop_grupos_{$this->issuerId}_{$this->tenantId}";
-        if (!isset($this->cfopCache[$key])) {
+        if (! isset($this->cfopCache[$key])) {
             $this->cfopCache[$key] = Cache::remember($key, now()->addDay(), function () {
-                return \App\Models\GrupoEntradaCfopEquivalente::where('issuer_id', $this->issuerId)
+                return GrupoEntradaCfopEquivalente::where('issuer_id', $this->issuerId)
                     ->where('tenant_id', $this->tenantId)
                     ->with('cfopsEquivalentes')
                     ->get()
                     ->toArray();
             });
         }
+
         return $this->cfopCache[$key];
     }
 
     private function carregarAcumuladores(): array
     {
         $key = "resolvedor_acumulador_{$this->issuerId}_{$this->tenantId}";
-        if (!isset($this->acumuladorCache[$key])) {
+        if (! isset($this->acumuladorCache[$key])) {
             $this->acumuladorCache[$key] = Cache::remember($key, now()->addDay(), function () {
-                return \App\Models\EntradaAcumuladorEquivalente::where('issuer_id', $this->issuerId)
+                return EntradaAcumuladorEquivalente::where('issuer_id', $this->issuerId)
                     ->where('tenant_id', $this->tenantId)
                     ->get()
                     ->toArray();
             });
         }
+
         return $this->acumuladorCache[$key];
     }
 
     private function carregarImpostos(): array
     {
         $key = "resolvedor_impostos_{$this->issuerId}_{$this->tenantId}";
-        if (!isset($this->impostosCache[$key])) {
+        if (! isset($this->impostosCache[$key])) {
             $this->impostosCache[$key] = Cache::remember($key, now()->addDay(), function () {
-                return \App\Models\EntradasImpostosEquivalente::where('issuer_id', $this->issuerId)
+                return EntradasImpostosEquivalente::where('issuer_id', $this->issuerId)
                     ->where('tenant_id', $this->tenantId)
                     ->get()
                     ->toArray();
             });
         }
+
         return $this->impostosCache[$key];
     }
 
@@ -261,7 +276,8 @@ class ResolvedorCfopService
         // CFOP 6xxx (interestadual) -> 2xxx
         if ($prefixo === '6') {
             $sufixo = substr($cfopSaida, 1);
-            return '2' . $sufixo;
+
+            return '2'.$sufixo;
         }
 
         return '1101'; // fallback final
