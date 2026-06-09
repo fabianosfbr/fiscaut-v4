@@ -43,95 +43,28 @@ class SyncCte extends Command
         $issuers = Issuer::with('tenant')
             ->where('is_enabled', true)
             ->where('sync_sieg', true)
-            ->when($issuerId !== null, fn ($q) => $q->where('id', $issuerId))
+            ->when($issuerId !== null, fn($q) => $q->where('id', $issuerId))
             ->get();
 
+        $cnpjTypes = ['CnpjEmit', 'CnpjDest', 'CnpjTom', 'CnpjRem'];
         foreach ($issuers as $issuer) {
             $importJob = $this->createImportJob($issuer);
-
-            SiegConnect::dispatch(
-                tipoDocumento: 2,  //  tipo documento
-                tipoCnpj: 'CnpjEmit',  // Tipo CNPJ
-                dataInicial: $start,
-                dataFinal: $end,
-                issuerId: $issuer->id,
-                importJobId: $importJob->id,
-                event: true,
-            )->onQueue('sieg');
-
-            SiegConnect::dispatch(
-                tipoDocumento: 2,  //  tipo documento
-                tipoCnpj: 'CnpjDest',  // Tipo CNPJ
-                dataInicial: $start,
-                dataFinal: $end,
-                issuerId: $issuer->id,
-                importJobId: $importJob->id,
-                event: true,
-            )->onQueue('sieg');
-
-            SiegConnect::dispatch(
-                tipoDocumento: 2,  //  tipo documento
-                tipoCnpj: 'CnpjTom',  // Tipo CNPJ
-                dataInicial: $start,
-                dataFinal: $end,
-                issuerId: $issuer->id,
-                importJobId: $importJob->id,
-                event: true,
-            )->onQueue('sieg');
-
-            SiegConnect::dispatch(
-                tipoDocumento: 2,  //  tipo documento
-                tipoCnpj: 'CnpjRem',  // Tipo CNPJ
-                dataInicial: $start,
-                dataFinal: $end,
-                issuerId: $issuer->id,
-                importJobId: $importJob->id,
-                event: true,
-            )->onQueue('sieg');
-
-
-             SiegConnect::dispatch(
-                tipoDocumento: 2,  //  tipo documento
-                tipoCnpj: 'CnpjEmit',  // Tipo CNPJ
-                dataInicial: $start,
-                dataFinal: $end,
-                issuerId: $issuer->id,
-                importJobId: $importJob->id,
-                event: false,
-            )->onQueue('sieg');
-
-            SiegConnect::dispatch(
-                tipoDocumento: 2,  //  tipo documento
-                tipoCnpj: 'CnpjDest',  // Tipo CNPJ
-                dataInicial: $start,
-                dataFinal: $end,
-                issuerId: $issuer->id,
-                importJobId: $importJob->id,
-                event: false,
-            )->onQueue('sieg');
-
-            SiegConnect::dispatch(
-                tipoDocumento: 2,  //  tipo documento
-                tipoCnpj: 'CnpjTom',  // Tipo CNPJ
-                dataInicial: $start,
-                dataFinal: $end,
-                issuerId: $issuer->id,
-                importJobId: $importJob->id,
-                event: false,
-            )->onQueue('sieg');
-
-            SiegConnect::dispatch(
-                tipoDocumento: 2,  //  tipo documento
-                tipoCnpj: 'CnpjRem',  // Tipo CNPJ
-                dataInicial: $start,
-                dataFinal: $end,
-                issuerId: $issuer->id,
-                importJobId: $importJob->id,
-                event: false,
-            )->onQueue('sieg');
+            foreach ([true, false] as $event) {
+                foreach ($cnpjTypes as $tipoCnpj) {
+                    SiegConnect::dispatch(
+                        tipoDocumento: 2,  //  tipo documento
+                        tipoCnpj: $tipoCnpj,  // Tipo CNPJ
+                        dataInicial: $start,
+                        dataFinal: $end,
+                        issuerId: $issuer->id,
+                        importJobId: $importJob->id,
+                        event: $event,
+                    )->onQueue('sieg');
+                }
+            }
         }
 
-        $this->info('Sincronização de documentos SIEG para Ctes emitidas e recebidas em lote concluída nas datas de '.$start.' a '.$end);
+        $this->info('Sincronização de documentos SIEG para Ctes emitidas e recebidas em lote concluída nas datas de ' . $start . ' a ' . $end);
 
         return self::SUCCESS;
     }

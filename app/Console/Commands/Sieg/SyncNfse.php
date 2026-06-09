@@ -46,48 +46,22 @@ class SyncNfse extends Command
             ->when($issuerId !== null, fn($q) => $q->where('id', $issuerId))
             ->get();
 
+        $cnpjTypes = ['CnpjEmit', 'CnpjDest'];
         foreach ($issuers as $issuer) {
             $importJob = $this->createImportJob($issuer);
-
-            SiegConnect::dispatch(
-                tipoDocumento: 3,  //  tipo documento
-                tipoCnpj: 'CnpjEmit',  // Tipo CNPJ
-                dataInicial: $start,
-                dataFinal: $end,
-                issuerId: $issuer->id,
-                importJobId: $importJob->id,
-                event: true,
-            )->onQueue('default');
-
-            SiegConnect::dispatch(
-                tipoDocumento: 3,  //  tipo documento
-                tipoCnpj: 'CnpjDest',  // Tipo CNPJ
-                dataInicial: $start,
-                dataFinal: $end,
-                issuerId: $issuer->id,
-                importJobId: $importJob->id,
-                event: true,
-            )->onQueue('default');
-
-            SiegConnect::dispatch(
-                tipoDocumento: 3,  //  tipo documento
-                tipoCnpj: 'CnpjEmit',  // Tipo CNPJ
-                dataInicial: $start,
-                dataFinal: $end,
-                issuerId: $issuer->id,
-                importJobId: $importJob->id,
-                event: false,
-            )->onQueue('default');
-
-            SiegConnect::dispatch(
-                tipoDocumento: 3,  //  tipo documento
-                tipoCnpj: 'CnpjDest',  // Tipo CNPJ
-                dataInicial: $start,
-                dataFinal: $end,
-                issuerId: $issuer->id,
-                importJobId: $importJob->id,
-                event: false,
-            )->onQueue('default');
+            foreach ([true, false] as $event) {
+                foreach ($cnpjTypes as $tipoCnpj) {
+                    SiegConnect::dispatch(
+                        tipoDocumento: 3,  //  tipo documento
+                        tipoCnpj: $tipoCnpj,  // Tipo CNPJ
+                        dataInicial: $start,
+                        dataFinal: $end,
+                        issuerId: $issuer->id,
+                        importJobId: $importJob->id,
+                        event: $event,
+                    )->onQueue('sieg');
+                }
+            }
         }
 
         $this->info('Sincronização de documentos SIEG para NFes emitidas e recebidas em lote concluída nas datas de ' . $start . ' a ' . $end);

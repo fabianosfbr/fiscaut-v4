@@ -136,31 +136,25 @@ class SiegImport extends Page
             $user = Auth::user();
             $issuer = currentIssuer($user);
 
+            $importJob = $this->createImportJob($issuer, $user);
+
             // Dispatch um job para cada combinação de tipo de documento e CNPJ
             foreach ($data['tipoDocumento'] as $tipoDoc) {
                 // Criar job de importação principal
-                $importJob = $this->createImportJob($issuer, $user);
-                foreach ($data['tipoCnpj'] as $tipoCnpj) {
-                    // Dispatch o job para processar a conexão com a API SIEG de forma assíncrona
-                    SiegConnect::dispatch(
-                        (int) $tipoDoc,
-                        $tipoCnpj,
-                        $data['dataInicial'],
-                        $data['dataFinal'],
-                        $issuer->id,
-                        $importJob->id,
-                        true
-                    )->onQueue('sieg');
 
-                    SiegConnect::dispatch(
-                        (int) $tipoDoc,
-                        $tipoCnpj,
-                        $data['dataInicial'],
-                        $data['dataFinal'],
-                        $issuer->id,
-                        $importJob->id,
-                        false
-                    )->onQueue('sieg');
+                foreach ([true, false] as $event) {
+                    foreach ($data['tipoCnpj'] as $tipoCnpj) {
+                        // Dispatch o job para processar a conexão com a API SIEG de forma assíncrona
+                        SiegConnect::dispatch(
+                            (int) $tipoDoc,
+                            $tipoCnpj,
+                            $data['dataInicial'],
+                            $data['dataFinal'],
+                            $issuer->id,
+                            $importJob->id,
+                            event: $event,
+                        )->onQueue('sieg');
+                    }
                 }
             }
 
