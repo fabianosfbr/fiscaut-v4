@@ -125,8 +125,7 @@ class SiegConnect implements ShouldQueue
                 if ($response->successful()) {
                     $responseData = $response->json();
                     $totalDocumentosPagina = count($responseData ?? []);
-
-                    Log::channel('sieg_log')->info('Consulta tipo: '.$castXmlType[$this->tipoDocumento].' - Sieg - total de documentos na página '.$totalDocumentosPagina);
+                   
 
                     if (isset($responseData['xmls']) && is_array($responseData['xmls'])) {
                         $resultados = $responseData['xmls'];
@@ -152,8 +151,7 @@ class SiegConnect implements ShouldQueue
 
                             $jobClass::dispatch($xml, $issuer, $this->importJob);
                         }
-
-                        Log::channel('sieg_log')->info('Dispatched '.count($resultados).' jobs do tipo '.$castXmlType[$this->tipoDocumento].' para processamento');
+                       
                     } else {
                         $this->importJob->updateQuietly([
                             'total_files' => $totalDocumentos,
@@ -192,7 +190,8 @@ class SiegConnect implements ShouldQueue
             $this->importJob->updateQuietly([
                 'total_files' => $totalDocumentos,
             ]);
-            Log::channel('sieg_log')->info('Importação SIEG concluída. Total de documentos: '.$totalDocumentos);
+            Log::channel('sieg_log')->info('Importação SIEG concluída. Total de documentos: '.$totalDocumentos . ' Empresa: '.$issuer->razao_social);
+            
         } catch (Exception $e) {
             Log::channel('sieg_log')->error('Erro na importação SIEG: '.$e->getMessage());
 

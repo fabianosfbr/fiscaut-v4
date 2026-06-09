@@ -27,7 +27,9 @@ class ClearOldXmlImports extends Command
      */
     public function handle()
     {
-        $cutoffDate = Carbon::now()->subDay(24);
+        $retentionDays = config('admin.schedule_history_retention_days', 7);
+
+        $cutoffDate = Carbon::now()->subDays($retentionDays);
 
         $this->info("Removendo jobs de importação XML anteriores a {$cutoffDate->toDateTimeString()}...");
 

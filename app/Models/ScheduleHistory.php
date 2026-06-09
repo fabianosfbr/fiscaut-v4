@@ -14,7 +14,7 @@ class ScheduleHistory extends Model
      *
      * @var string
      */
-    protected $table;
+    protected $table = 'schedule_histories';
 
     protected $fillable = [
         'schedule_id',

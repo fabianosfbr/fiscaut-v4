@@ -27,7 +27,9 @@ class ClearOldNotifications extends Command
      */
     public function handle()
     {
-        $cutoffDate = Carbon::now()->subDays(7);
+        $retentionDays = config('admin.schedule_history_retention_days', 7);
+
+        $cutoffDate = Carbon::now()->subDays($retentionDays);
 
         $this->info("Removendo notificações anteriores a {$cutoffDate->toDateTimeString()}...");
 
