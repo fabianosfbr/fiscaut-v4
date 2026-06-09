@@ -164,13 +164,11 @@ class SiegConnect implements ShouldQueue
                     $errorMessage = 'Erro ao consultar a API do SIEG';
 
                     if ($response->status() === 404) {
-                        $errorMessage = 'Nenhum arquivo XML localizado.';
-                        Log::channel('sieg_log')->info($errorMessage);
-
+                        
                         $this->importJob->updateQuietly(['status' => XmlImportJob::STATUS_COMPLETED]);
                     } else {
                         $responseData = $response->json();
-                        Log::channel('sieg_log')->error('Erro na consulta do SIEG: '.$errorMessage);
+                        Log::channel('sieg_log')->error('Erro na consulta do SIEG: '.$errorMessage . ' - Status: '.$response->status() . ' - Skip: '.$this->skip);
                         if (is_array($responseData) && ! empty($responseData[0])) {
                             $errorMessage = $responseData[0];
                         }
@@ -184,13 +182,14 @@ class SiegConnect implements ShouldQueue
 
                 // Aguarda um breve intervalo para não sobrecarregar a API
                 // (limite de 30 requisições por minuto)
-                usleep(300000);  // 300ms
+                usleep(600000);  // 600ms
             } while ($temMaisResultados);
 
             $this->importJob->updateQuietly([
                 'total_files' => $totalDocumentos,
+                'status' => XmlImportJob::STATUS_COMPLETED,
             ]);
-            Log::channel('sieg_log')->info('Importação SIEG concluída. Total de documentos: '.$totalDocumentos . ' Empresa: '.$issuer->razao_social);
+            Log::channel('sieg_log')->info('Importação SIEG concluída. Tipo consulta: '.$this->tipoCnpj . ' Total de documentos: '.$totalDocumentos . ' Empresa: '.$issuer->razao_social);
             
         } catch (Exception $e) {
             Log::channel('sieg_log')->error('Erro na importação SIEG: '.$e->getMessage());
