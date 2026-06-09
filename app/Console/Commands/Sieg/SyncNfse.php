@@ -43,7 +43,7 @@ class SyncNfse extends Command
         $issuers = Issuer::with('tenant')
             ->where('is_enabled', true)
             ->where('sync_sieg', true)
-            ->when($issuerId !== null, fn ($q) => $q->where('id', $issuerId))
+            ->when($issuerId !== null, fn($q) => $q->where('id', $issuerId))
             ->get();
 
         foreach ($issuers as $issuer) {
@@ -68,9 +68,29 @@ class SyncNfse extends Command
                 importJobId: $importJob->id,
                 event: true,
             )->onQueue('default');
+
+            SiegConnect::dispatch(
+                tipoDocumento: 3,  //  tipo documento
+                tipoCnpj: 'CnpjEmit',  // Tipo CNPJ
+                dataInicial: $start,
+                dataFinal: $end,
+                issuerId: $issuer->id,
+                importJobId: $importJob->id,
+                event: false,
+            )->onQueue('default');
+
+            SiegConnect::dispatch(
+                tipoDocumento: 3,  //  tipo documento
+                tipoCnpj: 'CnpjDest',  // Tipo CNPJ
+                dataInicial: $start,
+                dataFinal: $end,
+                issuerId: $issuer->id,
+                importJobId: $importJob->id,
+                event: false,
+            )->onQueue('default');
         }
 
-        $this->info('Sincronização de documentos SIEG para NFes emitidas e recebidas em lote concluída nas datas de '.$start.' a '.$end);
+        $this->info('Sincronização de documentos SIEG para NFes emitidas e recebidas em lote concluída nas datas de ' . $start . ' a ' . $end);
 
         return self::SUCCESS;
     }
