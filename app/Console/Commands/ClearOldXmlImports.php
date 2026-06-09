@@ -34,6 +34,9 @@ class ClearOldXmlImports extends Command
         $this->info("Removendo jobs de importação XML anteriores a {$cutoffDate->toDateTimeString()}...");
 
         $deletedCount = XmlImportJob::where('created_at', '<', $cutoffDate)->delete();
+        $deletedCount += XmlImportJob::where('status', XmlImportJob::STATUS_PENDING)
+            ->orWhere('status', XmlImportJob::STATUS_PROCESSING)
+            ->delete();
 
         $this->info("{$deletedCount} registros excluídos com sucesso.");
     }
