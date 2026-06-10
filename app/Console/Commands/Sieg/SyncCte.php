@@ -49,7 +49,7 @@ class SyncCte extends Command
         $cnpjTypes = ['CnpjEmit', 'CnpjDest', 'CnpjTom', 'CnpjRem'];
         foreach ($issuers as $issuer) {
             $importJob = $this->createImportJob($issuer);
-            foreach ([true, false] as $event) {
+            foreach ([true] as $event) {
                 foreach ($cnpjTypes as $tipoCnpj) {
                     SiegConnect::dispatch(
                         tipoDocumento: 2,  //  tipo documento
