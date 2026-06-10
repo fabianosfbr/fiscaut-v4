@@ -22,14 +22,15 @@ class SiegConnect implements ShouldQueue
      *
      * @var int
      */
-    public $tries = 3;
+    public $tries = 5;
 
     /**
      * The number of seconds to wait before retrying the job.
+     * Using backoff array for exponential backoff: 60s, 120s, 240s, 480s, 960s
      *
-     * @var int
+     * @var array
      */
-    public $backoff = 60;
+    public $backoff = [60, 120, 240, 480, 960];
 
     /**
      * Configurações da API SIEG
@@ -162,27 +163,40 @@ class SiegConnect implements ShouldQueue
                 } else {
                     // Tratar erros da API
                     $errorMessage = 'Erro ao consultar a API do SIEG';
+                    $statusCode = $response->status();
 
-                    if ($response->status() === 404) {
-                        
+                    if ($statusCode === 404) {
                         $this->importJob->updateQuietly(['status' => XmlImportJob::STATUS_COMPLETED]);
+                        $temMaisResultados = false;
+                    } elseif ($statusCode === 429) {
+                        // Rate limit excedido - respeitar Retry-After ou usar backoff exponencial do job
+                        $retryAfter = $response->header('Retry-After');
+                        $waitSeconds = $retryAfter ? (int) $retryAfter : 60;
+                        
+                        Log::channel('sieg_log')->warning("Rate limit SIEG (429). Aguardando {$waitSeconds}s antes de retry. Skip: {$this->skip}");
+                        
+                        // Atualiza job para indicar aguardando retry
+                        $this->importJob->updateQuietly([
+                            'status' => XmlImportJob::STATUS_PROCESSING,
+                            'error_message' => "Rate limit atingido. Retentativa em {$waitSeconds}s",
+                        ]);
+                        
+                        // Lança exceção para triggerar o retry do job com backoff exponencial
+                        throw new Exception("Rate limit SIEG (429). Retry-After: {$waitSeconds}s");
                     } else {
                         $responseData = $response->json();
-                        Log::channel('sieg_log')->error('Erro na consulta do SIEG: '.$errorMessage . ' - Status: '.$response->status() . ' - Skip: '.$this->skip);
+                        Log::channel('sieg_log')->error('Erro na consulta do SIEG: '.$errorMessage . ' - Status: '.$statusCode . ' - Skip: '.$this->skip);
                         if (is_array($responseData) && ! empty($responseData[0])) {
                             $errorMessage = $responseData[0];
                         }
                         $this->importJob->addError($errorMessage);
                         $this->importJob->updateQuietly(['status' => XmlImportJob::STATUS_FAILED]);
+                        $temMaisResultados = false;
                     }
-
-                    // Interrompe o loop em caso de erro
-                    $temMaisResultados = false;
                 }
 
-                // Aguarda um breve intervalo para não sobrecarregar a API
-                // (limite de 30 requisições por minuto)
-                usleep(600000);  // 600ms
+                // Aguarda intervalo para respeitar limite de 30 requisições por minuto (2 segundos)
+                usleep(2000000);  // 2000ms = 2 segundos
             } while ($temMaisResultados);
 
             $this->importJob->updateQuietly([
