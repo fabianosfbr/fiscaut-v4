@@ -38,7 +38,7 @@ class SyncNfe extends Command
         $end = $this->option('end');
 
         $end = is_string($end) && $end !== '' ? $end : now()->format('Y-m-d');
-        $start = is_string($start) && $start !== '' ? $start : now()->toImmutable()->subDay(4)->format('Y-m-d');
+        $start = is_string($start) && $start !== '' ? $start : now()->toImmutable()->subDay(2)->format('Y-m-d');
 
         $issuers = Issuer::with('tenant')
             ->where('is_enabled', true)
