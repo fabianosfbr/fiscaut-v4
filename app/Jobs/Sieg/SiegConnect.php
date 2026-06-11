@@ -108,8 +108,8 @@ class SiegConnect implements ShouldQueue
                     $this->tipoCnpj => $cnpj,
                     'Take' => $this->take,
                     'Skip' => $this->skip,
-                    'DataUploadInicio' => $this->dataInicial,
-                    'DataUploadFim' => $this->dataFinal,
+                    'DataEmissaoInicio' => $this->dataInicial,
+                    'DataEmissaoFim' => $this->dataFinal,
                     'Downloadevent' => $this->event,
                 ];
 
