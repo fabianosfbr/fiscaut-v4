@@ -196,7 +196,7 @@ class SiegConnect implements ShouldQueue
                 }
 
                 // Aguarda intervalo para respeitar limite de 30 requisições por minuto (2 segundos)
-                usleep(2000000);  // 2000ms = 2 segundos
+                sleep(3); //  3 segundos
             } while ($temMaisResultados);
 
             $this->importJob->updateQuietly([

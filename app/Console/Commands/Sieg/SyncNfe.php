@@ -62,8 +62,10 @@ class SyncNfe extends Command
                             issuerId: $issuer->id,
                             importJobId: $importJob->id,
                             event: $event,
-                        )->onQueue('sieg');
+                        )->onQueue('high');
                     }
+
+                  
                 }
             }
         }
