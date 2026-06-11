@@ -43,7 +43,7 @@ class Tagged extends Model implements HasActivityLogTitle
 
     public function getActivitylogOptions(): LogOptions
     {
-         $this->loadMissing('taggable');
+        $this->loadMissing('taggable');
 
         $taggable = $this->taggable;
 
@@ -65,11 +65,10 @@ class Tagged extends Model implements HasActivityLogTitle
     public function getActivityLogTitle(): string
     {
 
-         $taggable = $this->taggable;
+        $taggable = $this->taggable;
 
+        $textToReturn = $taggable ? 'Etiqueta: Aplicada' : 'Etiqueta: Removida';
 
-         $textToReturn = $taggable ? 'Etiqueta: Aplicada' : 'Etiqueta: Removida'; 
-      
         return $textToReturn;
     }
 }

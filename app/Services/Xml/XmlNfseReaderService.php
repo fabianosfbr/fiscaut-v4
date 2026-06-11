@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 class XmlNfseReaderService
 {
     private string $xml;
+
     private string $xmlPlain;
 
     private ?\SimpleXMLElement $simpleXml = null;

@@ -9,7 +9,6 @@ use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Grid;
@@ -31,9 +30,9 @@ class ClassificarDocumentoNfseAvancadoAction
             ->modalSubmitActionLabel('Sim, etiquetar')
             ->schema(self::getFormSchema())
             ->action(function (array $data, Model $record, $action) {
-               
+
                 $record->untag();
-                foreach ($data['etiquetas'] as $tag_apply) {                    
+                foreach ($data['etiquetas'] as $tag_apply) {
                     $valorEtiqueta = $tag_apply['valor'] ?? null;
 
                     $record->tag($tag_apply['tag_id'], $valorEtiqueta);
@@ -53,7 +52,6 @@ class ClassificarDocumentoNfseAvancadoAction
                 $record->refresh();
             });
     }
-
 
     private static function getFormSchema(): array
     {
@@ -100,7 +98,7 @@ class ClassificarDocumentoNfseAvancadoAction
                             },
                         ])
                         ->disabled(),
-                    
+
                     DatePicker::make('data_entrada')
                         ->label('Data Entrada')
                         ->visible(function () {
@@ -130,7 +128,7 @@ class ClassificarDocumentoNfseAvancadoAction
                                 ->required()
                                 ->currencyMask(thousandSeparator: '.', decimalSeparator: ',', precision: 2)
                                 ->numeric(),
-                            
+
                         ])
                         ->columns(3)
                         ->columnSpan(3),

@@ -25,7 +25,7 @@ class GerarTxtIntegracaoDominioSistema
             ->modalSubmitActionLabel('Sim, gerar arquivo')
             ->action(function (Collection $records) {
                 $issuer = currentIssuer();
-                if (!$issuer) {
+                if (! $issuer) {
                     Notification::make()
                         ->title('Nenhuma empresa selecionada')
                         ->danger()
@@ -35,9 +35,9 @@ class GerarTxtIntegracaoDominioSistema
                 }
 
                 // Validar se todas as NFs têm etiqueta
-                $notasSemEtiqueta = $records->filter(fn($nf) => $nf->tagged->isEmpty());
+                $notasSemEtiqueta = $records->filter(fn ($nf) => $nf->tagged->isEmpty());
                 if ($notasSemEtiqueta->isNotEmpty()) {
-                    $nfs = $notasSemEtiqueta->map(fn($nf) => "NF {$nf->nNF}")->implode(', ');
+                    $nfs = $notasSemEtiqueta->map(fn ($nf) => "NF {$nf->nNF}")->implode(', ');
                     Notification::make()
                         ->title("As seguintes notas não possuem etiqueta: {$nfs}")
                         ->warning()
@@ -64,7 +64,7 @@ class GerarTxtIntegracaoDominioSistema
 
                 Notification::make()
                     ->title('Processamento iniciado!')
-                    ->body(count($notaIds) . ' NFs enviadas para processamento. Você receberá uma notificação quando o arquivo estiver pronto.')
+                    ->body(count($notaIds).' NFs enviadas para processamento. Você receberá uma notificação quando o arquivo estiver pronto.')
                     ->success()
                     ->send();
             });

@@ -126,7 +126,6 @@ class SiegConnect implements ShouldQueue
                 if ($response->successful()) {
                     $responseData = $response->json();
                     $totalDocumentosPagina = count($responseData ?? []);
-                   
 
                     if (isset($responseData['xmls']) && is_array($responseData['xmls'])) {
                         $resultados = $responseData['xmls'];
@@ -152,7 +151,7 @@ class SiegConnect implements ShouldQueue
 
                             $jobClass::dispatch($xml, $issuer, $this->importJob);
                         }
-                       
+
                     } else {
                         $this->importJob->updateQuietly([
                             'total_files' => $totalDocumentos,
@@ -172,20 +171,20 @@ class SiegConnect implements ShouldQueue
                         // Rate limit excedido - respeitar Retry-After ou usar backoff exponencial do job
                         $retryAfter = $response->header('Retry-After');
                         $waitSeconds = $retryAfter ? (int) $retryAfter : 60;
-                        
+
                         Log::channel('sieg_log')->warning("Rate limit SIEG (429). Aguardando {$waitSeconds}s antes de retry. Skip: {$this->skip}");
-                        
+
                         // Atualiza job para indicar aguardando retry
                         $this->importJob->updateQuietly([
                             'status' => XmlImportJob::STATUS_PROCESSING,
                             'error_message' => "Rate limit atingido. Retentativa em {$waitSeconds}s",
                         ]);
-                        
+
                         // Lança exceção para triggerar o retry do job com backoff exponencial
                         throw new Exception("Rate limit SIEG (429). Retry-After: {$waitSeconds}s");
                     } else {
                         $responseData = $response->json();
-                        Log::channel('sieg_log')->error('Erro na consulta do SIEG: '.$errorMessage . ' - Status: '.$statusCode . ' - Skip: '.$this->skip);
+                        Log::channel('sieg_log')->error('Erro na consulta do SIEG: '.$errorMessage.' - Status: '.$statusCode.' - Skip: '.$this->skip);
                         if (is_array($responseData) && ! empty($responseData[0])) {
                             $errorMessage = $responseData[0];
                         }
@@ -203,8 +202,8 @@ class SiegConnect implements ShouldQueue
                 'total_files' => $totalDocumentos,
                 'status' => XmlImportJob::STATUS_COMPLETED,
             ]);
-            Log::channel('sieg_log')->info('Importação SIEG concluída. Tipo consulta: '.$this->tipoCnpj . ' Total de documentos: '.$totalDocumentos . ' Empresa: '.$issuer->razao_social);
-            
+            Log::channel('sieg_log')->info('Importação SIEG concluída. Tipo consulta: '.$this->tipoCnpj.' Total de documentos: '.$totalDocumentos.' Empresa: '.$issuer->razao_social);
+
         } catch (Exception $e) {
             Log::channel('sieg_log')->error('Erro na importação SIEG: '.$e->getMessage());
 

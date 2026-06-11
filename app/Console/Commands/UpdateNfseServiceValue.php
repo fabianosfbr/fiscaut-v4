@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\NotaFiscalServico;
 use Illuminate\Console\Command;
 
 class UpdateNfseServiceValue extends Command
@@ -25,7 +26,7 @@ class UpdateNfseServiceValue extends Command
         $this->info('Iniciando a atualização dos valores de serviço das NFS-e...');
 
         // Obter notas fiscais de serviço dos últimos 60 dias
-        $nfs = \App\Models\NotaFiscalServico::where('data_emissao', '>=', now()->subDays(60))
+        $nfs = NotaFiscalServico::where('data_emissao', '>=', now()->subDays(60))
             ->chunkById(500, function ($nfes): void {
                 foreach ($nfes as $nfe) {
                     $xmlContent = $nfe->xml;

@@ -6,13 +6,13 @@ use App\Imports\OptimizedExcelSuperLogicaImport;
 use App\Jobs\ImportarLancamentoContabilSuperLogicaJob;
 use App\Models\ImportarLancamentoContabil;
 use App\Models\JobProgress;
+use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Exception;
 
 class ImportarLancamentoContabilSuperLogicaAction
 {
@@ -79,7 +79,7 @@ class ImportarLancamentoContabilSuperLogicaAction
 
                 // }
 
-                if (!file_exists($filePath)) {
+                if (! file_exists($filePath)) {
                     Notification::make()
                         ->title('Arquivo não encontrado')
                         ->body('Não foi possível localizar o arquivo enviado para importação.')
@@ -121,7 +121,7 @@ class ImportarLancamentoContabilSuperLogicaAction
                     Log::error($e->getMessage());
                     Notification::make()
                         ->title('Erro na Importação')
-                        ->body('Ocorreu um erro ao iniciar a importação: ' . $e->getMessage())
+                        ->body('Ocorreu um erro ao iniciar a importação: '.$e->getMessage())
                         ->danger()
                         ->send();
 

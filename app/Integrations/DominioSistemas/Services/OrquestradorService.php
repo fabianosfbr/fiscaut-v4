@@ -364,21 +364,21 @@ class OrquestradorService
             }
 
             // ─── Correção IPI na BC ICMS ───────────────────────────
-            // Quando o fornecedor destaca IPI e inclui na base do ICMS, a base 
+            // Quando o fornecedor destaca IPI e inclui na base do ICMS, a base
             // deve ser corrigida para vProd (sem IPI) e o ICMS recalculado.
             // Condição: cred_icms=true + não Simples + vBC ≈ vProd + vIPI
             // Aplica apenas em etiquetas que tomam crédito de ICMS
             // Equivalente ao Python: v22o, linhas 506-523
-            if ($credIcms && !$isSimples) {
+            if ($credIcms && ! $isSimples) {
                 foreach ($itensProcessados as $itemIdx => $item) {
                     if ($item->ipiNaBc && $item->icmsVBC > 0) {
                         $vBCOrig = $item->icmsVBC;
                         $vICMSOrig = $item->icmsVICMS;
-                        
+
                         // Base corrigida = vProd (sem IPI)
                         $vBCCorr = $item->vProd;
                         $vICMSCorr = round($vBCCorr * $item->icmsPICMS / 100, 2);
-                        
+
                         $dadosCorrigidos = [
                             'nItem' => $item->nItem,
                             'cProd' => $item->cProd,
@@ -414,15 +414,15 @@ class OrquestradorService
                                 'pCOFINS' => $item->cofPCOFINS,
                             ],
                         ];
-                        
+
                         $itemCorrigido = ItemNfeDto::fromArray($dadosCorrigidos);
                         $itemCorrigido = $itemCorrigido->withCfopAndFlags($cfopEntrada, $credIcms, $credPiscof, $pct);
                         $itensProcessados[$itemIdx] = $itemCorrigido;
-                        
+
                         $msg = "NF {$nNF} item {$item->nItem} ({$this->limpar(mb_substr($item->xProd, 0, 30))}): "
-                             . "IPI excluido da BC ICMS "
-                             . "({$this->fmtDec($vBCOrig)}→{$this->fmtDec($vBCCorr)}, "
-                             . "ICMS {$this->fmtDec($vICMSOrig)}→{$this->fmtDec($vICMSCorr)})";
+                             .'IPI excluido da BC ICMS '
+                             ."({$this->fmtDec($vBCOrig)}→{$this->fmtDec($vBCCorr)}, "
+                             ."ICMS {$this->fmtDec($vICMSOrig)}→{$this->fmtDec($vICMSCorr)})";
                         $avisosIpiBc[] = $msg;
                     }
                 }
@@ -437,13 +437,13 @@ class OrquestradorService
             // Equivalente ao Python: v22o, linhas 526-563
             foreach ($itensProcessados as $itemIdx => $item) {
                 $cfopEntItem = $item->cfopEntrada;
-                $ehSnItem = !empty($item->icmsCsosn);
-                
-                if (in_array($cfopEntItem, ['1401', '2401']) && !$ehSnItem && $credIcms) {
+                $ehSnItem = ! empty($item->icmsCsosn);
+
+                if (in_array($cfopEntItem, ['1401', '2401']) && ! $ehSnItem && $credIcms) {
                     $vBCEfet = $item->icmsVBCEfet;
                     $pICMSEfet = $item->icmsPICMSEfet;
                     $vICMSEfet = $item->icmsVICMSEfet;
-                    
+
                     if ($vBCEfet > 0 && $vICMSEfet > 0) {
                         $vBCC14 = $vBCEfet;
                         $aliqC14 = $pICMSEfet;
@@ -453,9 +453,9 @@ class OrquestradorService
                         $vBCC14 = $item->vProd;
                         $aliqC14 = 18.0;
                         $vICMSC14 = round($vBCC14 * 0.18, 2);
-                        $fonte = "fallback vProd x 18%";
+                        $fonte = 'fallback vProd x 18%';
                     }
-                    
+
                     // Construir dados corrigidos para o item
                     $dadosC14 = [
                         'nItem' => $item->nItem,
@@ -492,16 +492,16 @@ class OrquestradorService
                             'pCOFINS' => $item->cofPCOFINS,
                         ],
                     ];
-                    
+
                     $itemC14 = ItemNfeDto::fromArray($dadosC14);
                     $itemC14 = $itemC14->withCfopAndFlags($cfopEntItem, $credIcms, $credPiscof, $pct);
                     $itensProcessados[$itemIdx] = $itemC14;
-                    
+
                     $msg = "[CAT14] NF {$nNF} item {$item->nItem} "
-                         . "({$this->limpar(mb_substr($item->xProd, 0, 30))}): "
-                         . "CFOP {$cfopEntItem} "
-                         . "BC={$this->fmtDec($vBCC14)} aliq={$this->fmtDec($aliqC14)}% "
-                         . "ICMS={$this->fmtDec($vICMSC14)} [{$fonte}]";
+                         ."({$this->limpar(mb_substr($item->xProd, 0, 30))}): "
+                         ."CFOP {$cfopEntItem} "
+                         ."BC={$this->fmtDec($vBCC14)} aliq={$this->fmtDec($aliqC14)}% "
+                         ."ICMS={$this->fmtDec($vICMSC14)} [{$fonte}]";
                     $avisosIpiBc[] = $msg;
                 }
             }

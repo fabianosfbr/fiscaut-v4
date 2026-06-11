@@ -47,7 +47,7 @@ class NfseEntradaInfolist
                                                     ->placeholder('Não informado'),
                                                 TextEntry::make('cancelada')
                                                     ->label('Status')
-                                                    ->state(fn($record) => $record->cancelada ? 'Cancelada' : 'Ativa')
+                                                    ->state(fn ($record) => $record->cancelada ? 'Cancelada' : 'Ativa')
                                                     ->badge(),
                                             ])
                                             ->columnSpan(1),
@@ -75,12 +75,12 @@ class NfseEntradaInfolist
                                     ])
                                     ->columnSpanFull(),
                                 Section::make('Etiquetas')
-                                    ->hidden(fn($record) => empty($record->tagNamesWithCodeAndValue()))
+                                    ->hidden(fn ($record) => empty($record->tagNamesWithCodeAndValue()))
                                     ->schema([
                                         TextEntry::make('tags')
                                             ->hiddenLabel()
                                             ->live()
-                                            ->state(fn($record) => collect($record->tagNamesWithCodeAndValue())->map(fn($tag) => "<li>{$tag}</li>")->implode(''))
+                                            ->state(fn ($record) => collect($record->tagNamesWithCodeAndValue())->map(fn ($tag) => "<li>{$tag}</li>")->implode(''))
                                             ->columnSpanFull()
                                             ->html(),
                                     ]),
@@ -90,7 +90,7 @@ class NfseEntradaInfolist
                                             ->schema([
                                                 TextEntry::make('nfse_competencia')
                                                     ->label('Competência')
-                                                    ->state(fn($record) => self::nfseStringFromRecord(
+                                                    ->state(fn ($record) => self::nfseStringFromRecord(
                                                         $record,
                                                         'infNFSe.DPS.infDPS.dCompet',
                                                         'infNFSe.DPS.infDPS.ide.dCompet',
@@ -101,7 +101,7 @@ class NfseEntradaInfolist
                                                     ->placeholder('Não informado'),
                                                 TextEntry::make('nfse_natureza_operacao')
                                                     ->label('Natureza da Operação')
-                                                    ->state(fn($record) => self::nfseStringFromRecord(
+                                                    ->state(fn ($record) => self::nfseStringFromRecord(
                                                         $record,
                                                         'infNFSe.DPS.infDPS.natOp',
                                                         'infNFSe.DPS.infDPS.ide.natOp',
@@ -111,7 +111,7 @@ class NfseEntradaInfolist
                                                     ->placeholder('Não informado'),
                                                 TextEntry::make('nfse_municipio_incidencia')
                                                     ->label('Município de Incidência')
-                                                    ->state(fn($record) => self::nfseStringFromRecord(
+                                                    ->state(fn ($record) => self::nfseStringFromRecord(
                                                         $record,
                                                         'infNFSe.xLocIncid',
                                                         'infNFSe.cLocIncid',
@@ -135,7 +135,7 @@ class NfseEntradaInfolist
                                                     ->placeholder('Não informado'),
                                                 TextEntry::make('prestador_cnpj')
                                                     ->label('CNPJ/CPF')
-                                                    ->formatStateUsing(fn(?string $state): string => $state ? formatar_cnpj_cpf($state) : 'Não informado'),
+                                                    ->formatStateUsing(fn (?string $state): string => $state ? formatar_cnpj_cpf($state) : 'Não informado'),
                                                 TextEntry::make('prestador_im')
                                                     ->label('Inscrição Municipal (IM)')
                                                     ->placeholder('Não informado'),
@@ -171,7 +171,7 @@ class NfseEntradaInfolist
                                                     ->placeholder('Não informado'),
                                                 TextEntry::make('tomador_cnpj')
                                                     ->label('CNPJ/CPF')
-                                                    ->formatStateUsing(fn(?string $state): string => $state ? formatar_cnpj_cpf($state) : 'Não informado'),
+                                                    ->formatStateUsing(fn (?string $state): string => $state ? formatar_cnpj_cpf($state) : 'Não informado'),
                                                 TextEntry::make('tomador_im')
                                                     ->label('Inscrição Municipal (IM)')
                                                     ->placeholder('Não informado'),
@@ -210,11 +210,11 @@ class NfseEntradaInfolist
                                             ->label('Discriminação do Serviço')
                                             ->state(function ($record): ?string {
                                                 $value = $record->nfse_discriminacao_extraida ?? null;
-                                                if (!is_string($value) || trim($value) === '') {
+                                                if (! is_string($value) || trim($value) === '') {
                                                     return null;
                                                 }
 
-                                                return '<pre style="white-space: pre-wrap; word-break: break-word;">' . e($value) . '</pre>';
+                                                return '<pre style="white-space: pre-wrap; word-break: break-word;">'.e($value).'</pre>';
                                             })
                                             ->html()
                                             ->placeholder('Não informado')
@@ -232,22 +232,22 @@ class NfseEntradaInfolist
                                                     ->placeholder('Não informado'),
                                                 TextEntry::make('nfse_valores_vserv')
                                                     ->label('Valor Serviços (vServ)')
-                                                    ->state(fn($record) => self::nfseValoresNumericFromRecord($record, 'vServ', 'vServicos', 'vServPrest.vServ'))
+                                                    ->state(fn ($record) => self::nfseValoresNumericFromRecord($record, 'vServ', 'vServicos', 'vServPrest.vServ'))
                                                     ->money('BRL')
                                                     ->placeholder('Não informado'),
                                                 TextEntry::make('nfse_valores_vdedu')
                                                     ->label('Deduções (vDedu)')
-                                                    ->state(fn($record) => self::nfseValoresNumericFromRecord($record, 'vDedu', 'vDeducoes'))
+                                                    ->state(fn ($record) => self::nfseValoresNumericFromRecord($record, 'vDedu', 'vDeducoes'))
                                                     ->money('BRL')
                                                     ->placeholder('Não informado'),
                                                 TextEntry::make('nfse_valores_vdesccond')
                                                     ->label('Desc. Cond. (vDescCond)')
-                                                    ->state(fn($record) => self::nfseValoresNumericFromRecord($record, 'vDescCond', 'vDescCondicionado'))
+                                                    ->state(fn ($record) => self::nfseValoresNumericFromRecord($record, 'vDescCond', 'vDescCondicionado'))
                                                     ->money('BRL')
                                                     ->placeholder('Não informado'),
                                                 TextEntry::make('nfse_valores_vdescincond')
                                                     ->label('Desc. Incond. (vDescIncond)')
-                                                    ->state(fn($record) => self::nfseValoresNumericFromRecord($record, 'vDescIncond', 'vDescIncondicionado'))
+                                                    ->state(fn ($record) => self::nfseValoresNumericFromRecord($record, 'vDescIncond', 'vDescIncondicionado'))
                                                     ->money('BRL')
                                                     ->placeholder('Não informado'),
                                                 TextEntry::make('nfse_base_calculo_iss_extraida')
@@ -256,8 +256,8 @@ class NfseEntradaInfolist
                                                     ->placeholder('Não informado'),
                                                 TextEntry::make('nfse_aliquota_iss_extraida')
                                                     ->label('Alíquota (pAliq)')
-                                                    ->state(fn($record) => isset($record->nfse_aliquota_iss_extraida)
-                                                        ? number_format((float) $record->nfse_aliquota_iss_extraida, 2, ',', '.') . '%'
+                                                    ->state(fn ($record) => isset($record->nfse_aliquota_iss_extraida)
+                                                        ? number_format((float) $record->nfse_aliquota_iss_extraida, 2, ',', '.').'%'
                                                         : null)
                                                     ->placeholder('Não informado'),
                                                 TextEntry::make('nfse_valor_iss_extraido')
@@ -270,7 +270,7 @@ class NfseEntradaInfolist
                                                     ->placeholder('Não informado'),
                                                 TextEntry::make('nfse_valores_voutros')
                                                     ->label('Outras Retenções (vOutros)')
-                                                    ->state(fn($record) => self::nfseValoresNumericFromRecord($record, 'vOutros', 'vOthRet'))
+                                                    ->state(fn ($record) => self::nfseValoresNumericFromRecord($record, 'vOutros', 'vOthRet'))
                                                     ->money('BRL')
                                                     ->placeholder('Não informado'),
                                             ])
@@ -288,7 +288,7 @@ class NfseEntradaInfolist
                                                     ->placeholder('Não informado'),
                                                 TextEntry::make('apurada.status')
                                                     ->label('Apurada')
-                                                    ->state(fn($record) => $record->apurada?->status ? 'Sim' : 'Não')
+                                                    ->state(fn ($record) => $record->apurada?->status ? 'Sim' : 'Não')
                                                     ->badge()
                                                     ->columnSpan(1),
                                                 TextEntry::make('origem')
@@ -342,11 +342,11 @@ class NfseEntradaInfolist
                                             ->state(function ($record): ?string {
                                                 $xml = $record->xml_extraido ?? null;
 
-                                                if (!is_string($xml) || trim($xml) === '') {
+                                                if (! is_string($xml) || trim($xml) === '') {
                                                     return null;
                                                 }
 
-                                                return '<div style="max-width: 100%; min-width: 0; overflow-x: auto;"><pre style="white-space: pre-wrap; word-break: break-all; overflow-wrap: anywhere; max-width: 100%; box-sizing: border-box; margin: 0; line-height: 1.15;">' . prettyPrintXmlToBrowser($xml) . '</pre></div>';
+                                                return '<div style="max-width: 100%; min-width: 0; overflow-x: auto;"><pre style="white-space: pre-wrap; word-break: break-all; overflow-wrap: anywhere; max-width: 100%; box-sizing: border-box; margin: 0; line-height: 1.15;">'.prettyPrintXmlToBrowser($xml).'</pre></div>';
                                             })
                                             ->html()
                                             ->placeholder('Não informado')
@@ -363,17 +363,17 @@ class NfseEntradaInfolist
     private static function nfseRootFromRecord($record): ?array
     {
         $json = $record->nfse_xml_json ?? null;
-        if (!is_string($json) || trim($json) === '') {
+        if (! is_string($json) || trim($json) === '') {
             return null;
         }
 
         $data = json_decode($json, true);
-        if (!is_array($data) || $data === []) {
+        if (! is_array($data) || $data === []) {
             return null;
         }
 
         $rootKey = array_key_first($data);
-        if (!is_string($rootKey) || $rootKey === '') {
+        if (! is_string($rootKey) || $rootKey === '') {
             return null;
         }
 
@@ -385,7 +385,7 @@ class NfseEntradaInfolist
     private static function nfseStringFromRecord($record, string ...$paths): ?string
     {
         $root = self::nfseRootFromRecord($record);
-        if (!is_array($root)) {
+        if (! is_array($root)) {
             return null;
         }
 
@@ -422,7 +422,7 @@ class NfseEntradaInfolist
     private static function nfseValoresNumericFromRecord($record, string ...$keys): ?float
     {
         $valores = self::nfseValoresFromRecord($record);
-        if (!is_array($valores)) {
+        if (! is_array($valores)) {
             return null;
         }
 
@@ -438,7 +438,7 @@ class NfseEntradaInfolist
 
     private static function nfseEnderecoFromRoot(?array $root, string ...$nodePaths): ?string
     {
-        if (!is_array($root)) {
+        if (! is_array($root)) {
             return null;
         }
 
@@ -451,7 +451,7 @@ class NfseEntradaInfolist
             }
         }
 
-        if (!is_array($node)) {
+        if (! is_array($node)) {
             return null;
         }
 
@@ -473,16 +473,16 @@ class NfseEntradaInfolist
         $uf = self::firstNonEmptyStringFromArray($data, 'UF', 'uf');
         $cep = self::firstNonEmptyStringFromArray($data, 'CEP', 'cep');
 
-        $linha1Parts = array_values(array_filter([$logradouro, $numero], fn($v) => is_string($v) && trim($v) !== ''));
+        $linha1Parts = array_values(array_filter([$logradouro, $numero], fn ($v) => is_string($v) && trim($v) !== ''));
         $linha1 = $linha1Parts !== [] ? implode(' ', $linha1Parts) : null;
 
-        $cidadeUfParts = array_values(array_filter([$municipio, $uf], fn($v) => is_string($v) && trim($v) !== ''));
+        $cidadeUfParts = array_values(array_filter([$municipio, $uf], fn ($v) => is_string($v) && trim($v) !== ''));
         $cidadeUf = $cidadeUfParts !== [] ? implode('/', $cidadeUfParts) : null;
 
-        $linha2Parts = array_values(array_filter([$bairro, $cidadeUf], fn($v) => is_string($v) && trim($v) !== ''));
+        $linha2Parts = array_values(array_filter([$bairro, $cidadeUf], fn ($v) => is_string($v) && trim($v) !== ''));
         $linha2 = $linha2Parts !== [] ? implode(' - ', $linha2Parts) : null;
 
-        $partes = array_values(array_filter([$linha1, $linha2, $cep ? "CEP {$cep}" : null], fn($v) => is_string($v) && trim($v) !== ''));
+        $partes = array_values(array_filter([$linha1, $linha2, $cep ? "CEP {$cep}" : null], fn ($v) => is_string($v) && trim($v) !== ''));
 
         return $partes !== [] ? implode(' | ', $partes) : null;
     }
@@ -491,7 +491,7 @@ class NfseEntradaInfolist
     {
         foreach ($keys as $key) {
             $value = data_get($data, $key);
-            if (!is_string($value)) {
+            if (! is_string($value)) {
                 continue;
             }
 

@@ -29,7 +29,6 @@ use Barryvdh\DomPDF\Facade\Pdf as DomPdf;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
@@ -46,7 +45,6 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use NFePHP\NFe\Common\Standardize;
 
@@ -463,7 +461,6 @@ class NfeEntradasTable
                     RemoverClassificaoAction::make(),
                     DownloadXmlAction::make(),
                     DownloadPdfNfeAction::make(),
-                    
 
                 ]),
 

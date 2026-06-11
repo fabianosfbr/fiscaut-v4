@@ -114,11 +114,11 @@ class ConfiguracaoGeralPage extends Page implements HasSchemas
                                             ]),
                                         Tab::make('Impostos')
                                             ->schema([
-                                                  Livewire::make('configuracao.imposto-equivalente')
+                                                Livewire::make('configuracao.imposto-equivalente'),
                                             ]),
                                         Tab::make('Produtos Genéricos')
                                             ->schema([
-                                                  Livewire::make('configuracao.produto-generico')
+                                                Livewire::make('configuracao.produto-generico'),
                                             ]),
 
                                     ]),
