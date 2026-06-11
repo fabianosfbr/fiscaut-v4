@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\NfseEntradas\Pages;
 
+use App\Filament\Actions\ClassificarDocumentoNfseAvancadoAction;
 use App\Filament\Actions\DownloadPdfNfseAction;
 use App\Filament\Actions\DownloadXmlNfseAction;
 use App\Filament\Actions\ToggleEscrituracaoAction;
@@ -22,6 +23,7 @@ class ViewNfseEntrada extends ViewRecord
                 ->color('gray')
                 ->url(fn(): string => NfseEntradaResource::getUrl('index')),
             ToggleEscrituracaoAction::make(),
+            ClassificarDocumentoNfseAvancadoAction::make(),
             ActionGroup::make([
                 DownloadXmlNfseAction::make(),
                 DownloadPdfNfseAction::make(),
