@@ -43,12 +43,14 @@ class SyncCte extends Command
         $issuers = Issuer::with('tenant')
             ->where('is_enabled', true)
             ->where('sync_sieg', true)
-            ->when($issuerId !== null, fn($q) => $q->where('id', $issuerId))
+            ->when($issuerId !== null, fn ($q) => $q->where('id', $issuerId))
             ->get();
 
         $cnpjTypes = ['CnpjEmit', 'CnpjDest', 'CnpjTom', 'CnpjRem'];
+
         foreach ($issuers as $issuer) {
             $importJob = $this->createImportJob($issuer);
+
             foreach ([true] as $event) {
                 foreach ($cnpjTypes as $tipoCnpj) {
                     SiegConnect::dispatch(
@@ -59,12 +61,16 @@ class SyncCte extends Command
                         issuerId: $issuer->id,
                         importJobId: $importJob->id,
                         event: $event,
-                    )->onQueue('sieg');
+                    )->onQueue('high');
+
+                    $this->info('Sincronizando documentos SIEG para Ctes '.$tipoCnpj.' '.($event ? ' com evento' : ' sem evento').' para '.$issuer->razao_social);
+
+                    sleep(3);  //  3 segundos
                 }
             }
         }
 
-        $this->info('Sincronização de documentos SIEG para Ctes emitidas e recebidas em lote concluída nas datas de ' . $start . ' a ' . $end);
+        $this->info('Sincronização de documentos SIEG para Ctes em lote concluída nas datas de '.$start.' a '.$end);
 
         return self::SUCCESS;
     }

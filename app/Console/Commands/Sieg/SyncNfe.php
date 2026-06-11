@@ -38,39 +38,40 @@ class SyncNfe extends Command
         $end = $this->option('end');
 
         $end = is_string($end) && $end !== '' ? $end : now()->format('Y-m-d');
-        $start = is_string($start) && $start !== '' ? $start : now()->toImmutable()->subDay(2)->format('Y-m-d');
+        $start = is_string($start) && $start !== '' ? $start : now()->toImmutable()->subDay(1)->format('Y-m-d');
 
         $issuers = Issuer::with('tenant')
             ->where('is_enabled', true)
             ->where('sync_sieg', true)
-            ->when($issuerId !== null, fn($q) => $q->where('id', $issuerId))
+            ->when($issuerId !== null, fn ($q) => $q->where('id', $issuerId))
             ->get();
 
+        $cnpjTypes = ['CnpjEmit', 'CnpjDest'];
+
         foreach ($issuers as $issuer) {
+
             $importJob = $this->createImportJob($issuer);
 
-            $cnpjTypes = ['CnpjEmit', 'CnpjDest'];
-            foreach ($issuers as $issuer) {
-                $importJob = $this->createImportJob($issuer);
-                foreach ([true] as $event) {
-                    foreach ($cnpjTypes as $tipoCnpj) {
-                        SiegConnect::dispatch(
-                            tipoDocumento: 1,  //  tipo documento
-                            tipoCnpj: $tipoCnpj,  // Tipo CNPJ
-                            dataInicial: $start,
-                            dataFinal: $end,
-                            issuerId: $issuer->id,
-                            importJobId: $importJob->id,
-                            event: $event,
-                        )->onQueue('high');
-                    }
+            foreach ([true] as $event) {
+                foreach ($cnpjTypes as $tipoCnpj) {
+                    SiegConnect::dispatch(
+                        tipoDocumento: 1,  //  tipo documento
+                        tipoCnpj: $tipoCnpj,  // Tipo CNPJ
+                        dataInicial: $start,
+                        dataFinal: $end,
+                        issuerId: $issuer->id,
+                        importJobId: $importJob->id,
+                        event: $event,
+                    )->onQueue('high');
 
-                  
+                    $this->info('Sincronizando documentos SIEG para NFes '.$tipoCnpj.' '.($event ? ' com evento' : ' sem evento').' para '.$issuer->razao_social);
+
+                    sleep(3);  //  3 segundos
                 }
             }
         }
 
-        $this->info('Sincronização de documentos SIEG para NFes emitidas e recebidas em lote concluída nas datas de ' . $start . ' a ' . $end);
+        $this->info('Sincronização de documentos SIEG para NFes em lote concluída nas datas de '.$start.' a '.$end);
 
         return self::SUCCESS;
     }
