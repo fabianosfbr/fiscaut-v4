@@ -286,6 +286,7 @@ class OrquestradorService
     private function gerarRegistrosNf(NotaFiscalEletronica $notaFiscal, array &$linhas): array
     {
         $avisosIpiBc = [];
+        $avisosDivergenciaSn = [];
         $infNFe = $this->extrairInfNFe($notaFiscal);
 
         // Dados da NF
@@ -506,6 +507,36 @@ class OrquestradorService
                 }
             }
 
+            // ─── Validação de divergência SN ─────────────────────────
+            // Calcula a alíquota SN reversamente a partir dos itens do XML
+            // e compara com o texto do infCpl para detectar divergências.
+            // A fonte de verdade é sempre o XML estruturado (assinado digitalmente).
+            // Equivalente ao Python: seção 2.10 + Nota sobre o XML dos fornecedores SN
+            if ($isSimples && $credIcms) {
+                $baseSn = 0.0;
+                $credSn = 0.0;
+                foreach ($itensProcessados as $item) {
+                    if ($item->icmsVCredSN > 0) {
+                        $baseSn += $item->vProd;
+                        $credSn += $item->icmsVCredSN;
+                    }
+                }
+                if ($baseSn > 0 && $credSn > 0) {
+                    $aliqCalculada = round($credSn / $baseSn * 100, 2);
+                    
+                    // Extrair alíquota do infCpl (ex: "ICMS SN 4,44%" ou "ALIQ 4,44%" ou "4,44%")
+                    $aliqExtraida = 0.0;
+                    if (preg_match('/(\d+[.,]\d+)\s*%/u', $infCpl, $matches)) {
+                        $aliqExtraida = (float) str_replace(',', '.', $matches[1]);
+                    }
+                    
+                    if ($aliqExtraida > 0 && abs($aliqCalculada - $aliqExtraida) > 0.10) {
+                        $msgSn = "NF {$nNF}: divergencia SN - XML {$aliqCalculada}% vs infCpl {$aliqExtraida}% (dif: " . round(abs($aliqCalculada - $aliqExtraida), 2) . "%)";
+                        $avisosDivergenciaSn[] = $msgSn;
+                    }
+                }
+            }
+
             // Resolver acumulador
             $acumulador = $this->resolvedorCfop->resolverAcumulador($tagId, $cfopEntrada);
 
@@ -548,20 +579,33 @@ class OrquestradorService
                 }
             }
 
-            // 1500 — Parcelas
+            // 1500 — Parcelas (rateadas proporcionalmente ao percentual da tag)
+            // Equivalente ao Python: ratear_nota_por_etiqueta() -> parcelas_rat
             $parcelas = $notaFiscal->parcelas;
             foreach ($parcelas as $dup) {
                 $dVenc = $dup['dVenc'] ?? '';
-                $vDup = $dup['vDup'] ?? '0,00';
                 $nDup = $dup['nDup'] ?? '';
+                
+                // Valor original da parcela convertido para float
+                $vDupOrig = 0.0;
+                if (isset($dup['vDup'])) {
+                    $vDupStr = is_string($dup['vDup']) ? str_replace(',', '.', $dup['vDup']) : (string) $dup['vDup'];
+                    $vDupOrig = (float) $vDupStr;
+                }
+                
+                // Aplica rateio proporcional (quando múltiplas tags)
+                $vDupRateado = round($vDupOrig * $pct, 2);
+                
                 if (! empty($dVenc)) {
                     $dVencFmt = $this->fmtData($dVenc);
-                    $linhas[] = "|1500|{$dVencFmt}|{$vDup}|0,00|0,00|0,00|0,00|0,00|0,00|0,00|0,00|0,00|0,00|{$nDup}|";
+                    $linhas[] = "|1500|{$dVencFmt}|{$this->fmtDec($vDupRateado)}|0,00|0,00|0,00|0,00|0,00|0,00|0,00|0,00|0,00|0,00|{$nDup}|";
                 }
             }
         }
 
-        return $avisosIpiBc;
+        // Mesclar avisos de divergência SN com os avisos de IPI na BC
+        $todosAvisos = array_merge($avisosIpiBc, $avisosDivergenciaSn);
+        return $todosAvisos;
     }
 
     // ─── Registro 1000 ───────────────────────────────────────────
@@ -667,8 +711,8 @@ class OrquestradorService
         }
 
         // PIS/COFINS
-        // Determinar base_credito_campo67 da tag
-        $baseCredito67 = '';
+        // Lê o código de crédito da tag (base_credito da entradas_impostos_equivalentes)
+        $baseCredito67 = $this->resolvedorCfop->getBaseCredito($tagId);
         $pc = $this->calculadorIcms->calcularPiscofItem($item, $item->credPiscof, $baseCredito67);
 
         // CST IPI: 00=crédito, 49=sem crédito
