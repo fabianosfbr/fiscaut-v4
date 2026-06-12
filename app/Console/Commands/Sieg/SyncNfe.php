@@ -52,7 +52,7 @@ class SyncNfe extends Command
 
             $importJob = $this->createImportJob($issuer);
 
-            foreach ([true] as $event) {
+            foreach ([true, false] as $event) {
                 foreach ($cnpjTypes as $tipoCnpj) {
                     SiegConnect::dispatch(
                         tipoDocumento: 1,  //  tipo documento
