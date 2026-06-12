@@ -51,7 +51,7 @@ class SyncCte extends Command
         foreach ($issuers as $issuer) {
             $importJob = $this->createImportJob($issuer);
 
-            foreach ([true] as $event) {
+            foreach ([true, false] as $event) {
                 foreach ($cnpjTypes as $tipoCnpj) {
                     SiegConnect::dispatch(
                         tipoDocumento: 2,  //  tipo documento
