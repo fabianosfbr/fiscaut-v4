@@ -43,6 +43,7 @@ class ProcessDocumentCteSiegJob implements ShouldQueue
                 ->parse()
                 ->save();
 
+            Log::channel('sieg_log')->info('CTe da empresa '.$this->issuer->razao_social.' processada com sucesso: '.$this->xml);
             $this->importJob->incrementProcessedFiles();
             $this->checkJobCompletion();
         } catch (Throwable $e) {
