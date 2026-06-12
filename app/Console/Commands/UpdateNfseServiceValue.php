@@ -26,9 +26,11 @@ class UpdateNfseServiceValue extends Command
         $this->info('Iniciando a atualização dos valores de serviço das NFS-e...');
 
         // Obter notas fiscais de serviço dos últimos 60 dias
-        $nfs = NotaFiscalServico::where('data_emissao', '>=', now()->subDays(60))
+        $nfs = NotaFiscalServico::where('data_emissao', '>=', now()->subDays(20))
+            ->where('valor_servico', 0)
             ->chunkById(500, function ($nfes): void {
                 foreach ($nfes as $nfe) {
+                    
                     $xmlContent = $nfe->xml;
 
                     $xmlObj = simplexml_load_string($xmlContent);
@@ -38,6 +40,7 @@ class UpdateNfseServiceValue extends Command
                         $vBC = (float) ($xmlObj->infNFSe->valores->vBC ?? 0);
                         $vLiq = (float) ($xmlObj->infNFSe->valores->vLiq ?? 0);
                         $nfe->valor_servico = $vBC > 0 ? $vBC : $vLiq;
+                        dd($nfe);
                         $nfe->save();
                         $this->comment("NFSe ID: {$nfe->id} atualizada com valor_servico: {$nfe->valor_servico}");
                     } else {
