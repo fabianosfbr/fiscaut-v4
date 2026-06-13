@@ -66,7 +66,7 @@ class SyncNfe extends Command
 
                     $this->info('Sincronizando documentos SIEG para NFes '.$tipoCnpj.' '.($event ? ' com evento' : ' sem evento').' para '.$issuer->razao_social);
 
-                    sleep(3);  //  3 segundos
+                    sleep(10);  //  10 segundos
                 }
             }
         }

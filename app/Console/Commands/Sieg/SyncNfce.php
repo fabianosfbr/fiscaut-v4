@@ -65,7 +65,7 @@ class SyncNfce extends Command
 
                     $this->info('Sincronizando documentos SIEG para NFCes '.$tipoCnpj.' '.($event ? ' com evento' : ' sem evento').' para '.$issuer->razao_social);
 
-                    sleep(3);  //  3 segundos
+                    sleep(10);  //  10 segundos
                 }
             }
         }

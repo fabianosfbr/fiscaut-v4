@@ -65,7 +65,7 @@ class SyncCte extends Command
 
                     $this->info('Sincronizando documentos SIEG para Ctes '.$tipoCnpj.' '.($event ? ' com evento' : ' sem evento').' para '.$issuer->razao_social);
 
-                    sleep(3);  //  3 segundos
+                    sleep(10);  //  10 segundos
                 }
             }
         }
