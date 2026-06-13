@@ -344,7 +344,10 @@ class OrquestradorService
             $credIcms = ! $this->resolvedorCfop->isZeraIcms($tagId);
             $credIpi = ! $this->resolvedorCfop->isZeraIpi($tagId);
             $credPiscof = ! $isSimples; // SN não tem PIS/COFINS
-            $debDifal = true; // TODO: derivar da tag
+
+            // DIFAL: derivar da categoria da etiqueta (CategoryTag::is_difal)
+            // Tag já carrega category eager-loaded via Tag::$with = ['category']
+            $debDifal = $tagModel->category?->is_difal === true;
 
             foreach ($produtos as $prod) {
                 $item = ItemNfeDto::fromArray($prod + ['is_simples' => $isSimples, 'cred_icms' => $credIcms, 'cred_piscof' => $credPiscof]);
@@ -523,15 +526,15 @@ class OrquestradorService
                 }
                 if ($baseSn > 0 && $credSn > 0) {
                     $aliqCalculada = round($credSn / $baseSn * 100, 2);
-                    
+
                     // Extrair alíquota do infCpl (ex: "ICMS SN 4,44%" ou "ALIQ 4,44%" ou "4,44%")
                     $aliqExtraida = 0.0;
                     if (preg_match('/(\d+[.,]\d+)\s*%/u', $infCpl, $matches)) {
                         $aliqExtraida = (float) str_replace(',', '.', $matches[1]);
                     }
-                    
+
                     if ($aliqExtraida > 0 && abs($aliqCalculada - $aliqExtraida) > 0.10) {
-                        $msgSn = "NF {$nNF}: divergencia SN - XML {$aliqCalculada}% vs infCpl {$aliqExtraida}% (dif: " . round(abs($aliqCalculada - $aliqExtraida), 2) . "%)";
+                        $msgSn = "NF {$nNF}: divergencia SN - XML {$aliqCalculada}% vs infCpl {$aliqExtraida}% (dif: ".round(abs($aliqCalculada - $aliqExtraida), 2).'%)';
                         $avisosDivergenciaSn[] = $msgSn;
                     }
                 }
@@ -581,30 +584,17 @@ class OrquestradorService
 
             // 1500 — Parcelas (rateadas proporcionalmente ao percentual da tag)
             // Equivalente ao Python: ratear_nota_por_etiqueta() -> parcelas_rat
-            $parcelas = $notaFiscal->parcelas;
-            foreach ($parcelas as $dup) {
-                $dVenc = $dup['dVenc'] ?? '';
-                $nDup = $dup['nDup'] ?? '';
-                
-                // Valor original da parcela convertido para float
-                $vDupOrig = 0.0;
-                if (isset($dup['vDup'])) {
-                    $vDupStr = is_string($dup['vDup']) ? str_replace(',', '.', $dup['vDup']) : (string) $dup['vDup'];
-                    $vDupOrig = (float) $vDupStr;
-                }
-                
-                // Aplica rateio proporcional (quando múltiplas tags)
-                $vDupRateado = round($vDupOrig * $pct, 2);
-                
-                if (! empty($dVenc)) {
-                    $dVencFmt = $this->fmtData($dVenc);
-                    $linhas[] = "|1500|{$dVencFmt}|{$this->fmtDec($vDupRateado)}|0,00|0,00|0,00|0,00|0,00|0,00|0,00|0,00|0,00|0,00|{$nDup}|";
+            foreach ($notaFiscal->parcelas as $dup) {
+                $linha1500 = $this->gerar1500($dup, $pct);
+                if ($linha1500) {
+                    $linhas[] = $linha1500;
                 }
             }
         }
 
         // Mesclar avisos de divergência SN com os avisos de IPI na BC
         $todosAvisos = array_merge($avisosIpiBc, $avisosDivergenciaSn);
+
         return $todosAvisos;
     }
 
@@ -680,6 +670,49 @@ class OrquestradorService
         if ($seg->vIPI > 0) {
             $campos[89] = $this->fmtDec($seg->vIPI);      // 90 — Valor do IPI (apenas se > 0)
         }
+
+        return '|'.implode('|', $campos).'|';
+    }
+
+    // ─── Registro 1500 — Parcelas ─────────────────────────────────
+    // Leiaute: https://suporte.dominioatendimento.com/central/faces/solucao.html?codigo=672#1500
+    // 14 campos: 1500 | dVenc | vDup | vDesc | vSeg | vFrete | vOutros | vICMS | vIPI | vPIS | vCOFINS | vISS | vOutros2 | nDup
+    private function gerar1500(array $dup, float $pct): ?string
+    {
+        $dVenc = $dup['dVenc'] ?? '';
+        $nDup = $dup['nDup'] ?? '';
+
+        if (empty($dVenc)) {
+            return null;
+        }
+
+        // Valor original da parcela convertido para float
+        $vDupOrig = 0.0;
+        if (isset($dup['vDup'])) {
+            $vDupStr = is_string($dup['vDup']) ? str_replace(',', '.', $dup['vDup']) : (string) $dup['vDup'];
+            $vDupOrig = (float) $vDupStr;
+        }
+
+        // Aplica rateio proporcional (quando múltiplas tags)
+        $vDupRateado = round($vDupOrig * $pct, 2);
+
+        $dVencFmt = $this->fmtData($dVenc);
+
+        $campos = array_fill(0, 14, '');
+        $campos[0] = '1500';                              // 01 — Identificação (fixo: 1500)
+        $campos[1] = $dVencFmt;                           // 02 — Data de Vencimento (dd/mm/aaaa)
+        $campos[2] = $this->fmtDec($vDupRateado);         // 03 — Valor da Parcela (rateado)
+        $campos[3] = '0,00';                              // 04 — Valor do Desconto
+        $campos[4] = '0,00';                              // 05 — Valor do Seguro
+        $campos[5] = '0,00';                              // 06 — Valor do Frete
+        $campos[6] = '0,00';                              // 07 — Outras Despesas
+        $campos[7] = '0,00';                              // 08 — Valor do ICMS
+        $campos[8] = '0,00';                              // 09 — Valor do IPI
+        $campos[9] = '0,00';                              // 10 — Valor do PIS
+        $campos[10] = '0,00';                             // 11 — Valor do COFINS
+        $campos[11] = '0,00';                             // 12 — Valor do ISS
+        $campos[12] = '0,00';                             // 13 — Outros
+        $campos[13] = $nDup;                              // 14 — Número da Duplicata/Parcela
 
         return '|'.implode('|', $campos).'|';
     }
