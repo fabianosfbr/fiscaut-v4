@@ -18,7 +18,8 @@ class SyncNfse extends Command
     protected $signature = 'app:sync-nfse-sieg 
                     {--issuer= : ID do emitente para download específico}
                     {--start= : Data de início do tratamento (YYYY-MM-DD)}
-                    {--end= : Data de término do tratamento (YYYY-MM-DD)}';
+                    {--end= : Data de término do tratamento (YYYY-MM-DD)}
+                    {--tipo-data=emissao : Tipo de data para filtro (emissao|upload)}';
 
     /**
      * The console command description.
@@ -36,6 +37,14 @@ class SyncNfse extends Command
 
         $start = $this->option('start');
         $end = $this->option('end');
+        $tipoData = $this->option('tipo-data');
+
+        // Validar tipo-data
+        if (! in_array($tipoData, ['emissao', 'upload'], true)) {
+            $this->error("Opção --tipo-data inválida: {$tipoData}. Use 'emissao' ou 'upload'.");
+
+            return self::FAILURE;
+        }
 
         $end = is_string($end) && $end !== '' ? $end : now()->format('Y-m-d');
         $start = is_string($start) && $start !== '' ? $start : now()->toImmutable()->subDay(2)->format('Y-m-d');
@@ -43,7 +52,7 @@ class SyncNfse extends Command
         $issuers = Issuer::with('tenant')
             ->where('is_enabled', true)
             ->where('sync_sieg', true)
-            ->when($issuerId !== null, fn($q) => $q->where('id', $issuerId))
+            ->when($issuerId !== null, fn ($q) => $q->where('id', $issuerId))
             ->get();
 
         $cnpjTypes = ['CnpjEmit', 'CnpjDest'];
@@ -61,16 +70,17 @@ class SyncNfse extends Command
                         issuerId: $issuer->id,
                         importJobId: $importJob->id,
                         event: $event,
+                        tipoData: $tipoData,
                     )->onQueue('high');
 
-                    $this->info('Sincronizando documentos SIEG para NFSe ' . $tipoCnpj . ' ' . ($event ? ' com evento' : ' sem evento') . ' para ' . $issuer->razao_social);
+                    $this->info('Sincronizando documentos SIEG para NFSe '.$tipoCnpj.' '.($event ? ' com evento' : ' sem evento').' ('.$tipoData.') para '.$issuer->razao_social);
 
                     sleep(10);  //  10 segundos
                 }
             }
         }
 
-        $this->info('Sincronização de documentos SIEG para NFSe em lote concluída nas datas de ' . $start . ' a ' . $end);
+        $this->info('Sincronização de documentos SIEG para NFSe em lote concluída nas datas de '.$start.' a '.$end);
 
         return self::SUCCESS;
     }

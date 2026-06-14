@@ -54,6 +54,7 @@ class SiegConnect implements ShouldQueue
         protected int $issuerId,
         protected int $importJobId,
         protected bool $event = true,
+        protected string $tipoData = 'emissao',  // 'emissao' | 'upload'
     ) {
         $this->onQueue('sieg');
     }
@@ -108,10 +109,17 @@ class SiegConnect implements ShouldQueue
                     $this->tipoCnpj => $cnpj,
                     'Take' => $this->take,
                     'Skip' => $this->skip,
-                    'DataEmissaoInicio' => $this->dataInicial,
-                    'DataEmissaoFim' => $this->dataFinal,
                     'Downloadevent' => $this->event,
                 ];
+
+                // Campos de data baseados no tipo: 'emissao' (padrão) ou 'upload'
+                if ($this->tipoData === 'upload') {
+                    $payload['DataUploadInicio'] = $this->dataInicial;
+                    $payload['DataUploadFim'] = $this->dataFinal;
+                } else {
+                    $payload['DataEmissaoInicio'] = $this->dataInicial;
+                    $payload['DataEmissaoFim'] = $this->dataFinal;
+                }
 
                 // Realizar a requisição para a API
                 $response = Http::withHeaders([

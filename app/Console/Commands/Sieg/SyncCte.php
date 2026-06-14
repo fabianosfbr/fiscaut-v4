@@ -18,7 +18,8 @@ class SyncCte extends Command
     protected $signature = 'app:sync-cte-sieg 
                     {--issuer= : ID do emitente para download específico}
                     {--start= : Data de início do tratamento (YYYY-MM-DD)}
-                    {--end= : Data de término do tratamento (YYYY-MM-DD)}';
+                    {--end= : Data de término do tratamento (YYYY-MM-DD)}
+                    {--tipo-data=emissao : Tipo de data para filtro (emissao|upload)}';
 
     /**
      * The console command description.
@@ -36,6 +37,14 @@ class SyncCte extends Command
 
         $start = $this->option('start');
         $end = $this->option('end');
+        $tipoData = $this->option('tipo-data');
+
+        // Validar tipo-data
+        if (! in_array($tipoData, ['emissao', 'upload'], true)) {
+            $this->error("Opção --tipo-data inválida: {$tipoData}. Use 'emissao' ou 'upload'.");
+
+            return self::FAILURE;
+        }
 
         $end = is_string($end) && $end !== '' ? $end : now()->format('Y-m-d');
         $start = is_string($start) && $start !== '' ? $start : now()->toImmutable()->subDay(2)->format('Y-m-d');
@@ -61,9 +70,10 @@ class SyncCte extends Command
                         issuerId: $issuer->id,
                         importJobId: $importJob->id,
                         event: $event,
+                        tipoData: $tipoData,
                     )->onQueue('high');
 
-                    $this->info('Sincronizando documentos SIEG para Ctes '.$tipoCnpj.' '.($event ? ' com evento' : ' sem evento').' para '.$issuer->razao_social);
+                    $this->info('Sincronizando documentos SIEG para Ctes '.$tipoCnpj.' '.($event ? ' com evento' : ' sem evento').' ('.$tipoData.') para '.$issuer->razao_social);
 
                     sleep(10);  //  10 segundos
                 }

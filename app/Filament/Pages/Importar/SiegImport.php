@@ -109,7 +109,19 @@ class SiegImport extends Page
                                     ->multiple()
                                     ->native(false)
                                     ->placeholder('Selecione os tipos de CNPJ')
-                                    ->default(['CnpjEmit']),
+                                    ->default(['CnpjEmit', 'CnpjDest']),
+                            ]),
+                        Grid::make(2)
+                            ->schema([
+                                Select::make('tipoData')
+                                    ->label('Tipo de data')
+                                    ->options([
+                                        'emissao' => 'Data de Emissão',
+                                        'upload' => 'Data de Upload/Recebimento',
+                                    ])
+                                    ->default('emissao')
+                                    ->required()
+                                    ->native(false),
                             ]),
                     ]),
             ])
@@ -153,6 +165,7 @@ class SiegImport extends Page
                             $issuer->id,
                             $importJob->id,
                             event: $event,
+                            tipoData: $data['tipoData'] ?? 'emissao',
                         )->onQueue('sieg');
                     }
                 }
