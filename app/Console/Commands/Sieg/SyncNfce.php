@@ -55,7 +55,7 @@ class SyncNfce extends Command
             ->when($issuerId !== null, fn ($q) => $q->where('id', $issuerId))
             ->get();
 
-        $cnpjTypes = ['CnpjEmit', 'CnpjDest'];
+        $cnpjTypes = ['CnpjEmit'];
 
         foreach ($issuers as $issuer) {
             $importJob = $this->createImportJob($issuer);
@@ -75,7 +75,7 @@ class SyncNfce extends Command
 
                     $this->info('Sincronizando documentos SIEG para NFCes '.$tipoCnpj.' '.($event ? ' com evento' : ' sem evento').' ('.$tipoData.') para '.$issuer->razao_social);
 
-                    sleep(10);  //  10 segundos
+                    sleep(60);  //  60 segundos
                 }
             }
         }
