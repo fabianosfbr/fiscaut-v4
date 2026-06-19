@@ -34,9 +34,8 @@ return new class extends Migration
             10586 => '13', // Combustiveis e Lubrificantes (MOS)
             12724 => '13', // Combustiveis e Lubrificantes (CSP)
             8719 => '13',  // Material Auxiliar Indireto c/Credito
-            358  => '12',  // Devolucoes de Vendas
+            358 => '12',  // Devolucoes de Vendas
         ];
-
 
     }
 

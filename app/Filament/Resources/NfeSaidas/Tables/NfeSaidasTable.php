@@ -10,6 +10,8 @@ use App\Filament\Actions\DownloadXmlAction;
 use App\Filament\Actions\DownloadXmlPdfNfeEmLoteAction;
 use App\Filament\Actions\ToggleEscrituacaoEmLoteAction;
 use App\Filament\Actions\ToggleEscrituracaoAction;
+use App\Filament\Actions\ValidarTributacaoAction;
+use App\Filament\Actions\ValidarTributacaoEmLoteAction;
 use App\Filament\Tables\Columns\ViewChaveColumn;
 use App\Models\NotaFiscalEletronica;
 use Filament\Actions\ActionGroup;
@@ -38,7 +40,8 @@ class NfeSaidasTable
             ->modifyQueryUsing(function (Builder $query) {
                 $issuer = currentIssuer();
 
-                return $query->where('emitente_cnpj', $issuer->cnpj);
+                return $query->where('emitente_cnpj', $issuer->cnpj)
+                    ->withCount('validacoesPendentes');
             })
             ->defaultSort('data_emissao', 'desc')
             ->recordUrl(null)
@@ -86,6 +89,21 @@ class NfeSaidasTable
                     ->label('Valor Total')
                     ->sortable()
                     ->money('BRL'),
+
+                IconColumn::make('validacoes_pendentes_count')
+                    ->label('Validação')
+                    ->toggleable()
+                    ->alignment(Alignment::Center)
+                    ->default(false)
+                    ->icon(fn (NotaFiscalEletronica $record): string => $record->validacoes_pendentes_count > 0
+                        ? 'heroicon-o-exclamation-triangle'
+                        : 'heroicon-o-check-circle')
+                    ->color(fn (NotaFiscalEletronica $record): string => $record->validacoes_pendentes_count > 0
+                        ? 'warning'
+                        : 'success')
+                    ->tooltip(fn (NotaFiscalEletronica $record): string => $record->validacoes_pendentes_count > 0
+                        ? "{$record->validacoes_pendentes_count} inconsistência(s) pendente(s)"
+                        : 'Sem inconsistências'),
 
                 TextColumn::make('status_nota')
                     ->label('Status')
@@ -262,6 +280,7 @@ class NfeSaidasTable
                     DownloadXmlAction::make(),
                     DownloadPdfNfeAction::make(),
                     ToggleEscrituracaoAction::make(),
+                    ValidarTributacaoAction::make(),
                 ]),
             ])
             ->toolbarActions([
@@ -278,6 +297,7 @@ class NfeSaidasTable
                                 ->send();
                         }),
                     ClassificarDocumentoMaisAplicadaEmLoteAction::make(),
+                    ValidarTributacaoEmLoteAction::make(),
                 ]),
             ]);
     }

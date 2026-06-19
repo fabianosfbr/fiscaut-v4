@@ -15,9 +15,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Carbon;
 use Throwable;
 
 class SefazNfseProcessDocumentJob implements ShouldQueue
@@ -87,12 +87,12 @@ class SefazNfseProcessDocumentJob implements ShouldQueue
     private function processNfse(): void
     {
         $xml = $this->documento['xml'] ?? null;
-        if (!is_string($xml) || trim($xml) === '') {
+        if (! is_string($xml) || trim($xml) === '') {
             throw new \RuntimeException('XML da NFSe ausente no documento');
         }
 
         $xmlObj = simplexml_load_string($xml);
-        if (!$xmlObj) {
+        if (! $xmlObj) {
             throw new \RuntimeException('Falha ao carregar XML da NFSe');
         }
 
@@ -103,7 +103,7 @@ class SefazNfseProcessDocumentJob implements ShouldQueue
         }
 
         $chave = $this->documento['chave_acesso'] ?? null;
-        if (!is_string($chave) || $chave === '') {
+        if (! is_string($chave) || $chave === '') {
             $chave = $this->documento['chave'] ?? null;
         }
 
@@ -126,7 +126,7 @@ class SefazNfseProcessDocumentJob implements ShouldQueue
             'chave' => $chave,
             'chave_acesso' => $chave,
             'origem' => $this->documento['origem'] ?? 'SEFAZ',
-            'valor_servico' =>  $vBC > 0 ? $vBC : $vLiq,
+            'valor_servico' => $vBC > 0 ? $vBC : $vLiq,
             'data_emissao' => $dataEmissao,
             'prestador_servico' => (string) ($xmlObj->infNFSe->emit->xNome ?? null),
             'prestador_im' => (string) ($xmlObj->infNFSe->emit->IM ?? null),
@@ -143,17 +143,17 @@ class SefazNfseProcessDocumentJob implements ShouldQueue
     private function processEvento(): void
     {
         $xml = $this->documento['xml'] ?? null;
-        if (!is_string($xml) || trim($xml) === '') {
+        if (! is_string($xml) || trim($xml) === '') {
             throw new \RuntimeException('XML do evento da NFSe ausente no documento');
         }
 
         $xmlObj = simplexml_load_string($xml);
-        if (!$xmlObj) {
+        if (! $xmlObj) {
             throw new \RuntimeException('Falha ao carregar XML do evento da NFSe');
         }
 
         $chave = $this->documento['chave_acesso'] ?? null;
-        if (!is_string($chave) || $chave === '') {
+        if (! is_string($chave) || $chave === '') {
             $chave = $this->documento['chave'] ?? null;
         }
 

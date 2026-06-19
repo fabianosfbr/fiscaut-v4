@@ -48,19 +48,19 @@ class GerarTxtIntegracaoDominioSistema
 
                 $notaIds = $records->pluck('id')->toArray();
 
-                // $notas = NotaFiscalEletronica::whereIn('id', $notaIds)
-                //     ->with('tagged.tag')
-                //     ->get();
+                $notas = NotaFiscalEletronica::whereIn('id', $notaIds)
+                    ->with('tagged.tag')
+                    ->get();
 
-                // try {
-                //     $orquestrador = new OrquestradorService($issuer);
-                //     $resultado = $orquestrador->gerarTxt($notas);
-                //     dd($resultado);
-                // } catch (\Exception $e) {
-                // }
+                try {
+                    $orquestrador = new OrquestradorService($issuer);
+                    $resultado = $orquestrador->gerarTxt($notas);
+                    dd($resultado);
+                } catch (\Exception $e) {
+                }
 
                 // Dispatch job assíncrono
-                GerarArquivoDominio::dispatch($notaIds, $issuer->id, auth()->user()->id);
+                // GerarArquivoDominio::dispatch($notaIds, $issuer->id, auth()->user()->id);
 
                 Notification::make()
                     ->title('Processamento iniciado!')

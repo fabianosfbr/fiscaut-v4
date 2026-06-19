@@ -68,6 +68,7 @@ class ResolvedorCfopService
                         continue;
                     }
                 }
+
                 return str_pad($cfopEntrada, 4, '0', STR_PAD_LEFT);
             }
         }
@@ -90,14 +91,17 @@ class ResolvedorCfopService
                 if (in_array($cfopEntrada, $cfopsPermitidos)) {
                     $valores = is_array($ac['valores'] ?? null) ? $ac['valores'] :
                         (json_decode($ac['valores'] ?? '[]', true) ?: []);
+
                     return isset($valores[0]) ? (int) $valores[0] : 8000;
                 }
             } else {
                 $valores = is_array($ac['valores'] ?? null) ? $ac['valores'] :
                     (json_decode($ac['valores'] ?? '[]', true) ?: []);
+
                 return isset($valores[0]) ? (int) $valores[0] : 8000;
             }
         }
+
         return 8000;
     }
 
@@ -108,6 +112,7 @@ class ResolvedorCfopService
                 return (bool) ($imp['status_icms'] ?? false);
             }
         }
+
         return false;
     }
 
@@ -118,6 +123,7 @@ class ResolvedorCfopService
                 return (bool) ($imp['status_ipi'] ?? false);
             }
         }
+
         return false;
     }
 
@@ -128,6 +134,7 @@ class ResolvedorCfopService
                 return (string) ($imp['base_credito'] ?? '');
             }
         }
+
         return '';
     }
 
@@ -136,6 +143,7 @@ class ResolvedorCfopService
         if ($tpNf === 1) {
             return 1;
         }
+
         return 0;
     }
 
@@ -159,6 +167,7 @@ class ResolvedorCfopService
                     ->toArray();
             });
         }
+
         return $this->cfopCache[$key];
     }
 
@@ -173,6 +182,7 @@ class ResolvedorCfopService
                     ->toArray();
             });
         }
+
         return $this->acumuladorCache[$key];
     }
 
@@ -187,6 +197,7 @@ class ResolvedorCfopService
                     ->toArray();
             });
         }
+
         return $this->impostosCache[$key];
     }
 

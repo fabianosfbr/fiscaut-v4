@@ -4,14 +4,14 @@ use App\Filament\Forms\Components\SelectTagGrouped;
 use App\Models\CategoryTag;
 use App\Models\EntradasImpostosEquivalente;
 use App\Models\Tag;
-use Filament\Actions\Concerns\InteractsWithActions;
-use Filament\Actions\Contracts\HasActions;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
 use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
@@ -24,7 +24,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
-new class extends Component implements HasActions, HasSchemas, HasTable {
+new class extends Component implements HasActions, HasSchemas, HasTable
+{
     use InteractsWithActions;
     use InteractsWithSchemas;
     use InteractsWithTable;
@@ -32,14 +33,14 @@ new class extends Component implements HasActions, HasSchemas, HasTable {
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn(): Builder => EntradasImpostosEquivalente::query()->where('issuer_id', currentIssuer()->id))
+            ->query(fn (): Builder => EntradasImpostosEquivalente::query()->where('issuer_id', currentIssuer()->id))
             ->defaultSort('created_at', 'desc')
             ->searchDebounce(750)
             ->columns([
                 TextColumn::make('tag')
                     ->label('Etiqueta')
                     ->formatStateUsing(function (EntradasImpostosEquivalente $record) {
-                        return $record->tag . ' - ' . $record->tag_description;
+                        return $record->tag.' - '.$record->tag_description;
                     })
                     ->searchable(),
                 TextColumn::make('description')
@@ -50,7 +51,7 @@ new class extends Component implements HasActions, HasSchemas, HasTable {
                 ToggleColumn::make('status_ipi')
                     ->label('IPI'),
                 TextColumn::make('base_credito')
-                    ->label('Base Crédito')
+                    ->label('Base Crédito'),
             ])
             ->filters([
                 //

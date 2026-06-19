@@ -76,7 +76,7 @@ class ProcessDocumentNfseSiegJob implements ShouldQueue
             ->setIssuer($this->issuer)
             ->parse()
             ->save();
-        Log::channel('sieg_log')->info('NFSe da empresa '.$this->issuer->razao_social.' processada com sucesso: ' . $this->xml);
+        Log::channel('sieg_log')->info('NFSe da empresa '.$this->issuer->razao_social.' processada com sucesso: '.$this->xml);
         $this->importJob->incrementNumDocuments();
     }
 
@@ -95,7 +95,7 @@ class ProcessDocumentNfseSiegJob implements ShouldQueue
 
     public function failed(Throwable $exception): void
     {
-        Log::channel('sieg_log')->error('Erro ao processar NFSe SIEG: ' . $exception->getMessage() . ' XML: ' . $this->xml);
+        Log::channel('sieg_log')->error('Erro ao processar NFSe SIEG: '.$exception->getMessage().' XML: '.$this->xml);
 
         $this->importJob->addError($exception->getMessage());
         $this->importJob->incrementProcessedFiles();

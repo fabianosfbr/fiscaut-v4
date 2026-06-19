@@ -18,6 +18,8 @@ use App\Filament\Actions\RemoverClassificaoAction;
 use App\Filament\Actions\SugerirEtiquetaAction;
 use App\Filament\Actions\ToggleEscrituacaoEmLoteAction;
 use App\Filament\Actions\ToggleEscrituracaoAction;
+use App\Filament\Actions\ValidarTributacaoAction;
+use App\Filament\Actions\ValidarTributacaoEmLoteAction;
 use App\Filament\Forms\Components\CheckboxListTag;
 use App\Filament\Tables\Columns\TagBadgesColumn;
 use App\Filament\Tables\Columns\ViewChaveColumn;
@@ -57,6 +59,7 @@ class NfeEntradasTable
             ->paginated([10, 25, 50, 100])
             ->recordUrl(null)
             ->searchDebounce('750ms')
+            ->modifyQueryUsing(fn (Builder $query) => $query->withCount('validacoesPendentes'))
             ->columns([
                 TextColumn::make('nNF')
                     ->label('Nº')
@@ -127,6 +130,21 @@ class NfeEntradasTable
                         );
                     })
                     ->toggleable(),
+
+                IconColumn::make('validacoes_pendentes_count')
+                    ->label('Validação')
+                    ->toggleable()
+                    ->alignment(Alignment::Center)
+                    ->default(false)
+                    ->icon(fn (NotaFiscalEletronica $record): string => $record->validacoes_pendentes_count > 0
+                        ? 'heroicon-o-exclamation-triangle'
+                        : 'heroicon-o-check-circle')
+                    ->color(fn (NotaFiscalEletronica $record): string => $record->validacoes_pendentes_count > 0
+                        ? 'warning'
+                        : 'success')
+                    ->tooltip(fn (NotaFiscalEletronica $record): string => $record->validacoes_pendentes_count > 0
+                        ? "{$record->validacoes_pendentes_count} inconsistência(s) pendente(s)"
+                        : 'Sem inconsistências'),
 
                 TextColumn::make('status_nota')
                     ->label('Status')
@@ -461,6 +479,7 @@ class NfeEntradasTable
                     RemoverClassificaoAction::make(),
                     DownloadXmlAction::make(),
                     DownloadPdfNfeAction::make(),
+                    ValidarTributacaoAction::make(),
 
                 ]),
 
@@ -481,6 +500,7 @@ class NfeEntradasTable
                         }),
                     ClassificarDocumentoMaisAplicadaEmLoteAction::make(),
                     GerarTxtIntegracaoDominioSistema::make(),
+                    ValidarTributacaoEmLoteAction::make(),
                     // BulkAction::make('remove')
                     //     ->label('Excluir')
                     //     ->icon('heroicon-o-trash')

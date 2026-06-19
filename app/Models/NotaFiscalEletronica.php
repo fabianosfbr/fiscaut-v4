@@ -30,6 +30,16 @@ class NotaFiscalEletronica extends Model
         'cfops' => 'array',
     ];
 
+    public function validacoes()
+    {
+        return $this->hasMany(NfeValidacaoTributaria::class, 'nfe_id');
+    }
+
+    public function validacoesPendentes()
+    {
+        return $this->hasMany(NfeValidacaoTributaria::class, 'nfe_id')->pendentes();
+    }
+
     public function nfeReferenciada()
     {
         return $this->hasMany(NfeReferenciada::class, 'nfe_id', 'id');

@@ -5,6 +5,7 @@ namespace App\Services\Xml;
 use App\Enums\StatusNfeEnum;
 use App\Events\NfeCancelada;
 use App\Jobs\Sefaz\CheckNfeData;
+use App\Jobs\ValidarTributacaoNfeJob;
 use App\Models\ConhecimentoTransporteEletronico;
 use App\Models\Issuer;
 use App\Models\LogSefazNfeEvent;
@@ -154,6 +155,8 @@ class XmlNfeReaderService
                 CheckNfeData::dispatch($cte);
             });
         }
+
+        ValidarTributacaoNfeJob::dispatch($nfe, $this->issuer);
     }
 
     private function processNfeResumo(): void

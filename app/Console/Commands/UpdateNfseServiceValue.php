@@ -30,7 +30,7 @@ class UpdateNfseServiceValue extends Command
             ->where('valor_servico', 0)
             ->chunkById(500, function ($nfes): void {
                 foreach ($nfes as $nfe) {
-                    
+
                     $xmlContent = $nfe->xml;
 
                     $xmlObj = simplexml_load_string($xmlContent);
@@ -39,7 +39,7 @@ class UpdateNfseServiceValue extends Command
                     if ($xmlObj) {
                         $vBC = (float) ($xmlObj->infNFSe->valores->vBC ?? 0);
                         $vLiq = (float) ($xmlObj->infNFSe->valores->vLiq ?? 0);
-                        $nfe->valor_servico = $vBC > 0 ? $vBC : $vLiq;                        
+                        $nfe->valor_servico = $vBC > 0 ? $vBC : $vLiq;
                         $nfe->save();
                         $this->comment("NFSe ID: {$nfe->id} atualizada com valor_servico: {$nfe->valor_servico}");
                     } else {
