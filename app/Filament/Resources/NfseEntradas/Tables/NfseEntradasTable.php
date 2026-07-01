@@ -188,6 +188,26 @@ class NfseEntradasTable
                             ? $query->where('cancelada', false)
                             : $query->where('cancelada', true);
                     }),
+
+                TernaryFilter::make('escriturada')
+                    ->label('Escriturada')
+                    ->columnSpan(1)
+                    ->placeholder('Todos')
+                    ->trueLabel('Sim')
+                    ->falseLabel('Não')
+                    ->query(function (Builder $query, array $data): Builder {
+                        if ($data['value'] === null) {
+                            return $query;
+                        }
+
+                        return $data['value']
+                            ? $query->whereHas('apurada', fn (Builder $query): Builder => $query->where('status', true))
+                            : $query->where(function (Builder $query): Builder {
+                                return $query
+                                    ->whereDoesntHave('apurada')
+                                    ->orWhereHas('apurada', fn (Builder $query): Builder => $query->where('status', false));
+                            });
+                    }),
                 Filter::make('etiquetas_especificas')
                     ->label('Etiquetas Específicas')
                     ->columnSpanFull()
