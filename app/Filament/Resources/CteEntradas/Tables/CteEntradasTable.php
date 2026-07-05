@@ -5,10 +5,12 @@ namespace App\Filament\Resources\CteEntradas\Tables;
 use App\Filament\Actions\DownloadPdfCteAction;
 use App\Filament\Actions\DownloadXmlAction;
 use App\Filament\Actions\DownloadXmlPdfCteEmLoteAction;
+use App\Filament\Exports\CteExporter;
 use App\Filament\Tables\Columns\ViewChaveColumn;
 use App\Models\ConhecimentoTransporteEletronico;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\ExportBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\TextColumn;
@@ -151,6 +153,9 @@ class CteEntradasTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DownloadXmlPdfCteEmLoteAction::make(),
+                    ExportBulkAction::make('export-xls')
+                        ->label('Exportar para XLS')
+                        ->exporter(CteExporter::class),
                 ]),
             ]);
     }

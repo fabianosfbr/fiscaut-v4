@@ -10,6 +10,7 @@ use App\Filament\Actions\DownloadXmlPdfCteEmLoteAction;
 use App\Filament\Actions\ManifestarCteAction;
 use App\Filament\Actions\RemoverClassificaoAction;
 use App\Filament\Actions\ToggleEscrituracaoAction;
+use App\Filament\Exports\CteExporter;
 use App\Filament\Forms\Components\CheckboxListTag;
 use App\Filament\Tables\Columns\TagBadgesColumn;
 use App\Filament\Tables\Columns\ViewChaveColumn;
@@ -21,6 +22,7 @@ use App\Models\Tag;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\ExportBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Support\Enums\Alignment;
@@ -305,6 +307,9 @@ class CteTomadasTable
                         }),
                     DownloadXmlPdfCteEmLoteAction::make(),
                     ClassificarDocumentoMaisAplicadaEmLoteAction::make(),
+                     ExportBulkAction::make('export-xls')
+                        ->label('Exportar para XLS')
+                        ->exporter(CteExporter::class),
                 ]),
             ]);
     }

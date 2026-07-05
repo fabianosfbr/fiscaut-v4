@@ -10,10 +10,12 @@ use App\Filament\Actions\DownloadXmlAction;
 use App\Filament\Actions\DownloadXmlPdfNfeEmLoteAction;
 use App\Filament\Actions\ToggleEscrituacaoEmLoteAction;
 use App\Filament\Actions\ToggleEscrituracaoAction;
+use App\Filament\Exports\NfeExporter;
 use App\Filament\Tables\Columns\ViewChaveColumn;
 use App\Models\NotaFiscalEletronica;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\ExportBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
@@ -278,6 +280,9 @@ class NfeSaidasTable
                                 ->send();
                         }),
                     ClassificarDocumentoMaisAplicadaEmLoteAction::make(),
+                    ExportBulkAction::make('export-xls')
+                        ->label('Exportar para XLS')
+                        ->exporter(NfeExporter::class),
                 ]),
             ]);
     }

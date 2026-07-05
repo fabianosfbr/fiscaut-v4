@@ -18,6 +18,7 @@ use App\Filament\Actions\RemoverClassificaoAction;
 use App\Filament\Actions\SugerirEtiquetaAction;
 use App\Filament\Actions\ToggleEscrituacaoEmLoteAction;
 use App\Filament\Actions\ToggleEscrituracaoAction;
+use App\Filament\Exports\NfeExporter;
 use App\Filament\Forms\Components\CheckboxListTag;
 use App\Filament\Tables\Columns\TagBadgesColumn;
 use App\Filament\Tables\Columns\ViewChaveColumn;
@@ -29,6 +30,7 @@ use Barryvdh\DomPDF\Facade\Pdf as DomPdf;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\ExportBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
@@ -68,7 +70,6 @@ class NfeEntradasTable
                     ->searchable(['emitente_razao_social', 'emitente_cnpj'])
                     ->size('sm')
                     ->description(function (NotaFiscalEletronica $record) {
-
                         return $record->emitente_cnpj;
                     })
                     ->tooltip(function (TextColumn $column): ?string {
@@ -81,28 +82,23 @@ class NfeEntradasTable
                         // Only render the tooltip if the column contents exceeds the length limit.
                         return $state;
                     }),
-
                 TextColumn::make('cfops')
                     ->label('CFOP')
                     ->alignCenter(),
-
                 TextColumn::make('data_emissao')
                     ->label('Emissão')
                     ->date('d/m/Y')
                     ->toggleable(),
-
                 TextColumn::make('data_entrada')
                     ->label('Entrada')
                     ->toggleable()
                     ->date('d/m/Y'),
-
                 IconColumn::make('apurada.status')
                     ->label('Apurada')
                     ->boolean()
                     ->default(false)
                     ->alignment(Alignment::Center)
                     ->toggleable(),
-
                 TextColumn::make('vNfe')
                     ->label('Valor Total')
                     ->sortable()
@@ -111,7 +107,6 @@ class NfeEntradasTable
                             ->where('vNfe', str_replace(',', '.', $search));
                     })
                     ->money('BRL'),
-
                 TagBadgesColumn::make('tagged')
                     ->label('Etiqueta')
                     ->alignCenter()
@@ -127,12 +122,10 @@ class NfeEntradasTable
                         );
                     })
                     ->toggleable(),
-
                 TextColumn::make('status_nota')
                     ->label('Status')
                     ->toggleable()
                     ->badge(),
-
                 TextColumn::make('status_manifestacao')
                     ->label('Manifestação')
                     ->icon(function (NotaFiscalEletronica $record) {
@@ -149,7 +142,7 @@ class NfeEntradasTable
                             ->latest('id')
                             ->first();
 
-                        if (! $event || empty($event->xml)) {
+                        if (!$event || empty($event->xml)) {
                             Notification::make()
                                 ->title('Nenhum evento de manifesto encontrado para esta NF-e')
                                 ->warning()
@@ -178,7 +171,7 @@ class NfeEntradasTable
                                 if ($std === false) {
                                     $errors = libxml_get_errors();
                                     libxml_clear_errors();
-                                    $errorMsg = ! empty($errors) ? $errors[0]->message : 'Erro desconhecido ao processar XML';
+                                    $errorMsg = !empty($errors) ? $errors[0]->message : 'Erro desconhecido ao processar XML';
                                     throw new \Exception($errorMsg);
                                 }
                             } catch (\Exception $e2) {
@@ -209,7 +202,6 @@ class NfeEntradasTable
                     })
                     ->iconPosition(IconPosition::After)
                     ->badge(),
-
                 ViewChaveColumn::make('chave')
                     ->label('Chave')
                     ->searchable(),
@@ -227,7 +219,6 @@ class NfeEntradasTable
                         NumberConstraint::make('vICMSUFDest')->label('DIFAL'),
                         NumberConstraint::make('vDesc')->label('Desconto'),
                     ]),
-
                 Filter::make('data_emissao')
                     ->label('Data de Emissão')
                     ->columnSpan(2)
@@ -238,7 +229,8 @@ class NfeEntradasTable
                         DatePicker::make('data_emissao_fim')
                             ->label('Data Emissão Final')
                             ->columnSpan(1),
-                    ])->columns(2)
+                    ])
+                    ->columns(2)
                     ->indicateUsing(function (array $data): ?string {
                         if (empty($data['data_emissao_inicio']) && empty($data['data_emissao_fim'])) {
                             return null;
@@ -250,16 +242,15 @@ class NfeEntradasTable
                         return "Emissão: {$inicio} até {$fim}";
                     })
                     ->query(function (Builder $query, array $data): Builder {
-                        if (! empty($data['data_emissao_inicio'])) {
+                        if (!empty($data['data_emissao_inicio'])) {
                             $query->whereDate('data_emissao', '>=', $data['data_emissao_inicio']);
                         }
-                        if (! empty($data['data_emissao_fim'])) {
+                        if (!empty($data['data_emissao_fim'])) {
                             $query->whereDate('data_emissao', '<=', $data['data_emissao_fim']);
                         }
 
                         return $query;
                     }),
-
                 Filter::make('data_entrada')
                     ->label('Data de Entrada')
                     ->columnSpan(2)
@@ -270,7 +261,8 @@ class NfeEntradasTable
                         DatePicker::make('data_entrada_fim')
                             ->label('Data Entrada Final')
                             ->columnSpan(1),
-                    ])->columns(2)
+                    ])
+                    ->columns(2)
                     ->indicateUsing(function (array $data): ?string {
                         if (empty($data['data_entrada_inicio']) && empty($data['data_entrada_fim'])) {
                             return null;
@@ -282,16 +274,15 @@ class NfeEntradasTable
                         return "Entrada: {$inicio} até {$fim}";
                     })
                     ->query(function (Builder $query, array $data): Builder {
-                        if (! empty($data['data_entrada_inicio'])) {
+                        if (!empty($data['data_entrada_inicio'])) {
                             $query->whereDate('data_entrada', '>=', $data['data_entrada_inicio']);
                         }
-                        if (! empty($data['data_entrada_fim'])) {
+                        if (!empty($data['data_entrada_fim'])) {
                             $query->whereDate('data_entrada', '<=', $data['data_entrada_fim']);
                         }
 
                         return $query;
                     }),
-
                 SelectFilter::make('status_nota')
                     ->label('Status da Nota Fiscal')
                     ->options([
@@ -301,7 +292,6 @@ class NfeEntradasTable
                         StatusNfeEnum::AUTORIZADA_FORA_PRAZO->value => StatusNfeEnum::AUTORIZADA_FORA_PRAZO->getLabel(),
                     ])
                     ->multiple(),
-
                 SelectFilter::make('status_manifestacao')
                     ->label('Status do Manifesto')
                     ->options([
@@ -311,7 +301,6 @@ class NfeEntradasTable
                         StatusManifestacaoNfeEnum::OPERACAO_NAO_REALIZADA->value => StatusManifestacaoNfeEnum::OPERACAO_NAO_REALIZADA->getLabel(),
                     ])
                     ->multiple(),
-
                 SelectFilter::make('etiquetas')
                     ->label('Etiquetas')
                     ->options([
@@ -333,7 +322,6 @@ class NfeEntradasTable
                             default => $query,
                         };
                     }),
-
                 Filter::make('cfop')
                     ->schema([
                         TextInput::make('cfop')
@@ -345,10 +333,10 @@ class NfeEntradasTable
 
                         $cfops = array_values(array_filter(
                             array_map(
-                                static fn (string $value): string => trim($value),
+                                static fn(string $value): string => trim($value),
                                 preg_split('/[,\s;]+/', $input, -1, PREG_SPLIT_NO_EMPTY) ?: []
                             ),
-                            static fn (string $value): bool => $value !== ''
+                            static fn(string $value): bool => $value !== ''
                         ));
 
                         if ($cfops === []) {
@@ -363,7 +351,6 @@ class NfeEntradasTable
                             return $query;
                         });
                     }),
-
                 TernaryFilter::make('escriturada')
                     ->label('Escriturada')
                     ->columnSpan(1)
@@ -376,14 +363,13 @@ class NfeEntradasTable
                         }
 
                         return $data['value']
-                            ? $query->whereHas('apurada', fn (Builder $query): Builder => $query->where('status', true))
+                            ? $query->whereHas('apurada', fn(Builder $query): Builder => $query->where('status', true))
                             : $query->where(function (Builder $query): Builder {
                                 return $query
                                     ->whereDoesntHave('apurada')
-                                    ->orWhereHas('apurada', fn (Builder $query): Builder => $query->where('status', false));
+                                    ->orWhereHas('apurada', fn(Builder $query): Builder => $query->where('status', false));
                             });
                     }),
-
                 TernaryFilter::make('difal')
                     ->label('Com DIFAL')
                     ->columnSpan(1)
@@ -399,7 +385,6 @@ class NfeEntradasTable
                             ? $query->where('vICMSUFDest', '>', 0)
                             : $query->where('valor_difal', '=', 0);
                     }),
-
                 Filter::make('etiquetas_especificas')
                     ->label('Etiquetas Específicas')
                     ->columnSpanFull()
@@ -412,7 +397,6 @@ class NfeEntradasTable
                             ->columns(2)
                             ->searchable()
                             ->helperText('Selecione as etiquetas específicas para filtrar os documentos fiscais'),
-
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (empty($data['etiquetas'])) {
@@ -440,12 +424,11 @@ class NfeEntradasTable
                         $etiquetas = Tag::whereIn('id', $data['etiquetas'])
                             ->get()
                             ->keyBy('id')
-                            ->map(fn ($tag) => $tag->code.' - '.$tag->name)
+                            ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
                             ->toArray();
 
-                        return 'Etiquetas: '.implode(', ', $etiquetas);
+                        return 'Etiquetas: ' . implode(', ', $etiquetas);
                     }),
-
             ])
             ->filtersFormColumns(4)
             ->persistFiltersInSession()
@@ -461,9 +444,7 @@ class NfeEntradasTable
                     RemoverClassificaoAction::make(),
                     DownloadXmlAction::make(),
                     DownloadPdfNfeAction::make(),
-
                 ]),
-
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -472,7 +453,7 @@ class NfeEntradasTable
                     DownloadXmlPdfNfeEmLoteAction::make(),
                     ClassificarDocumentoEmLoteAction::make()
                         ->after(function () {
-                            Cache::forget('tags_used_in_nfe_'.currentIssuer()->id);
+                            Cache::forget('tags_used_in_nfe_' . currentIssuer()->id);
 
                             Notification::make()
                                 ->title('Etiquetas aplicadas com sucesso')
@@ -480,7 +461,10 @@ class NfeEntradasTable
                                 ->send();
                         }),
                     ClassificarDocumentoMaisAplicadaEmLoteAction::make(),
-                    GerarTxtIntegracaoDominioSistema::make(),
+                    //GerarTxtIntegracaoDominioSistema::make(),
+                    ExportBulkAction::make('export-xls')
+                        ->label('Exportar para XLS')
+                        ->exporter(NfeExporter::class),
                     // BulkAction::make('remove')
                     //     ->label('Excluir')
                     //     ->icon('heroicon-o-trash')
