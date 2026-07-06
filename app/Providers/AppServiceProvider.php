@@ -65,10 +65,10 @@ class AppServiceProvider extends ServiceProvider
             fn (): string => Blade::render('@livewire(\'issuer-switcher\')'),
         );
 
-        FilamentView::registerRenderHook(
-            PanelsRenderHook::BODY_END,
-            fn (): string => Blade::render('@livewire(\'chat-ai\')'),
-        );
+        // FilamentView::registerRenderHook(
+        //     PanelsRenderHook::BODY_END,
+        //     fn (): string => Blade::render('@livewire(\'chat-ai\')'),
+        // );
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::PAGE_HEADER_WIDGETS_START,
