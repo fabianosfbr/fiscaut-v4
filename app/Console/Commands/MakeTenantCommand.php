@@ -21,8 +21,21 @@ class MakeTenantCommand extends Command
     {
         $this->components->info('Criação de novo assinante');
 
-        $razaoSocial = $this->components->ask('Razão Social da empresa', required: true);
-        $cnpj = $this->components->ask('CNPJ', required: true);
+        $razaoSocial = $this->components->ask('Razão Social da empresa');
+
+        if (blank($razaoSocial)) {
+            $this->components->error('A Razão Social é obrigatória.');
+
+            return self::FAILURE;
+        }
+
+        $cnpj = $this->components->ask('CNPJ');
+
+        if (blank($cnpj)) {
+            $this->components->error('O CNPJ é obrigatório.');
+
+            return self::FAILURE;
+        }
 
         $cnpjSanitized = sanitize($cnpj);
 
@@ -35,8 +48,21 @@ class MakeTenantCommand extends Command
         $regime = $this->components->choice('Regime', ['' => 'Nenhum', ...RegimesEmpresariaisEnum::toArray()], default: '');
         $contribuinteIcms = $this->components->confirm('Contribuinte ICMS?', default: false);
 
-        $name = $this->components->ask('Nome do usuário administrador', required: true);
-        $email = $this->components->ask('Email do usuário administrador', required: true);
+        $name = $this->components->ask('Nome do usuário administrador');
+
+        if (blank($name)) {
+            $this->components->error('O nome do usuário é obrigatório.');
+
+            return self::FAILURE;
+        }
+
+        $email = $this->components->ask('Email do usuário administrador');
+
+        if (blank($email)) {
+            $this->components->error('O email é obrigatório.');
+
+            return self::FAILURE;
+        }
 
         if (User::where('email', $email)->exists()) {
             $this->components->error('Email já cadastrado para outro usuário.');
