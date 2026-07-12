@@ -137,7 +137,7 @@ class MakeTenantCommand extends Command
             $rolesCount = Role::where('tenant_id', $tenant->id)->count();
             $permissionsCount = Permission::where('tenant_id', $tenant->id)->count();
 
-            $this->components->table(
+            $this->table(
                 ['Campo', 'Valor'],
                 [
                     ['Tenant ID', $tenant->id],
