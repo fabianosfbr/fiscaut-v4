@@ -142,7 +142,7 @@ class NfeEntradasTable
                             ->latest('id')
                             ->first();
 
-                        if (!$event || empty($event->xml)) {
+                        if (! $event || empty($event->xml)) {
                             Notification::make()
                                 ->title('Nenhum evento de manifesto encontrado para esta NF-e')
                                 ->warning()
@@ -171,7 +171,7 @@ class NfeEntradasTable
                                 if ($std === false) {
                                     $errors = libxml_get_errors();
                                     libxml_clear_errors();
-                                    $errorMsg = !empty($errors) ? $errors[0]->message : 'Erro desconhecido ao processar XML';
+                                    $errorMsg = ! empty($errors) ? $errors[0]->message : 'Erro desconhecido ao processar XML';
                                     throw new \Exception($errorMsg);
                                 }
                             } catch (\Exception $e2) {
@@ -242,10 +242,10 @@ class NfeEntradasTable
                         return "Emissão: {$inicio} até {$fim}";
                     })
                     ->query(function (Builder $query, array $data): Builder {
-                        if (!empty($data['data_emissao_inicio'])) {
+                        if (! empty($data['data_emissao_inicio'])) {
                             $query->whereDate('data_emissao', '>=', $data['data_emissao_inicio']);
                         }
-                        if (!empty($data['data_emissao_fim'])) {
+                        if (! empty($data['data_emissao_fim'])) {
                             $query->whereDate('data_emissao', '<=', $data['data_emissao_fim']);
                         }
 
@@ -274,10 +274,10 @@ class NfeEntradasTable
                         return "Entrada: {$inicio} até {$fim}";
                     })
                     ->query(function (Builder $query, array $data): Builder {
-                        if (!empty($data['data_entrada_inicio'])) {
+                        if (! empty($data['data_entrada_inicio'])) {
                             $query->whereDate('data_entrada', '>=', $data['data_entrada_inicio']);
                         }
-                        if (!empty($data['data_entrada_fim'])) {
+                        if (! empty($data['data_entrada_fim'])) {
                             $query->whereDate('data_entrada', '<=', $data['data_entrada_fim']);
                         }
 
@@ -333,10 +333,10 @@ class NfeEntradasTable
 
                         $cfops = array_values(array_filter(
                             array_map(
-                                static fn(string $value): string => trim($value),
+                                static fn (string $value): string => trim($value),
                                 preg_split('/[,\s;]+/', $input, -1, PREG_SPLIT_NO_EMPTY) ?: []
                             ),
-                            static fn(string $value): bool => $value !== ''
+                            static fn (string $value): bool => $value !== ''
                         ));
 
                         if ($cfops === []) {
@@ -363,11 +363,11 @@ class NfeEntradasTable
                         }
 
                         return $data['value']
-                            ? $query->whereHas('apurada', fn(Builder $query): Builder => $query->where('status', true))
+                            ? $query->whereHas('apurada', fn (Builder $query): Builder => $query->where('status', true))
                             : $query->where(function (Builder $query): Builder {
                                 return $query
                                     ->whereDoesntHave('apurada')
-                                    ->orWhereHas('apurada', fn(Builder $query): Builder => $query->where('status', false));
+                                    ->orWhereHas('apurada', fn (Builder $query): Builder => $query->where('status', false));
                             });
                     }),
                 TernaryFilter::make('difal')
@@ -424,10 +424,10 @@ class NfeEntradasTable
                         $etiquetas = Tag::whereIn('id', $data['etiquetas'])
                             ->get()
                             ->keyBy('id')
-                            ->map(fn($tag) => $tag->code . ' - ' . $tag->name)
+                            ->map(fn ($tag) => $tag->code.' - '.$tag->name)
                             ->toArray();
 
-                        return 'Etiquetas: ' . implode(', ', $etiquetas);
+                        return 'Etiquetas: '.implode(', ', $etiquetas);
                     }),
             ])
             ->filtersFormColumns(4)
@@ -453,7 +453,7 @@ class NfeEntradasTable
                     DownloadXmlPdfNfeEmLoteAction::make(),
                     ClassificarDocumentoEmLoteAction::make()
                         ->after(function () {
-                            Cache::forget('tags_used_in_nfe_' . currentIssuer()->id);
+                            Cache::forget('tags_used_in_nfe_'.currentIssuer()->id);
 
                             Notification::make()
                                 ->title('Etiquetas aplicadas com sucesso')
@@ -461,7 +461,7 @@ class NfeEntradasTable
                                 ->send();
                         }),
                     ClassificarDocumentoMaisAplicadaEmLoteAction::make(),
-                    //GerarTxtIntegracaoDominioSistema::make(),
+                    // GerarTxtIntegracaoDominioSistema::make(),
                     ExportBulkAction::make('export-xls')
                         ->label('Exportar para XLS')
                         ->exporter(NfeExporter::class),

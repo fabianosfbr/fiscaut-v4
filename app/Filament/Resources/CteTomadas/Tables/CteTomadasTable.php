@@ -307,7 +307,7 @@ class CteTomadasTable
                         }),
                     DownloadXmlPdfCteEmLoteAction::make(),
                     ClassificarDocumentoMaisAplicadaEmLoteAction::make(),
-                     ExportBulkAction::make('export-xls')
+                    ExportBulkAction::make('export-xls')
                         ->label('Exportar para XLS')
                         ->exporter(CteExporter::class),
                 ]),

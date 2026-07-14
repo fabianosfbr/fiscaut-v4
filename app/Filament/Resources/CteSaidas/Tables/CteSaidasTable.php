@@ -153,7 +153,7 @@ class CteSaidasTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DownloadXmlPdfCteEmLoteAction::make(),
-                     ExportBulkAction::make('export-xls')
+                    ExportBulkAction::make('export-xls')
                         ->label('Exportar para XLS')
                         ->exporter(CteExporter::class),
                 ]),

@@ -3,11 +3,10 @@
 namespace App\Filament\Exports;
 
 use App\Models\ConhecimentoTransporteEletronico;
-use App\Models\Cte;
 use Filament\Actions\Exports\Enums\ExportFormat;
+use Filament\Actions\Exports\Models\Export;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
-use Filament\Actions\Exports\Models\Export;
 
 class CteExporter extends Exporter
 {
@@ -62,5 +61,10 @@ class CteExporter extends Exporter
     public function getFileName(Export $export): string
     {
         return "conhecimentos-transporte-eletronico-{$export->getKey()}";
+    }
+
+    public function getFileDisk(): string
+    {
+        return 'downloads-files';
     }
 }

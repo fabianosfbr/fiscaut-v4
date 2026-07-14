@@ -2,7 +2,6 @@
 
 namespace App\Filament\Exports;
 
-use App\Models\Nfe;
 use App\Models\NotaFiscalEletronica;
 use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Actions\Exports\Models\Export;
@@ -70,5 +69,10 @@ class NfeExporter extends Exporter
     public function getFileName(Export $export): string
     {
         return "notas-fiscais-eletronica-{$export->getKey()}";
+    }
+
+    public function getFileDisk(): string
+    {
+        return 'downloads-files';
     }
 }
